@@ -18,6 +18,7 @@ import android.widget.TextView;
 /** All adjustable options. Every change takes effect immediately. */
 public class SettingsActivity extends Activity {
     private LinearLayout content;
+    private CallRinger previewRinger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,12 @@ public class SettingsActivity extends Activity {
                 + "twice from the top, tap the pencil (edit) button, and drag the tile in.", 14));
     }
 
+    @Override
+    protected void onPause() {
+        if (previewRinger != null) previewRinger.stop();
+        super.onPause();
+    }
+
     private void changed() {
         ModeController.refresh(this);
         VibrateOnlyService service = VibrateOnlyService.instance;
@@ -169,8 +176,10 @@ public class SettingsActivity extends Activity {
         row.setPadding(0, dp(10), 0, dp(10));
         TextView label = bold("");
         row.addView(label);
-        row.addView(text("How loud calls ring while the mode is on. The volume buttons also change "
-                + "this while the mode is on (without headphones). 0 = calls vibrate only.", 14));
+        row.addView(text("How loud calls ring while the mode is on. This is separate from the "
+                + "phone's own ringtone slider, which Android always shows at 0 in vibrate mode. "
+                + "The volume buttons also change this while the mode is on (without headphones). "
+                + "0 = calls vibrate only.", 14));
         SeekBar bar = new SeekBar(this);
         bar.setMax(max);
         bar.setProgress(Prefs.callVolume(this));
@@ -186,9 +195,17 @@ public class SettingsActivity extends Activity {
             public void onStartTrackingTouch(SeekBar s) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar s) {}
+            public void onStopTrackingTouch(SeekBar s) {
+                StatusNotifier.update(SettingsActivity.this);
+            }
         });
         row.addView(bar);
+        TextView test = link("Test call ringtone (3 seconds)");
+        test.setOnClickListener(v -> {
+            if (previewRinger == null) previewRinger = new CallRinger(this);
+            previewRinger.preview(3000);
+        });
+        row.addView(test);
         content.addView(row);
     }
 

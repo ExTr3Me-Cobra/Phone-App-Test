@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
+import android.media.AudioManager;
 
 /** The "Vibrate Only Mode is on" notification, with a Turn off button. */
 final class StatusNotifier {
@@ -36,7 +37,11 @@ final class StatusNotifier {
         } else {
             media = "Media muted";
         }
-        String calls = Prefs.callsRing(c) ? "Calls & alarms ring" : "Alarms ring";
+        AudioManager am = c.getSystemService(AudioManager.class);
+        int ringMax = am.getStreamMaxVolume(AudioManager.STREAM_RING);
+        String calls = Prefs.callsRing(c) && Prefs.callVolume(c) > 0
+                ? "Calls ring at " + Prefs.callVolume(c) + "/" + ringMax
+                : "Calls vibrate";
 
         PendingIntent open = PendingIntent.getActivity(c, 0,
                 new Intent(c, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);

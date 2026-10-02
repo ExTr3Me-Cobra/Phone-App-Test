@@ -8,6 +8,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
@@ -26,6 +28,8 @@ final class CallRinger {
     private final Context context;
     private final AudioManager audio;
     private final TelephonyManager telephony;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable stopRunnable = this::stop;
     private CallStateCallback callback;
     private MediaPlayer player;
     private int savedAlarmVolume = -1;
@@ -88,7 +92,18 @@ final class CallRinger {
         if (!ModeController.isActive(context) || !Prefs.callsRing(context)) return;
         if (Prefs.callVolume(context) == 0) return;
         if (audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE) return;
+        play();
+    }
 
+    /** Plays the ringtone for a few seconds exactly as an incoming call would sound. */
+    void preview(long millis) {
+        stop();
+        if (Prefs.callVolume(context) == 0) return;
+        play();
+        handler.postDelayed(stopRunnable, millis);
+    }
+
+    private void play() {
         savedAlarmVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM);
         audio.setStreamVolume(AudioManager.STREAM_ALARM, targetAlarmVolume(), 0);
 
@@ -120,7 +135,8 @@ final class CallRinger {
         restoreAlarmVolume();
     }
 
-    private void stop() {
+    void stop() {
+        handler.removeCallbacks(stopRunnable);
         if (player != null) {
             try {
                 player.stop();

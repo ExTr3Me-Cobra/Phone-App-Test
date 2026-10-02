@@ -74,6 +74,7 @@ final class AudioRouting {
             int max = am.getStreamMaxVolume(AudioManager.STREAM_RING);
             int v = Math.max(0, Math.min(max, Prefs.callVolume(c) + direction));
             Prefs.setCallVolume(c, v);
+            StatusNotifier.update(c);
             message = "Call ringtone: " + v + " / " + max;
         }
         if (target == Prefs.TARGET_ALARM) {
