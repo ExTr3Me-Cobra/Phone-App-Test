@@ -18,7 +18,7 @@ import android.util.Log;
  *
  * In Vibrate mode Android only vibrates for calls, so when a call starts ringing this plays
  * your ringtone through the alarm channel (which the Vibrate ringer does not mute), at the
- * same loudness your ringtone had before the mode was turned on. The phone also vibrates as usual.
+ * "call ringtone volume" from the settings. The phone also vibrates as usual.
  */
 final class CallRinger {
     private static final String TAG = "VibrateOnly";
@@ -85,7 +85,8 @@ final class CallRinger {
 
     private void start() {
         if (player != null) return;
-        if (!ModeController.isActive(context)) return;
+        if (!ModeController.isActive(context) || !Prefs.callsRing(context)) return;
+        if (Prefs.callVolume(context) == 0) return;
         if (audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE) return;
 
         savedAlarmVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM);
@@ -138,12 +139,11 @@ final class CallRinger {
         }
     }
 
-    /** Alarm volume that matches the ring volume the user had before the mode was turned on. */
+    /** Alarm volume matching the "call ringtone volume" setting (which uses the ringtone scale). */
     private int targetAlarmVolume() {
         int alarmMax = audio.getStreamMaxVolume(AudioManager.STREAM_ALARM);
         int ringMax = audio.getStreamMaxVolume(AudioManager.STREAM_RING);
-        int ring = ModeController.savedRingVolume(context);
-        float fraction = (ring > 0 && ringMax > 0) ? (float) ring / ringMax : 0.7f;
+        float fraction = ringMax > 0 ? (float) Prefs.callVolume(context) / ringMax : 0.7f;
         return Math.max(1, Math.round(fraction * alarmMax));
     }
 }

@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,11 +23,9 @@ import java.util.Set;
  *
  * While the screen is on, volume presses are held back for a split second to see whether the
  * other button follows. If it does, the mode toggles and the volume is left untouched; if not,
- * the press is passed on as a normal volume change.
+ * the press is passed on as a volume change (see {@link #adjustVolume}).
  */
 public class VibrateOnlyService extends AccessibilityService {
-    private static final long COMBO_WINDOW_MS = 150;
-
     static VibrateOnlyService instance;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -61,7 +61,15 @@ public class VibrateOnlyService extends AccessibilityService {
             } else if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(action)) {
                 if (ModeController.isActive(context)
                         && audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE) {
-                    ModeController.endedExternally(context);
+                    if (Prefs.keepVibrate(context)) {
+                        try {
+                            audio.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+                        } catch (SecurityException e) {
+                            ModeController.endedExternally(context);
+                        }
+                    } else {
+                        ModeController.endedExternally(context);
+                    }
                 }
             }
         }
@@ -72,6 +80,19 @@ public class VibrateOnlyService extends AccessibilityService {
             screenOffCatcher.disable();
         } else if (!isScreenOn()) {
             screenOffCatcher.enable();
+        }
+    };
+
+    /** Headphones plugged in or out: unmute or mute media, update the notification. */
+    private final AudioDeviceCallback deviceCallback = new AudioDeviceCallback() {
+        @Override
+        public void onAudioDevicesAdded(AudioDeviceInfo[] added) {
+            ModeController.refresh(VibrateOnlyService.this);
+        }
+
+        @Override
+        public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) {
+            ModeController.refresh(VibrateOnlyService.this);
         }
     };
 
@@ -89,13 +110,20 @@ public class VibrateOnlyService extends AccessibilityService {
         filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);
         registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
         audio.addOnModeChangedListener(getMainExecutor(), audioModeListener);
+        audio.registerAudioDeviceCallback(deviceCallback, handler);
 
         if (!isScreenOn()) screenOffCatcher.enable();
+        ModeController.refresh(this);
     }
 
-    /** Called by the app screen after permissions change. */
+    /** Called by the app screens after permissions or settings change. */
     void refresh() {
         callRinger.register();
+        if (isScreenOn() || !Prefs.screenOff(this)) {
+            screenOffCatcher.disable();
+        } else {
+            screenOffCatcher.enable();
+        }
     }
 
     @Override
@@ -104,6 +132,7 @@ public class VibrateOnlyService extends AccessibilityService {
         if (audio != null) {
             unregisterReceiver(receiver);
             audio.removeOnModeChangedListener(audioModeListener);
+            audio.unregisterAudioDeviceCallback(deviceCallback);
             callRinger.unregister();
             screenOffCatcher.disable();
         }
@@ -168,15 +197,22 @@ public class VibrateOnlyService extends AccessibilityService {
         }
         pendingKey = key;
         consumedDown.add(key);
-        handler.postDelayed(forwardPending, COMBO_WINDOW_MS);
+        handler.postDelayed(forwardPending, Prefs.comboWindowMs(this));
         return true;
     }
 
-    /** Does what the volume button would normally have done. */
+    /**
+     * A single (non-combo) volume press. Normally does what the button would have done; while the
+     * mode is on, changes headphone media or call/alarm volume instead so vibrate is kept.
+     */
     private void adjustVolume(int key) {
         int direction = key == KeyEvent.KEYCODE_VOLUME_UP
                 ? AudioManager.ADJUST_RAISE
                 : AudioManager.ADJUST_LOWER;
+        if (ModeController.isActive(this)) {
+            AudioRouting.adjustWhileActive(this, direction, true);
+            return;
+        }
         audio.adjustSuggestedStreamVolume(
                 direction, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI);
     }

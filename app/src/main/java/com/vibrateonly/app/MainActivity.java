@@ -24,6 +24,7 @@ import android.widget.TextView;
 /** Setup checklist plus an on-screen switch for testing. */
 public class MainActivity extends Activity {
     private LinearLayout content;
+    private final Runnable onModeChanged = () -> runOnUiThread(this::render);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ModeController.onChanged = () -> runOnUiThread(this::render);
+        ModeController.addListener(onModeChanged);
         VibrateOnlyService service = VibrateOnlyService.instance;
         if (service != null) service.refresh();
         render();
@@ -53,7 +54,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
-        ModeController.onChanged = null;
+        ModeController.removeListener(onModeChanged);
         super.onPause();
     }
 
@@ -62,6 +63,7 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, results);
         VibrateOnlyService service = VibrateOnlyService.instance;
         if (service != null) service.refresh();
+        ModeController.refresh(this);
         render();
     }
 
@@ -84,6 +86,10 @@ public class MainActivity extends Activity {
         toggle.setText(active ? "Turn off now" : "Turn on now");
         toggle.setOnClickListener(v -> ModeController.toggle(this));
         content.addView(toggle);
+        Button settings = new Button(this);
+        settings.setText("Settings");
+        settings.setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
+        content.addView(settings);
 
         heading("Setup (do each step once)");
 
@@ -125,13 +131,26 @@ public class MainActivity extends Activity {
                 () -> startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
                         Uri.parse("package:" + getPackageName()))));
 
+        if (Prefs.showNotification(this)) {
+            step("5. Show the \"mode is on\" notification",
+                    "Allow notifications so the app can show a silent reminder with a "
+                            + "\"Turn off\" button while the mode is on. (Optional; can be "
+                            + "switched off in Settings.)",
+                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                            == PackageManager.PERMISSION_GRANTED,
+                    () -> requestPermissions(
+                            new String[] {Manifest.permission.POST_NOTIFICATIONS}, 2));
+        }
+
         heading("How it works");
         content.addView(text("• While ON: texts, notifications and system sounds vibrate only.\n"
                 + "• Phone calls still ring out loud (and vibrate). Alarms still sound.\n"
-                + "• Music, videos and other media keep playing at the same volume.\n"
+                + "• Music and videos are muted, unless headphones or earbuds are connected.\n"
+                + "• The volume buttons keep working: with headphones they change headphone "
+                + "volume; without, they change the call ringtone (or alarm) volume. They never "
+                + "take the phone off vibrate.\n"
                 + "• While ringing, any volume button or the power button silences the call.\n"
-                + "• Changing the sound mode another way (e.g. quick settings) also turns the "
-                + "mode OFF, with the two-buzz signal.", 15));
+                + "• Only the two-button press (or the Turn off buttons) ends the mode.", 15));
     }
 
     private void heading(String s) {

@@ -1,42 +1,50 @@
 package com.vibrateonly.app;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.VibrationAttributes;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
+import android.service.quicksettings.TileService;
 import android.util.Log;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Turns Vibrate Only Mode on and off.
  *
  * On: the phone's ringer goes to Vibrate, so notifications, texts and system sounds vibrate
- * instead of making noise. Alarms and media are not affected by the ringer, so they keep
- * playing at their normal volume. Incoming calls are made audible again by {@link CallRinger}.
+ * instead of making noise. Media is muted unless headphones are connected ({@link AudioRouting}).
+ * Alarms are not affected by the ringer. Incoming calls are made audible by {@link CallRinger}.
  *
- * Off: the ringer goes back to whatever it was before.
+ * Off: the ringer goes back to whatever it was before and media is unmuted.
  */
 final class ModeController {
     private static final String TAG = "VibrateOnly";
-    private static final String PREFS = "vibrate_only";
     private static final String KEY_ACTIVE = "active";
     private static final String KEY_PREV_RINGER = "prev_ringer";
-    private static final String KEY_RING_VOLUME = "ring_volume";
+    private static final String KEY_ACTIVATED_AT = "activated_at";
 
-    /** Called whenever the mode changes, so the app screen can refresh. */
-    static Runnable onChanged;
+    private static final List<Runnable> listeners = new CopyOnWriteArrayList<>();
 
     private ModeController() {}
 
-    static boolean isActive(Context c) {
-        return prefs(c).getBoolean(KEY_ACTIVE, false);
+    static void addListener(Runnable r) {
+        listeners.add(r);
     }
 
-    /** Ring volume (0..max of STREAM_RING) from just before the mode was turned on. */
-    static int savedRingVolume(Context c) {
-        return prefs(c).getInt(KEY_RING_VOLUME, -1);
+    static void removeListener(Runnable r) {
+        listeners.remove(r);
+    }
+
+    static boolean isActive(Context c) {
+        return Prefs.get(c).getBoolean(KEY_ACTIVE, false);
     }
 
     static void toggle(Context c) {
@@ -49,11 +57,11 @@ final class ModeController {
 
     static void activate(Context c) {
         AudioManager am = c.getSystemService(AudioManager.class);
-        int prevRinger = am.getRingerMode();
-        prefs(c).edit()
+        Prefs.callVolume(c); // remembers the current ring volume the first time
+        Prefs.get(c).edit()
                 .putBoolean(KEY_ACTIVE, true)
-                .putInt(KEY_PREV_RINGER, prevRinger)
-                .putInt(KEY_RING_VOLUME, am.getStreamVolume(AudioManager.STREAM_RING))
+                .putInt(KEY_PREV_RINGER, am.getRingerMode())
+                .putLong(KEY_ACTIVATED_AT, System.currentTimeMillis())
                 .apply();
         try {
             am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
@@ -62,16 +70,16 @@ final class ModeController {
             Log.w(TAG, "Could not switch ringer to vibrate", e);
         }
         vibrate(c, true);
-        notifyChanged();
+        refresh(c);
     }
 
     static void deactivate(Context c) {
         AudioManager am = c.getSystemService(AudioManager.class);
-        int prevRinger = prefs(c).getInt(KEY_PREV_RINGER, AudioManager.RINGER_MODE_NORMAL);
+        int prevRinger = Prefs.get(c).getInt(KEY_PREV_RINGER, AudioManager.RINGER_MODE_NORMAL);
         if (prevRinger == AudioManager.RINGER_MODE_VIBRATE) {
             prevRinger = AudioManager.RINGER_MODE_NORMAL;
         }
-        prefs(c).edit().putBoolean(KEY_ACTIVE, false).apply();
+        Prefs.get(c).edit().putBoolean(KEY_ACTIVE, false).apply();
         try {
             am.setRingerMode(prevRinger);
         } catch (SecurityException e) {
@@ -79,37 +87,59 @@ final class ModeController {
             am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         }
         vibrate(c, false);
-        notifyChanged();
+        refresh(c);
+    }
+
+    /** The sound mode was switched away from vibrate by something else; the mode is over. */
+    static void endedExternally(Context c) {
+        Prefs.get(c).edit().putBoolean(KEY_ACTIVE, false).apply();
+        vibrate(c, false);
+        refresh(c);
     }
 
     /**
-     * The ringer was changed by something else (e.g. Volume Up pressed on its own, or the
-     * sound mode changed in quick settings), so the mode is effectively over.
+     * Brings everything that depends on the mode or the settings up to date: media mute,
+     * status notification, auto-off timer, quick settings tile and any open screens.
      */
-    static void endedExternally(Context c) {
-        prefs(c).edit().putBoolean(KEY_ACTIVE, false).apply();
-        vibrate(c, false);
-        notifyChanged();
+    static void refresh(Context c) {
+        AudioRouting.applyMediaMute(c);
+        StatusNotifier.update(c);
+        scheduleAutoOff(c);
+        try {
+            TileService.requestListeningState(c, new ComponentName(c, VibrateTileService.class));
+        } catch (RuntimeException ignored) {
+            // Tile not added to quick settings.
+        }
+        for (Runnable r : listeners) r.run();
+    }
+
+    private static void scheduleAutoOff(Context c) {
+        AlarmManager alarms = c.getSystemService(AlarmManager.class);
+        PendingIntent pi = PendingIntent.getBroadcast(c, 1,
+                new Intent(c, ActionReceiver.class).setAction(ActionReceiver.ACTION_AUTO_OFF),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        int minutes = Prefs.autoOffMinutes(c);
+        if (!isActive(c) || minutes <= 0) {
+            alarms.cancel(pi);
+            return;
+        }
+        long start = Prefs.get(c).getLong(KEY_ACTIVATED_AT, System.currentTimeMillis());
+        long at = Math.max(start + minutes * 60_000L, System.currentTimeMillis() + 5_000L);
+        alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi);
     }
 
     /** One long buzz when turning on, two long buzzes when turning off. */
     static void vibrate(Context c, boolean on) {
         Vibrator v = c.getSystemService(VibratorManager.class).getDefaultVibrator();
         if (!v.hasVibrator()) return;
+        int amp = v.hasAmplitudeControl() ? Prefs.vibrationStrength(c) : 255;
+        long len = Prefs.vibrationLengthMs(c);
+        long half = Math.max(250, len * 55 / 100);
         VibrationEffect effect = on
-                ? VibrationEffect.createWaveform(new long[] {0, 900}, new int[] {0, 255}, -1)
+                ? VibrationEffect.createWaveform(new long[] {0, len}, new int[] {0, amp}, -1)
                 : VibrationEffect.createWaveform(
-                        new long[] {0, 500, 250, 500}, new int[] {0, 255, 0, 255}, -1);
+                        new long[] {0, half, 250, half}, new int[] {0, amp, 0, amp}, -1);
         // Alarm usage so the feedback is never suppressed by the ringer or touch-vibration settings.
         v.vibrate(effect, VibrationAttributes.createForUsage(VibrationAttributes.USAGE_ALARM));
-    }
-
-    private static void notifyChanged() {
-        Runnable r = onChanged;
-        if (r != null) r.run();
-    }
-
-    private static SharedPreferences prefs(Context c) {
-        return c.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 }

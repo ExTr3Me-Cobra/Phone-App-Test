@@ -15,11 +15,12 @@ import android.os.SystemClock;
  * Android does not send button presses to accessibility services when the screen is off, but it
  * does send volume presses to an active "remote playback" media session. While the screen is
  * off this keeps such a session open (it plays no sound) so the two-button combo still works.
- * Single presses are passed on to the media volume when something is playing, which is what the
- * buttons would normally do with the screen off.
+ * Single presses change media volume when that's what the buttons would normally do with the
+ * screen off (something playing; and, while the mode is on, only through headphones).
  */
 final class ScreenOffKeyCatcher {
-    private static final long COMBO_WINDOW_MS = 250;
+    /** Screen-off presses arrive less precisely, so allow a bit more time than with the screen on. */
+    private static final long EXTRA_WINDOW_MS = 100;
     /** Ignore held-button repeats for a moment after the combo fires. */
     private static final long AFTER_COMBO_QUIET_MS = 600;
 
@@ -27,17 +28,10 @@ final class ScreenOffKeyCatcher {
     private final AudioManager audio;
     private final Runnable onCombo;
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable forwardPending = this::forwardPending;
     private MediaSession session;
     private int pendingDirection;
     private long lastComboAt;
-
-    private final Runnable forwardPending = () -> {
-        int direction = pendingDirection;
-        pendingDirection = 0;
-        if (direction != 0 && audio.isMusicActive()) {
-            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
-        }
-    };
 
     ScreenOffKeyCatcher(Context context, Runnable onCombo) {
         this.context = context;
@@ -46,7 +40,7 @@ final class ScreenOffKeyCatcher {
     }
 
     void enable() {
-        if (session != null) return;
+        if (session != null || !Prefs.screenOff(context)) return;
         if (audio.getMode() != AudioManager.MODE_NORMAL) return; // in a call: leave volume keys alone
         session = new MediaSession(context, "VibrateOnlyKeys");
         session.setPlaybackToRemote(
@@ -86,6 +80,19 @@ final class ScreenOffKeyCatcher {
         }
         if (pendingDirection == direction) return; // same button still held
         pendingDirection = direction;
-        handler.postDelayed(forwardPending, COMBO_WINDOW_MS);
+        handler.postDelayed(forwardPending, Prefs.comboWindowMs(context) + EXTRA_WINDOW_MS);
+    }
+
+    private void forwardPending() {
+        int direction = pendingDirection;
+        pendingDirection = 0;
+        if (direction == 0) return;
+        if (ModeController.isActive(context)) {
+            if (AudioRouting.headphonesConnected(context)) {
+                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
+            }
+        } else if (audio.isMusicActive()) {
+            audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
+        }
     }
 }
