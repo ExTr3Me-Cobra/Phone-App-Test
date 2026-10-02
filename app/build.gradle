@@ -1,0 +1,35 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace = 'com.vibrateonly.app'
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = 'com.vibrateonly.app'
+        minSdk = 31
+        targetSdk = 36
+        // Each GitHub build gets a higher version number.
+        versionCode = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as Integer
+        versionName = "1.0.${versionCode}"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+            // Signed with the build machine's debug key so the APK installs without extra setup.
+            signingConfig = signingConfigs.debug
+        }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
