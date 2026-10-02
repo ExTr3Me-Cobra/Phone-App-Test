@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Three overlapping red/green/blue circles. Drawn in the 108dp adaptive-icon grid. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#E6FF5252" android:pathData="M54,44m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
+    <path android:fillColor="#E669F0AE" android:pathData="M45,60m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
+    <path android:fillColor="#E6448AFF" android:pathData="M63,60m-14,0a14,14 0,1 1,28 0a14,14 0,1 1,-28 0" />
+</vector>

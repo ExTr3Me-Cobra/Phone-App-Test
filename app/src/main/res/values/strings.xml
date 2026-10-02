@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Screen Tint</string>
+    <string name="accessibility_summary">Draws your chosen colour tint over the whole screen.</string>
+    <string name="accessibility_description">Screen Tint uses this permission only to draw a see-through colour layer over the screen, all the time and after restarts. It does not read the screen, your touches, or anything you type.</string>
+</resources>
