@@ -45,6 +45,7 @@ private fun App() {
     var shortcuts by remember { mutableStateOf(store.load()) }
     var pinnedIds by remember { mutableStateOf(PinnedShortcuts.pinnedIds(context)) }
     var screen by remember { mutableStateOf<Screen>(Screen.List) }
+    var blankBadgeOn by remember { mutableStateOf(BlankBadge.isOn(context)) }
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -67,6 +68,12 @@ private fun App() {
                 }
                 store.delete(shortcut.id)
                 shortcuts = store.load()
+                BlankBadge.sync(context, shortcuts)
+            },
+            blankBadgeOn = blankBadgeOn,
+            onBlankBadgeChange = { on ->
+                BlankBadge.setOn(context, on, shortcuts)
+                blankBadgeOn = on
             },
         )
 

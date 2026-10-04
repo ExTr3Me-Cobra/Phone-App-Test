@@ -19,5 +19,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Optional "invisible badge" entry (see BlankBadge.kt). Disabled until the user turns
+             the setting on. Shortcuts must point at a launcher entry, so it has to be one. -->
+        <activity-alias
+            android:name=".BlankBadge"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_blank"
+            android:label="@string/blank_badge_label"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
     </application>
 </manifest>

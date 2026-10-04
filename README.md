@@ -83,6 +83,13 @@ must uninstall first (which removes the app's shortcut list).
 ## Good to know
 * If "Add to Home Screen" does nothing on Samsung, check Settings → Home screen →
   **Lock Home screen layout** is off.
-* Samsung may show the Web Shortcuts icon as a tiny badge on the shortcut; that's One UI's choice.
+* **Transparent PNGs:** see-through parts stay see-through (shown as a checkerboard in the editor).
+  The transparent background is picked automatically for such images; choose a colour if you'd
+  rather have a solid backing.
+* **Corner badge:** One UI adds a small app badge to every pinned shortcut; apps can't turn that
+  off. Settings (gear icon) → **Invisible badge (experimental)** makes new shortcuts belong to a
+  blank-icon "Shortcut badge" entry, so the badge should be invisible. That entry shows up in your
+  apps list; hide it via Home screen settings → Hide apps on Home and Apps screens (don't disable
+  or uninstall it). Existing shortcuts keep their badge: delete and recreate them.
 * Deleting an entry can't remove the icon from the home screen (apps aren't allowed to). Long-press
   the icon → Remove. The delete dialog can also grey the icon out so it stops working.

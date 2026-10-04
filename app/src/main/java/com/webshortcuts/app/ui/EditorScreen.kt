@@ -65,6 +65,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.webshortcuts.app.AdaptiveIcon
+import com.webshortcuts.app.BlankBadge
 import com.webshortcuts.app.FitMode
 import com.webshortcuts.app.IconStyle
 import com.webshortcuts.app.PinnedShortcuts
@@ -175,6 +176,8 @@ fun EditorScreen(
                 label = label.trim().ifEmpty { defaultLabel(finalUrl) },
                 url = finalUrl,
                 style = style,
+                // Kept for the shortcut's lifetime; new shortcuts follow the current setting.
+                blankBadge = existing?.blankBadge ?: BlankBadge.isOn(context),
             )
             val icon = withContext(Dispatchers.IO) {
                 val bitmap = AdaptiveIcon.render(src, style, PinnedShortcuts.iconSizePx(context))

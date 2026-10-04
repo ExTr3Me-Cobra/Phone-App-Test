@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -56,11 +58,23 @@ fun ListScreen(
     onNew: () -> Unit,
     onEdit: (WebShortcut) -> Unit,
     onDelete: (WebShortcut, disableIcon: Boolean) -> Unit,
+    blankBadgeOn: Boolean,
+    onBlankBadgeChange: (Boolean) -> Unit,
 ) {
     var toDelete by remember { mutableStateOf<WebShortcut?>(null) }
+    var showSettings by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Web Shortcuts") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Web Shortcuts") },
+                actions = {
+                    IconButton(onClick = { showSettings = true }) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                    }
+                },
+            )
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNew,
@@ -98,6 +112,35 @@ fun ListScreen(
                 }
             }
         }
+    }
+
+    if (showSettings) {
+        AlertDialog(
+            onDismissRequest = { showSettings = false },
+            title = { Text("Settings") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        Modifier.clickable { onBlankBadgeChange(!blankBadgeOn) },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Invisible badge (experimental)", Modifier.weight(1f))
+                        Switch(checked = blankBadgeOn, onCheckedChange = onBlankBadgeChange)
+                    }
+                    Text(
+                        "One UI puts a small app badge on every shortcut. With this on, new " +
+                            "shortcuts get an invisible badge instead. To change an existing " +
+                            "shortcut, delete it and create it again.\n\n" +
+                            "This adds a blank \"Shortcut badge\" entry to your apps list. Hide " +
+                            "it with: Home screen settings > Hide apps on Home and Apps screens. " +
+                            "Don't uninstall or disable it, or shortcuts made with this option " +
+                            "stop working.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            },
+            confirmButton = { TextButton(onClick = { showSettings = false }) { Text("Done") } },
+        )
     }
 
     toDelete?.let { shortcut ->

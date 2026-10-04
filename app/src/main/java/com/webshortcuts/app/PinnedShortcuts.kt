@@ -33,12 +33,13 @@ object PinnedShortcuts {
         // Opens the page in the default browser, exactly like tapping a link.
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(shortcut.url))
             .addCategory(Intent.CATEGORY_BROWSABLE)
-        return ShortcutInfo.Builder(context, shortcut.id)
+        val builder = ShortcutInfo.Builder(context, shortcut.id)
             .setShortLabel(shortcut.label)
             .setLongLabel(shortcut.label)
             .setIcon(Icon.createWithAdaptiveBitmap(icon))
             .setIntent(intent)
-            .build()
+        if (shortcut.blankBadge) builder.setActivity(BlankBadge.component(context))
+        return builder.build()
     }
 
     /** Shows the launcher's "Add to Home screen" prompt. False if the launcher refused. */

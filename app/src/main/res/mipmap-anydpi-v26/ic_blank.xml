@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Invisible icon: One UI badges pinned shortcuts with their activity's icon, so shortcuts tied
+     to the BlankBadge entry get an invisible badge. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/blank" />
+    <foreground android:drawable="@drawable/blank" />
+</adaptive-icon>
