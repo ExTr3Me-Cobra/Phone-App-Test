@@ -88,6 +88,19 @@ object AdaptiveIcon {
         return out
     }
 
+    /**
+     * Renders just the visible middle (72 of 108dp) as a plain square image, for launchers that
+     * show non-adaptive icons as they are. Transparent areas stay transparent.
+     */
+    fun renderLegacy(source: Bitmap, style: IconStyle, sizePx: Int): Bitmap {
+        val fullSize = (sizePx * CANVAS_DP / VISIBLE_DP).toInt()
+        val full = render(source, style, fullSize)
+        val inset = (fullSize - sizePx) / 2
+        val out = Bitmap.createBitmap(full, inset, inset, sizePx, sizePx)
+        if (out !== full) full.recycle()
+        return out
+    }
+
     fun circlePath(size: Float): Path = Path().apply {
         addCircle(size / 2f, size / 2f, size / 2f, Path.Direction.CW)
     }

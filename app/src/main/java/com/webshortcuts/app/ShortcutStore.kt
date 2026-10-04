@@ -17,6 +17,8 @@ data class WebShortcut(
     val updatedAt: Long = System.currentTimeMillis(),
     /** Belongs to the blank-icon launcher entry, for an invisible badge (see [BlankBadge]). */
     val blankBadge: Boolean = false,
+    /** Uses a plain (non-adaptive) icon instead of an adaptive one. Experimental. */
+    val legacyIcon: Boolean = false,
 )
 
 /**
@@ -91,6 +93,7 @@ class ShortcutStore(context: Context) {
         .put("offsetY", s.style.offsetY.toDouble())
         .put("updatedAt", s.updatedAt)
         .put("blankBadge", s.blankBadge)
+        .put("legacyIcon", s.legacyIcon)
 
     private fun fromJson(o: JSONObject) = WebShortcut(
         id = o.getString("id"),
@@ -105,5 +108,6 @@ class ShortcutStore(context: Context) {
         ),
         updatedAt = o.optLong("updatedAt", 0L),
         blankBadge = o.optBoolean("blankBadge", false),
+        legacyIcon = o.optBoolean("legacyIcon", false),
     )
 }

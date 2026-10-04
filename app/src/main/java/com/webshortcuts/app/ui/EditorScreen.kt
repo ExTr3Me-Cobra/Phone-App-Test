@@ -42,6 +42,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -111,6 +112,7 @@ fun EditorScreen(
     var url by rememberSaveable { mutableStateOf(existing?.url ?: "") }
     var label by rememberSaveable { mutableStateOf(existing?.label ?: "") }
     var style by remember { mutableStateOf(existing?.style ?: IconStyle()) }
+    var legacyIcon by remember { mutableStateOf(existing?.legacyIcon ?: false) }
     var source by remember { mutableStateOf<Bitmap?>(null) }
     var sourceChanged by remember { mutableStateOf(false) }
     var loadingImage by remember { mutableStateOf(existing != null) }
@@ -178,12 +180,18 @@ fun EditorScreen(
                 style = style,
                 // Kept for the shortcut's lifetime; new shortcuts follow the current setting.
                 blankBadge = existing?.blankBadge ?: BlankBadge.isOn(context),
+                legacyIcon = legacyIcon,
             )
             val icon = withContext(Dispatchers.IO) {
-                val bitmap = AdaptiveIcon.render(src, style, PinnedShortcuts.iconSizePx(context))
+                // The list thumbnail is always the full adaptive canvas.
+                val adaptive = AdaptiveIcon.render(src, style, PinnedShortcuts.iconSizePx(context))
                 if (existing == null || sourceChanged) store.saveSource(shortcut.id, src)
-                store.saveIcon(shortcut.id, bitmap)
-                bitmap
+                store.saveIcon(shortcut.id, adaptive)
+                if (legacyIcon) {
+                    AdaptiveIcon.renderLegacy(src, style, PinnedShortcuts.legacyIconSizePx(context))
+                } else {
+                    adaptive
+                }
             }
             val info = withContext(Dispatchers.IO) { PinnedShortcuts.buildInfo(context, shortcut, icon) }
             val result: String? = if (pinNow) {
@@ -293,6 +301,7 @@ fun EditorScreen(
 
             source?.let { src ->
                 IconDesigner(src, style, onStyleChange = { style = it })
+                LegacyIconOption(legacyIcon, onChange = { legacyIcon = it })
             }
         }
     }
@@ -372,6 +381,26 @@ private fun IconDesigner(source: Bitmap, style: IconStyle, onStyleChange: (IconS
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LegacyIconOption(checked: Boolean, onChange: (Boolean) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            Modifier.fillMaxWidth().clickable { onChange(!checked) },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Legacy icon (experimental)", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+            Switch(checked = checked, onCheckedChange = onChange)
+        }
+        Text(
+            "Sends the visible part of the icon as a plain image instead of an adaptive icon. " +
+                "Try this if transparent areas turn black on your home screen. Your home screen " +
+                "may show it differently from the previews (e.g. smaller, or on a backing shape). " +
+                "You can switch it for an existing shortcut and tap Save changes to compare.",
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 

@@ -30,6 +30,9 @@ object PinnedShortcuts {
         return (max * 1.5f).roundToInt().coerceIn(288, 1024)
     }
 
+    /** Same for a plain (legacy) icon, which has no extra adaptive edge. */
+    fun legacyIconSizePx(context: Context): Int = (iconSizePx(context) / 1.5f).roundToInt()
+
     fun buildInfo(context: Context, shortcut: WebShortcut, icon: Bitmap): ShortcutInfo {
         // Opens the page in the default browser, exactly like tapping a link.
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(shortcut.url))
@@ -37,7 +40,7 @@ object PinnedShortcuts {
         val builder = ShortcutInfo.Builder(context, shortcut.id)
             .setShortLabel(shortcut.label)
             .setLongLabel(shortcut.label)
-            .setIcon(adaptiveIcon(context, shortcut, icon))
+            .setIcon(shortcutIcon(context, shortcut, icon))
             .setIntent(intent)
         if (shortcut.blankBadge) builder.setActivity(BlankBadge.component(context))
         return builder.build()
@@ -47,13 +50,18 @@ object PinnedShortcuts {
      * Icons with see-through parts are passed as a link to a PNG (Android 11+), because a bitmap
      * gets re-saved by the system and can lose its transparency (turning black). Fully opaque
      * icons use the plain bitmap, which every launcher handles.
+     *
+     * [icon] is the full adaptive canvas, or for a legacy shortcut the plain visible square.
      */
-    private fun adaptiveIcon(context: Context, shortcut: WebShortcut, icon: Bitmap): Icon =
-        if (usesIconLink(icon)) {
-            Icon.createWithAdaptiveBitmapContentUri(SharedIcons.publish(context, shortcut, icon))
-        } else {
-            Icon.createWithAdaptiveBitmap(icon)
+    private fun shortcutIcon(context: Context, shortcut: WebShortcut, icon: Bitmap): Icon {
+        val link = usesIconLink(icon)
+        return when {
+            shortcut.legacyIcon && link -> Icon.createWithContentUri(SharedIcons.publish(context, shortcut, icon))
+            shortcut.legacyIcon -> Icon.createWithBitmap(icon)
+            link -> Icon.createWithAdaptiveBitmapContentUri(SharedIcons.publish(context, shortcut, icon))
+            else -> Icon.createWithAdaptiveBitmap(icon)
         }
+    }
 
     fun usesIconLink(icon: Bitmap): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && AdaptiveIcon.hasTransparency(icon)
