@@ -187,7 +187,7 @@ fun EditorScreen(
             }
             val info = withContext(Dispatchers.IO) { PinnedShortcuts.buildInfo(context, shortcut, icon) }
             val result: String? = if (pinNow) {
-                if (PinnedShortcuts.requestPin(context, info)) {
+                if (PinnedShortcuts.requestPin(context, info, PinnedShortcuts.usesIconLink(icon))) {
                     store.upsert(shortcut)
                     "Tap \"Add\" on the pop-up to put \"${shortcut.label}\" on your home screen."
                 } else {

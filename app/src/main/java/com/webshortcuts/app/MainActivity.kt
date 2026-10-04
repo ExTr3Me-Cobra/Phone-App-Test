@@ -51,6 +51,7 @@ private fun App() {
 
     // The user may have accepted/declined the "Add to Home screen" pop-up or removed icons.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        PinnedShortcuts.removeTemporary(context)
         pinnedIds = PinnedShortcuts.pinnedIds(context)
     }
 

@@ -49,15 +49,44 @@ object PinnedShortcuts {
      * icons use the plain bitmap, which every launcher handles.
      */
     private fun adaptiveIcon(context: Context, shortcut: WebShortcut, icon: Bitmap): Icon =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && AdaptiveIcon.hasTransparency(icon)) {
+        if (usesIconLink(icon)) {
             Icon.createWithAdaptiveBitmapContentUri(SharedIcons.publish(context, shortcut, icon))
         } else {
             Icon.createWithAdaptiveBitmap(icon)
         }
 
-    /** Shows the launcher's "Add to Home screen" prompt. False if the launcher refused. */
-    fun requestPin(context: Context, info: ShortcutInfo): Boolean =
-        runCatching { manager(context)?.requestPinShortcut(info, null) == true }.getOrDefault(false)
+    fun usesIconLink(icon: Bitmap): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && AdaptiveIcon.hasTransparency(icon)
+
+    /**
+     * Shows the launcher's "Add to Home screen" prompt. False if the launcher refused.
+     *
+     * The launcher may only open a linked icon file for a shortcut the system already knows, and a
+     * brand-new pin request isn't known until it's accepted (so the prompt showed a placeholder).
+     * For linked icons the shortcut is therefore first registered as a temporary dynamic shortcut,
+     * and the pin request refers to it by id. [removeTemporary] clears it afterwards; the pinned
+     * copy stays.
+     */
+    fun requestPin(context: Context, info: ShortcutInfo, iconIsLink: Boolean): Boolean {
+        val sm = manager(context) ?: return false
+        if (iconIsLink) {
+            val pinned = runCatching {
+                sm.addDynamicShortcuts(listOf(info)) &&
+                    sm.requestPinShortcut(ShortcutInfo.Builder(context, info.id).build(), null)
+            }.getOrDefault(false)
+            if (pinned) return true
+        }
+        return runCatching { sm.requestPinShortcut(info, null) }.getOrDefault(false)
+    }
+
+    /**
+     * Removes the temporary dynamic shortcuts used by [requestPin]. Called when the app comes back
+     * to the foreground, i.e. after the "Add to Home screen" prompt was answered. Pinned shortcuts
+     * are unaffected.
+     */
+    fun removeTemporary(context: Context) {
+        runCatching { manager(context)?.removeAllDynamicShortcuts() }
+    }
 
     /** Updates an already pinned shortcut in place (icon, label and link). */
     fun update(context: Context, info: ShortcutInfo): Boolean =
