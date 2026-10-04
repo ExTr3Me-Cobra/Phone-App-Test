@@ -7,6 +7,7 @@ import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -36,11 +37,23 @@ object PinnedShortcuts {
         val builder = ShortcutInfo.Builder(context, shortcut.id)
             .setShortLabel(shortcut.label)
             .setLongLabel(shortcut.label)
-            .setIcon(Icon.createWithAdaptiveBitmap(icon))
+            .setIcon(adaptiveIcon(context, shortcut, icon))
             .setIntent(intent)
         if (shortcut.blankBadge) builder.setActivity(BlankBadge.component(context))
         return builder.build()
     }
+
+    /**
+     * Icons with see-through parts are passed as a link to a PNG (Android 11+), because a bitmap
+     * gets re-saved by the system and can lose its transparency (turning black). Fully opaque
+     * icons use the plain bitmap, which every launcher handles.
+     */
+    private fun adaptiveIcon(context: Context, shortcut: WebShortcut, icon: Bitmap): Icon =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && AdaptiveIcon.hasTransparency(icon)) {
+            Icon.createWithAdaptiveBitmapContentUri(SharedIcons.publish(context, shortcut, icon))
+        } else {
+            Icon.createWithAdaptiveBitmap(icon)
+        }
 
     /** Shows the launcher's "Add to Home screen" prompt. False if the launcher refused. */
     fun requestPin(context: Context, info: ShortcutInfo): Boolean =

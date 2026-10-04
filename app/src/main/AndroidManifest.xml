@@ -20,6 +20,18 @@
             </intent-filter>
         </activity>
 
+        <!-- Lets the home screen read transparent icon PNGs directly (see SharedIcons.kt). Not
+             exported: Android grants the launcher access to each icon file only. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.icons"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/shared_icon_paths" />
+        </provider>
+
         <!-- Optional "invisible badge" entry (see BlankBadge.kt). Disabled until the user turns
              the setting on. Shortcuts must point at a launcher entry, so it has to be one. -->
         <activity-alias

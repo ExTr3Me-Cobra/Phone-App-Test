@@ -185,7 +185,7 @@ fun EditorScreen(
                 store.saveIcon(shortcut.id, bitmap)
                 bitmap
             }
-            val info = PinnedShortcuts.buildInfo(context, shortcut, icon)
+            val info = withContext(Dispatchers.IO) { PinnedShortcuts.buildInfo(context, shortcut, icon) }
             val result: String? = if (pinNow) {
                 if (PinnedShortcuts.requestPin(context, info)) {
                     store.upsert(shortcut)

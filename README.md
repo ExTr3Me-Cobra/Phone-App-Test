@@ -86,6 +86,9 @@ must uninstall first (which removes the app's shortcut list).
 * **Transparent PNGs:** see-through parts stay see-through (shown as a checkerboard in the editor).
   The transparent background is picked automatically for such images; choose a colour if you'd
   rather have a solid backing.
+  On Android 11+ such icons are handed to the home screen as a link to the PNG (via a private
+  FileProvider), because a bitmap gets re-saved by the system and Samsung's copy loses transparency
+  (it turns black).
 * **Corner badge:** One UI adds a small app badge to every pinned shortcut; apps can't turn that
   off. Settings (gear icon) → **Invisible badge (experimental)** makes new shortcuts belong to a
   blank-icon "Shortcut badge" entry, so the badge should be invisible. That entry shows up in your
