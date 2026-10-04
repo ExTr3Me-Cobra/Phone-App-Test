@@ -55,8 +55,11 @@ object AdaptiveIcon {
     /** Draws the full 108dp canvas at [sizePx] x [sizePx], starting at the canvas origin. */
     fun draw(canvas: Canvas, sizePx: Float, source: Bitmap, style: IconStyle) {
         val unit = sizePx / CANVAS_DP
-        val background = Paint().apply { color = style.backgroundColor }
-        canvas.drawRect(0f, 0f, sizePx, sizePx, background)
+        // A transparent background is left transparent, so see-through PNGs stay see-through.
+        if (Color.alpha(style.backgroundColor) != 0) {
+            val background = Paint().apply { color = style.backgroundColor }
+            canvas.drawRect(0f, 0f, sizePx, sizePx, background)
+        }
 
         val frame = (if (style.mode == FitMode.FILL) CANVAS_DP else SAFE_ZONE_DP) * unit
         val scaleX = frame / source.width
@@ -104,6 +107,36 @@ object AdaptiveIcon {
         }
         path.close()
         return path
+    }
+
+    /** True if any part of the image is see-through (e.g. a logo PNG). */
+    fun hasTransparency(source: Bitmap): Boolean {
+        if (!source.hasAlpha()) return false
+        val stride = max(1, max(source.width, source.height) / 128)
+        for (y in 0 until source.height step stride) {
+            for (x in 0 until source.width step stride) {
+                if (Color.alpha(source.getPixel(x, y)) < 250) return true
+            }
+        }
+        return false
+    }
+
+    /** Grey checkerboard that shows where the icon is transparent (preview only). */
+    fun drawCheckerboard(canvas: Canvas, width: Float, height: Float, cell: Float) {
+        val light = Paint().apply { color = 0xFFE6E6E6.toInt() }
+        val dark = Paint().apply { color = 0xFFBDBDBD.toInt() }
+        canvas.drawRect(0f, 0f, width, height, light)
+        var row = 0
+        var y = 0f
+        while (y < height) {
+            var x = if (row % 2 == 0) 0f else cell
+            while (x < width) {
+                canvas.drawRect(x, y, x + cell, y + cell, dark)
+                x += cell * 2
+            }
+            y += cell
+            row++
+        }
     }
 
     /** Average colour around the image's border: a good automatic background for Fit mode. */

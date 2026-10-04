@@ -46,6 +46,7 @@ private fun MaskedIcon(
             val nc = c.nativeCanvas
             nc.save()
             nc.clipPath(mask)
+            AdaptiveIcon.drawCheckerboard(nc, s, s, s / 8f)
             val total = s * AdaptiveIcon.CANVAS_DP / AdaptiveIcon.VISIBLE_DP
             val inset = (total - s) / 2f
             nc.translate(-inset, -inset)
@@ -102,7 +103,10 @@ fun FramingEditor(
             },
     ) {
         val s = size.width
-        drawIntoCanvas { AdaptiveIcon.draw(it.nativeCanvas, s, source, style) }
+        drawIntoCanvas {
+            AdaptiveIcon.drawCheckerboard(it.nativeCanvas, s, s, s / 24f)
+            AdaptiveIcon.draw(it.nativeCanvas, s, source, style)
+        }
         drawGuides(s)
     }
 }

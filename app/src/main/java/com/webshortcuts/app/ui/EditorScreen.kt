@@ -1,6 +1,7 @@
 package com.webshortcuts.app.ui
 
 import android.graphics.Bitmap
+import android.graphics.Color as AndroidColor
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -55,7 +56,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -86,6 +90,7 @@ private const val PIN_REFUSED =
         "\"Lock Home screen layout\" is off, then try again."
 
 private val SWATCHES = listOf(
+    0x00000000, // transparent
     0xFFFFFFFF, 0xFF000000, 0xFFE0E0E0, 0xFF424242, 0xFFE53935, 0xFFFB8C00, 0xFFFDD835,
     0xFF43A047, 0xFF00897B, 0xFF1E88E5, 0xFF3949AB, 0xFF8E24AA, 0xFFD81B60, 0xFF6D4C41,
 ).map { it.toInt() }
@@ -130,7 +135,15 @@ fun EditorScreen(
                 } else {
                     source = bitmap
                     sourceChanged = true
-                    style = style.copy(zoom = 1f, offsetX = 0f, offsetY = 0f)
+                    // Logos with see-through parts start with a transparent background.
+                    val background = if (AdaptiveIcon.hasTransparency(bitmap)) {
+                        AndroidColor.TRANSPARENT
+                    } else if (Color(style.backgroundColor).alpha == 0f) {
+                        AndroidColor.WHITE
+                    } else {
+                        style.backgroundColor
+                    }
+                    style = style.copy(backgroundColor = background, zoom = 1f, offsetX = 0f, offsetY = 0f)
                 }
             }
         }
@@ -363,12 +376,12 @@ private fun IconDesigner(source: Bitmap, style: IconStyle, onStyleChange: (IconS
 private fun BackgroundPicker(source: Bitmap, style: IconStyle, onStyleChange: (IconStyle) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Background colour", style = MaterialTheme.typography.titleMedium)
-        if (style.mode == FitMode.FILL) {
-            Text(
-                "Only shows behind transparent parts of the image or if you zoom out.",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+        Text(
+            "The first (chequered) choice is transparent: see-through parts of a PNG stay " +
+                "see-through on the home screen." +
+                if (style.mode == FitMode.FILL) " A colour only shows behind transparent parts or if you zoom out." else "",
+            style = MaterialTheme.typography.bodySmall,
+        )
         Row(
             Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -379,7 +392,15 @@ private fun BackgroundPicker(source: Bitmap, style: IconStyle, onStyleChange: (I
                     Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(Color(color))
+                        .drawBehind {
+                            if (AndroidColor.alpha(color) == 0) {
+                                drawIntoCanvas {
+                                    AdaptiveIcon.drawCheckerboard(it.nativeCanvas, size.width, size.height, size.width / 4f)
+                                }
+                            } else {
+                                drawRect(Color(color))
+                            }
+                        }
                         .border(
                             if (selected) 3.dp else 1.dp,
                             if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
@@ -398,6 +419,7 @@ private fun BackgroundPicker(source: Bitmap, style: IconStyle, onStyleChange: (I
                     parseHex(text)?.let { onStyleChange(style.copy(backgroundColor = it)) }
                 },
                 label = { Text("Hex") },
+                placeholder = { Text("#RRGGBB") },
                 singleLine = true,
                 modifier = Modifier.width(140.dp),
             )
@@ -408,7 +430,8 @@ private fun BackgroundPicker(source: Bitmap, style: IconStyle, onStyleChange: (I
     }
 }
 
-private fun toHex(color: Int) = "#%06X".format(color and 0xFFFFFF)
+private fun toHex(color: Int) =
+    if (AndroidColor.alpha(color) == 0) "" else "#%06X".format(color and 0xFFFFFF)
 
 private fun parseHex(text: String): Int? {
     val digits = text.trim().removePrefix("#")
