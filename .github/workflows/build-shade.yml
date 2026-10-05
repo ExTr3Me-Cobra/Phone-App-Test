@@ -1,0 +1,44 @@
+name: Build Shade APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk Shade.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Shade-apk
+          path: Shade.apk
+
+      - name: Publish download on the Releases page
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: shade-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Shade (build ${{ github.run_number }})
+          body: |
+            On your phone, tap **Shade.apk** below to download it, then open it to install.
+            See the README on the claude/notification-shade-app branch for setup steps.
+          files: Shade.apk
+          make_latest: false

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Shade</string>
+    <string name="accessibility_summary">Draws the Shade notification panel, pop-ups and edge lighting.</string>
+    <string name="accessibility_description">Shade uses this to draw its notification panel, pop-ups, lock screen notifications and edge lighting on top of the screen, to open the panel when you swipe down from the top, to know which app is open (so it can skip pop-ups for that app), and to press Samsung\'s own Wi-Fi, Bluetooth and mobile data tiles for you. It does not record what you type.</string>
+</resources>
