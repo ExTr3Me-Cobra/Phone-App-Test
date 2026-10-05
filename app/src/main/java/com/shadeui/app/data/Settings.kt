@@ -20,9 +20,11 @@ data class ShadeSettings(
     // Panel
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val pullArea: PullArea = PullArea.FULL,
+    /** Close Samsung's own panel whenever it opens and show Shade's instead. */
+    val replaceSamsungPanel: Boolean = true,
     val pullInFullscreen: Boolean = false,
     val blurRadius: Int = 60,
-    val dimPercent: Int = 55,
+    val dimPercent: Int = 70,
     val collapsedTileCount: Int = 6,
     val tiles: List<String> = DEFAULT_TILES,
     val showTileLabels: Boolean = false,
@@ -97,6 +99,7 @@ class SettingsStore(context: Context) {
             enabled = p.getBoolean("enabled", d.enabled),
             theme = enum(p.getString("theme", null), d.theme),
             pullArea = enum(p.getString("pullArea", null), d.pullArea),
+            replaceSamsungPanel = p.getBoolean("replaceSamsungPanel", d.replaceSamsungPanel),
             pullInFullscreen = p.getBoolean("pullInFullscreen", d.pullInFullscreen),
             blurRadius = p.getInt("blurRadius", d.blurRadius),
             dimPercent = p.getInt("dimPercent", d.dimPercent),
@@ -146,6 +149,7 @@ class SettingsStore(context: Context) {
             .putBoolean("enabled", s.enabled)
             .putString("theme", s.theme.name)
             .putString("pullArea", s.pullArea.name)
+            .putBoolean("replaceSamsungPanel", s.replaceSamsungPanel)
             .putBoolean("pullInFullscreen", s.pullInFullscreen)
             .putInt("blurRadius", s.blurRadius)
             .putInt("dimPercent", s.dimPercent)

@@ -2,7 +2,7 @@
 <!-- Window content access is needed to tap Samsung's own Wi-Fi / Bluetooth / mobile data tiles
      and to know which app is open (to skip pop-ups for the app you're using). -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowsChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagRetrieveInteractiveWindows|flagReportViewIds"
     android:canPerformGestures="false"

@@ -160,15 +160,74 @@ class OverlayService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            // On the lock screen Samsung's lock screen *is* the panel window, so only trust the
+            // window check while unlocked.
+            val locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
+            if (!locked && samsungPanelWindowOpen()) replaceSamsungPanel("window")
+            return
+        }
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val pkg = event.packageName?.toString() ?: return
-        if (pkg == packageName || pkg.contains("systemui") || pkg == currentKeyboard()) return
+        if (pkg.contains("systemui")) {
+            val text = (event.text.joinToString(" ") + " " + (event.contentDescription ?: "")).trim()
+            Diagnostics.add("state: ${event.className} \"$text\"")
+            if (isPanelText(text)) replaceSamsungPanel("event")
+            return
+        }
+        if (pkg == packageName || pkg == currentKeyboard()) return
         foregroundPackage = pkg
         // Home, recents or another app came up: close the panel, like the real one.
         if (isShadeOpen && !SamsungTileTapper.busy) closeShade()
     }
 
     override fun onInterrupt() {}
+
+    // ---- Keeping Samsung's own panel hidden ----
+
+    private var lastDismiss = 0L
+
+    /** Samsung's panel names, as Samsung announces them to accessibility. */
+    private fun isPanelText(text: String): Boolean {
+        val t = text.lowercase()
+        return PANEL_WORDS.any { it in t }
+    }
+
+    private fun samsungPanelWindowOpen(): Boolean = runCatching {
+        windows.any { w ->
+            val title = w.title?.toString().orEmpty()
+            val root = w.root
+            val isSystemUi = root?.packageName?.contains("systemui") == true
+            if (isSystemUi && title.isNotEmpty()) Diagnostics.add("window: \"$title\"")
+            isSystemUi && isPanelText(title)
+        }
+    }.getOrDefault(false)
+
+    /**
+     * Samsung's panel opened (a swipe on the status bar, or the home-screen swipe-down gesture):
+     * close it straight away and show Shade's instead.
+     */
+    private fun replaceSamsungPanel(reason: String) {
+        val s = app.settings.value
+        if (!s.enabled || !s.replaceSamsungPanel || SamsungTileTapper.busy) return
+        val now = android.os.SystemClock.uptimeMillis()
+        if (now - lastDismiss < 250) return
+        lastDismiss = now
+        Diagnostics.add("replacing Samsung's panel ($reason)")
+        performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+        if (!isShadeOpen) openShade()
+    }
+
+    /** Samsung's panel can follow the same swipe a moment later; close it a few times. */
+    private fun keepSamsungPanelClosed() {
+        scope.launch {
+            for (wait in listOf(80L, 220L, 450L)) {
+                delay(wait)
+                if (!isShadeOpen || SamsungTileTapper.busy) return@launch
+                performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE)
+            }
+        }
+    }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
@@ -246,9 +305,14 @@ class OverlayService : AccessibilityService() {
                     downY = e.rawY
                     fired = false
                 }
-                MotionEvent.ACTION_MOVE -> if (!fired && e.rawY - downY > dp(12)) {
-                    fired = true
-                    openShade(expanded = false)
+                MotionEvent.ACTION_MOVE -> {
+                    val dy = e.rawY - downY
+                    if (!fired && dy > dp(12)) {
+                        fired = true
+                        openShade(expanded = false)
+                    }
+                    // One long swipe goes straight to the full quick settings.
+                    if (fired && dy > dp(260)) ui.expanded = true
                 }
             }
             true
@@ -335,6 +399,7 @@ class OverlayService : AccessibilityService() {
         shadeView = root
         updateStripTouchable()
         updateLock()
+        keepSamsungPanelClosed()
     }
 
     fun closeShade(immediate: Boolean = false) {
@@ -671,6 +736,11 @@ class OverlayService : AccessibilityService() {
     private fun appUri(): Uri = Uri.parse("package:$packageName")
 
     companion object {
+        private val PANEL_WORDS = listOf(
+            "notification shade", "notification panel", "quick settings", "quick panel",
+            "notifications panel", "notification centre", "notification center",
+        )
+
         @Volatile
         var instance: OverlayService? = null
             private set

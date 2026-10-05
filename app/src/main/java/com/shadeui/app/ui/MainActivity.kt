@@ -235,6 +235,13 @@ private fun HomePage(go: (Page) -> Unit) {
         NavRow("Lock screen", "Cards or icons, hiding content, position") { go(Page.Lock) }
         NavRow("Apps", "Per-app: silent, pop-up, lock screen, lighting, wake screen") { go(Page.Apps) }
 
+        SectionTitle("Diagnostics")
+        BodyText("What Shade last saw from Samsung's system screens. If Samsung's panel still shows behind Shade's, open it once and send a screenshot of this list.")
+        com.shadeui.app.overlay.Diagnostics.lines.take(10).forEach {
+            Text(it, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp))
+        }
+        if (com.shadeui.app.overlay.Diagnostics.lines.isEmpty()) BodyText("(nothing yet)")
+
         SectionTitle("Try it")
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = {
@@ -450,6 +457,12 @@ private fun PanelPage() {
         ChoiceRow("Swipe-down area", "Where along the top edge a swipe opens Shade", s.pullArea, listOf(
             PullArea.FULL to "Whole top edge", PullArea.LEFT_HALF to "Left half", PullArea.RIGHT_HALF to "Right half",
         )) { v -> store.update { it.copy(pullArea = v) } }
+        SwitchRow(
+            "Replace Samsung's panel",
+            "Whenever Samsung's own panel opens, close it and show Shade's instead",
+            s.replaceSamsungPanel,
+        ) { v -> store.update { it.copy(replaceSamsungPanel = v) } }
+        BodyText("Swipe down anywhere on the home screen: long-press an empty spot on the home screen → Settings → turn on \"Swipe down for notification panel\". Shade then replaces Samsung's panel every time.")
         SwitchRow("Vibrate on open and tile taps", null, s.haptics) { v -> store.update { it.copy(haptics = v) } }
 
         SectionTitle("Look")
