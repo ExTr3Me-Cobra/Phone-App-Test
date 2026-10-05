@@ -358,7 +358,7 @@ private fun DuplicatesPage() {
                 "• Samsung's edge lighting: Settings → Notifications → Notification pop-up style → turn off the lighting effect.",
         )
         Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_SETTINGS)) } }) {
+            OutlinedButton(onClick = { runCatching { context.startActivity(Intent("android.settings.NOTIFICATION_SETTINGS")) } }) {
                 Text("Notification settings")
             }
             OutlinedButton(onClick = { runCatching { context.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS)) } }) {

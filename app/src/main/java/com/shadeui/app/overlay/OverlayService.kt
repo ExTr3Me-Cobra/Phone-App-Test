@@ -546,7 +546,7 @@ class OverlayService : AccessibilityService() {
 
     fun openSystemSettings() = launch(Intent(Settings.ACTION_SETTINGS))
 
-    fun openNotificationSettings() = launch(Intent(Settings.ACTION_NOTIFICATION_SETTINGS))
+    fun openNotificationSettings() = launch(Intent("android.settings.NOTIFICATION_SETTINGS"))
 
     fun powerMenu() {
         closeShade(immediate = true)
