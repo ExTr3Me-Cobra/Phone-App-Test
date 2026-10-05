@@ -20,7 +20,13 @@ import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.RoundedCorner
+import android.view.VelocityTracker
 import android.view.View
+import android.view.animation.DecelerateInterpolator
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
+import kotlin.math.abs
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -28,6 +34,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
@@ -71,7 +78,8 @@ data class LightState(
 
 /** Compose-observable state shared by all overlay windows. */
 class OverlayUi {
-    var shadeVisible by mutableStateOf(false)
+    /** How far the panel is pulled out: 0 = hidden, 1 = fully open. Follows the finger. */
+    var progress by mutableFloatStateOf(0f)
     var expanded by mutableStateOf(false)
     var locked by mutableStateOf(false)
     var replyKey by mutableStateOf<String?>(null)
@@ -298,21 +306,39 @@ class OverlayService : AccessibilityService() {
         }
         val view = View(this)
         var downY = 0f
-        var fired = false
+        var tracking = false
+        var velocity: VelocityTracker? = null
         view.setOnTouchListener { _, e ->
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     downY = e.rawY
-                    fired = false
+                    tracking = false
+                    velocity?.recycle()
+                    velocity = VelocityTracker.obtain().also { it.addMovement(e) }
                 }
                 MotionEvent.ACTION_MOVE -> {
+                    velocity?.addMovement(e)
                     val dy = e.rawY - downY
-                    if (!fired && dy > dp(12)) {
-                        fired = true
-                        openShade(expanded = false)
+                    if (!tracking && dy > dp(6)) {
+                        tracking = true
+                        openShade(expanded = false, animate = false)
                     }
-                    // One long swipe goes straight to the full quick settings.
-                    if (fired && dy > dp(260)) ui.expanded = true
+                    if (tracking) {
+                        // The panel follows the finger.
+                        setPanelProgress(dy / pullRange())
+                        // Keep pulling well past "fully open" for the full quick settings.
+                        if (dy > pullRange() * 1.4f) ui.expanded = true
+                    }
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    velocity?.addMovement(e)
+                    if (tracking) {
+                        velocity?.computeCurrentVelocity(1000)
+                        releasePanel(velocity?.yVelocity ?: 0f)
+                    }
+                    velocity?.recycle()
+                    velocity = null
+                    tracking = false
                 }
             }
             true
@@ -364,20 +390,112 @@ class OverlayService : AccessibilityService() {
         }
     }
 
-    fun openShade(expanded: Boolean = false) {
+    // ---- Panel position: dragged by the finger, then settles open or closed ----
+
+    private var animator: ValueAnimator? = null
+    private var shadeParams: WindowManager.LayoutParams? = null
+    private var lastBlur = -1
+
+    /** Finger travel that pulls the panel fully out (about half the screen). */
+    fun pullRange(): Float = wm.currentWindowMetrics.bounds.height() * 0.5f
+
+    /** True while a finger is moving the panel (and it hasn't settled yet). */
+    var panelDragging = false
+        private set
+
+    private fun setPanelProgress(p: Float) {
+        animator?.cancel()
+        ui.progress = p.coerceIn(0f, 1f)
+        updateBlur()
+    }
+
+    /** Moves the panel by a finger movement from inside it (negative = up, towards closing). */
+    fun dragPanelBy(deltaPx: Float) {
+        if (shadeView == null) return
+        panelDragging = true
+        setPanelProgress(ui.progress + deltaPx / pullRange())
+    }
+
+    /** Finger lifted: open fully if past halfway (or flicked down), otherwise close. */
+    fun releasePanel(velocityY: Float) {
+        panelDragging = false
+        val open = when {
+            velocityY > 1000f -> true
+            velocityY < -1000f -> false
+            else -> ui.progress >= 0.5f
+        }
+        settle(open)
+        updateStripTouchable()
+    }
+
+    private fun settle(open: Boolean) {
+        animator?.cancel()
+        val from = ui.progress
+        val to = if (open) 1f else 0f
+        if (!open) closing = true
+        animator = ValueAnimator.ofFloat(from, to).apply {
+            duration = (300 * abs(to - from)).toLong().coerceIn(90, 300)
+            interpolator = DecelerateInterpolator(1.5f)
+            addUpdateListener {
+                ui.progress = it.animatedValue as Float
+                updateBlur()
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                private var cancelled = false
+                override fun onAnimationCancel(animation: Animator) {
+                    cancelled = true
+                }
+
+                override fun onAnimationEnd(animation: Animator) {
+                    if (!cancelled && !open) removeShade()
+                }
+            })
+            start()
+        }
+    }
+
+    /** Background blur grows with the panel, like Samsung's. */
+    private fun updateBlur() {
+        val v = shadeView ?: return
+        val lp = shadeParams ?: return
+        if (!wm.isCrossWindowBlurEnabled) return
+        val target = (app.settings.value.blurRadius * ui.progress).toInt()
+        if (kotlin.math.abs(target - lastBlur) < 6 && target != 0 && target != app.settings.value.blurRadius) return
+        lastBlur = target
+        lp.blurBehindRadius = target
+        runCatching { wm.updateViewLayout(v, lp) }
+    }
+
+    private fun removeShade() {
+        animator?.cancel()
+        shadeView?.let { runCatching { wm.removeView(it) } }
+        shadeView = null
+        shadeParams = null
+        closing = false
+        panelDragging = false
+        ui.progress = 0f
+        ui.replyKey = null
+        lastBlur = -1
+        updateStripTouchable()
+        updateLock()
+    }
+
+    fun openShade(expanded: Boolean = false, animate: Boolean = true) {
         if (!app.settings.value.enabled) return
         if (shadeView != null && !closing) {
             ui.expanded = ui.expanded || expanded
+            if (animate) settle(true)
             return
         }
         shadeView?.let { runCatching { wm.removeView(it) } }
+        animator?.cancel()
         closing = false
+        ui.progress = 0f
         hidePopup()
         haptic()
         app.tiles.refresh()
         ui.locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
         ui.expanded = expanded
-        ui.shadeVisible = false
         ui.replyKey = null
         val root = BackCatcher()
         root.id = View.generateViewId()
@@ -392,32 +510,26 @@ class OverlayService : AccessibilityService() {
             softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             if (wm.isCrossWindowBlurEnabled && s.blurRadius > 0) {
                 flags = flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-                blurBehindRadius = s.blurRadius
+                blurBehindRadius = 0
             }
         }
         runCatching { wm.addView(root, lp) }
         shadeView = root
-        updateStripTouchable()
+        shadeParams = lp
+        lastBlur = -1
+        // While a finger is pulling from the top strip, leave the strip alone until release.
+        if (animate) {
+            settle(true)
+            updateStripTouchable()
+        }
         updateLock()
         keepSamsungPanelClosed()
     }
 
     fun closeShade(immediate: Boolean = false) {
-        val v = shadeView ?: return
-        if (closing && !immediate) return
-        closing = true
-        ui.shadeVisible = false
+        if (shadeView == null) return
         ui.replyKey = null
-        scope.launch {
-            if (!immediate) delay(220)
-            if (shadeView === v) {
-                runCatching { wm.removeView(v) }
-                shadeView = null
-                closing = false
-                updateStripTouchable()
-                updateLock()
-            }
-        }
+        if (immediate) removeShade() else if (!closing) settle(false)
     }
 
     fun showPopup(item: NotifItem, rule: AppRule) {
@@ -648,13 +760,32 @@ class OverlayService : AccessibilityService() {
                     delay(150)
                 }
                 when (val r = SamsungTileTapper.tap(this@OverlayService, def)) {
-                    SamsungTileTapper.Result.Failed ->
-                        toast("Couldn't reach Samsung's ${def.label} tile. Make sure it's in Samsung's quick panel.")
+                    SamsungTileTapper.Result.Failed -> fallbackToggle(id, def.label)
                     is SamsungTileTapper.Result.Done -> app.tiles.learn(id, r.newState)
                 }
             }
             app.tiles.refresh()
             if (app.settings.value.closeAfterTile && !def.momentary) closeShade()
+        }
+    }
+
+    /**
+     * Samsung's tile couldn't be pressed: open Android's own small switch panel for it instead
+     * (one extra tap), or the setting's page.
+     */
+    private fun fallbackToggle(id: String, label: String) {
+        val intent = when (id) {
+            "wifi" -> Intent(Settings.Panel.ACTION_WIFI)
+            "mobile_data", "airplane", "hotspot" -> Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            "nfc" -> Intent(Settings.Panel.ACTION_NFC)
+            "bluetooth" -> Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+            else -> null
+        }
+        if (intent != null) {
+            toast("Tap the $label switch")
+            launch(intent)
+        } else {
+            toast("Couldn't reach Samsung's $label tile. Make sure it's in Samsung's quick panel.")
         }
     }
 

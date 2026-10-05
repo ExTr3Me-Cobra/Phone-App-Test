@@ -79,6 +79,9 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
@@ -115,55 +118,104 @@ fun ShadePanel(host: OverlayService) {
     val density = LocalDensity.current
 
     LaunchedEffect(Unit) {
-        ui.shadeVisible = true
         while (true) {
             delay(1500)
             app.tiles.refresh()
         }
     }
 
-    AnimatedVisibility(
-        visible = ui.shadeVisible,
-        enter = fadeIn(tween(180)) + slideInVertically(tween(240)) { -it / 10 },
-        exit = fadeOut(tween(160)) + slideOutVertically(tween(200)) { -it / 10 },
-    ) {
+    val progress = ui.progress
+    run {
         Box(
             Modifier
                 .fillMaxSize()
-                .background(p.scrim.copy(alpha = s.dimPercent / 100f))
-                .pointerInput(Unit) { detectTapGestures { host.closeShade() } },
+                .background(p.scrim.copy(alpha = s.dimPercent / 100f * progress))
+                .pointerInput(Unit) { detectTapGestures { host.closeShade() } }
+                // Swipe up anywhere on the empty part of the panel: it follows the finger up.
+                .pointerInput(Unit) {
+                    val tracker = VelocityTracker()
+                    detectVerticalDragGestures(
+                        onDragStart = { tracker.resetTracking() },
+                        onDragEnd = { host.releasePanel(tracker.calculateVelocity().y) },
+                        onDragCancel = { host.releasePanel(0f) },
+                    ) { change, dy ->
+                        tracker.addPosition(change.uptimeMillis, change.position)
+                        host.dragPanelBy(dy)
+                    }
+                },
         ) {
-            // Dragging the top part: down expands, up collapses / closes.
+            // Top part: down expands quick settings; up collapses them, or (collapsed) moves the
+            // whole panel up with the finger.
             val dragModifier = Modifier.pointerInput(Unit) {
                 var total = 0f
+                var movingPanel = false
+                val tracker = VelocityTracker()
                 detectVerticalDragGestures(
-                    onDragStart = { total = 0f },
+                    onDragStart = {
+                        total = 0f
+                        movingPanel = false
+                        tracker.resetTracking()
+                    },
                     onDragEnd = {
-                        val threshold = with(density) { 56.dp.toPx() }
-                        when {
-                            total > threshold -> ui.expanded = true
-                            total < -threshold -> if (ui.expanded) ui.expanded = false else host.closeShade()
+                        if (movingPanel) {
+                            host.releasePanel(tracker.calculateVelocity().y)
+                        } else {
+                            val threshold = with(density) { 56.dp.toPx() }
+                            when {
+                                total > threshold -> ui.expanded = true
+                                total < -threshold && ui.expanded -> ui.expanded = false
+                            }
                         }
                     },
-                ) { _, dy -> total += dy }
+                    onDragCancel = { if (movingPanel) host.releasePanel(0f) },
+                ) { change, dy ->
+                    tracker.addPosition(change.uptimeMillis, change.position)
+                    total += dy
+                    if (!ui.expanded && (movingPanel || dy < 0f)) {
+                        movingPanel = true
+                        host.dragPanelBy(dy)
+                    }
+                }
             }
-            // Pulling down past the top of the notification list also expands.
-            val pullToExpand = remember {
+            // The notification list: pulling down at its top expands quick settings; pushing up
+            // past its end (or when it can't scroll) moves the whole panel up.
+            val listGestures = remember {
                 object : NestedScrollConnection {
                     var pulled = 0f
+                    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                        // Panel partly pushed up: moving down first brings the panel back.
+                        if (host.panelDragging && available.y > 0f) {
+                            host.dragPanelBy(available.y)
+                            return Offset(0f, available.y)
+                        }
+                        return Offset.Zero
+                    }
+
                     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-                        if (available.y > 0) {
+                        if (source != NestedScrollSource.UserInput) return Offset.Zero
+                        if (available.y < 0f) {
+                            host.dragPanelBy(available.y)
+                            return Offset(0f, available.y)
+                        }
+                        if (available.y > 0f) {
                             pulled += available.y
                             if (pulled > with(density) { 90.dp.toPx() }) {
                                 ui.expanded = true
                                 pulled = 0f
                             }
-                        } else if (available.y < 0 && ui.expanded) {
-                            ui.expanded = false
                         } else {
                             pulled = 0f
                         }
                         return Offset.Zero
+                    }
+
+                    override suspend fun onPreFling(available: Velocity): Velocity {
+                        pulled = 0f
+                        if (host.panelDragging) {
+                            host.releasePanel(available.y)
+                            return available
+                        }
+                        return Velocity.Zero
                     }
                 }
             }
@@ -171,6 +223,11 @@ fun ShadePanel(host: OverlayService) {
             Column(
                 Modifier
                     .fillMaxSize()
+                    // Slides down and fades in as it's pulled out.
+                    .graphicsLayer {
+                        translationY = -(1f - progress) * size.height * 0.35f
+                        alpha = (progress * 1.4f).coerceIn(0f, 1f)
+                    }
                     .windowInsetsPadding(WindowInsets.safeDrawing)
                     .imePadding()
                     .padding(horizontal = 18.dp),
@@ -186,7 +243,7 @@ fun ShadePanel(host: OverlayService) {
                     }
                     Spacer(Modifier.height(12.dp))
                 }
-                NotificationList(host, s, notifs, media, Modifier.weight(1f).nestedScroll(pullToExpand))
+                NotificationList(host, s, notifs, media, Modifier.weight(1f).nestedScroll(listGestures))
                 BottomPill(ui.expanded) { ui.expanded = it }
             }
 

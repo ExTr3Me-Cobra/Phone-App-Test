@@ -30,7 +30,14 @@ object SamsungTileTapper {
                 // The tile may be on another page of Samsung's panel.
                 if (attempt == 10 || attempt == 16) scroll(service)
             }
-            val target = node?.let(::clickableOf) ?: return Result.Failed
+            if (node == null) {
+                // Record what Samsung's panel did show, so the tile names can be matched.
+                Diagnostics.add("no '${tile.label}' tile; saw: " + visibleLabels(service).take(30).joinToString(" | "))
+                return Result.Failed
+            }
+            val target = clickableOf(node) ?: return Result.Failed.also {
+                Diagnostics.add("'${tile.label}' found but not clickable")
+            }
             if (!target.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return Result.Failed
             if (tile.momentary) return Result.Done(null)
             delay(450)
@@ -107,6 +114,22 @@ object SamsungTileTapper {
             if (Regex("\\b(on|connected)\\b").containsMatchIn(s)) return true
         }
         return null
+    }
+
+    private fun visibleLabels(service: AccessibilityService): List<String> {
+        val out = ArrayList<String>()
+        for (root in systemUiRoots(service)) {
+            val queue = ArrayDeque<AccessibilityNodeInfo>()
+            queue.add(root)
+            while (queue.isNotEmpty() && out.size < 60) {
+                val n = queue.removeFirst()
+                val label = (n.contentDescription ?: n.text)?.toString()?.trim()
+                if (!label.isNullOrEmpty() && label.length < 60) out.add(label)
+                for (i in 0 until n.childCount) n.getChild(i)?.let(queue::add)
+            }
+        }
+        if (out.isEmpty()) out.add("(Samsung's panel content wasn't readable)")
+        return out.distinct()
     }
 
     private fun scroll(service: AccessibilityService) {
