@@ -17,6 +17,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -46,6 +48,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.darkColorScheme
@@ -82,6 +85,7 @@ import com.shadeui.app.data.LockStyle
 import com.shadeui.app.data.LockVisibility
 import com.shadeui.app.data.PopupStyle
 import com.shadeui.app.data.PullArea
+import com.shadeui.app.data.SamsungDuplicates
 import com.shadeui.app.data.ShadeSettings
 import com.shadeui.app.data.ThemeMode
 import com.shadeui.app.data.Tri
@@ -201,12 +205,13 @@ private fun HomePage(go: (Page) -> Unit) {
     var tick by remember { mutableIntStateOf(0) }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { tick++ }
     val checks = remember(tick) { setupChecks(context) }
+    val s = settings()
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        val missing = checks.count { !it.done && it.required }
-        BodyText(
-            if (missing == 0) "✅ Shade is running. Swipe down from the top of the screen to open it."
-            else "Finish the setup steps below ($missing left).",
-        )
+        MasterSwitch(s.enabled) { on ->
+            store.update { it.copy(enabled = on) }
+            SamsungDuplicates.onShadeEnabled(context, on)
+        }
+        StatusCard(tick, checks) { tick++ }
         SectionTitle("Setup")
         checks.forEach { c ->
             Row(
@@ -232,7 +237,14 @@ private fun HomePage(go: (Page) -> Unit) {
 
         SectionTitle("Try it")
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { OverlayService.instance?.openShade() }) { Text("Open panel") }
+            OutlinedButton(onClick = {
+                val service = OverlayService.instance
+                if (service == null) {
+                    android.widget.Toast.makeText(context, "Shade's accessibility service isn't running — see the status above.", android.widget.Toast.LENGTH_LONG).show()
+                } else {
+                    service.openShade()
+                }
+            }) { Text("Open panel") }
             OutlinedButton(onClick = { testAlert(context, delayMs = 0) }) { Text("Test pop-up") }
         }
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -240,6 +252,67 @@ private fun HomePage(go: (Page) -> Unit) {
         }
         BodyText("For the screen-off test, tap it and turn the screen off straight away.")
         Spacer(Modifier.size(32.dp))
+    }
+}
+
+/** The big on/off switch for the whole app. */
+@Composable
+private fun MasterSwitch(on: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
+            .clickable { onChange(!on) }
+            .padding(horizontal = 22.dp, vertical = 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(if (on) "Shade is on" else "Shade is off", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                if (on) "Swipe down from the top of the screen to open it." else "Samsung's own panel and notifications are back.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        Switch(checked = on, onCheckedChange = onChange)
+    }
+}
+
+/** Whether the overlay service is really running, and the last error if something broke. */
+@Composable
+private fun StatusCard(tick: Int, checks: List<Check>, refresh: () -> Unit) {
+    val context = LocalContext.current
+    val running = remember(tick) { OverlayService.instance != null }
+    val listening = remember(tick) { NotifListener.instance != null }
+    val error = remember(tick) { ShadeApp.instance.lastError() }
+    val missing = checks.count { !it.done && it.required }
+    Column(Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            when {
+                running && listening && missing == 0 -> "✅ Everything is running."
+                !isAccessibilityOn(context) -> "⚠️ The accessibility service is off, so nothing can be drawn. Do step 2 below."
+                !running -> "⚠️ The accessibility service is switched on but Android isn't running it. Turn \"Shade\" off and on again in Accessibility settings (step 2)."
+                !listening -> "⚠️ Notification access isn't active. Do step 1 below (or switch it off and on)."
+                else -> "Finish the setup steps below ($missing left)."
+            },
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        if (error != null) {
+            Text(
+                "Last error (send this to whoever made the app):",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(top = 10.dp),
+            )
+            Text(error, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = {
+                    val cm = context.getSystemService(android.content.ClipboardManager::class.java)
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("Shade error", error))
+                }) { Text("Copy") }
+                OutlinedButton(onClick = { ShadeApp.instance.clearError(); refresh() }) { Text("Clear") }
+            }
+        }
     }
 }
 
@@ -320,7 +393,7 @@ private fun testAlert(context: Context, delayMs: Long) {
 private fun DuplicatesPage() {
     val context = LocalContext.current
     var tick by remember { mutableIntStateOf(0) }
-    val granted = context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
+    val granted = SamsungDuplicates.canManage(context)
     Column(Modifier.verticalScroll(rememberScrollState())) {
         BodyText(
             "Samsung keeps showing its own pop-ups and lock screen notifications next to Shade's. " +
@@ -329,14 +402,13 @@ private fun DuplicatesPage() {
         )
         SectionTitle("Automatic (recommended)")
         if (granted) {
-            val cr = context.contentResolver
-            val headsUp = remember(tick) { Settings.Global.getInt(cr, "heads_up_notifications_enabled", 1) == 1 }
-            val lockNotifs = remember(tick) { Settings.Secure.getInt(cr, "lock_screen_show_notifications", 1) == 1 }
+            val headsUp = remember(tick) { SamsungDuplicates.popupsOn(context) }
+            val lockNotifs = remember(tick) { SamsungDuplicates.lockOn(context) }
             SwitchRow("Samsung pop-ups", if (headsUp) "On — showing twice" else "Off — only Shade's", headsUp) {
-                Settings.Global.putInt(cr, "heads_up_notifications_enabled", if (it) 1 else 0); tick++
+                SamsungDuplicates.setPopups(context, it); tick++
             }
             SwitchRow("Samsung lock screen notifications", if (lockNotifs) "On — showing twice" else "Off — only Shade's", lockNotifs) {
-                Settings.Secure.putInt(cr, "lock_screen_show_notifications", if (it) 1 else 0); tick++
+                SamsungDuplicates.setLock(context, it); tick++
             }
         } else {
             BodyText(
@@ -378,7 +450,6 @@ private fun PanelPage() {
         ChoiceRow("Swipe-down area", "Where along the top edge a swipe opens Shade", s.pullArea, listOf(
             PullArea.FULL to "Whole top edge", PullArea.LEFT_HALF to "Left half", PullArea.RIGHT_HALF to "Right half",
         )) { v -> store.update { it.copy(pullArea = v) } }
-        SwitchRow("Open in full-screen apps", "Off: in games and videos, Samsung's own panel opens instead", s.pullInFullscreen) { v -> store.update { it.copy(pullInFullscreen = v) } }
         SwitchRow("Vibrate on open and tile taps", null, s.haptics) { v -> store.update { it.copy(haptics = v) } }
 
         SectionTitle("Look")

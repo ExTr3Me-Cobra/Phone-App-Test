@@ -50,6 +50,7 @@ object AlertController {
         if (isUpdate && item.ongoing) return
         val app = ShadeApp.instance
         val s = app.settings.value
+        if (!s.enabled) return
         val rule = app.rules.get(item.pkg)
         val plan = plan(item, rule, s) ?: return
         val service = OverlayService.instance ?: return

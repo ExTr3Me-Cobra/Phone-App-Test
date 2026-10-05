@@ -142,7 +142,13 @@ class OverlayService : AccessibilityService() {
         scope.launch {
             var lastArea: PullArea? = null
             app.settings.flow.collectLatest { s ->
-                if (s.pullArea != lastArea) {
+                if (!s.enabled) {
+                    // Master switch off: remove everything; the service just idles.
+                    lastArea = null
+                    turnEverythingOff()
+                    return@collectLatest
+                }
+                if (strip == null || s.pullArea != lastArea) {
                     lastArea = s.pullArea
                     addStrip()
                 }
@@ -181,6 +187,15 @@ class OverlayService : AccessibilityService() {
         super.onDestroy()
     }
 
+    private fun turnEverythingOff() {
+        strip?.let { runCatching { wm.removeView(it) } }
+        strip = null
+        closeShade(immediate = true)
+        hidePopup()
+        ui.lighting?.let { lightingFinished(it.id) }
+        updateLock()
+    }
+
     // ---- Windows ----
 
     private fun params(width: Int, height: Int, flags: Int, gravity: Int = Gravity.TOP or Gravity.START) =
@@ -197,7 +212,10 @@ class OverlayService : AccessibilityService() {
         }
 
     private fun composeView(content: @Composable () -> Unit): ComposeView =
-        ComposeView(this).apply { setContent { ShadeTheme { content() } } }
+        ComposeView(this).apply {
+            id = View.generateViewId()
+            setContent { ShadeTheme { content() } }
+        }
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
@@ -210,7 +228,9 @@ class OverlayService : AccessibilityService() {
     /** Invisible strip over the status bar: swiping down on it opens Shade. */
     private fun addStrip() {
         strip?.let { runCatching { wm.removeView(it) } }
+        strip = null
         val s = app.settings.value
+        if (!s.enabled) return
         val screenWidth = wm.currentWindowMetrics.bounds.width()
         val (width, gravity) = when (s.pullArea) {
             PullArea.FULL -> WindowManager.LayoutParams.MATCH_PARENT to (Gravity.TOP or Gravity.START)
@@ -233,14 +253,6 @@ class OverlayService : AccessibilityService() {
             }
             true
         }
-        view.setOnApplyWindowInsetsListener { _, insets ->
-            val visible = insets.isVisible(WindowInsets.Type.statusBars())
-            if (visible != statusBarVisible) {
-                statusBarVisible = visible
-                updateStripTouchable()
-            }
-            insets
-        }
         val lp = params(
             width,
             statusBarHeight() + dp(4),
@@ -259,7 +271,7 @@ class OverlayService : AccessibilityService() {
         val v = strip ?: return
         val lp = stripParams ?: return
         val s = app.settings.value
-        val passThrough = isShadeOpen || (!statusBarVisible && !s.pullInFullscreen)
+        val passThrough = isShadeOpen || !s.enabled
         val flags = if (passThrough) {
             lp.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
         } else {
@@ -289,6 +301,7 @@ class OverlayService : AccessibilityService() {
     }
 
     fun openShade(expanded: Boolean = false) {
+        if (!app.settings.value.enabled) return
         if (shadeView != null && !closing) {
             ui.expanded = ui.expanded || expanded
             return
@@ -303,6 +316,7 @@ class OverlayService : AccessibilityService() {
         ui.shadeVisible = false
         ui.replyKey = null
         val root = BackCatcher()
+        root.id = View.generateViewId()
         owner.attach(root)
         root.addView(composeView { ShadePanel(this) })
         val s = app.settings.value
@@ -342,13 +356,14 @@ class OverlayService : AccessibilityService() {
     }
 
     fun showPopup(item: NotifItem, rule: AppRule) {
-        if (isShadeOpen) return
+        if (isShadeOpen || !app.settings.value.enabled) return
         val s = app.settings.value
         val locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
         val hide = locked && (s.lockHideContent || rule.lockScreen == LockVisibility.HIDE_CONTENT)
         ui.popup = PopupState(item, rule.popupStyle ?: s.popupStyle, hide, ++counter)
         if (popupView == null) {
             val root = FrameLayout(this)
+            root.id = View.generateViewId()
             owner.attach(root)
             root.addView(composeView { PopupView(this) })
             val lp = params(
@@ -384,6 +399,7 @@ class OverlayService : AccessibilityService() {
 
     fun showLighting(item: NotifItem, rule: AppRule) {
         val s = app.settings.value
+        if (!s.enabled) return
         val corner = wm.currentWindowMetrics.windowInsets
             .getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)?.radius?.toFloat() ?: dp(40).toFloat()
         ui.lighting = LightState(
@@ -397,6 +413,7 @@ class OverlayService : AccessibilityService() {
         )
         if (edgeView == null) {
             val root = FrameLayout(this)
+            root.id = View.generateViewId()
             owner.attach(root)
             root.addView(composeView { EdgeLighting(this) })
             val lp = params(
@@ -425,7 +442,7 @@ class OverlayService : AccessibilityService() {
         val screenOn = getSystemService(PowerManager::class.java).isInteractive
         val locked = getSystemService(KeyguardManager::class.java).isKeyguardLocked
         val hasAny = lockItems().isNotEmpty()
-        val show = screenOn && locked && s.lockStyle != LockStyle.OFF && !lockDismissed &&
+        val show = s.enabled && screenOn && locked && s.lockStyle != LockStyle.OFF && !lockDismissed &&
             !isShadeOpen && hasAny
         if (!show || force) {
             lockView?.let { runCatching { wm.removeView(it) } }
@@ -443,6 +460,7 @@ class OverlayService : AccessibilityService() {
                 return super.dispatchTouchEvent(ev)
             }
         }
+        root.id = View.generateViewId()
         owner.attach(root)
         root.addView(composeView { LockNotifications(this) })
         val lp = params(

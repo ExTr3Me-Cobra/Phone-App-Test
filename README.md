@@ -34,8 +34,7 @@ notifications don't show twice (automatic after a one-time `adb shell pm grant` 
 hand).
 
 ## Limits
-* Samsung's own panel still exists underneath; in full-screen apps it opens instead unless you
-  enable *Open in full-screen apps*.
+* Samsung's own panel still exists underneath and can still open in some situations.
 * Edge lighting with the screen off has to wake the screen (only Samsung can draw on a dark screen).
 * Sounds and vibration are still played by Android per Samsung's per-app settings.
 

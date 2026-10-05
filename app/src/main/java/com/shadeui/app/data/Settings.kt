@@ -15,6 +15,8 @@ enum class ThemeMode { SYSTEM, DARK, LIGHT }
 
 /** Every global option. Per-app rules ([AppRule]) can override the alert-related ones. */
 data class ShadeSettings(
+    /** Master switch for the whole app. */
+    val enabled: Boolean = true,
     // Panel
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val pullArea: PullArea = PullArea.FULL,
@@ -92,6 +94,7 @@ class SettingsStore(context: Context) {
         val d = ShadeSettings()
         val p = prefs
         return ShadeSettings(
+            enabled = p.getBoolean("enabled", d.enabled),
             theme = enum(p.getString("theme", null), d.theme),
             pullArea = enum(p.getString("pullArea", null), d.pullArea),
             pullInFullscreen = p.getBoolean("pullInFullscreen", d.pullInFullscreen),
@@ -140,6 +143,7 @@ class SettingsStore(context: Context) {
 
     private fun save(s: ShadeSettings) {
         prefs.edit()
+            .putBoolean("enabled", s.enabled)
             .putString("theme", s.theme.name)
             .putString("pullArea", s.pullArea.name)
             .putBoolean("pullInFullscreen", s.pullInFullscreen)
