@@ -52,18 +52,23 @@ object AlertController {
         val s = app.settings.value
         if (!s.enabled) return
         val rule = app.rules.get(item.pkg)
-        val plan = plan(item, rule, s) ?: return
+        val plan = plan(item, rule, s)
+        if (plan == null) {
+            Diagnostics.add("${item.appName}: no alert (rule ${rule.alert}, importance ${item.importance}, allowed by DND ${item.matchesFilter})")
+            return
+        }
         val service = OverlayService.instance ?: return
 
         val power = context.getSystemService(PowerManager::class.java)
         val keyguard = context.getSystemService(KeyguardManager::class.java)
         val screenOn = power.isInteractive
         val locked = keyguard.isKeyguardLocked
+        Diagnostics.add("${item.appName}: screen ${if (screenOn) "on" else "off"}${if (locked) ", locked" else ""} → pop-up ${plan.popup}, wake ${plan.wake}, lighting ${plan.lightLocked}/${plan.lightUnlocked}")
 
         when {
             !screenOn -> {
                 if (plan.wake) {
-                    WakeActivity.start(context, s.wakeSeconds)
+                    Waker.wake(context, s.wakeSeconds)
                     if (plan.lightLocked) service.showLighting(item, rule)
                     if (s.previewWithLighting && rule.lockScreen != com.shadeui.app.data.LockVisibility.HIDE) {
                         service.showPopup(item, rule)

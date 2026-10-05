@@ -117,7 +117,7 @@ class WakeActivity : Activity() {
     }
 
     companion object {
-        private const val EXTRA_SECONDS = "seconds"
+        const val EXTRA_SECONDS = "seconds"
 
         fun start(context: Context, seconds: Int) {
             context.startActivity(

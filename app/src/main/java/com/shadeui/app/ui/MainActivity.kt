@@ -359,6 +359,21 @@ private fun setupChecks(context: Context): List<Check> {
             "So Samsung never puts Shade to sleep.",
             context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName), true,
         ) { start(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkgUri)) },
+        Check(
+            "6. Wake the screen for notifications",
+            "Allow notifications, then \"Full screen notifications\" for Shade. This is how alarm apps turn the screen on; Shade uses it only to wake the screen for edge lighting.",
+            com.shadeui.app.overlay.Waker.fullScreenAllowed(context), true,
+        ) {
+            val notifyGranted = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            when {
+                !notifyGranted && context is android.app.Activity ->
+                    context.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+                !context.getSystemService(NotificationManager::class.java).areNotificationsEnabled() ->
+                    start(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+                android.os.Build.VERSION.SDK_INT >= 34 ->
+                    start(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, pkgUri))
+            }
+        },
     )
 }
 
