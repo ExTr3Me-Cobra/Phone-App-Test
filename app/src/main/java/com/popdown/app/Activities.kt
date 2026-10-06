@@ -61,9 +61,17 @@ class WakeActivity : Activity() {
         setTurnScreenOn(true)
         Waker.started = true
         getSystemService(NotificationManager::class.java).cancel(Waker.WAKE_ID)
-        // Stay a moment so One UI has really switched the screen on, then leave: the screen stays
-        // on (lock screen with the notification) for the normal screen timeout.
-        Handler(Looper.getMainLooper()).postDelayed({ finish() }, 2_500)
+        // Leave as soon as the screen is on, so the lock screen (with the notification) shows
+        // under the lighting instead of this invisible screen covering it. The screen stays on
+        // for the normal timeout.
+        val main = Handler(Looper.getMainLooper())
+        val power = getSystemService(PowerManager::class.java)
+        val started = System.currentTimeMillis()
+        fun check() {
+            val waited = System.currentTimeMillis() - started
+            if ((power.isInteractive && waited >= 150) || waited >= 2_500) finish() else main.postDelayed(::check, 50)
+        }
+        main.postDelayed(::check, 50)
     }
 }
 

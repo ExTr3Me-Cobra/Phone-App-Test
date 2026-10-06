@@ -129,6 +129,14 @@ class LightService : AccessibilityService() {
             it == Display.STATE_DOZE || it == Display.STATE_DOZE_SUSPEND
         }
 
+        /** Always On Display is switched on in settings (Samsung's switch, or Android's own). */
+        fun aodEnabled(context: Context): Boolean {
+            val cr = context.contentResolver
+            val samsung = runCatching { Settings.System.getInt(cr, "aod_mode", 0) == 1 }.getOrDefault(false)
+            val android = runCatching { Settings.Secure.getInt(cr, "doze_always_on", 0) == 1 }.getOrDefault(false)
+            return samsung || android
+        }
+
         /** Something is on screen: normal use, lock screen or the Always On Display. */
         fun screenVisible(context: Context): Boolean = displayState(context) != Display.STATE_OFF
 

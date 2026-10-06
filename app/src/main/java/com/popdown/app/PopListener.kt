@@ -45,11 +45,24 @@ class PopListener : NotificationListenerService() {
         val screenOff = !getSystemService(PowerManager::class.java).isInteractive
         val locked = screenOff || LightService.isLocked(this)
         val s = Prefs.get(this)
-        // Always On Display showing: light up the AOD itself rather than waking to the lock screen.
-        val aodOnly = screenOff && LightService.onAod(this) && s.light.enabled && s.light.onLocked &&
-            s.light.onAodNoWake && LightService.instance != null
+        // Always On Display (showing now, or switched on in settings so One UI will show it for
+        // this notification): play the lighting on it rather than waking to the lock screen.
+        val aodOnly = screenOff && (LightService.onAod(this) || LightService.aodEnabled(this)) &&
+            s.light.enabled && s.light.onLocked && s.light.onAodNoWake && LightService.instance != null
         val wake = screenOff && s.wakeScreen && !aodOnly
-        if (aodOnly) Log.add("${label(sbn)}: Always On Display – lighting without waking")
+        if (aodOnly) {
+            Log.add("${label(sbn)}: Always On Display – lighting with it, no wake")
+            // If One UI doesn't light the AOD up for this one, fall back to waking the screen.
+            if (s.wakeScreen) {
+                val name = label(sbn)
+                android.os.Handler(mainLooper).postDelayed({
+                    if (!LightService.screenVisible(this)) {
+                        Log.add("$name: Always On Display didn't appear – waking instead")
+                        Waker.wake(this, name)
+                    }
+                }, 2_500)
+            }
+        }
         // Pop Down's own edge lighting, for every notification that gets through (including ones
         // that already pop down by themselves).
         LightService.playFor(this, sbn, locked, wake)?.let { if (s.light.enabled) Log.add("${label(sbn)}: no lighting – $it") }
