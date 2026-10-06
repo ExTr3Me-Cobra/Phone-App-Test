@@ -7,6 +7,11 @@ on:
 permissions:
   contents: write
 
+# One build at a time, so every build signs with the same saved key.
+concurrency:
+  group: popdown-build
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
