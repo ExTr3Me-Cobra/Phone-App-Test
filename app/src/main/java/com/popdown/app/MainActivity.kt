@@ -274,16 +274,33 @@ private fun open(context: Context, intent: Intent) {
     runCatching { context.startActivity(intent) }
 }
 
-/** Posts an ordinary (non-pop-up) notification, which Pop Down then pops down like any other. */
+/**
+ * Posts an ordinary (non-pop-up) notification, which Pop Down then pops down like any other.
+ * A wake lock keeps the phone's processor awake during the wait: otherwise, once the screen is
+ * locked, the phone sleeps and the test only arrives when you next turn the screen on.
+ */
 private fun sendTest(context: Context, delayMs: Long) {
-    PopListener.ensureChannels(context)
+    val app = context.applicationContext
+    PopListener.ensureChannels(app)
+    if (delayMs > 0) {
+        app.getSystemService(PowerManager::class.java)
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "popdown:test")
+            .acquire(delayMs + 10_000)
+        Log.add("Test: sending in ${delayMs / 1000} s…")
+    }
     Handler(Looper.getMainLooper()).postDelayed({
-        val n = Notification.Builder(context, PopListener.TEST_CHANNEL)
+        val screenOn = app.getSystemService(PowerManager::class.java).isInteractive
+        Log.add("Test: sent (screen ${if (screenOn) "on" else "off"})")
+        if (!PopListener.isEnabled(app) || PopListener.instance == null) {
+            Log.add("Test: Pop Down isn't receiving notifications – check step 1 (Notification access)")
+        }
+        val n = Notification.Builder(app, PopListener.TEST_CHANNEL)
             .setSmallIcon(R.drawable.ic_stat)
             .setContentTitle("Test notification")
             .setContentText("If this popped down from the top, Pop Down is working.")
             .setAutoCancel(true)
             .build()
-        runCatching { context.getSystemService(NotificationManager::class.java).notify((System.currentTimeMillis() % 100000).toInt(), n) }
+        runCatching { app.getSystemService(NotificationManager::class.java).notify((System.currentTimeMillis() % 100000).toInt(), n) }
+            .onFailure { Log.add("Test: couldn't post (${it.message})") }
     }, delayMs)
 }

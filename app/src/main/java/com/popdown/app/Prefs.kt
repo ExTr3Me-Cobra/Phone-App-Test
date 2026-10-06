@@ -14,6 +14,7 @@ enum class LightEffect(val label: String) {
     TWIN("Twin comets"),
     RAINBOW("Rainbow"),
     FLASH("Flash"),
+    ECHO("Echo"),
 }
 
 enum class LightColorMode(val label: String) {

@@ -145,6 +145,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
                 stroke(canvas, path, w * 2f, alpha * 0.6f, blur = w * 1.4f)
                 stroke(canvas, path, w * 0.7f, alpha, blur = 0f)
             }
+            LightEffect.ECHO -> echo(canvas, phase, alpha, w)
             LightEffect.FLASH -> {
                 val on = phase < 0.12f || (phase in 0.24f..0.36f)
                 if (on) {
@@ -181,6 +182,34 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         paint.alpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
         paint.maskFilter = if (blur > 0f) blurFilter(blur) else null
         canvas.drawPath(p, paint)
+    }
+
+    private val ring = Path()
+    private val ringRect = RectF()
+
+    /**
+     * Like One UI's "Echo": the edge glows and rings of light keep rippling inwards from it,
+     * fading as they travel.
+     */
+    private fun echo(canvas: Canvas, phase: Float, alpha: Float, w: Float) {
+        // The edge itself breathes in time with each new ring leaving it.
+        val beat = (1f - ((phase * RINGS) % 1f)).pow(2f)
+        stroke(canvas, path, w * 2f, alpha * (0.45f + 0.35f * beat), blur = w * 1.5f)
+        stroke(canvas, path, w * 0.7f, alpha * (0.7f + 0.3f * beat), blur = 0f)
+        val travel = min(width, height) * 0.16f
+        val inset = spec.thicknessPx / 2f
+        for (k in 0 until RINGS) {
+            val p = (phase + k / RINGS.toFloat()) % 1f
+            val d = inset + p * travel
+            ringRect.set(d, d, width - d, height - d)
+            val r = (spec.cornerPx - d).coerceAtLeast(spec.cornerPx * 0.35f)
+                .coerceAtMost(min(ringRect.width(), ringRect.height()) / 2f)
+            ring.reset()
+            ring.addRoundRect(ringRect, r, r, Path.Direction.CW)
+            val fade = (1f - p).pow(1.8f)
+            stroke(canvas, ring, w * (1.6f - p), alpha * fade * 0.5f, blur = w * (1.2f + p * 2f))
+            stroke(canvas, ring, w * (0.6f - 0.4f * p), alpha * fade * 0.8f, blur = 0f)
+        }
     }
 
     private val blurs = HashMap<Int, BlurMaskFilter>()
@@ -222,6 +251,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     }
 
     companion object {
+        private const val RINGS = 3
         private val RAINBOW = intArrayOf(
             0xFFFF3B30.toInt(), 0xFFFF9500.toInt(), 0xFFFFCC00.toInt(), 0xFF34C759.toInt(),
             0xFF00C7BE.toInt(), 0xFF007AFF.toInt(), 0xFFAF52DE.toInt(), 0xFFFF2D55.toInt(), 0xFFFF3B30.toInt(),
