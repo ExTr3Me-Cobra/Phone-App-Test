@@ -136,24 +136,8 @@ private fun Screen() {
             Slider(value = keep, onValueChange = { keep = it }, onValueChangeFinished = { set { it.copy(keepSeconds = keep.roundToInt()) } }, valueRange = 3f..30f)
         }
 
-        Section("Samsung's lighting effect")
-        Note(
-            "One UI only plays its lighting effect with the Brief pop-up style — that's Samsung's rule, and no app can " +
-                "change it. With Detailed pop-ups you get the full pop-down but no lighting.\n" +
-                "For lighting: Settings → Notifications → Notification pop-up style → Brief, turn on the lighting " +
-                "effect, and make sure Pop Down is allowed in its app list (if your phone shows one).",
-        )
-        Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { open(context, Intent("android.settings.NOTIFICATION_SETTINGS")) }) { Text("Notification settings") }
-            OutlinedButton(onClick = {
-                open(
-                    context,
-                    Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                        .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                        .putExtra(Settings.EXTRA_CHANNEL_ID, PopListener.CHANNEL),
-                )
-            }) { Text("Pop-down channel") }
-        }
+        Section("Edge lighting")
+        LightingSection(s.light, tick)
 
         Section("Try it")
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

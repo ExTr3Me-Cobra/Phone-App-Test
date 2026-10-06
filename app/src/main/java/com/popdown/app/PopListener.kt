@@ -44,6 +44,9 @@ class PopListener : NotificationListenerService() {
         }
         val screenOff = !getSystemService(PowerManager::class.java).isInteractive
         val s = Prefs.get(this)
+        // Pop Down's own edge lighting, for every notification that gets through (including ones
+        // that already pop down by themselves).
+        LightService.playFor(this, sbn, screenOff)?.let { if (s.light.enabled) Log.add("${label(sbn)}: no lighting – $it") }
         val alreadyPops = (ranking?.importance ?: 0) >= NotificationManager.IMPORTANCE_HIGH
         if (!screenOff && alreadyPops && s.skipIfAlreadyPops) {
             Log.add("${label(sbn)}: already pops down by itself")

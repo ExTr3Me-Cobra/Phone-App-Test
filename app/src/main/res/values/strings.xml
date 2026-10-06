@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pop Down</string>
+    <string name="light_label">Pop Down Lighting</string>
+    <string name="light_summary">Draws Pop Down\'s edge lighting around the screen for new notifications.</string>
+    <string name="light_description">Pop Down uses this only to draw its edge lighting over the screen, including the lock screen. It doesn\'t read anything on your screen, can\'t tap anything, and the lighting ignores all touches.</string>
 </resources>

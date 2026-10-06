@@ -1,9 +1,50 @@
 package com.popdown.app
 
 import android.content.Context
+import android.content.SharedPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+
+enum class LightEffect(val label: String) {
+    GLOW("Glow"),
+    LINE("Line"),
+    PULSE("Pulse"),
+    COMET("Comet"),
+    TWIN("Twin comets"),
+    RAINBOW("Rainbow"),
+    FLASH("Flash"),
+}
+
+enum class LightColorMode(val label: String) {
+    APP("App's colour"),
+    ONE("My colour"),
+    TWO("Two-colour gradient"),
+}
+
+enum class LightWhen(val label: String) {
+    ALWAYS("Always"),
+    SCREEN_OFF("Only when screen was off"),
+    SCREEN_ON("Only while using the phone"),
+}
+
+data class LightSettings(
+    val enabled: Boolean = true,
+    val effect: LightEffect = LightEffect.GLOW,
+    val colorMode: LightColorMode = LightColorMode.APP,
+    val color1: Int = 0xFF3D8BFF.toInt(),
+    val color2: Int = 0xFFB04DFF.toInt(),
+    /** 0.25..3, 1 = normal. */
+    val speed: Float = 1f,
+    val thicknessDp: Float = 6f,
+    /** Follow the screen's own rounded corners. */
+    val matchCorners: Boolean = true,
+    val cornerDp: Float = 40f,
+    /** 20..100 % */
+    val brightness: Int = 100,
+    val seconds: Int = 5,
+    val whenMode: LightWhen = LightWhen.ALWAYS,
+)
 
 data class PopSettings(
     /** Master switch. */
@@ -18,6 +59,7 @@ data class PopSettings(
     val keepSeconds: Int = 8,
     /** Apps that never get a pop-down copy. */
     val excluded: Set<String> = emptySet(),
+    val light: LightSettings = LightSettings(),
 )
 
 /** Settings, saved in SharedPreferences and observable for the screen. */
@@ -29,6 +71,7 @@ object Prefs {
     fun get(context: Context): PopSettings {
         if (!loaded) {
             val p = prefs(context)
+            val d = LightSettings()
             state.value = PopSettings(
                 enabled = p.getBoolean("enabled", true),
                 wakeScreen = p.getBoolean("wakeScreen", true),
@@ -36,6 +79,20 @@ object Prefs {
                 includeSilent = p.getBoolean("includeSilent", true),
                 keepSeconds = p.getInt("keepSeconds", 8),
                 excluded = p.getStringSet("excluded", emptySet()).orEmpty().toSet(),
+                light = LightSettings(
+                    enabled = p.getBoolean("l.enabled", d.enabled),
+                    effect = p.enum("l.effect", d.effect),
+                    colorMode = p.enum("l.colorMode", d.colorMode),
+                    color1 = p.getInt("l.color1", d.color1),
+                    color2 = p.getInt("l.color2", d.color2),
+                    speed = p.getFloat("l.speed", d.speed),
+                    thicknessDp = p.getFloat("l.thickness", d.thicknessDp),
+                    matchCorners = p.getBoolean("l.matchCorners", d.matchCorners),
+                    cornerDp = p.getFloat("l.corner", d.cornerDp),
+                    brightness = p.getInt("l.brightness", d.brightness),
+                    seconds = p.getInt("l.seconds", d.seconds),
+                    whenMode = p.enum("l.when", d.whenMode),
+                ),
             )
             loaded = true
         }
@@ -45,6 +102,7 @@ object Prefs {
     fun update(context: Context, change: (PopSettings) -> PopSettings) {
         val next = change(get(context))
         state.value = next
+        val l = next.light
         prefs(context).edit()
             .putBoolean("enabled", next.enabled)
             .putBoolean("wakeScreen", next.wakeScreen)
@@ -52,8 +110,26 @@ object Prefs {
             .putBoolean("includeSilent", next.includeSilent)
             .putInt("keepSeconds", next.keepSeconds)
             .putStringSet("excluded", next.excluded)
+            .putBoolean("l.enabled", l.enabled)
+            .putString("l.effect", l.effect.name)
+            .putString("l.colorMode", l.colorMode.name)
+            .putInt("l.color1", l.color1)
+            .putInt("l.color2", l.color2)
+            .putFloat("l.speed", l.speed)
+            .putFloat("l.thickness", l.thicknessDp)
+            .putBoolean("l.matchCorners", l.matchCorners)
+            .putFloat("l.corner", l.cornerDp)
+            .putInt("l.brightness", l.brightness)
+            .putInt("l.seconds", l.seconds)
+            .putString("l.when", l.whenMode.name)
             .apply()
     }
+
+    fun updateLight(context: Context, change: (LightSettings) -> LightSettings) =
+        update(context) { it.copy(light = change(it.light)) }
+
+    private inline fun <reified E : Enum<E>> SharedPreferences.enum(key: String, default: E): E =
+        runCatching { enumValueOf<E>(getString(key, null) ?: return default) }.getOrDefault(default)
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)

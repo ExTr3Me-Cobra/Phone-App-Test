@@ -18,10 +18,17 @@ originals. The original app still plays its own sound; the copy is silent.
 1. Install `PopDown.apk` from Releases (→ *Pop Down*).
 2. Open Pop Down and complete: Notification access, Allow notifications, Full screen
    notifications, Unrestricted battery.
-3. Samsung's lighting effect: One UI only plays it with the **Brief** pop-up style (Samsung's rule;
-   apps can't change it). Settings → Notifications → Notification pop-up style → Brief, turn on the
-   lighting effect, and allow **Pop Down** in its app list if one is shown.
+3. Edge lighting: switch on **Pop Down Lighting** in Settings → Accessibility → Installed apps (if
+   it's greyed out: Pop Down's App info → ⋮ → Allow restricted settings). Works with Detailed pop-ups.
 4. Use *Test in 6 s* and lock the phone; *Recent activity* then says whether the screen turned on.
+
+## Edge lighting
+Pop Down draws its own lighting around the screen edge for each new notification (an accessibility
+window, the only kind allowed over the lock screen; it reads nothing and ignores touches). Choose
+the effect (Glow, Line, Pulse, Comet, Twin comets, Rainbow, Flash), colour (each app's own, one
+custom colour or a two-colour gradient, with swatches and RGB sliders), speed, thickness,
+brightness, how long it plays, corner curve (or match the screen's real corners) and when it plays.
+A live preview and a full-screen test are in the app.
 
 ## Options
 Wake the screen · skip notifications that already pop down (avoids doubles) · include silent
