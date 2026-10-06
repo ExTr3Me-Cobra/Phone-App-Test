@@ -118,7 +118,19 @@ class LightService : AccessibilityService() {
         }.getOrNull()
 
         private fun lockedAndOn(app: Context): () -> Boolean =
-            { isLocked(app) && app.getSystemService(PowerManager::class.java).isInteractive }
+            { isLocked(app) && screenVisible(app) }
+
+        private fun displayState(context: Context): Int =
+            context.getSystemService(android.hardware.display.DisplayManager::class.java)
+                .getDisplay(Display.DEFAULT_DISPLAY)?.state ?: Display.STATE_UNKNOWN
+
+        /** The Always On Display is showing (screen "off" but lit in low-power mode). */
+        fun onAod(context: Context): Boolean = displayState(context).let {
+            it == Display.STATE_DOZE || it == Display.STATE_DOZE_SUSPEND
+        }
+
+        /** Something is on screen: normal use, lock screen or the Always On Display. */
+        fun screenVisible(context: Context): Boolean = displayState(context) != Display.STATE_OFF
 
         fun isLocked(context: Context) = context.getSystemService(KeyguardManager::class.java).isKeyguardLocked
 

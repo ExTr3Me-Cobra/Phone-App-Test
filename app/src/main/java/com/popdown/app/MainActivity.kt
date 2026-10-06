@@ -129,6 +129,12 @@ private fun Screen() {
             Prefs.updateLight(context) { it.copy(onLocked = v) }
         }
         SwitchRow(
+            "Light up the Always On Display",
+            "When the Always On Display is showing, play the lighting on it (next to the notification) instead of waking the screen. " +
+                "Off: wake to the lock screen first.",
+            s.light.onAodNoWake,
+        ) { v -> Prefs.updateLight(context) { it.copy(onAodNoWake = v) } }
+        SwitchRow(
             "Keep lighting until I unlock",
             "The lighting keeps going on the lock screen until you unlock (stops if the screen goes off)",
             s.light.untilUnlocked,

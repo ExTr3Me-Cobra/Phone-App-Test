@@ -44,6 +44,8 @@ data class LightSettings(
     val onLocked: Boolean = true,
     /** On the lock screen, keep the lighting going until you unlock (or the screen goes off). */
     val untilUnlocked: Boolean = false,
+    /** With the Always On Display showing, play the lighting on it instead of waking the screen. */
+    val onAodNoWake: Boolean = true,
     /** If Pop Down turned the screen on, turn it back off once the lighting has finished. */
     val screenOffAfter: Boolean = false,
 )
@@ -99,6 +101,7 @@ object Prefs {
                     onUnlocked = p.getBoolean("l.onUnlocked", d.onUnlocked),
                     onLocked = p.getBoolean("l.onLocked", d.onLocked),
                     untilUnlocked = p.getBoolean("l.untilUnlocked", d.untilUnlocked),
+                    onAodNoWake = p.getBoolean("l.onAodNoWake", d.onAodNoWake),
                     screenOffAfter = p.getBoolean("l.screenOffAfter", d.screenOffAfter),
                 ),
             )
@@ -132,6 +135,7 @@ object Prefs {
             .putBoolean("l.onUnlocked", l.onUnlocked)
             .putBoolean("l.onLocked", l.onLocked)
             .putBoolean("l.untilUnlocked", l.untilUnlocked)
+            .putBoolean("l.onAodNoWake", l.onAodNoWake)
             .putBoolean("l.screenOffAfter", l.screenOffAfter)
             .putBoolean("popOnLock", next.popOnLock)
             .apply()

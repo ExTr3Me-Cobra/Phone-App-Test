@@ -12,7 +12,6 @@ import android.graphics.PathMeasure
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.SweepGradient
-import android.os.PowerManager
 import android.os.SystemClock
 import android.view.View
 import kotlin.math.PI
@@ -104,8 +103,9 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         if (finished || length == 0f) return
         val now = SystemClock.uptimeMillis()
         if (start == 0L) {
-            // Screen still off (or on the always-on display): wait, so the whole effect is seen.
-            if (!context.getSystemService(PowerManager::class.java).isInteractive) {
+            // Screen still fully off: wait, so the whole effect is seen. (It does play on the
+            // Always On Display.)
+            if (!LightService.screenVisible(context)) {
                 postInvalidateDelayed(100)
                 return
             }

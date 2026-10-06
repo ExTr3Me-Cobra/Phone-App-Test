@@ -45,7 +45,11 @@ class PopListener : NotificationListenerService() {
         val screenOff = !getSystemService(PowerManager::class.java).isInteractive
         val locked = screenOff || LightService.isLocked(this)
         val s = Prefs.get(this)
-        val wake = screenOff && s.wakeScreen
+        // Always On Display showing: light up the AOD itself rather than waking to the lock screen.
+        val aodOnly = screenOff && LightService.onAod(this) && s.light.enabled && s.light.onLocked &&
+            s.light.onAodNoWake && LightService.instance != null
+        val wake = screenOff && s.wakeScreen && !aodOnly
+        if (aodOnly) Log.add("${label(sbn)}: Always On Display – lighting without waking")
         // Pop Down's own edge lighting, for every notification that gets through (including ones
         // that already pop down by themselves).
         LightService.playFor(this, sbn, locked, wake)?.let { if (s.light.enabled) Log.add("${label(sbn)}: no lighting – $it") }
