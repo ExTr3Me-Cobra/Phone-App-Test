@@ -20,6 +20,14 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Every build must be signed with the same key, or Android refuses to install it as an
+      # update ("App not installed"). Gradle makes a debug key on first use; keep that one.
+      - name: Reuse the same signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: popdown-signing-key-v1
+
       - name: Build
         run: |
           chmod +x gradlew
