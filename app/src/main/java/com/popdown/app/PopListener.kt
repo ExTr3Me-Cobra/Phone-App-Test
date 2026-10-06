@@ -17,9 +17,9 @@ import androidx.core.graphics.drawable.toBitmap
 /**
  * Watches every notification (with "Notification access") and, for each new one, posts a silent
  * copy on an urgent channel. Android and One UI then show that copy as a real pop-down banner,
- * with Samsung's lighting effect, and when the screen is off it's sent as a "full-screen" alert,
- * which turns the screen on. Tapping the copy opens the original; the copy removes itself after a
- * few seconds so the notification list keeps only the originals.
+ * with Samsung's lighting effect (Brief style); when the screen is off, [Waker] turns it on.
+ * Tapping the copy opens the original; the copy removes itself after a few seconds so the
+ * notification list keeps only the originals.
  */
 class PopListener : NotificationListenerService() {
     /** Keys already seen, so updates to an existing notification don't pop down again. */
@@ -50,10 +50,11 @@ class PopListener : NotificationListenerService() {
             return
         }
         val wake = screenOff && s.wakeScreen
-        val result = runCatching { postCopy(this, sbn, wake) }
-        Log.add("${label(sbn)}: " + (result.exceptionOrNull()?.let { "copy failed: ${it.message}" }
-            ?: "popped down${if (wake) " + woke screen" else ""}"))
-        if (wake) Waker.wakeLock(this)
+        val result = runCatching { postCopy(this, sbn) }
+        Log.add("${label(sbn)}: " + (result.exceptionOrNull()?.let { "copy failed: ${it.message}" } ?: "popped down"))
+        // Separate from the copy, so the copy stays a normal pop-down (with lighting) and isn't
+        // turned into a full-screen alert itself.
+        if (wake) Waker.wake(this, label(sbn))
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap) {
@@ -129,7 +130,7 @@ class PopListener : NotificationListenerService() {
         }.getOrDefault(pkg)
 
         /** Builds and posts the pop-down copy of [sbn]. */
-        fun postCopy(context: Context, sbn: StatusBarNotification, wake: Boolean) {
+        fun postCopy(context: Context, sbn: StatusBarNotification) {
             ensureChannels(context)
             val n = sbn.notification
             val ex = n.extras
@@ -176,9 +177,6 @@ class PopListener : NotificationListenerService() {
             if (n.color != Notification.COLOR_DEFAULT) b.setColor(n.color)
             // The original's buttons (reply, mark as read…) work straight from the pop-down.
             n.actions?.forEach { runCatching { b.addAction(it) } }
-            if (wake && Waker.fullScreenAllowed(context)) {
-                b.setFullScreenIntent(Waker.wakeIntent(context), true)
-            }
             context.getSystemService(NotificationManager::class.java).notify(copyId(sbn.key), b.build())
         }
     }

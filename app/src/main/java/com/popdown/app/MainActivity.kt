@@ -138,12 +138,10 @@ private fun Screen() {
 
         Section("Samsung's lighting effect")
         Note(
-            "One UI's lighting effect plays for pop-down notifications from the apps it's allowed for. Since every pop-down now " +
-                "comes through Pop Down, allow just this one app:\n" +
-                "1. Settings → Notifications → Notification pop-up style.\n" +
-                "2. Choose Brief or Detailed, and turn on the lighting effect (\"Edge lighting\" / \"Lighting style\").\n" +
-                "3. In its app list (\"Apps to show as brief pop-ups\" / \"Choose apps\"), turn on Pop Down.\n" +
-                "4. For lighting with the screen off, also turn on \"Show even when screen is off\" if your phone shows it.",
+            "One UI only plays its lighting effect with the Brief pop-up style — that's Samsung's rule, and no app can " +
+                "change it. With Detailed pop-ups you get the full pop-down but no lighting.\n" +
+                "For lighting: Settings → Notifications → Notification pop-up style → Brief, turn on the lighting " +
+                "effect, and make sure Pop Down is allowed in its app list (if your phone shows one).",
         )
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { open(context, Intent("android.settings.NOTIFICATION_SETTINGS")) }) { Text("Notification settings") }
@@ -162,7 +160,7 @@ private fun Screen() {
             OutlinedButton(onClick = { sendTest(context, 0) }) { Text("Test now") }
             OutlinedButton(onClick = { sendTest(context, 6000) }) { Text("Test in 6 s") }
         }
-        Note("For the screen-off test, tap \"Test in 6 s\" and lock the phone straight away.")
+        Note("For the screen-off test, tap \"Test in 6 s\" and lock the phone straight away. Afterwards, Recent activity says whether the screen turned on, and if not, why.")
 
         Section("Apps")
         AppList(s.excluded) { pkg, on -> set { it.copy(excluded = if (on) it.excluded - pkg else it.excluded + pkg) } }
@@ -205,7 +203,15 @@ private fun Steps(tick: Int) {
                 if (Build.VERSION.SDK_INT >= 34) open(context, Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, pkgUri))
             },
             Triple(
-                "4. Unrestricted battery",
+                "4. Turn screen on (extra)",
+                "A second way to switch the screen on. Not every phone lets apps turn this on from settings — " +
+                    "if it stays ⬜, it's fine as long as the wake test works. Opens Pop Down's app info.",
+                Waker.turnScreenOnAllowed(context),
+            ) to {
+                open(context, Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pkgUri))
+            },
+            Triple(
+                "5. Unrestricted battery",
                 "So Samsung never puts Pop Down to sleep.",
                 context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName),
             ) to {

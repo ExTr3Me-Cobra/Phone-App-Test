@@ -3,6 +3,9 @@ package com.popdown.app
 import android.Manifest
 import android.app.Activity
 import android.app.ActivityOptions
+import android.app.AppOpsManager
+import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -13,6 +16,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.os.Process
 import androidx.compose.runtime.mutableStateListOf
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -55,19 +59,52 @@ class WakeActivity : Activity() {
         super.onCreate(savedInstanceState)
         setShowWhenLocked(true)
         setTurnScreenOn(true)
-        // Leave straight away: the screen stays on (lock screen with the notification) for the
-        // normal screen timeout.
-        Handler(Looper.getMainLooper()).postDelayed({ finish() }, 1_200)
+        Waker.started = true
+        getSystemService(NotificationManager::class.java).cancel(Waker.WAKE_ID)
+        // Stay a moment so One UI has really switched the screen on, then leave: the screen stays
+        // on (lock screen with the notification) for the normal screen timeout.
+        Handler(Looper.getMainLooper()).postDelayed({ finish() }, 2_500)
     }
 }
 
-/** Ways of turning the screen on. */
+/**
+ * Turns the screen on. Three routes, because each Android/One UI version blocks a different one:
+ * a "wake" wake lock, and a separate alarm-style full-screen alert that opens [WakeActivity].
+ * Afterwards it checks whether the screen really came on and logs why if it didn't.
+ */
 object Waker {
+    const val WAKE_CHANNEL = "wake"
+    const val WAKE_ID = 0x5747
+
+    @Volatile
+    var started = false
+
     fun fullScreenAllowed(context: Context): Boolean {
         val nm = context.getSystemService(NotificationManager::class.java)
         val notify = context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED &&
             nm.areNotificationsEnabled()
         return notify && (Build.VERSION.SDK_INT < 34 || nm.canUseFullScreenIntent())
+    }
+
+    /** Android's "Turn screen on" permission, without which wake locks can't switch the screen on. */
+    fun turnScreenOnAllowed(context: Context): Boolean = runCatching {
+        context.getSystemService(AppOpsManager::class.java).unsafeCheckOpNoThrow(
+            "android:turn_screen_on", Process.myUid(), context.packageName,
+        ) == AppOpsManager.MODE_ALLOWED
+    }.getOrDefault(false)
+
+    private fun isOn(context: Context) = context.getSystemService(PowerManager::class.java).isInteractive
+
+    fun ensureChannel(context: Context) {
+        context.getSystemService(NotificationManager::class.java).createNotificationChannel(
+            NotificationChannel(WAKE_CHANNEL, "Screen wake", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "Briefly used to turn the screen on. Removes itself straight away."
+                setSound(null, null)
+                enableVibration(false)
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_SECRET
+            },
+        )
     }
 
     fun wakeIntent(context: Context): PendingIntent = PendingIntent.getActivity(
@@ -76,14 +113,52 @@ object Waker {
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
 
-    /** Extra nudge where Android still allows it. */
+    /** Turns the screen on now; [label] is used in the activity log. */
+    fun wake(context: Context, label: String) {
+        val app = context.applicationContext
+        started = false
+        wakeLock(app)
+        val fsi = fullScreenAllowed(app)
+        if (fsi) runCatching { postWakeAlert(app) }
+        val main = Handler(Looper.getMainLooper())
+        main.postDelayed({
+            if (isOn(app)) {
+                Log.add("$label: screen turned on ✓")
+            } else {
+                Log.add(
+                    "$label: screen stayed OFF ✗ (full screen alerts: ${if (fsi) "allowed" else "NOT allowed"}, " +
+                        "wake screen permission: ${if (turnScreenOnAllowed(app)) "allowed" else "not allowed"}, " +
+                        "wake activity ${if (started) "opened" else "never opened"})",
+                )
+            }
+        }, 1_800)
+        // Tidy up if One UI showed the alert as a normal notification instead.
+        main.postDelayed({ app.getSystemService(NotificationManager::class.java).cancel(WAKE_ID) }, 4_000)
+    }
+
+    private fun postWakeAlert(context: Context) {
+        ensureChannel(context)
+        val n = Notification.Builder(context, WAKE_CHANNEL)
+            .setSmallIcon(R.drawable.ic_stat)
+            .setContentTitle("Pop Down")
+            .setContentText("Turning the screen on")
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setVisibility(Notification.VISIBILITY_SECRET)
+            .setOnlyAlertOnce(true)
+            .setTimeoutAfter(4_000)
+            .setFullScreenIntent(wakeIntent(context), true)
+            .build()
+        context.getSystemService(NotificationManager::class.java).notify(WAKE_ID, n)
+    }
+
+    /** Works when Android's "Turn screen on" permission is allowed. */
     @Suppress("DEPRECATION")
     fun wakeLock(context: Context) {
         runCatching {
             context.getSystemService(PowerManager::class.java).newWakeLock(
                 PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
                 "popdown:wake",
-            ).acquire(1_500)
+            ).acquire(3_000)
         }
     }
 }
