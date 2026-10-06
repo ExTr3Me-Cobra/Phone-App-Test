@@ -32,8 +32,10 @@ data class LightSpec(
     val cornerPx: Float,
     /** 0..1 */
     val brightness: Float,
-    /** How long it plays; 0 = forever (the preview in the app). */
+    /** How long it plays; 0 = forever (the preview in the app), or until [keepGoing] says stop. */
     val durationMs: Long,
+    /** For endless lighting: checked every frame once started; returning false ends it. */
+    val keepGoing: (() -> Boolean)? = null,
 )
 
 /**
@@ -111,7 +113,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         }
         val t = now - start
         val s = spec
-        if (s.durationMs > 0 && t >= s.durationMs) {
+        if ((s.durationMs > 0 && t >= s.durationMs) || (s.durationMs == 0L && s.keepGoing?.invoke() == false)) {
             finished = true
             post(onDone)
             return

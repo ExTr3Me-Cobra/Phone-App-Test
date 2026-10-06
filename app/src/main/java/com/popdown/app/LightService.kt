@@ -1,6 +1,7 @@
 package com.popdown.app
 
 import android.accessibilityservice.AccessibilityService
+import android.app.KeyguardManager
 import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,6 +9,7 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.provider.Settings
 import android.service.notification.StatusBarNotification
 import android.view.Display
@@ -45,13 +47,17 @@ class LightService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
     override fun onInterrupt() = Unit
 
-    fun play(spec: LightSpec) = main.post {
+    /** Turn the screen back off when the current lighting ends (set per notification). */
+    private var offAfter = false
+
+    fun play(spec: LightSpec, turnOffAfter: Boolean = false) = main.post {
+        offAfter = turnOffAfter
         val existing = view
         if (existing != null) {
             existing.spec = spec
             existing.restart()
         } else {
-            val v = EdgeLightView(this, spec) { remove() }
+            val v = EdgeLightView(this, spec) { finished() }
             val lp = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -72,7 +78,15 @@ class LightService : AccessibilityService() {
         }
         // If the screen never turns on, don't leave the window waiting forever.
         main.removeCallbacks(safetyRemove)
-        main.postDelayed(safetyRemove, spec.durationMs + 15_000)
+        main.postDelayed(safetyRemove, if (spec.durationMs == 0L) 10 * 60_000L else spec.durationMs + 15_000)
+    }
+
+    private fun finished() {
+        remove()
+        if (offAfter && isLocked(this) && getSystemService(PowerManager::class.java).isInteractive) {
+            offAfter = false
+            if (performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)) Log.add("Lighting done: turned the screen back off")
+        }
     }
 
     private fun remove() {
@@ -103,7 +117,12 @@ class LightService : AccessibilityService() {
             ).mapNotNull { display.getRoundedCorner(it)?.radius }.maxOrNull()?.toFloat()
         }.getOrNull()
 
-        fun spec(context: Context, l: LightSettings, appColor: Int?, forever: Boolean = false): LightSpec {
+        private fun lockedAndOn(app: Context): () -> Boolean =
+            { isLocked(app) && app.getSystemService(PowerManager::class.java).isInteractive }
+
+        fun isLocked(context: Context) = context.getSystemService(KeyguardManager::class.java).isKeyguardLocked
+
+        fun spec(context: Context, l: LightSettings, appColor: Int?, forever: Boolean = false, untilUnlocked: Boolean = false): LightSpec {
             val density = context.resources.displayMetrics.density
             val colors = when (l.colorMode) {
                 LightColorMode.APP -> intArrayOf(appColor ?: l.color1)
@@ -118,19 +137,24 @@ class LightService : AccessibilityService() {
                 thicknessPx = l.thicknessDp * density,
                 cornerPx = corner,
                 brightness = l.brightness / 100f,
-                durationMs = if (forever) 0 else l.seconds * 1000L,
+                durationMs = if (forever || untilUnlocked) 0 else l.seconds * 1000L,
+                keepGoing = if (untilUnlocked) lockedAndOn(context.applicationContext) else null,
             )
         }
 
-        /** Plays the lighting for a notification; returns why not, or null when it played. */
-        fun playFor(context: Context, sbn: StatusBarNotification?, screenWasOff: Boolean): String? {
+        /**
+         * Plays the lighting for a notification; returns why not, or null when it played.
+         * [woke] = Pop Down is turning the screen on for this notification.
+         */
+        fun playFor(context: Context, sbn: StatusBarNotification?, locked: Boolean, woke: Boolean): String? {
             val l = Prefs.get(context).light
             if (!l.enabled) return "lighting is off"
-            if (l.whenMode == LightWhen.SCREEN_OFF && !screenWasOff) return "skipped (screen was on)"
-            if (l.whenMode == LightWhen.SCREEN_ON && screenWasOff) return "skipped (screen was off)"
+            if (locked && !l.onLocked) return "lighting on the lock screen is off"
+            if (!locked && !l.onUnlocked) return "lighting while unlocked is off"
             val service = instance ?: return "Pop Down Lighting isn't switched on in Accessibility"
             val color = sbn?.let { appColor(context, it) }
-            service.play(spec(context, l, color))
+            val endless = locked && l.untilUnlocked
+            service.play(spec(context, l, color, untilUnlocked = endless), turnOffAfter = locked && woke && l.screenOffAfter && !endless)
             return null
         }
 

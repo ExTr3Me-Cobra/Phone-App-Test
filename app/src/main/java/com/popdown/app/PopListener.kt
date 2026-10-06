@@ -43,21 +43,26 @@ class PopListener : NotificationListenerService() {
             return
         }
         val screenOff = !getSystemService(PowerManager::class.java).isInteractive
+        val locked = screenOff || LightService.isLocked(this)
         val s = Prefs.get(this)
+        val wake = screenOff && s.wakeScreen
         // Pop Down's own edge lighting, for every notification that gets through (including ones
         // that already pop down by themselves).
-        LightService.playFor(this, sbn, screenOff)?.let { if (s.light.enabled) Log.add("${label(sbn)}: no lighting – $it") }
+        LightService.playFor(this, sbn, locked, wake)?.let { if (s.light.enabled) Log.add("${label(sbn)}: no lighting – $it") }
+        // Separate from the copy, so the copy stays a normal pop-down and isn't turned into a
+        // full-screen alert itself.
+        if (wake) Waker.wake(this, label(sbn))
+        if (locked && !s.popOnLock) {
+            Log.add("${label(sbn)}: lock screen – normal notification${if (s.light.enabled && s.light.onLocked) " + lighting" else ""}")
+            return
+        }
         val alreadyPops = (ranking?.importance ?: 0) >= NotificationManager.IMPORTANCE_HIGH
         if (!screenOff && alreadyPops && s.skipIfAlreadyPops) {
             Log.add("${label(sbn)}: already pops down by itself")
             return
         }
-        val wake = screenOff && s.wakeScreen
         val result = runCatching { postCopy(this, sbn) }
         Log.add("${label(sbn)}: " + (result.exceptionOrNull()?.let { "copy failed: ${it.message}" } ?: "popped down"))
-        // Separate from the copy, so the copy stays a normal pop-down (with lighting) and isn't
-        // turned into a full-screen alert itself.
-        if (wake) Waker.wake(this, label(sbn))
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap) {

@@ -27,7 +27,9 @@ Pop Down draws its own lighting around the screen edge for each new notification
 window, the only kind allowed over the lock screen; it reads nothing and ignores touches). Choose
 the effect (Glow, Line, Pulse, Comet, Twin comets, Rainbow, Flash, Echo), colour (each app's own, one
 custom colour or a two-colour gradient, with swatches and RGB sliders), speed, thickness,
-brightness, how long it plays, corner curve (or match the screen's real corners) and when it plays.
+brightness, how long it plays and corner curve (or match the screen's real corners).
+Lock screen switches: pop down there too (off by default: the lock screen just lights up), lighting
+on the lock screen or while unlocked, keep lighting until you unlock, turn the screen back off after.
 A live preview and a full-screen test are in the app.
 
 ## Options

@@ -23,12 +23,6 @@ enum class LightColorMode(val label: String) {
     TWO("Two-colour gradient"),
 }
 
-enum class LightWhen(val label: String) {
-    ALWAYS("Always"),
-    SCREEN_OFF("Only when screen was off"),
-    SCREEN_ON("Only while using the phone"),
-}
-
 data class LightSettings(
     val enabled: Boolean = true,
     val effect: LightEffect = LightEffect.GLOW,
@@ -44,7 +38,14 @@ data class LightSettings(
     /** 20..100 % */
     val brightness: Int = 100,
     val seconds: Int = 5,
-    val whenMode: LightWhen = LightWhen.ALWAYS,
+    /** Lighting while the phone is unlocked and in use. */
+    val onUnlocked: Boolean = true,
+    /** Lighting on the lock screen. */
+    val onLocked: Boolean = true,
+    /** On the lock screen, keep the lighting going until you unlock (or the screen goes off). */
+    val untilUnlocked: Boolean = false,
+    /** If Pop Down turned the screen on, turn it back off once the lighting has finished. */
+    val screenOffAfter: Boolean = false,
 )
 
 data class PopSettings(
@@ -60,6 +61,8 @@ data class PopSettings(
     val keepSeconds: Int = 8,
     /** Apps that never get a pop-down copy. */
     val excluded: Set<String> = emptySet(),
+    /** Also drop the pop-down from the top on the lock screen (off = lock screen just lights up). */
+    val popOnLock: Boolean = false,
     val light: LightSettings = LightSettings(),
 )
 
@@ -80,6 +83,7 @@ object Prefs {
                 includeSilent = p.getBoolean("includeSilent", true),
                 keepSeconds = p.getInt("keepSeconds", 8),
                 excluded = p.getStringSet("excluded", emptySet()).orEmpty().toSet(),
+                popOnLock = p.getBoolean("popOnLock", false),
                 light = LightSettings(
                     enabled = p.getBoolean("l.enabled", d.enabled),
                     effect = p.enum("l.effect", d.effect),
@@ -92,7 +96,10 @@ object Prefs {
                     cornerDp = p.getFloat("l.corner", d.cornerDp),
                     brightness = p.getInt("l.brightness", d.brightness),
                     seconds = p.getInt("l.seconds", d.seconds),
-                    whenMode = p.enum("l.when", d.whenMode),
+                    onUnlocked = p.getBoolean("l.onUnlocked", d.onUnlocked),
+                    onLocked = p.getBoolean("l.onLocked", d.onLocked),
+                    untilUnlocked = p.getBoolean("l.untilUnlocked", d.untilUnlocked),
+                    screenOffAfter = p.getBoolean("l.screenOffAfter", d.screenOffAfter),
                 ),
             )
             loaded = true
@@ -122,7 +129,11 @@ object Prefs {
             .putFloat("l.corner", l.cornerDp)
             .putInt("l.brightness", l.brightness)
             .putInt("l.seconds", l.seconds)
-            .putString("l.when", l.whenMode.name)
+            .putBoolean("l.onUnlocked", l.onUnlocked)
+            .putBoolean("l.onLocked", l.onLocked)
+            .putBoolean("l.untilUnlocked", l.untilUnlocked)
+            .putBoolean("l.screenOffAfter", l.screenOffAfter)
+            .putBoolean("popOnLock", next.popOnLock)
             .apply()
     }
 

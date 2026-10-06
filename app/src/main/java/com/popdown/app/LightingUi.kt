@@ -136,11 +136,8 @@ fun LightingSection(l: LightSettings, tick: Int) {
         LightSlider("Corner curve", "${l.cornerDp.roundToInt()} dp", l.cornerDp, 0f..120f) { v -> set { it.copy(cornerDp = v.roundToInt().toFloat()) } }
     }
 
-    LightLabel("When")
-    FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        LightWhen.entries.forEach { w ->
-            FilterChip(selected = l.whenMode == w, onClick = { set { it.copy(whenMode = w) } }, label = { Text(w.label) })
-        }
+    LightSwitchRow("Lighting while using the phone", "Plays when a notification arrives while you're unlocked", l.onUnlocked) { v ->
+        set { it.copy(onUnlocked = v) }
     }
     LightNote(
         "Tip: to avoid lighting twice, turn off Samsung's own lighting effect (Settings → Notifications → Notification pop-up style). " +

@@ -118,8 +118,29 @@ private fun Screen() {
         Section("Setup")
         Steps(tick)
 
-        Section("Options")
+        Section("Lock screen")
         SwitchRow("Wake the screen", "When the screen is off, turn it on for each new notification", s.wakeScreen) { v -> set { it.copy(wakeScreen = v) } }
+        SwitchRow(
+            "Pop down on the lock screen",
+            "Off: on the lock screen the notification just arrives normally (with the lighting). On: it also drops down from the top like when unlocked.",
+            s.popOnLock,
+        ) { v -> set { it.copy(popOnLock = v) } }
+        SwitchRow("Lighting on the lock screen", "Plays the edge lighting for notifications that arrive while locked", s.light.onLocked) { v ->
+            Prefs.updateLight(context) { it.copy(onLocked = v) }
+        }
+        SwitchRow(
+            "Keep lighting until I unlock",
+            "The lighting keeps going on the lock screen until you unlock (stops if the screen goes off)",
+            s.light.untilUnlocked,
+        ) { v -> Prefs.updateLight(context) { it.copy(untilUnlocked = v) } }
+        SwitchRow(
+            "Turn the screen back off afterwards",
+            "If Pop Down turned the screen on, it switches it off again when the lighting ends (unless you've unlocked). " +
+                "Needs Pop Down Lighting on. Not used with \"Keep lighting until I unlock\".",
+            s.light.screenOffAfter,
+        ) { v -> Prefs.updateLight(context) { it.copy(screenOffAfter = v) } }
+
+        Section("Options")
         SwitchRow(
             "Skip ones that already pop down",
             "Avoids two pop-ups for apps (like messaging) that already pop down. Turn off to give every notification the same pop-down.",
