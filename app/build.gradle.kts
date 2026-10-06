@@ -18,13 +18,26 @@ android {
         versionName = "1.0.$versionCode"
     }
 
+    signingConfigs {
+        // The build server passes the same keystore every time, so new versions install as updates.
+        val ks = providers.gradleProperty("signKeystore").orNull
+        if (ks != null) {
+            create("stable") {
+                storeFile = file(ks)
+                storePassword = "android"
+                keyAlias = "popdown"
+                keyPassword = "android"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // Personal sideloaded app: signed with the build machine's debug key.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("stable") ?: signingConfigs.getByName("debug")
         }
     }
 

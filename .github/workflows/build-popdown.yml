@@ -21,17 +21,27 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       # Every build must be signed with the same key, or Android refuses to install it as an
-      # update ("App not installed"). Gradle makes a debug key on first use; keep that one.
+      # update ("App not installed"). The key is made once and kept in the build cache.
       - name: Reuse the same signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: popdown-signing-key-v1
+          path: signing/popdown.keystore
+          key: popdown-signing-key-v2
+
+      - name: Make the signing key (first build only)
+        run: |
+          mkdir -p signing
+          if [ ! -f signing/popdown.keystore ]; then
+            keytool -genkeypair -v -keystore signing/popdown.keystore -alias popdown \
+              -keyalg RSA -keysize 2048 -validity 36500 \
+              -storepass android -keypass android -dname "CN=Pop Down"
+          fi
+          keytool -list -v -keystore signing/popdown.keystore -storepass android | grep SHA256
 
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace -PsignKeystore=$PWD/signing/popdown.keystore
           cp app/build/outputs/apk/release/app-release.apk PopDown.apk
 
       - uses: actions/upload-artifact@v4
