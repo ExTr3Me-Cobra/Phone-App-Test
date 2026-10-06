@@ -99,10 +99,12 @@ fun LightingSection(l: LightSettings, tick: Int) {
         }
     }
 
-    LightLabel("Effect")
-    FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        LightEffect.entries.forEach { e ->
-            FilterChip(selected = l.effect == e, onClick = { set { it.copy(effect = e) } }, label = { Text(e.label) })
+    LightGroup.entries.forEach { group ->
+        LightLabel("Effect – ${group.label.lowercase()}")
+        FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LightEffect.entries.filter { it.group == group }.forEach { e ->
+                FilterChip(selected = l.effect == e, onClick = { set { it.copy(effect = e) } }, label = { Text(e.label) })
+            }
         }
     }
 

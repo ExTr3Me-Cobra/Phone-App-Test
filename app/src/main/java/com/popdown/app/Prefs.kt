@@ -6,15 +6,34 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-enum class LightEffect(val label: String) {
+enum class LightGroup(val label: String) { AROUND("Around the screen"), ECHO("Echo"), SIDES("Sides only") }
+
+enum class LightEffect(val label: String, val group: LightGroup = LightGroup.AROUND) {
     GLOW("Glow"),
     LINE("Line"),
     PULSE("Pulse"),
+    HEARTBEAT("Heartbeat"),
     COMET("Comet"),
     TWIN("Twin comets"),
+    WAVE("Wave"),
+    GLITTER("Glitter"),
     RAINBOW("Rainbow"),
     FLASH("Flash"),
-    ECHO("Echo"),
+    BUBBLES("Bubbles"),
+    ECLIPSE("Eclipse"),
+    SPOTLIGHT("Spotlight"),
+    ECHO("Echo", LightGroup.ECHO),
+    ECHO_DOUBLE("Double echo", LightGroup.ECHO),
+    ECHO_TOP("Echo from the top", LightGroup.ECHO),
+    ECHO_CAMERA("Echo from the camera", LightGroup.ECHO),
+    ECHO_SIDES("Echo on the sides", LightGroup.ECHO),
+    SIDE_GLOW("Side glow", LightGroup.SIDES),
+    SIDE_PULSE("Side pulse", LightGroup.SIDES),
+    SIDE_SWEEP("Side sweep", LightGroup.SIDES),
+    SIDE_BOUNCE("Side bounce", LightGroup.SIDES),
+    SIDE_WAVE("Side wave", LightGroup.SIDES),
+    SIDE_RAIN("Side rain", LightGroup.SIDES),
+    SIDE_FLASH("Side flash", LightGroup.SIDES),
 }
 
 enum class LightColorMode(val label: String) {

@@ -25,7 +25,7 @@ originals. The original app still plays its own sound; the copy is silent.
 ## Edge lighting
 Pop Down draws its own lighting around the screen edge for each new notification (an accessibility
 window, the only kind allowed over the lock screen; it reads nothing and ignores touches). Choose
-the effect (Glow, Line, Pulse, Comet, Twin comets, Rainbow, Flash, Echo), colour (each app's own, one
+the effect (25: around the screen, five Echo variations, or the sides only), colour (each app's own, one
 custom colour or a two-colour gradient, with swatches and RGB sliders), speed, thickness,
 brightness, how long it plays and corner curve (or match the screen's real corners).
 Lock screen switches: pop down there too (off by default: the lock screen just lights up), lighting
