@@ -97,8 +97,12 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     private var start = 0L
     private var finished = false
 
-    /** The effect has drawn its first frame on screen. */
-    val started get() = start != 0L
+    /** The effect has drawn its first frame. */
+    var started = false
+        private set
+
+    /** Waiting for the first frame to reach the screen before the clock starts. */
+    private var waitingSince = 0L
 
     // The whole edge: a rounded rectangle that starts (and ends) at the top centre.
     private val path = Path()
@@ -144,6 +148,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     /** Restarts the effect from the beginning (for a new notification). */
     fun restart() {
         start = 0L
+        waitingSince = 0L
         finished = false
         seed = Random.nextLong()
         crackShape = null
@@ -236,9 +241,20 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
                 postInvalidateDelayed(30)
                 return
             }
-            start = now
+            started = true
+            // Start the clock only once the first frame has actually reached the screen. A window
+            // that was hidden can take a moment to show, which used to eat most of a short alert.
+            if (waitingSince == 0L) {
+                waitingSince = now
+                viewTreeObserver.registerFrameCommitCallback {
+                    if (start == 0L) start = SystemClock.uptimeMillis()
+                    invalidate()
+                }
+            } else if (now - waitingSince > 600) {
+                start = now
+            }
         }
-        val t = now - start
+        val t = if (start == 0L) 0L else now - start
         val s = spec
         if ((s.durationMs > 0 && t >= s.durationMs) || (s.durationMs == 0L && s.keepGoing?.invoke() == false)) {
             finished = true
