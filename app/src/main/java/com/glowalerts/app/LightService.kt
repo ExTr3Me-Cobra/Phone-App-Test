@@ -91,7 +91,7 @@ class LightService : AccessibilityService() {
     val ready get() = container != null
 
     /** Plays one effect on top of any that are already playing. */
-    fun play(spec: LightSpec, retry: Boolean = false) = main.post {
+    fun play(spec: LightSpec, retry: Boolean = false): Boolean = main.post {
         val box = attach() ?: return@post
         // Keep it sensible: drop the oldest when lots arrive at once.
         while (box.childCount >= MAX_LAYERS) box.removeViewAt(0)
