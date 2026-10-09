@@ -104,6 +104,9 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     /** Waiting for the first frame to reach the screen before the clock starts. */
     private var waitingSince = 0L
 
+    /** Told when the first frame reaches the screen (true) or never confirmed it did (false). */
+    var onShown: ((Boolean) -> Unit)? = null
+
     // The whole edge: a rounded rectangle that starts (and ends) at the top centre.
     private val path = Path()
     private val measure = PathMeasure()
@@ -247,11 +250,15 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             if (waitingSince == 0L) {
                 waitingSince = now
                 viewTreeObserver.registerFrameCommitCallback {
-                    if (start == 0L) start = SystemClock.uptimeMillis()
+                    if (start == 0L) {
+                        start = SystemClock.uptimeMillis()
+                        onShown?.invoke(true)
+                    }
                     invalidate()
                 }
             } else if (now - waitingSince > 600) {
                 start = now
+                onShown?.invoke(false)
             }
         }
         val t = if (start == 0L) 0L else now - start

@@ -10,6 +10,7 @@ import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import kotlin.math.max
 import android.provider.Settings as AndroidSettings
 import android.view.Display
@@ -29,15 +30,16 @@ class LightService : AccessibilityService() {
     private val main = Handler(Looper.getMainLooper())
 
     /**
-     * One full-screen window that stays attached all the time (hidden while idle), so lighting
-     * starts instantly. Each notification adds its own layer, so effects overlap.
+     * One full-screen window while anything is playing; each notification adds its own layer, so
+     * effects overlap. It's made fresh for each alert and removed when the last one ends: a
+     * window kept hidden in between sometimes failed to show again once the app had been in the
+     * background for a few seconds.
      */
     private var container: FrameLayout? = null
 
     override fun onServiceConnected() {
         instance = this
         Tilt.start(this)
-        attach()
         KeepAlive.start(this)
     }
 
@@ -59,7 +61,7 @@ class LightService : AccessibilityService() {
     /** Adds the (hidden) window if it isn't there. Returns it, or null if Android refused. */
     private fun attach(): FrameLayout? {
         container?.let { return it }
-        val box = FrameLayout(this).apply { visibility = View.GONE }
+        val box = FrameLayout(this)
         val lp = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -87,9 +89,6 @@ class LightService : AccessibilityService() {
         runCatching { getSystemService(WindowManager::class.java).removeView(box) }
     }
 
-    /** Whether the drawing window is attached and ready. */
-    val ready get() = container != null
-
     /** Plays one effect on top of any that are already playing. */
     fun play(spec: LightSpec, retry: Boolean = false): Boolean = main.post {
         val box = attach() ?: return@post
@@ -101,8 +100,13 @@ class LightService : AccessibilityService() {
             main.removeCallbacks(safety)
             removeLayer(layer)
         }
+        val playAt = SystemClock.uptimeMillis()
+        layer.onShown = { confirmed ->
+            val ms = SystemClock.uptimeMillis() - playAt
+            if (!confirmed) Log.add("Lighting: Android didn't confirm it showed (started anyway)")
+            else if (ms > 400) Log.add("Lighting: took ${ms} ms to appear")
+        }
         box.addView(layer, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
-        box.visibility = View.VISIBLE
         // If the screen never lights up, don't leave the layer waiting forever.
         main.postDelayed(safety, spec.durationMs + 20_000)
         // Check it really appeared. Android sometimes leaves a window that was hidden for a while
@@ -135,7 +139,7 @@ class LightService : AccessibilityService() {
     private fun removeLayer(layer: View) {
         val box = container ?: return
         box.removeView(layer)
-        if (box.childCount == 0) box.visibility = View.GONE
+        if (box.childCount == 0) detach()
     }
 
     companion object {
