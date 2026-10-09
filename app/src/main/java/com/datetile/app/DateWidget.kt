@@ -77,13 +77,28 @@ class DateWidget : AppWidgetProvider() {
             val intent = when (s.tap) {
                 Tap.NOTHING -> return null
                 Tap.APP -> Intent(context, MainActivity::class.java)
-                Tap.CALENDAR -> {
-                    val cal = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR)
-                    if (cal.resolveActivity(context.packageManager) != null) cal
-                    else Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.calendar/time/${System.currentTimeMillis()}"))
-                }
+                Tap.CALENDAR -> googleCalendar(context) ?: phoneCalendar(context)
+                Tap.PHONE_CALENDAR -> phoneCalendar(context)
             }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+
+        private const val GOOGLE_CALENDAR = "com.google.android.calendar"
+
+        /** Google Calendar, opened on today. Null if it isn't installed. */
+        fun googleCalendar(context: Context): Intent? {
+            val pm = context.packageManager
+            val today = Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.calendar/time/${System.currentTimeMillis()}"))
+                .setPackage(GOOGLE_CALENDAR)
+            if (today.resolveActivity(pm) != null) return today
+            return pm.getLaunchIntentForPackage(GOOGLE_CALENDAR)
+        }
+
+        /** Whatever calendar app the phone uses by default (Samsung Calendar on most Galaxies). */
+        private fun phoneCalendar(context: Context): Intent {
+            val cal = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR)
+            return if (cal.resolveActivity(context.packageManager) != null) cal
+            else Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.calendar/time/${System.currentTimeMillis()}"))
         }
 
         private fun midnightIntent(context: Context): PendingIntent = PendingIntent.getBroadcast(

@@ -152,6 +152,16 @@ object Renderer {
     }
 
     fun draw(context: Context, canvas: Canvas, s: Style, date: LocalDate, size: Float) {
+        // Tile size: shrink it towards the middle of the widget's space.
+        val k = s.tileScale.coerceIn(0.3f, 1f)
+        canvas.save()
+        canvas.translate(size * (1f - k) / 2f, size * (1f - k) / 2f)
+        canvas.scale(k, k)
+        drawTile(context, canvas, s, date, size)
+        canvas.restore()
+    }
+
+    private fun drawTile(context: Context, canvas: Canvas, s: Style, date: LocalDate, size: Float) {
         val accent = accent(context, s, date)
         val full = RectF(0f, 0f, size, size)
         val inset = if (s.border > 0f) s.border * size / 2f else 0f
@@ -234,7 +244,7 @@ object Renderer {
             val laid = group.map { (l, t) ->
                 p.typeface = Typeface.create(base, l.weight.coerceIn(100, 1000), l.italic)
                 p.letterSpacing = s.spacing
-                p.textSize = l.size * size
+                p.textSize = l.size * s.textScale * size
                 val w = p.measureText(t)
                 if (w > area.width() && w > 0f) p.textSize *= area.width() / w
                 val fm = p.fontMetrics
@@ -256,8 +266,19 @@ object Renderer {
                 p.letterSpacing = s.spacing
                 p.textSize = m[0]
                 p.color = colorFor(l.role, l.color, s, accent)
-                if (l.role == Role.TEXT && l.inHeader && s.header) p.color = onColor(colorFor(s.headerRole, s.headerColor, s, accent))
-                if (s.shadow) p.setShadowLayer(size * 0.03f, 0f, size * 0.01f, 0x99000000.toInt()) else p.clearShadowLayer()
+                if (l.inHeader && s.header) {
+                    when (s.headerText) {
+                        HeaderText.AUTO -> p.color = onColor(colorFor(s.headerRole, s.headerColor, s, accent))
+                        HeaderText.CUSTOM -> p.color = s.headerTextColor
+                        HeaderText.ACCENT -> p.color = accent
+                        HeaderText.LINES -> Unit
+                    }
+                }
+                if (s.shadow && s.shadowSize > 0f) {
+                    p.setShadowLayer(size * s.shadowSize, 0f, size * s.shadowSize / 3f, 0x99000000.toInt())
+                } else {
+                    p.clearShadowLayer()
+                }
                 val w = p.measureText(t)
                 val x = when (s.align) {
                     Align.LEFT -> area.left

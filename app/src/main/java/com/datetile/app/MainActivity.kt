@@ -152,6 +152,25 @@ private fun Screen() {
                 }
             }
 
+            Section("Sizes", "Tile ${pct(s.tileScale)} · text ${pct(s.textScale)}") {
+                SliderRow("Whole tile", pct(s.tileScale), s.tileScale, 0.3f..1f) { v -> set { it.copy(tileScale = v) } }
+                Text("100 % fills the widget's space. To go bigger, stretch the widget on your home screen.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                SliderRow("All text together", pct(s.textScale), s.textScale, 0.4f..2f) { v -> set { it.copy(textScale = v) } }
+                s.lines.forEachIndexed { i, line ->
+                    SliderRow("${i + 1}. ${line.kind.label}", pct(line.size), line.size, 0.04f..0.9f) { v ->
+                        set { st -> st.copy(lines = st.lines.toMutableList().also { it[i] = line.copy(size = v) }) }
+                    }
+                }
+                if (s.header) SliderRow("Header band height", pct(s.headerHeight), s.headerHeight, 0.1f..0.6f) { v -> set { it.copy(headerHeight = v) } }
+                if (s.ring != Ring.NONE) SliderRow("Progress ring thickness", pct(s.ringWidth), s.ringWidth, 0.01f..0.15f) { v -> set { it.copy(ringWidth = v) } }
+                if (s.shape != Shape.NONE) SliderRow("Border", pct(s.border), s.border, 0f..0.1f) { v -> set { it.copy(border = v) } }
+                if (s.shadow) SliderRow("Text shadow", pct(s.shadowSize), s.shadowSize, 0f..0.1f) { v -> set { it.copy(shadowSize = v) } }
+                SliderRow("Space from the edge", pct(s.padding), s.padding, 0f..0.25f) { v -> set { it.copy(padding = v) } }
+                SliderRow("Space between lines", pct(s.lineGap), s.lineGap, -0.05f..0.15f) { v -> set { it.copy(lineGap = v) } }
+                SliderRow("Letter spacing", "%.2f".format(s.spacing), s.spacing, -0.1f..0.4f) { v -> set { it.copy(spacing = v) } }
+            }
+
             Section("What shows", s.lines.joinToString(" · ") { it.kind.label }) {
                 s.lines.forEachIndexed { i, line ->
                     LineEditor(
@@ -177,6 +196,7 @@ private fun Screen() {
                 Chips(Font.entries, s.font, { it.label }) { v -> set { it.copy(font = v) } }
                 SwitchRow("CAPITAL LETTERS", s.uppercase) { v -> set { it.copy(uppercase = v) } }
                 SwitchRow("Shadow behind text", s.shadow) { v -> set { it.copy(shadow = v) } }
+                if (s.shadow) SliderRow("Shadow size", pct(s.shadowSize), s.shadowSize, 0f..0.1f) { v -> set { it.copy(shadowSize = v) } }
                 Label("Across")
                 Chips(Align.entries, s.align, { it.label }) { v -> set { it.copy(align = v) } }
                 Label("Up and down")
@@ -207,6 +227,11 @@ private fun Screen() {
                     SliderRow("Header height", pct(s.headerHeight), s.headerHeight, 0.15f..0.5f) { v -> set { it.copy(headerHeight = v) } }
                     Chips(listOf(Role.ACCENT, Role.CUSTOM), s.headerRole, { if (it == Role.CUSTOM) "Pick" else "Today's accent" }) { v -> set { it.copy(headerRole = v) } }
                     if (s.headerRole == Role.CUSTOM) ColorRow("Header colour", s.headerColor) { c -> set { it.copy(headerColor = c) } }
+                    Label("Header text colour")
+                    Chips(HeaderText.entries, s.headerText, { it.label }) { v -> set { it.copy(headerText = v) } }
+                    if (s.headerText == HeaderText.CUSTOM) ColorRow("Header text", s.headerTextColor) { c -> set { it.copy(headerTextColor = c) } }
+                    if (s.headerText == HeaderText.AUTO) Text("Automatic picks black or white, whichever reads best on the band.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("Choose which lines go in the band under \"What shows\".",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -250,6 +275,10 @@ private fun Screen() {
 
             Section("When you tap it", s.tap.label) {
                 Chips(Tap.entries, s.tap, { it.label }) { v -> set { it.copy(tap = v) } }
+                if (s.tap == Tap.CALENDAR && DateWidget.googleCalendar(context) == null) {
+                    Text("Google Calendar isn't installed, so your phone's calendar app opens instead.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                }
             }
             Spacer(Modifier.height(40.dp))
         }

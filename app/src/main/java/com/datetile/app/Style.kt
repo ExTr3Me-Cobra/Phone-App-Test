@@ -44,7 +44,15 @@ enum class Align(val label: String) { LEFT("Left"), CENTER("Centre"), RIGHT("Rig
 
 enum class VAlign(val label: String) { TOP("Top"), CENTER("Middle"), BOTTOM("Bottom") }
 
-enum class Tap(val label: String) { CALENDAR("Open calendar"), APP("Open Date Tile"), NOTHING("Nothing") }
+enum class Tap(val label: String) {
+    CALENDAR("Google Calendar"),
+    PHONE_CALENDAR("Phone's calendar app"),
+    APP("Date Tile settings"),
+    NOTHING("Nothing"),
+}
+
+/** Colour of the words in the header band. */
+enum class HeaderText(val label: String) { AUTO("Automatic"), CUSTOM("Pick"), ACCENT("Today's accent"), LINES("Each line's own") }
 
 data class Line(
     val kind: Kind = Kind.DATE,
@@ -103,6 +111,13 @@ data class Style(
     val ringWidth: Float = 0.05f,
     val specials: List<Special> = emptyList(),
     val tap: Tap = Tap.CALENDAR,
+    val headerText: HeaderText = HeaderText.AUTO,
+    val headerTextColor: Int = Color.WHITE,
+    /** How much of the widget's space the tile fills. */
+    val tileScale: Float = 1f,
+    /** Makes every line bigger or smaller together. */
+    val textScale: Float = 1f,
+    val shadowSize: Float = 0.03f,
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("lines", JSONArray(lines.map { l ->
@@ -126,6 +141,8 @@ data class Style(
             JSONObject().put("month", it.month).put("day", it.day).put("label", it.label).put("color", it.color).put("year", it.year)
         }))
         put("tap", tap.name)
+        put("headerText", headerText.name); put("headerTextColor", headerTextColor)
+        put("tileScale", tileScale.toDouble()); put("textScale", textScale.toDouble()); put("shadowSize", shadowSize.toDouble())
     }
 
     companion object {
@@ -180,6 +197,8 @@ data class Style(
                 align = o.enum("align", d.align), valign = o.enum("valign", d.valign), shadow = o.optBoolean("shadow", d.shadow),
                 ring = o.enum("ring", d.ring), ringWidth = o.f("ringWidth", d.ringWidth),
                 specials = specials, tap = o.enum("tap", d.tap),
+                headerText = o.enum("headerText", d.headerText), headerTextColor = o.optInt("headerTextColor", d.headerTextColor),
+                tileScale = o.f("tileScale", d.tileScale), textScale = o.f("textScale", d.textScale), shadowSize = o.f("shadowSize", d.shadowSize),
             )
         }
     }
