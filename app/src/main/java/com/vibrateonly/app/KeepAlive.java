@@ -37,11 +37,17 @@ public class KeepAlive extends Service {
         }
     };
 
-    /** Starts, updates or stops the service to match the settings. Safe to call any time. */
+    /**
+     * Starts, updates or stops "Always ready" to match the settings. Safe to call any time. With
+     * the notification shown it runs as a foreground service; with it hidden, the same keep-awake
+     * and home-check watchdog run inside the app's accessibility service (which Android keeps
+     * running anyway), so there's no notification at all.
+     */
     static void start(Context c) {
         Context app = c.getApplicationContext();
         Intent intent = new Intent(app, KeepAlive.class);
-        if (Prefs.alwaysReady(app)) {
+        if (Prefs.alwaysReady(app) && Prefs.readyNotification(app)) {
+            Background.stop();
             try {
                 app.startForegroundService(intent);
             } catch (RuntimeException ignored) {
@@ -49,6 +55,48 @@ public class KeepAlive extends Service {
             }
         } else {
             app.stopService(intent);
+            if (Prefs.alwaysReady(app)) Background.start(app); else Background.stop();
+        }
+    }
+
+    /** "Always ready" without a notification: wake lock and home-check watchdog, no service. */
+    private static final class Background {
+        private static final Handler handler = new Handler(Looper.getMainLooper());
+        private static PowerManager.WakeLock wakeLock;
+        private static Context app;
+        private static final Runnable watchdog = new Runnable() {
+            @Override
+            public void run() {
+                if (app == null) return;
+                Home.startBackup(app);
+                handler.postDelayed(this, WATCH_MS);
+            }
+        };
+
+        static void start(Context context) {
+            app = context;
+            if (Prefs.keepAwake(context)) {
+                if (wakeLock == null) {
+                    wakeLock = context.getSystemService(PowerManager.class)
+                            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "vibrateonly:ready");
+                    wakeLock.setReferenceCounted(false);
+                    wakeLock.acquire();
+                }
+            } else {
+                release();
+            }
+            handler.removeCallbacks(watchdog);
+            handler.post(watchdog);
+        }
+
+        static void stop() {
+            handler.removeCallbacks(watchdog);
+            release();
+        }
+
+        private static void release() {
+            if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
+            wakeLock = null;
         }
     }
 

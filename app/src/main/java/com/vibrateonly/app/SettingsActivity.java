@@ -84,7 +84,8 @@ public class SettingsActivity extends Activity {
                 Prefs.ALWAYS_READY, true);
         if (Prefs.alwaysReady(this)) {
             toggle("Show the \"running\" notification",
-                    "Off hides it; Always ready keeps working either way.",
+                    "Off: no notification at all. Vibrate Only still stays running through its "
+                            + "button listener (which Android keeps on), with the same keep-awake and checks.",
                     Prefs.READY_NOTIFICATION, true);
             toggle("Keep the processor awake",
                     "Never lets the phone fully sleep, so location checks aren't delayed while it's "
