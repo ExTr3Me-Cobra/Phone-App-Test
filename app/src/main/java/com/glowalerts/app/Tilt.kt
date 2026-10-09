@@ -6,6 +6,8 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.hypot
 
 /**
  * Which way the phone is being held, so the lightning lands at the bottom of the screen as you
@@ -31,17 +33,39 @@ object Tilt : SensorEventListener {
         started = sm.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
+    /**
+     * Three clear modes from the angle the phone is turned to (like a clock hand): within about
+     * 55° of upright or upside down = bottom; otherwise left or right. It has to turn about 15°
+     * past a boundary before switching, so holding it diagonally doesn't make it flip back and
+     * forth. Lying flat (or close) = bottom.
+     */
     override fun onSensorChanged(event: SensorEvent) {
         // Readings point "up": x > 0 means the right edge is up (left edge down).
         val x = event.values[0]
         val y = event.values[1]
-        val z = event.values[2]
-        landing = when {
-            abs(z) > 8f -> BOTTOM // lying flat or nearly
-            abs(x) > abs(y) * 1.2f && abs(x) > 4f -> if (x > 0) LEFT else RIGHT
-            abs(y) > abs(x) * 0.8f -> BOTTOM
-            else -> landing // in between: keep what it was
+        val upright = hypot(x, y)
+        if (upright < 4f) {
+            // Lying flat or nearly: strike like normal.
+            landing = BOTTOM
+            return
         }
+        // 0° = upright, +90° = left edge down, -90° = right edge down, ±180° = upside down.
+        val angle = Math.toDegrees(atan2(x.toDouble(), y.toDouble())).toFloat()
+        val tilt = abs(angle).let { if (it > 90f) 180f - it else it } // 0 = up/down, 90 = sideways
+        val sidewaysNow = landing != BOTTOM
+        val sideways = if (sidewaysNow) tilt > 40f else tilt > 55f
+        landing = when {
+            !sideways -> BOTTOM
+            angle > 0 -> LEFT
+            else -> RIGHT
+        }
+    }
+
+    /** For the settings screen. */
+    fun label(mode: Int = landing) = when (mode) {
+        LEFT -> "Strike left"
+        RIGHT -> "Strike right"
+        else -> "Strike bottom"
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit

@@ -31,6 +31,36 @@ class CrackShape(
 
 /** Builds the crack patterns. Every call with a new seed gives a different crack. */
 object Cracks {
+    /**
+     * Lightning with the phone sideways: drawn exactly as it would be on a landscape screen
+     * (top of the view down to the bottom middle), then turned to match how the phone is held.
+     * "Top", "left" and so on then mean as you see them.
+     *
+     * Left side down: view x = screen y, view y = w - screen x.
+     * Right side down: view x = h - screen y, view y = screen x.
+     */
+    private fun sideways(
+        w: Float, h: Float, origin: CrackOrigin, detail: Int, seed: Long, camX: Float, camY: Float,
+        jagged: Float, branchLength: Float, count: Int, landing: Int,
+    ): CrackShape {
+        val left = landing == Tilt.LEFT
+        fun toView(x: Float, y: Float) = if (left) floatArrayOf(y, w - x) else floatArrayOf(h - y, x)
+        fun toScreen(u: Float, v: Float) = if (left) floatArrayOf(w - v, u) else floatArrayOf(v, h - u)
+        val cam = toView(camX, camY)
+        val view = build(
+            LightEffect.CRACK_LIGHTNING, h, w, origin, detail, seed, cam[0], cam[1],
+            jagged, branchLength, count, Tilt.BOTTOM,
+        )
+        val pts = FloatArray(view.points.size)
+        for (i in 0 until view.count) {
+            val a = toScreen(view.points[i * 4], view.points[i * 4 + 1])
+            val b = toScreen(view.points[i * 4 + 2], view.points[i * 4 + 3])
+            pts[i * 4] = a[0]; pts[i * 4 + 1] = a[1]; pts[i * 4 + 2] = b[0]; pts[i * 4 + 3] = b[1]
+        }
+        val o = toScreen(view.originX, view.originY)
+        return CrackShape(pts, view.dist, view.length, view.level, view.maxDist, o[0], o[1])
+    }
+
     private class Builder(val w: Float, val h: Float, val rnd: Random, val jag: Float, val branchLen: Float) {
         val pts = ArrayList<Float>()
         val dist = ArrayList<Float>()
@@ -116,17 +146,20 @@ object Cracks {
             var travelled = 0f
             val step = unit * (if (lvl == 0) 0.035f else 0.025f)
             val homing = !tx.isNaN()
+            // Branches are grown after this crack is complete, so they can never block it.
+            val forks = ArrayList<FloatArray>()
+            val attempts = if (lvl == 0) 14 else 8
             while (travelled < length && inside(x, y, unit * 0.05f)) {
                 val heading = if (homing) atan2(ty - y, tx - x) else angle
                 if (homing && hypot(tx - x, ty - y) < step * 1.2f) {
                     seg(x, y, tx, ty, d, lvl)
-                    return
+                    break
                 }
                 // Wander, but keep drifting back to the heading.
                 a += (rnd.nextFloat() - 0.5f) * wob + angleDiff(heading, a) * (if (homing) 0.5f else 0.35f)
                 val s = step * (0.6f + rnd.nextFloat() * 0.8f)
                 var placed = false
-                for (attempt in 0 until 8) {
+                for (attempt in 0 until attempts) {
                     val turn = if (attempt == 0) 0f else ((attempt + 1) / 2) * 0.35f * (if (attempt % 2 == 0) 1 else -1)
                     val aa = a + turn
                     val nx = x + cos(aa) * s
@@ -139,15 +172,16 @@ object Cracks {
                         break
                     }
                 }
-                if (!placed) return // boxed in: this crack ends here
+                if (!placed) break // boxed in: this crack ends here
                 d += s
                 travelled += s
-                if (lvl < 2 && rnd.nextFloat() < branchChance) {
-                    val side = if (rnd.nextBoolean()) 1 else -1
-                    val ba = a + side * (0.4f + rnd.nextFloat() * 0.7f)
-                    val bl = branchLen * unit * (if (lvl == 0) 0.12f + rnd.nextFloat() * 0.18f else 0.04f + rnd.nextFloat() * 0.07f)
-                    jagged(x, y, ba, bl, d, lvl + 1, branchChance * 0.6f, wobble)
-                }
+                if (lvl < 2 && rnd.nextFloat() < branchChance) forks += floatArrayOf(x, y, a, d)
+            }
+            for (f in forks) {
+                val side = if (rnd.nextBoolean()) 1 else -1
+                val ba = f[2] + side * (0.4f + rnd.nextFloat() * 0.7f)
+                val bl = branchLen * unit * (if (lvl == 0) 0.12f + rnd.nextFloat() * 0.18f else 0.04f + rnd.nextFloat() * 0.07f)
+                jagged(f[0], f[1], ba, bl, f[3], lvl + 1, branchChance * 0.6f, wobble)
             }
         }
 
@@ -169,6 +203,9 @@ object Cracks {
         camX: Float, camY: Float, jagged: Float = 1f, branchLength: Float = 1f, count: Int = 1,
         landing: Int = Tilt.BOTTOM,
     ): CrackShape {
+        if (effect == LightEffect.CRACK_LIGHTNING && landing != Tilt.BOTTOM) {
+            return sideways(w, h, origin, detail, seed, camX, camY, jagged, branchLength, count, landing)
+        }
         val rnd = Random(seed)
         val b = Builder(w, h, rnd, jagged.coerceIn(0.1f, 3f), branchLength.coerceIn(0.2f, 3f))
         val n = count.coerceIn(1, 8)
@@ -251,26 +288,19 @@ object Cracks {
                 }
             }
             LightEffect.CRACK_LIGHTNING -> {
-                // A forking bolt that lands at the bottom of the screen as you're holding it.
-                fun landingPoint(spread: Float): Pair<Float, Float> = when (landing) {
-                    Tilt.LEFT -> 0f to (h / 2 + spread).coerceIn(0f, h)
-                    Tilt.RIGHT -> w to (h / 2 + spread).coerceIn(0f, h)
-                    else -> (w / 2 + spread).coerceIn(0f, w) to h
-                }
+                // A forking bolt that lands at the bottom middle of the screen (as you see it:
+                // sideways strikes are drawn turned round, see [sideways]).
                 var sx = ox
                 var sy = oy
-                val (lx, ly) = landingPoint(0f)
-                if (hypot(lx - sx, ly - sy) < b.unit * 0.35f) {
-                    // Starting right where it lands: strike from the opposite side instead.
-                    when (landing) {
-                        Tilt.LEFT -> { sx = w; sy = h / 2 }
-                        Tilt.RIGHT -> { sx = 0f; sy = h / 2 }
-                        else -> { sx = w / 2; sy = 0f }
-                    }
+                if (sy > h * 0.7f) {
+                    // Starting at the bottom, where it lands: strike from the top instead.
+                    sx = w * (0.5f + (rnd.nextFloat() - 0.5f) * 0.3f)
+                    sy = 0f
                 }
                 for (i in 0 until n) {
-                    val spread = (i - (n - 1) / 2f) * b.unit * 0.14f + (rnd.nextFloat() - 0.5f) * b.unit * 0.12f
-                    val (tx, ty) = landingPoint(spread)
+                    val spread = (i - (n - 1) / 2f) * b.unit * 0.14f + (rnd.nextFloat() - 0.5f) * b.unit * 0.1f
+                    val tx = (w / 2 + spread).coerceIn(0f, w)
+                    val ty = h
                     b.jagged(
                         sx, sy, atan2(ty - sy, tx - sx), b.diag * 2f, 0f, 0, 0.1f + k * 0.03f,
                         wobble = 0.9f, tx = tx, ty = ty,

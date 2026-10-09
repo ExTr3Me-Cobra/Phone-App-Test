@@ -48,6 +48,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -162,6 +164,16 @@ private fun Screen() {
                 SwitchRow("Flash fills the whole screen", "Off: the flash is a burst where the crack starts", s.crackFlashFull) { v -> set { it.copy(crackFlashFull = v) } }
             }
             if (s.effect == LightEffect.CRACK_LIGHTNING) {
+                if (s.lightningTilt) {
+                    // Live readout of which of the three modes the phone is in right now.
+                    val mode by produceState(Tilt.landing) {
+                        while (true) {
+                            value = Tilt.landing
+                            kotlinx.coroutines.delay(250)
+                        }
+                    }
+                    Note("Right now: ${Tilt.label(mode)}. Turn the phone to see it change.")
+                }
                 SwitchRow(
                     "Land at the bottom as I'm holding it",
                     "Turned sideways, the lightning lands at the middle of whichever side is down. Upright, upside down or lying flat, it lands at the bottom.",
@@ -170,6 +182,8 @@ private fun Screen() {
             }
             if (s.effect == LightEffect.CRACK_LIGHTNING && s.crackOrigin == CrackOrigin.CAMERA) {
                 Label("Camera hole ring")
+                LiveCamRing(s)
+                Note("The ring shows live round your camera hole while you're on this part of the settings.")
                 SwitchRow("Glow around the camera hole", "Where the lightning comes from", s.camRing) { v -> set { it.copy(camRing = v) } }
                 SliderRow("Move left / right", "%+.1f dp".format(s.camOffsetX), s.camOffsetX, -40f..40f) { v -> set { it.copy(camOffsetX = (v * 2).roundToInt() / 2f) } }
                 SliderRow("Move up / down", "%+.1f dp".format(s.camOffsetY), s.camOffsetY, -40f..40f) { v -> set { it.copy(camOffsetY = (v * 2).roundToInt() / 2f) } }
@@ -363,6 +377,19 @@ private fun Step(title: String, summary: String, done: Boolean, action: () -> Un
             Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
+}
+
+/** Keeps the camera ring drawn on the real screen while these settings are showing. */
+@Composable
+private fun LiveCamRing(s: Settings) {
+    val context = LocalContext.current
+    val ring = remember { CamRingView(context) }
+    DisposableEffect(Unit) {
+        val root = (context as? Activity)?.window?.decorView as? ViewGroup
+        root?.addView(ring, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        onDispose { root?.removeView(ring) }
+    }
+    SideEffect { ring.settings = s }
 }
 
 /** A small phone-shaped preview that plays the effect in a loop. */
