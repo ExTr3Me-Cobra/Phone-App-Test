@@ -155,7 +155,7 @@ public class VibrateOnlyService extends AccessibilityService {
         // Catch up with anything connected or disconnected while the service wasn't running.
         ModeController.setDeviceConnected(this, AudioRouting.mediaDeviceConnected(this));
         ModeController.apply(this);
-        Workplace.register(this);
+        Home.register(this);
     }
 
     /** Called by the app screens after permissions or settings change. */

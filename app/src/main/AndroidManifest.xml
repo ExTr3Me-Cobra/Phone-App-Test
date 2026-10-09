@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <!-- Workplace: turn on when you arrive, off when you leave. -->
+    <!-- Home: turn on when you leave, off when you get back. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -37,11 +37,11 @@
             android:exported="false" />
 
         <receiver
-            android:name=".WorkplaceReceiver"
+            android:name=".HomeReceiver"
             android:exported="false" />
 
         <receiver
-            android:name=".WorkplaceRestore"
+            android:name=".HomeRestore"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

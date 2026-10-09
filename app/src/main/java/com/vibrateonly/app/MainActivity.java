@@ -150,8 +150,8 @@ public class MainActivity extends Activity {
                 + "• While ON, a single volume button changes the media volume when something "
                 + "is playing (unmuting it until 30 seconds after it stops), otherwise the alarm volume. It never takes the phone "
                 + "off vibrate.\n"
-                + "• Optional: switch on automatically at your workplace and off when you leave "
-                + "(Settings → Workplace).", 15));
+                + "• Optional: switch on automatically when you leave home and off when you get "
+                + "back (Settings → Home).", 15));
     }
 
     private void heading(String s) {

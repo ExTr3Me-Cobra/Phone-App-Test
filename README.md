@@ -16,9 +16,9 @@ press **Volume Up + Volume Down at the same time**.
   switches the mode off straight away. 5 seconds after it disconnects, Vibrate Only comes back on.
   If the mode was off, devices just work normally. The two-button press is ignored while one is
   connected.
-* **Workplace:** optionally turns on when you arrive at work and off when you leave
-  (Settings → Workplace; needs location "Allow all the time").
-* **Settings** button in the app: press timing, screen-off on/off, media muting, workplace, buzz
+* **Home:** optionally turns on when you leave home and off when you get back
+  (Settings → Home; needs location "Allow all the time").
+* **Settings** button in the app: press timing, screen-off on/off, media muting, home, buzz
   strength/length, a status notification with a "Turn off" button, an auto-off timer, and whether
   changing the sound mode elsewhere ends the mode.
 * Optional quick settings tile: swipe down twice, tap the pencil (edit), drag in **Vibrate Only**.

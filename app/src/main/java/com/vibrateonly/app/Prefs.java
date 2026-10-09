@@ -16,10 +16,10 @@ final class Prefs {
     static final String NOTIFICATION = "notification";
     static final String AUTO_OFF_MIN = "auto_off_min";
     static final String KEEP_VIBRATE = "keep_vibrate";
-    static final String WORK_ON = "work_on";
-    static final String WORK_LAT = "work_lat";
-    static final String WORK_LNG = "work_lng";
-    static final String WORK_RADIUS = "work_radius";
+    static final String HOME_ON = "home_on";
+    static final String HOME_LAT = "home_lat";
+    static final String HOME_LNG = "home_lng";
+    static final String HOME_RADIUS = "home_radius";
 
     private Prefs() {}
 
@@ -60,32 +60,32 @@ final class Prefs {
         return get(c).getBoolean(KEEP_VIBRATE, true);
     }
 
-    /** Turn the mode on at the workplace and off when leaving. */
-    static boolean workplaceOn(Context c) {
-        return get(c).getBoolean(WORK_ON, false);
+    /** Turn the mode on when leaving home and off when getting back. */
+    static boolean homeOn(Context c) {
+        return get(c).getBoolean(HOME_ON, false);
     }
 
-    static boolean hasWorkplace(Context c) {
-        return get(c).contains(WORK_LAT) && get(c).contains(WORK_LNG);
+    static boolean hasHome(Context c) {
+        return get(c).contains(HOME_LAT) && get(c).contains(HOME_LNG);
     }
 
-    static double workLat(Context c) {
-        return Double.longBitsToDouble(get(c).getLong(WORK_LAT, 0));
+    static double homeLat(Context c) {
+        return Double.longBitsToDouble(get(c).getLong(HOME_LAT, 0));
     }
 
-    static double workLng(Context c) {
-        return Double.longBitsToDouble(get(c).getLong(WORK_LNG, 0));
+    static double homeLng(Context c) {
+        return Double.longBitsToDouble(get(c).getLong(HOME_LNG, 0));
     }
 
-    static void setWorkplace(Context c, double lat, double lng) {
+    static void setHome(Context c, double lat, double lng) {
         get(c).edit()
-                .putLong(WORK_LAT, Double.doubleToRawLongBits(lat))
-                .putLong(WORK_LNG, Double.doubleToRawLongBits(lng))
+                .putLong(HOME_LAT, Double.doubleToRawLongBits(lat))
+                .putLong(HOME_LNG, Double.doubleToRawLongBits(lng))
                 .apply();
     }
 
-    /** Metres around the workplace that count as "there". */
-    static int workRadius(Context c) {
-        return get(c).getInt(WORK_RADIUS, 150);
+    /** Metres around home that still count as being home. */
+    static int homeRadius(Context c) {
+        return get(c).getInt(HOME_RADIUS, 150);
     }
 }

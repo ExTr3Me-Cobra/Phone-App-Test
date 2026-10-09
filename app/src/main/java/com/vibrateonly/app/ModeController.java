@@ -23,7 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * On: the phone's ringer goes to Vibrate, so calls, texts, notifications and system sounds
  * vibrate instead of making noise, and media is muted. Alarms are not affected by the ringer.
  *
- * The mode is "wanted" (switched on by the buttons, the tile or the workplace) but only applied
+ * The mode is "wanted" (switched on by the buttons, the tile or leaving home) but only applied
  * while no headphones or speaker are connected ({@link AudioRouting#mediaDeviceConnected}): with
  * one connected the phone behaves normally, and when it disconnects Vibrate Only comes back.
  *
@@ -93,7 +93,7 @@ final class ModeController {
         setWanted(c, false);
     }
 
-    /** Arriving at / leaving the workplace. */
+    /** Leaving home (on) / getting back (off). */
     static void setByLocation(Context c, boolean on) {
         if (isWanted(c) != on) setWanted(c, on);
     }

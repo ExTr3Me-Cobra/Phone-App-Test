@@ -65,7 +65,7 @@ public class SettingsActivity extends Activity {
                         + "speaker switches the mode off anyway until they disconnect.)",
                 Prefs.MUTE_MEDIA, true);
 
-        workplace();
+        home();
 
         heading("On / off buzz");
         choice("Buzz strength", null, Prefs.VIB_STRENGTH, 255,
@@ -99,19 +99,19 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        Workplace.register(this);
+        Home.register(this);
         render();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
-        Workplace.register(this);
+        Home.register(this);
         render();
     }
 
     private void changed() {
-        Workplace.register(this);
+        Home.register(this);
         ModeController.refresh(this);
         VibrateOnlyService service = VibrateOnlyService.instance;
         if (service != null) service.refresh();
@@ -132,7 +132,7 @@ public class SettingsActivity extends Activity {
         sw.setOnCheckedChangeListener((b, on) -> {
             Prefs.get(this).edit().putBoolean(key, on).apply();
             changed();
-            if (Prefs.WORK_ON.equals(key)) content.post(this::render);
+            if (Prefs.HOME_ON.equals(key)) content.post(this::render);
         });
         row.addView(sw);
         row.setOnClickListener(v -> sw.toggle());
@@ -167,18 +167,18 @@ public class SettingsActivity extends Activity {
         content.addView(row);
     }
 
-    /** Turn on at work, off when leaving. */
-    private void workplace() {
-        heading("Workplace");
-        toggle("Turn on at my workplace",
-                "Vibrate Only switches on when you arrive and off when you leave. You can still "
-                        + "use the buttons in between. Arriving or leaving can take a few minutes "
-                        + "to be noticed.",
-                Prefs.WORK_ON, false);
-        if (!Prefs.workplaceOn(this)) return;
+    /** Turn on when leaving home, off when getting back. */
+    private void home() {
+        heading("Home");
+        toggle("Turn on when I leave home",
+                "Vibrate Only switches on when you leave home and off when you get back. You can "
+                        + "still use the buttons in between. Leaving or arriving can take a few "
+                        + "minutes to be noticed.",
+                Prefs.HOME_ON, false);
+        if (!Prefs.homeOn(this)) return;
 
-        boolean fine = Workplace.hasLocationPermission(this);
-        boolean always = Workplace.hasBackgroundPermission(this);
+        boolean fine = Home.hasLocationPermission(this);
+        boolean always = Home.hasBackgroundPermission(this);
         if (!fine || !always) {
             content.addView(bold(fine ? "⬜ Location: choose \"Allow all the time\""
                     : "⬜ Allow location"));
@@ -197,11 +197,11 @@ public class SettingsActivity extends Activity {
             content.addView(text("✅ Location allowed all the time", 14));
         }
 
-        content.addView(bold(Prefs.hasWorkplace(this)
-                ? String.format(java.util.Locale.US, "Workplace: %.5f, %.5f",
-                        Prefs.workLat(this), Prefs.workLng(this))
-                : "Workplace: not set yet"));
-        TextView here = link("Use where I am now (do this at work)");
+        content.addView(bold(Prefs.hasHome(this)
+                ? String.format(java.util.Locale.US, "Home: %.5f, %.5f",
+                        Prefs.homeLat(this), Prefs.homeLng(this))
+                : "Home: not set yet"));
+        TextView here = link("Use where I am now (do this at home)");
         here.setOnClickListener(v -> {
             if (!fine) {
                 requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -209,13 +209,14 @@ public class SettingsActivity extends Activity {
                 return;
             }
             here.setText("Finding your location…");
-            Workplace.currentLocation(this, loc -> runOnUiThread(() -> {
+            Home.currentLocation(this, loc -> runOnUiThread(() -> {
                 if (loc == null) {
                     Toast.makeText(this, "Couldn't get your location. Is Location on?",
                             Toast.LENGTH_LONG).show();
                 } else {
-                    Prefs.setWorkplace(this, loc.getLatitude(), loc.getLongitude());
-                    Toast.makeText(this, "Workplace saved", Toast.LENGTH_SHORT).show();
+                    Prefs.setHome(this, loc.getLatitude(), loc.getLongitude());
+                    Home.forgetState(this);
+                    Toast.makeText(this, "Home saved", Toast.LENGTH_SHORT).show();
                     changed();
                 }
                 render();
@@ -225,26 +226,26 @@ public class SettingsActivity extends Activity {
         TextView typed = link("Enter coordinates (e.g. copied from Google Maps)");
         typed.setOnClickListener(v -> enterCoordinates());
         content.addView(typed);
-        if (Prefs.hasWorkplace(this)) {
+        if (Prefs.hasHome(this)) {
             TextView map = link("Check it on the map");
             map.setOnClickListener(v -> {
-                String pos = Prefs.workLat(this) + "," + Prefs.workLng(this);
+                String pos = Prefs.homeLat(this) + "," + Prefs.homeLng(this);
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("geo:" + pos + "?q=" + pos + "(Workplace)")));
+                            Uri.parse("geo:" + pos + "?q=" + pos + "(Home)")));
                 } catch (Exception e) {
                     Toast.makeText(this, "No maps app found", Toast.LENGTH_SHORT).show();
                 }
             });
             content.addView(map);
         }
-        choice("Workplace size",
-                "How far from that spot still counts as being at work. Bigger is more "
-                        + "reliable; smaller is more exact.",
-                Prefs.WORK_RADIUS, 150,
+        choice("Home size",
+                "How far from that spot still counts as being home. Bigger is more reliable "
+                        + "(no switching on while you're in the garden); smaller is more exact.",
+                Prefs.HOME_RADIUS, 150,
                 new String[] {"100 m", "150 m", "250 m", "400 m", "800 m"},
                 new int[] {100, 150, 250, 400, 800});
-        String last = Workplace.lastEvent(this);
+        String last = Home.lastEvent(this);
         if (last != null) content.addView(text("Last: " + last, 14));
     }
 
@@ -252,10 +253,10 @@ public class SettingsActivity extends Activity {
     private void enterCoordinates() {
         EditText input = new EditText(this);
         input.setHint("51.50070, -0.12460");
-        if (Prefs.hasWorkplace(this)) input.setText(Prefs.workLat(this) + ", " + Prefs.workLng(this));
+        if (Prefs.hasHome(this)) input.setText(Prefs.homeLat(this) + ", " + Prefs.homeLng(this));
         new AlertDialog.Builder(this)
-                .setTitle("Workplace coordinates")
-                .setMessage("In Google Maps, press and hold your workplace, then tap the numbers "
+                .setTitle("Home coordinates")
+                .setMessage("In Google Maps, press and hold your home, then tap the numbers "
                         + "that appear to copy them, and paste them here.")
                 .setView(input)
                 .setPositiveButton("Save", (d, w) -> {
@@ -265,7 +266,8 @@ public class SettingsActivity extends Activity {
                         double lat = Double.parseDouble(parts[0].trim());
                         double lng = Double.parseDouble(parts[1].trim());
                         if (Math.abs(lat) > 90 || Math.abs(lng) > 180) throw new NumberFormatException();
-                        Prefs.setWorkplace(this, lat, lng);
+                        Prefs.setHome(this, lat, lng);
+                        Home.forgetState(this);
                         changed();
                         render();
                     } catch (RuntimeException e) {
