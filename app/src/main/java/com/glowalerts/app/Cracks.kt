@@ -49,7 +49,7 @@ object Cracks {
         val cam = toView(camX, camY)
         val view = build(
             LightEffect.CRACK_LIGHTNING, h, w, origin, detail, seed, cam[0], cam[1],
-            jagged, branchLength, count, Tilt.BOTTOM,
+            jagged, branchLength, count, Tilt.BOTTOM, landAway = true,
         )
         val pts = FloatArray(view.points.size)
         for (i in 0 until view.count) {
@@ -202,6 +202,8 @@ object Cracks {
         effect: LightEffect, w: Float, h: Float, origin: CrackOrigin, detail: Int, seed: Long,
         camX: Float, camY: Float, jagged: Float = 1f, branchLength: Float = 1f, count: Int = 1,
         landing: Int = Tilt.BOTTOM,
+        /** Lightning only: land in the half of the bottom away from where it starts. */
+        landAway: Boolean = false,
     ): CrackShape {
         if (effect == LightEffect.CRACK_LIGHTNING && landing != Tilt.BOTTOM) {
             return sideways(w, h, origin, detail, seed, camX, camY, jagged, branchLength, count, landing)
@@ -298,9 +300,15 @@ object Cracks {
                     sx = w * (0.5f + (rnd.nextFloat() - 0.5f) * 0.3f)
                     sy = 0f
                 }
+                // Where along the bottom it can land: anywhere (just in from the corners), or when
+                // sideways, from halfway out to the far end (away from where it starts).
+                val (from, to) = when {
+                    !landAway -> 0.06f to 0.94f
+                    sx < w / 2 -> 0.5f to 0.94f
+                    else -> 0.06f to 0.5f
+                }
                 for (i in 0 until n) {
-                    val spread = (i - (n - 1) / 2f) * b.unit * 0.14f + (rnd.nextFloat() - 0.5f) * b.unit * 0.1f
-                    val tx = (w / 2 + spread).coerceIn(0f, w)
+                    val tx = w * (from + rnd.nextFloat() * (to - from))
                     val ty = h
                     b.jagged(
                         sx, sy, atan2(ty - sy, tx - sx), b.diag * 2f, 0f, 0, 0.1f + k * 0.03f,
