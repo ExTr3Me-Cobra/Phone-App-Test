@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A little calendar page: shown before the widget has drawn itself. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:fillColor="#FF1C1B1F"
+        android:pathData="M23,0h50a23,23 0,0 1,23 23v50a23,23 0,0 1,-23 23h-50a23,23 0,0 1,-23 -23v-50a23,23 0,0 1,23 -23z" />
+    <path
+        android:fillColor="#FFE5484D"
+        android:pathData="M23,0h50a23,23 0,0 1,23 23v6h-96v-6a23,23 0,0 1,23 -23z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40,42h16v40h-6v-34h-10z" />
+</vector>
