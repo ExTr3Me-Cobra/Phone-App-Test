@@ -1,0 +1,205 @@
+package com.glowalerts.app
+
+import android.content.Context
+import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+enum class LightGroup(val label: String) {
+    AROUND("Around the screen"),
+    ECHO("Echo"),
+    SIDES("Sides only"),
+    CRACK("Cracking"),
+}
+
+enum class LightEffect(val label: String, val group: LightGroup = LightGroup.AROUND) {
+    GLOW("Glow"),
+    LINE("Line"),
+    PULSE("Pulse"),
+    HEARTBEAT("Heartbeat"),
+    COMET("Comet"),
+    TWIN("Twin comets"),
+    WAVE("Wave"),
+    GLITTER("Glitter"),
+    RAINBOW("Rainbow"),
+    FLASH("Flash"),
+    BUBBLES("Bubbles"),
+    ECLIPSE("Eclipse"),
+    SPOTLIGHT("Spotlight"),
+    ECHO("Echo", LightGroup.ECHO),
+    ECHO_DOUBLE("Double echo", LightGroup.ECHO),
+    ECHO_TOP("Echo from the top", LightGroup.ECHO),
+    ECHO_CAMERA("Echo from the camera", LightGroup.ECHO),
+    ECHO_SIDES("Echo on the sides", LightGroup.ECHO),
+    SIDE_GLOW("Side glow", LightGroup.SIDES),
+    SIDE_PULSE("Side pulse", LightGroup.SIDES),
+    SIDE_SWEEP("Side sweep", LightGroup.SIDES),
+    SIDE_BOUNCE("Side bounce", LightGroup.SIDES),
+    SIDE_WAVE("Side wave", LightGroup.SIDES),
+    SIDE_RAIN("Side rain", LightGroup.SIDES),
+    SIDE_FLASH("Side flash", LightGroup.SIDES),
+    CRACK_QUAKE("Earthquake", LightGroup.CRACK),
+    CRACK_SHATTER("Shattered glass", LightGroup.CRACK),
+    CRACK_WEB("Spiderweb", LightGroup.CRACK),
+    CRACK_LIGHTNING("Lightning crack", LightGroup.CRACK),
+    CRACK_FAULTS("Fault lines", LightGroup.CRACK),
+    CRACK_EDGES("Cracked edges", LightGroup.CRACK),
+    ;
+
+    val isCrack get() = group == LightGroup.CRACK
+}
+
+enum class ColorMode(val label: String) {
+    APP("Each app's colour"),
+    ONE("One colour"),
+    TWO("Two-colour gradient"),
+    RAINBOW("Rainbow"),
+}
+
+/** Where a crack starts spreading from. */
+enum class CrackOrigin(val label: String) {
+    TOP("Top"),
+    BOTTOM("Bottom"),
+    LEFT("Left"),
+    RIGHT("Right"),
+    CENTER("Centre"),
+    TOP_LEFT("Top left"),
+    TOP_RIGHT("Top right"),
+    BOTTOM_LEFT("Bottom left"),
+    BOTTOM_RIGHT("Bottom right"),
+    CAMERA("Camera"),
+    RANDOM("Random"),
+}
+
+data class Settings(
+    /** Master switch. */
+    val enabled: Boolean = true,
+    val effect: LightEffect = LightEffect.GLOW,
+    val colorMode: ColorMode = ColorMode.APP,
+    val color1: Int = 0xFF3D8BFF.toInt(),
+    val color2: Int = 0xFFB04DFF.toInt(),
+    /** 0.25..3, 1 = normal. */
+    val speed: Float = 1f,
+    val thicknessDp: Float = 6f,
+    /** How soft and wide the glow around lines is, 0..2 (1 = normal, 0 = no glow). */
+    val glow: Float = 1f,
+    /** 20..100 % */
+    val brightness: Int = 100,
+    val seconds: Int = 5,
+    /** Follow the screen's own rounded corners. */
+    val matchCorners: Boolean = true,
+    val cornerDp: Float = 40f,
+
+    // Cracking
+    val crackOrigin: CrackOrigin = CrackOrigin.TOP,
+    /** Appear in one go instead of spreading from [crackOrigin]. */
+    val crackAllAtOnce: Boolean = false,
+    val crackLineDp: Float = 3f,
+    /** How many branches and pieces, 1..10. */
+    val crackDetail: Int = 5,
+    /** A bright flash when the crack hits. */
+    val crackFlash: Boolean = true,
+    /** Also glow around the screen edge while cracked. */
+    val crackEdgeGlow: Boolean = false,
+
+    // When
+    val onUnlocked: Boolean = true,
+    val onLocked: Boolean = true,
+    val onAod: Boolean = true,
+    /** Turn the screen on for notifications that arrive while it's fully off. */
+    val wakeScreen: Boolean = false,
+    /** Also light up for notifications the app sends quietly. */
+    val includeSilent: Boolean = true,
+    /** Apps that never light up. */
+    val excluded: Set<String> = emptySet(),
+    /** Colours picked recently, newest first. */
+    val recentColors: List<Int> = emptyList(),
+)
+
+/** Settings, saved in SharedPreferences and observable for the screen. */
+object Prefs {
+    private val state = MutableStateFlow(Settings())
+    val flow: StateFlow<Settings> = state.asStateFlow()
+    private var loaded = false
+
+    fun get(context: Context): Settings {
+        if (!loaded) {
+            val p = prefs(context)
+            val d = Settings()
+            state.value = Settings(
+                enabled = p.getBoolean("enabled", d.enabled),
+                effect = p.enum("effect", d.effect),
+                colorMode = p.enum("colorMode", d.colorMode),
+                color1 = p.getInt("color1", d.color1),
+                color2 = p.getInt("color2", d.color2),
+                speed = p.getFloat("speed", d.speed),
+                thicknessDp = p.getFloat("thickness", d.thicknessDp),
+                glow = p.getFloat("glow", d.glow),
+                brightness = p.getInt("brightness", d.brightness),
+                seconds = p.getInt("seconds", d.seconds),
+                matchCorners = p.getBoolean("matchCorners", d.matchCorners),
+                cornerDp = p.getFloat("corner", d.cornerDp),
+                crackOrigin = p.enum("crackOrigin", d.crackOrigin),
+                crackAllAtOnce = p.getBoolean("crackAllAtOnce", d.crackAllAtOnce),
+                crackLineDp = p.getFloat("crackLine", d.crackLineDp),
+                crackDetail = p.getInt("crackDetail", d.crackDetail),
+                crackFlash = p.getBoolean("crackFlash", d.crackFlash),
+                crackEdgeGlow = p.getBoolean("crackEdgeGlow", d.crackEdgeGlow),
+                onUnlocked = p.getBoolean("onUnlocked", d.onUnlocked),
+                onLocked = p.getBoolean("onLocked", d.onLocked),
+                onAod = p.getBoolean("onAod", d.onAod),
+                wakeScreen = p.getBoolean("wakeScreen", d.wakeScreen),
+                includeSilent = p.getBoolean("includeSilent", d.includeSilent),
+                excluded = p.getStringSet("excluded", emptySet()).orEmpty().toSet(),
+                recentColors = p.getString("recentColors", "").orEmpty().split(",")
+                    .mapNotNull { it.toLongOrNull()?.toInt() },
+            )
+            loaded = true
+        }
+        return state.value
+    }
+
+    fun update(context: Context, change: (Settings) -> Settings) {
+        val s = change(get(context))
+        state.value = s
+        prefs(context).edit()
+            .putBoolean("enabled", s.enabled)
+            .putString("effect", s.effect.name)
+            .putString("colorMode", s.colorMode.name)
+            .putInt("color1", s.color1)
+            .putInt("color2", s.color2)
+            .putFloat("speed", s.speed)
+            .putFloat("thickness", s.thicknessDp)
+            .putFloat("glow", s.glow)
+            .putInt("brightness", s.brightness)
+            .putInt("seconds", s.seconds)
+            .putBoolean("matchCorners", s.matchCorners)
+            .putFloat("corner", s.cornerDp)
+            .putString("crackOrigin", s.crackOrigin.name)
+            .putBoolean("crackAllAtOnce", s.crackAllAtOnce)
+            .putFloat("crackLine", s.crackLineDp)
+            .putInt("crackDetail", s.crackDetail)
+            .putBoolean("crackFlash", s.crackFlash)
+            .putBoolean("crackEdgeGlow", s.crackEdgeGlow)
+            .putBoolean("onUnlocked", s.onUnlocked)
+            .putBoolean("onLocked", s.onLocked)
+            .putBoolean("onAod", s.onAod)
+            .putBoolean("wakeScreen", s.wakeScreen)
+            .putBoolean("includeSilent", s.includeSilent)
+            .putStringSet("excluded", s.excluded)
+            .putString("recentColors", s.recentColors.joinToString(",") { (it.toLong() and 0xFFFFFFFFL).toString() })
+            .apply()
+    }
+
+    /** Remembers a picked colour at the front of the recent list. */
+    fun addRecentColor(context: Context, color: Int) = update(context) {
+        it.copy(recentColors = (listOf(color) + it.recentColors.filter { c -> c != color }).take(12))
+    }
+
+    private inline fun <reified E : Enum<E>> SharedPreferences.enum(key: String, default: E): E =
+        runCatching { enumValueOf<E>(getString(key, null) ?: return default) }.getOrDefault(default)
+
+    private fun prefs(context: Context) =
+        context.applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Glow Alerts</string>
+    <string name="light_label">Glow Alerts Lighting</string>
+    <string name="light_summary">Draws Glow Alerts\' lighting effects around the screen for new notifications.</string>
+    <string name="light_description">Glow Alerts uses this only to draw its lighting effects over the screen, including the lock screen and Always On Display. It doesn\'t read anything on your screen, can\'t tap anything, and the lighting ignores all touches.</string>
+</resources>
