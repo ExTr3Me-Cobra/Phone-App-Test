@@ -1,6 +1,7 @@
 package com.glowalerts.app
 
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -38,11 +39,61 @@ object Cracks {
         val diag = hypot(w, h)
         val unit = min(w, h)
 
-        fun seg(x1: Float, y1: Float, x2: Float, y2: Float, d: Float, lvl: Int) {
+        // A coarse grid of which segments are where, so checking for crossings stays fast.
+        private val cell = max(8f, unit * 0.06f)
+        private val grid = HashMap<Long, ArrayList<Int>>()
+        private fun key(cx: Int, cy: Int) = (cx.toLong() shl 32) or (cy.toLong() and 0xFFFFFFFFL)
+
+        private fun cells(x1: Float, y1: Float, x2: Float, y2: Float, each: (Long) -> Unit) {
+            val cx1 = (min(x1, x2) / cell).toInt() - 1
+            val cx2 = (max(x1, x2) / cell).toInt() + 1
+            val cy1 = (min(y1, y2) / cell).toInt() - 1
+            val cy2 = (max(y1, y2) / cell).toInt() + 1
+            for (cx in cx1..cx2) for (cy in cy1..cy2) each(key(cx, cy))
+        }
+
+        /** Adds a segment unless it would cross a line already drawn. Returns whether it was added. */
+        fun seg(x1: Float, y1: Float, x2: Float, y2: Float, d: Float, lvl: Int): Boolean {
+            if (crosses(x1, y1, x2, y2)) return false
+            val i = dist.size
             pts += x1; pts += y1; pts += x2; pts += y2
             dist += d
             len += hypot(x2 - x1, y2 - y1)
             level += lvl
+            cells(x1, y1, x2, y2) { grid.getOrPut(it) { ArrayList() } += i }
+            return true
+        }
+
+        /** True if the new segment would cross (not just touch at a joint) an existing one. */
+        private fun crosses(x1: Float, y1: Float, x2: Float, y2: Float): Boolean {
+            val checked = HashSet<Int>()
+            var hit = false
+            cells(x1, y1, x2, y2) { k ->
+                if (hit) return@cells
+                grid[k]?.forEach { j ->
+                    if (hit || !checked.add(j)) return@forEach
+                    val qx1 = pts[j * 4]; val qy1 = pts[j * 4 + 1]; val qx2 = pts[j * 4 + 2]; val qy2 = pts[j * 4 + 3]
+                    if (sharesEnd(x1, y1, x2, y2, qx1, qy1, qx2, qy2)) return@forEach
+                    if (intersect(x1, y1, x2, y2, qx1, qy1, qx2, qy2)) hit = true
+                }
+            }
+            return hit
+        }
+
+        private fun sharesEnd(ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float, dx: Float, dy: Float): Boolean {
+            val e = 0.5f
+            fun near(px: Float, py: Float, qx: Float, qy: Float) = abs(px - qx) < e && abs(py - qy) < e
+            return near(ax, ay, cx, cy) || near(ax, ay, dx, dy) || near(bx, by, cx, cy) || near(bx, by, dx, dy)
+        }
+
+        private fun intersect(ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float, dx: Float, dy: Float): Boolean {
+            fun orient(px: Float, py: Float, qx: Float, qy: Float, rx: Float, ry: Float) =
+                (qx - px) * (ry - py) - (qy - py) * (rx - px)
+            val o1 = orient(ax, ay, bx, by, cx, cy)
+            val o2 = orient(ax, ay, bx, by, dx, dy)
+            val o3 = orient(cx, cy, dx, dy, ax, ay)
+            val o4 = orient(cx, cy, dx, dy, bx, by)
+            return (o1 > 0) != (o2 > 0) && (o3 > 0) != (o4 > 0)
         }
 
         fun inside(x: Float, y: Float, margin: Float = 0f) =
@@ -50,11 +101,12 @@ object Cracks {
 
         /**
          * A jagged crack starting at (x, y) heading at [angle] for up to [length] (stops a little
-         * past the screen edge), with random side branches.
+         * past the screen edge), with random side branches. It never crosses an existing line:
+         * it steers round, and stops if it's boxed in. With a target it steers there and stops.
          */
         fun jagged(
             x0: Float, y0: Float, angle: Float, length: Float, d0: Float, lvl: Int,
-            branchChance: Float, wobble: Float = 0.55f,
+            branchChance: Float, wobble: Float = 0.55f, tx: Float = Float.NaN, ty: Float = Float.NaN,
         ) {
             var x = x0
             var y = y0
@@ -63,17 +115,33 @@ object Cracks {
             val wob = wobble * jag
             var travelled = 0f
             val step = unit * (if (lvl == 0) 0.035f else 0.025f)
+            val homing = !tx.isNaN()
             while (travelled < length && inside(x, y, unit * 0.05f)) {
-                // Wander, but keep drifting back to the main heading.
-                a += (rnd.nextFloat() - 0.5f) * wob + (angle - a) * 0.35f
+                val heading = if (homing) atan2(ty - y, tx - x) else angle
+                if (homing && hypot(tx - x, ty - y) < step * 1.2f) {
+                    seg(x, y, tx, ty, d, lvl)
+                    return
+                }
+                // Wander, but keep drifting back to the heading.
+                a += (rnd.nextFloat() - 0.5f) * wob + angleDiff(heading, a) * (if (homing) 0.5f else 0.35f)
                 val s = step * (0.6f + rnd.nextFloat() * 0.8f)
-                val nx = x + cos(a) * s
-                val ny = y + sin(a) * s
-                seg(x, y, nx, ny, d, lvl)
+                var placed = false
+                for (attempt in 0 until 8) {
+                    val turn = if (attempt == 0) 0f else ((attempt + 1) / 2) * 0.35f * (if (attempt % 2 == 0) 1 else -1)
+                    val aa = a + turn
+                    val nx = x + cos(aa) * s
+                    val ny = y + sin(aa) * s
+                    if (seg(x, y, nx, ny, d, lvl)) {
+                        a = aa
+                        x = nx
+                        y = ny
+                        placed = true
+                        break
+                    }
+                }
+                if (!placed) return // boxed in: this crack ends here
                 d += s
                 travelled += s
-                x = nx
-                y = ny
                 if (lvl < 2 && rnd.nextFloat() < branchChance) {
                     val side = if (rnd.nextBoolean()) 1 else -1
                     val ba = a + side * (0.4f + rnd.nextFloat() * 0.7f)
@@ -81,6 +149,13 @@ object Cracks {
                     jagged(x, y, ba, bl, d, lvl + 1, branchChance * 0.6f, wobble)
                 }
             }
+        }
+
+        private fun angleDiff(target: Float, current: Float): Float {
+            var diff = (target - current) % (2 * PI.toFloat())
+            if (diff > PI) diff -= 2 * PI.toFloat()
+            if (diff < -PI) diff += 2 * PI.toFloat()
+            return diff
         }
 
         fun build(ox: Float, oy: Float) = CrackShape(
@@ -92,6 +167,7 @@ object Cracks {
     fun build(
         effect: LightEffect, w: Float, h: Float, origin: CrackOrigin, detail: Int, seed: Long,
         camX: Float, camY: Float, jagged: Float = 1f, branchLength: Float = 1f, count: Int = 1,
+        landing: Int = Tilt.BOTTOM,
     ): CrackShape {
         val rnd = Random(seed)
         val b = Builder(w, h, rnd, jagged.coerceIn(0.1f, 3f), branchLength.coerceIn(0.2f, 3f))
@@ -175,12 +251,30 @@ object Cracks {
                 }
             }
             LightEffect.CRACK_LIGHTNING -> {
-                // A branching crack forking towards the far side, like lightning.
-                val heading = if (centred) -PI.toFloat() / 2 + (rnd.nextFloat() - 0.5f) else toCentre
+                // A forking bolt that lands at the bottom of the screen as you're holding it.
+                fun landingPoint(spread: Float): Pair<Float, Float> = when (landing) {
+                    Tilt.LEFT -> 0f to (h / 2 + spread).coerceIn(0f, h)
+                    Tilt.RIGHT -> w to (h / 2 + spread).coerceIn(0f, h)
+                    else -> (w / 2 + spread).coerceIn(0f, w) to h
+                }
+                var sx = ox
+                var sy = oy
+                val (lx, ly) = landingPoint(0f)
+                if (hypot(lx - sx, ly - sy) < b.unit * 0.35f) {
+                    // Starting right where it lands: strike from the opposite side instead.
+                    when (landing) {
+                        Tilt.LEFT -> { sx = w; sy = h / 2 }
+                        Tilt.RIGHT -> { sx = 0f; sy = h / 2 }
+                        else -> { sx = w / 2; sy = 0f }
+                    }
+                }
                 for (i in 0 until n) {
-                    val hd = heading + fan(i)
-                    b.jagged(ox, oy, hd, b.diag * 1.1f, 0f, 0, 0.1f + k * 0.03f, wobble = 0.9f)
-                    if (centred) b.jagged(ox, oy, hd + PI.toFloat(), b.diag * 1.1f, 0f, 0, 0.1f + k * 0.03f, wobble = 0.9f)
+                    val spread = (i - (n - 1) / 2f) * b.unit * 0.14f + (rnd.nextFloat() - 0.5f) * b.unit * 0.12f
+                    val (tx, ty) = landingPoint(spread)
+                    b.jagged(
+                        sx, sy, atan2(ty - sy, tx - sx), b.diag * 2f, 0f, 0, 0.1f + k * 0.03f,
+                        wobble = 0.9f, tx = tx, ty = ty,
+                    )
                 }
             }
             LightEffect.CRACK_FAULTS -> {

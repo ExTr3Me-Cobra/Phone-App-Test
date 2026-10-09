@@ -82,11 +82,13 @@ data class Settings(
     /** 0.25..3, 1 = normal. */
     val speed: Float = 1f,
     val thicknessDp: Float = 6f,
-    /** How soft and wide the glow around lines is, 0..2 (1 = normal, 0 = no glow). */
+    /** How soft and wide the glow around lines is, 0..5 (1 = normal, 0 = no glow). */
     val glow: Float = 1f,
     /** 20..100 % */
+    /** 20..300 %; above 100 the light is stacked for an over-bright, blown-out look. */
     val brightness: Int = 100,
-    val seconds: Int = 5,
+    /** How long it plays, 0.1..20 s. */
+    val seconds: Float = 5f,
     /** Follow the screen's own rounded corners. */
     val matchCorners: Boolean = true,
     val cornerDp: Float = 40f,
@@ -100,6 +102,19 @@ data class Settings(
     val crackDetail: Int = 5,
     /** A bright flash when the crack hits. */
     val crackFlash: Boolean = true,
+    /** The impact flash fills the whole screen (off: a burst where it starts). */
+    val crackFlashFull: Boolean = false,
+    /** Lightning: land at the bottom of the screen as you're holding it (sideways too). */
+    val lightningTilt: Boolean = true,
+    /** Lightning from the camera: a glowing ring around the camera hole. */
+    val camRing: Boolean = true,
+    /** Fine-tuning the camera hole position and size, in dp. */
+    val camOffsetX: Float = 0f,
+    val camOffsetY: Float = 0f,
+    val camSizeAdjust: Float = 0f,
+    val camRingDp: Float = 3f,
+    /** 0..5 (1 = normal). */
+    val camRingGlow: Float = 1f,
     /** Also glow around the screen edge while cracked. */
     val crackEdgeGlow: Boolean = false,
     /** How zig-zag the cracks are, 0.2..2 (1 = normal). */
@@ -165,7 +180,7 @@ object Prefs {
                 thicknessDp = p.getFloat("thickness", d.thicknessDp),
                 glow = p.getFloat("glow", d.glow),
                 brightness = p.getInt("brightness", d.brightness),
-                seconds = p.getInt("seconds", d.seconds),
+                seconds = if (p.contains("secondsF")) p.getFloat("secondsF", d.seconds) else p.getInt("seconds", 5).toFloat(),
                 matchCorners = p.getBoolean("matchCorners", d.matchCorners),
                 cornerDp = p.getFloat("corner", d.cornerDp),
                 crackOrigin = p.enum("crackOrigin", d.crackOrigin),
@@ -174,6 +189,14 @@ object Prefs {
                 crackDetail = p.getInt("crackDetail", d.crackDetail),
                 crackFlash = p.getBoolean("crackFlash", d.crackFlash),
                 crackEdgeGlow = p.getBoolean("crackEdgeGlow", d.crackEdgeGlow),
+                crackFlashFull = p.getBoolean("crackFlashFull", d.crackFlashFull),
+                lightningTilt = p.getBoolean("lightningTilt", d.lightningTilt),
+                camRing = p.getBoolean("camRing", d.camRing),
+                camOffsetX = p.getFloat("camOffsetX", d.camOffsetX),
+                camOffsetY = p.getFloat("camOffsetY", d.camOffsetY),
+                camSizeAdjust = p.getFloat("camSizeAdjust", d.camSizeAdjust),
+                camRingDp = p.getFloat("camRingDp", d.camRingDp),
+                camRingGlow = p.getFloat("camRingGlow", d.camRingGlow),
                 crackJagged = p.getFloat("crackJagged", d.crackJagged),
                 crackBranchLength = p.getFloat("crackBranchLength", d.crackBranchLength),
                 crackCount = p.getInt("crackCount", d.crackCount),
@@ -215,7 +238,7 @@ object Prefs {
             .putFloat("thickness", s.thicknessDp)
             .putFloat("glow", s.glow)
             .putInt("brightness", s.brightness)
-            .putInt("seconds", s.seconds)
+            .putFloat("secondsF", s.seconds)
             .putBoolean("matchCorners", s.matchCorners)
             .putFloat("corner", s.cornerDp)
             .putString("crackOrigin", s.crackOrigin.name)
@@ -224,6 +247,14 @@ object Prefs {
             .putInt("crackDetail", s.crackDetail)
             .putBoolean("crackFlash", s.crackFlash)
             .putBoolean("crackEdgeGlow", s.crackEdgeGlow)
+            .putBoolean("crackFlashFull", s.crackFlashFull)
+            .putBoolean("lightningTilt", s.lightningTilt)
+            .putBoolean("camRing", s.camRing)
+            .putFloat("camOffsetX", s.camOffsetX)
+            .putFloat("camOffsetY", s.camOffsetY)
+            .putFloat("camSizeAdjust", s.camSizeAdjust)
+            .putFloat("camRingDp", s.camRingDp)
+            .putFloat("camRingGlow", s.camRingGlow)
             .putFloat("crackJagged", s.crackJagged)
             .putFloat("crackBranchLength", s.crackBranchLength)
             .putInt("crackCount", s.crackCount)

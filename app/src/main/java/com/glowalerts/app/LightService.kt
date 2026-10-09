@@ -10,6 +10,7 @@ import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.os.Handler
 import android.os.Looper
+import kotlin.math.max
 import android.provider.Settings as AndroidSettings
 import android.view.Display
 import android.view.RoundedCorner
@@ -35,6 +36,7 @@ class LightService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
+        Tilt.start(this)
         attach()
         KeepAlive.start(this)
     }
@@ -173,7 +175,7 @@ class LightService : AccessibilityService() {
                 thicknessPx = s.thicknessDp * density,
                 cornerPx = corner,
                 brightness = s.brightness / 100f,
-                durationMs = if (forever) 0 else s.seconds * 1000L,
+                durationMs = if (forever) 0 else max(100L, (s.seconds * 1000).toLong()),
                 glow = s.glow,
                 rainbow = s.colorMode == ColorMode.RAINBOW,
                 crack = CrackSpec(
@@ -193,6 +195,14 @@ class LightService : AccessibilityService() {
                     repeats = s.crackRepeats,
                     retract = s.crackRetract,
                     fixedSeed = if (s.crackSamePattern) s.crackSeed else null,
+                    flashFull = s.crackFlashFull,
+                    landing = if (s.lightningTilt) Tilt.landing else Tilt.BOTTOM,
+                    camRing = s.camRing,
+                    camDx = s.camOffsetX * density,
+                    camDy = s.camOffsetY * density,
+                    camDr = s.camSizeAdjust * density,
+                    camRingPx = s.camRingDp * density,
+                    camRingGlow = s.camRingGlow,
                 ),
             )
         }

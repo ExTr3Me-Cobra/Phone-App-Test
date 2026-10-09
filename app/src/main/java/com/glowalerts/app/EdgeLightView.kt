@@ -69,6 +69,16 @@ data class CrackSpec(
     val retract: Boolean = false,
     /** Fixed pattern seed, or null for a new random crack each time. */
     val fixedSeed: Long? = null,
+    val flashFull: Boolean = false,
+    /** Lightning lands on this side of the screen: [Tilt.BOTTOM], [Tilt.LEFT] or [Tilt.RIGHT]. */
+    val landing: Int = Tilt.BOTTOM,
+    /** Lightning from the camera: ring around the hole, and the hole's fine-tuning (pixels). */
+    val camRing: Boolean = true,
+    val camDx: Float = 0f,
+    val camDy: Float = 0f,
+    val camDr: Float = 0f,
+    val camRingPx: Float = 6f,
+    val camRingGlow: Float = 1f,
 )
 
 /**
@@ -222,11 +232,14 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             return
         }
         // Fade in and out at the ends.
-        val env = if (s.durationMs == 0L) 1f else min(1f, min(t / 250f, (s.durationMs - t) / 400f))
+        val fadeIn = min(250f, s.durationMs * 0.2f)
+        val fadeOut = min(400f, s.durationMs * 0.3f)
+        val env = if (s.durationMs == 0L) 1f else min(1f, min(t / fadeIn, (s.durationMs - t) / fadeOut)).coerceAtLeast(0f)
         val cycle = max(60f, 2200f / s.speed.coerceAtLeast(0.05f))
         val phase = (t % cycle.toLong()) / cycle
         cycles = t / cycle
-        val a = (s.brightness * env).coerceIn(0f, 1f)
+        // Above 1 (brightness over 100 %) the light is drawn stacked, for an over-bright look.
+        val a = (s.brightness * env).coerceAtLeast(0f)
         val w = s.thicknessPx
 
         applyColors(phase)
@@ -345,13 +358,18 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
 
     private fun stroke(canvas: Canvas, p: Path, width: Float, alpha: Float, blur: Float) {
         // The glow setting widens or narrows every soft layer; at 0 they're left out.
-        if (blur > 0f && spec.glow < 0.05f) return
-        val soft = blur * spec.glow
+        val glowAmount = ringGlowOverride ?: spec.glow
+        if (blur > 0f && glowAmount < 0.05f) return
+        val soft = blur * glowAmount
         val paint = if (soft > 0f) glow else line
         paint.strokeWidth = max(1f, width)
-        paint.alpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
         paint.maskFilter = if (soft > 0f) blurFilter(soft) else null
-        canvas.drawPath(p, paint)
+        var rest = alpha
+        while (rest > 0.004f) {
+            paint.alpha = (min(rest, 1f) * 255).toInt()
+            canvas.drawPath(p, paint)
+            rest -= 1f
+        }
     }
 
     /** A soft glow with a bright core. */
@@ -362,9 +380,13 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
 
     private fun spot(canvas: Canvas, x: Float, y: Float, radius: Float, alpha: Float, blur: Float) {
         val soft = blur * spec.glow
-        dot.alpha = (alpha.coerceIn(0f, 1f) * 255).toInt()
         dot.maskFilter = if (soft > 0f) blurFilter(soft) else null
-        canvas.drawCircle(x, y, max(0.5f, radius), dot)
+        var rest = alpha
+        while (rest > 0.004f) {
+            dot.alpha = (min(rest, 1f) * 255).toInt()
+            canvas.drawCircle(x, y, max(0.5f, radius), dot)
+            rest -= 1f
+        }
     }
 
     private fun blink(phase: Float) = phase < 0.12f || phase in 0.24f..0.36f
@@ -403,6 +425,12 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         color = Color.WHITE
     }
 
+    /** When set, the glow amount used instead of the main Glow setting (the camera ring's own). */
+    private var ringGlowOverride: Float? = null
+
+    /** The in-app preview is a shrunken screen: scale fine-tuning offsets to match. */
+    private fun previewScale() = width / context.resources.displayMetrics.widthPixels.toFloat()
+
     /** Which repeat the crack is on, so each repeat can get a fresh pattern. */
     private var crackRound = -1
 
@@ -423,12 +451,17 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             if (round > 0 && c.fixedSeed == null) seed = Random.nextLong()
             crackShape = null
         }
+        val lightning = spec.effect == LightEffect.CRACK_LIGHTNING
+        // Lightning from the camera uses the fine-tuned camera position.
+        val cx = if (lightning) camX + c.camDx * previewScale() else camX
+        val cy = if (lightning) camY + c.camDy * previewScale() else camY
         val shape = crackShape ?: Cracks.build(
-            spec.effect, width.toFloat(), height.toFloat(), c.origin, c.detail, c.fixedSeed ?: seed, camX, camY,
-            c.jagged, c.branchLength, c.count,
+            spec.effect, width.toFloat(), height.toFloat(), c.origin, c.detail, c.fixedSeed ?: seed, cx, cy,
+            c.jagged, c.branchLength, c.count, if (lightning) c.landing else Tilt.BOTTOM,
         ).also { crackShape = it }
 
-        val spreadMs = max(30f, 1100f / spec.speed.coerceAtLeast(0.05f))
+        // Short alerts: make sure the crack finishes spreading in time.
+        val spreadMs = min(max(30f, 1100f / spec.speed.coerceAtLeast(0.05f)), roundMs * 0.6f)
         var reveal = if (c.allAtOnce) {
             shape.maxDist
         } else {
@@ -473,6 +506,18 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             canvas.translate(sin(t * 0.11f) * amp, cos(t * 0.083f) * amp * 0.6f)
         }
         val shimmer = if (c.shimmer) 0.85f + 0.15f * sin(2 * PI * phase).toFloat() else 1f
+        // Lightning from the camera: a glowing ring round the camera hole.
+        if (lightning && c.origin == CrackOrigin.CAMERA && c.camRing) {
+            val ps = previewScale()
+            ring.reset()
+            ring.addCircle(cx, cy, max(1f, camR + c.camDr * ps + c.camRingPx * 0.5f), Path.Direction.CW)
+            val rw = c.camRingPx
+            val savedGlow = ringGlowOverride
+            ringGlowOverride = c.camRingGlow
+            stroke(canvas, ring, rw * 2.5f, alpha * 0.7f * shimmer, blur = rw * 2f)
+            ringGlowOverride = savedGlow
+            stroke(canvas, ring, rw, alpha * shimmer, blur = 0f)
+        }
         if (c.edgeGlow) glowLine(canvas, path, w, alpha * 0.6f * shimmer)
         val lw = c.lineWidthPx
         val widths = floatArrayOf(1f, 0.6f, 0.35f)
@@ -491,9 +536,10 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         canvas.restore()
 
         // Flash where (or as) it hits.
-        if (c.flash && t < 400) {
-            val f = 1f - t / 400f
-            if (c.allAtOnce) {
+        val flashMs = min(400f, roundMs * 0.5f)
+        if (c.flash && t < flashMs) {
+            val f = 1f - t / flashMs
+            if (c.flashFull) {
                 flashPaint.shader = null
                 flashPaint.color = withAlpha(color, alpha * 0.35f * f)
                 canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), flashPaint)

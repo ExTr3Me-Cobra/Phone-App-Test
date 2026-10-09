@@ -96,6 +96,7 @@ private fun Screen() {
     var tick by remember { mutableIntStateOf(0) }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         tick++
+        Tilt.start(context)
         KeepAlive.start(context)
     }
     fun set(change: (Settings) -> Settings) = Prefs.update(context, change)
@@ -157,6 +158,29 @@ private fun Screen() {
             SliderRow("Line thickness", "${s.crackLineDp.roundToInt()} dp", s.crackLineDp, 1f..16f) { v -> set { it.copy(crackLineDp = v.roundToInt().toFloat()) } }
             SliderRow("Detail", "${s.crackDetail} / 10", s.crackDetail.toFloat(), 1f..10f) { v -> set { it.copy(crackDetail = v.roundToInt()) } }
             SwitchRow("Flash on impact", "A burst of light where the crack hits", s.crackFlash) { v -> set { it.copy(crackFlash = v) } }
+            if (s.crackFlash) {
+                SwitchRow("Flash fills the whole screen", "Off: the flash is a burst where the crack starts", s.crackFlashFull) { v -> set { it.copy(crackFlashFull = v) } }
+            }
+            if (s.effect == LightEffect.CRACK_LIGHTNING) {
+                SwitchRow(
+                    "Land at the bottom as I'm holding it",
+                    "Turned sideways, the lightning lands at the middle of whichever side is down. Upright, upside down or lying flat, it lands at the bottom.",
+                    s.lightningTilt,
+                ) { v -> set { it.copy(lightningTilt = v) } }
+            }
+            if (s.effect == LightEffect.CRACK_LIGHTNING && s.crackOrigin == CrackOrigin.CAMERA) {
+                Label("Camera hole ring")
+                SwitchRow("Glow around the camera hole", "Where the lightning comes from", s.camRing) { v -> set { it.copy(camRing = v) } }
+                SliderRow("Move left / right", "%+.1f dp".format(s.camOffsetX), s.camOffsetX, -40f..40f) { v -> set { it.copy(camOffsetX = (v * 2).roundToInt() / 2f) } }
+                SliderRow("Move up / down", "%+.1f dp".format(s.camOffsetY), s.camOffsetY, -40f..40f) { v -> set { it.copy(camOffsetY = (v * 2).roundToInt() / 2f) } }
+                SliderRow("Ring size", "%+.1f dp".format(s.camSizeAdjust), s.camSizeAdjust, -20f..40f) { v -> set { it.copy(camSizeAdjust = (v * 2).roundToInt() / 2f) } }
+                SliderRow("Ring thickness", "%.1f dp".format(s.camRingDp), s.camRingDp, 0.5f..16f) { v -> set { it.copy(camRingDp = (v * 2).roundToInt() / 2f) } }
+                SliderRow("Ring glow", "${(s.camRingGlow * 100).roundToInt()} %", s.camRingGlow, 0f..5f) { v -> set { it.copy(camRingGlow = (v * 20).roundToInt() / 20f) } }
+                OutlinedButton(
+                    onClick = { playFullScreen(context, s.copy(seconds = 10f, crackRepeats = 1)) },
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                ) { Text("Show it for 10 s to line it up") }
+            }
             SwitchRow("Also light the screen edge", "A glow around the edge while it's cracked", s.crackEdgeGlow) { v -> set { it.copy(crackEdgeGlow = v) } }
             SliderRow("Number of cracks", "${s.crackCount}", s.crackCount.toFloat(), 1f..6f) { v -> set { it.copy(crackCount = v.roundToInt()) } }
             SliderRow("Jaggedness", "${(s.crackJagged * 100).roundToInt()} %", s.crackJagged, 0.2f..2f) { v -> set { it.copy(crackJagged = (v * 20).roundToInt() / 20f) } }
@@ -200,9 +224,10 @@ private fun Screen() {
         // Speed slider runs from 0.25x to 20x; spread out so slow speeds are still easy to set.
         SliderRow("Speed", speedLabel(s.speed), speedToSlider(s.speed), 0f..1f) { p -> set { it.copy(speed = sliderToSpeed(p)) } }
         SliderRow("Line thickness (edge effects)", "${s.thicknessDp.roundToInt()} dp", s.thicknessDp, 1f..30f) { v -> set { it.copy(thicknessDp = v.roundToInt().toFloat()) } }
-        SliderRow("Glow", "${(s.glow * 100).roundToInt()} %", s.glow, 0f..2f) { v -> set { it.copy(glow = (v * 20).roundToInt() / 20f) } }
-        SliderRow("Brightness", "${s.brightness} %", s.brightness.toFloat(), 20f..100f) { v -> set { it.copy(brightness = v.roundToInt()) } }
-        SliderRow("Plays for", "${s.seconds} s", s.seconds.toFloat(), 1f..20f) { v -> set { it.copy(seconds = v.roundToInt()) } }
+        SliderRow("Glow", "${(s.glow * 100).roundToInt()} %", s.glow, 0f..5f) { v -> set { it.copy(glow = (v * 20).roundToInt() / 20f) } }
+        SliderRow("Brightness", "${s.brightness} %", s.brightness.toFloat(), 20f..300f) { v -> set { it.copy(brightness = (v / 5).roundToInt() * 5) } }
+        Note("Over 100 % the light is stacked for an extra-bright, blown-out look.")
+        SliderRow("Plays for", secondsLabel(s.seconds), secondsToSlider(s.seconds), 0f..1f) { p -> set { it.copy(seconds = sliderToSeconds(p)) } }
         SwitchRow("Match my screen's corners", "Follows the exact curve of your screen's corners", s.matchCorners) { v -> set { it.copy(matchCorners = v) } }
         if (!s.matchCorners) {
             SliderRow("Corner curve", "${s.cornerDp.roundToInt()} dp", s.cornerDp, 0f..120f) { v -> set { it.copy(cornerDp = v.roundToInt().toFloat()) } }
@@ -355,7 +380,7 @@ private fun MiniPreview(s: Settings) {
     val spec = full.copy(
         thicknessPx = full.thicknessPx * scale * 2f,
         cornerPx = full.cornerPx * scale,
-        crack = full.crack.copy(lineWidthPx = full.crack.lineWidthPx * scale * 2f),
+        crack = full.crack.copy(lineWidthPx = full.crack.lineWidthPx * scale * 2f, camRingPx = full.crack.camRingPx * scale * 2f),
     )
     val cornerDp = with(density) { spec.cornerPx.toDp() }
     Box(
@@ -509,3 +534,25 @@ private fun speedToSlider(speed: Float): Float =
     (ln(speed.coerceIn(SPEED_MIN, SPEED_MAX) / SPEED_MIN) / ln(SPEED_MAX / SPEED_MIN)).coerceIn(0f, 1f)
 
 private fun speedLabel(speed: Float) = if (speed < 3f) "%.2fx".format(speed) else "%.1fx".format(speed)
+
+/** "Plays for" slider: 0..1 mapped to 0.1 s..20 s on a curve, so short times are easy to set. */
+private const val SECONDS_MIN = 0.1f
+private const val SECONDS_MAX = 20f
+
+private fun sliderToSeconds(p: Float): Float {
+    val v = SECONDS_MIN * (SECONDS_MAX / SECONDS_MIN).toDouble().pow(p.toDouble()).toFloat()
+    return when {
+        v < 1f -> (v * 20).roundToInt() / 20f
+        v < 5f -> (v * 4).roundToInt() / 4f
+        else -> v.roundToInt().toFloat()
+    }.coerceIn(SECONDS_MIN, SECONDS_MAX)
+}
+
+private fun secondsToSlider(seconds: Float): Float =
+    (ln(seconds.coerceIn(SECONDS_MIN, SECONDS_MAX) / SECONDS_MIN) / ln(SECONDS_MAX / SECONDS_MIN)).coerceIn(0f, 1f)
+
+private fun secondsLabel(seconds: Float) = when {
+    seconds < 1f -> "%.2f s".format(seconds)
+    seconds < 5f -> "%.2f s".format(seconds).replace(Regex("\\.?0+ s$"), " s")
+    else -> "${seconds.roundToInt()} s"
+}
