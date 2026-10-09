@@ -156,6 +156,8 @@ data class Settings(
     val keepAwake: Boolean = true,
     /** Show the "Glow Alerts is ready" notification (Always ready works either way). */
     val readyNotification: Boolean = true,
+    /** Play the effect on screen whenever a setting is changed. */
+    val autoPreview: Boolean = true,
     /** Apps that never light up. */
     val excluded: Set<String> = emptySet(),
     /** Colours picked recently, newest first. */
@@ -217,6 +219,7 @@ object Prefs {
                 wakeFromAod = p.getBoolean("wakeFromAod", d.wakeFromAod),
                 includeSilent = p.getBoolean("includeSilent", d.includeSilent),
                 alwaysReady = p.getBoolean("alwaysReady", d.alwaysReady),
+                autoPreview = p.getBoolean("autoPreview", d.autoPreview),
                 keepAwake = p.getBoolean("keepAwake", d.keepAwake),
                 readyNotification = p.getBoolean("readyNotification", d.readyNotification),
                 excluded = p.getStringSet("excluded", emptySet()).orEmpty().toSet(),
@@ -276,6 +279,7 @@ object Prefs {
             .putBoolean("wakeFromAod", s.wakeFromAod)
             .putBoolean("includeSilent", s.includeSilent)
             .putBoolean("alwaysReady", s.alwaysReady)
+            .putBoolean("autoPreview", s.autoPreview)
             .putBoolean("keepAwake", s.keepAwake)
             .putBoolean("readyNotification", s.readyNotification)
             .putStringSet("excluded", s.excluded)

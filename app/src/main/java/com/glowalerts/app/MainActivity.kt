@@ -52,7 +52,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -102,8 +105,39 @@ private fun Screen() {
         KeepAlive.start(context)
     }
     fun set(change: (Settings) -> Settings) = Prefs.update(context, change)
+
+    /** Plays the current effect on screen, if live previews are on. */
+    fun preview() {
+        val now = Prefs.get(context)
+        if (now.autoPreview) playFullScreen(context, now)
+    }
+
+    /** A change that should be shown straight away (switches, chips). */
+    fun setAndShow(change: (Settings) -> Settings) {
+        set(change)
+        preview()
+    }
+
     // Which colour the picker is open for: 1, 2, or 0 = closed.
     var picking by remember { mutableIntStateOf(0) }
+    // The live camera ring only shows while a camera-ring slider is being moved (and briefly after).
+    var camTouched by remember { mutableLongStateOf(0L) }
+    var showRing by remember { mutableStateOf(false) }
+    LaunchedEffect(camTouched) {
+        if (camTouched > 0) {
+            kotlinx.coroutines.delay(1500)
+            showRing = false
+        }
+    }
+    fun camChange(change: (Settings) -> Settings) {
+        set(change)
+        showRing = true
+        camTouched = System.currentTimeMillis()
+    }
+
+    val setupDone = remember(tick) {
+        GlowListener.isEnabled(context) && LightService.isEnabled(context)
+    }
 
     Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState())) {
         Text("Glow Alerts", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp))
@@ -122,191 +156,213 @@ private fun Screen() {
             Switch(checked = s.enabled, onCheckedChange = { v -> set { it.copy(enabled = v) } })
         }
 
-        Section("Setup")
-        Steps(tick, s.wakeScreen)
-        PhoneCheck(tick)
+        Fold("Setup", open = !setupDone, summary = if (setupDone) "✅ All set" else "⚠️ Needs attention – tap to open") {
+            Steps(tick, s.wakeScreen)
+            PhoneCheck(tick)
+        }
 
-        Section("Preview")
-        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        // Preview: always visible.
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             MiniPreview(s)
             Column(Modifier.padding(start = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(s.effect.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text("Updates as you change settings.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { playFullScreen(context, s) }) { Text("Play full screen") }
                 OutlinedButton(onClick = { sendTest(context, 0) }) { Text("Test notification") }
                 OutlinedButton(onClick = { sendTest(context, 6000) }) { Text("Test in 6 s") }
             }
         }
-        Note("For the lock screen / Always On Display test, tap \"Test in 6 s\" and lock the phone straight away.")
+        SwitchRow(
+            "Play on screen as I change things",
+            "Picking an effect plays it straight away; other changes play when you let go of a slider or flip a switch.",
+            s.autoPreview,
+        ) { v -> set { it.copy(autoPreview = v) } }
 
-        Section("Effect  (${LightEffect.entries.size} presets)")
-        LightGroup.entries.forEach { group ->
-            Label(group.label)
-            FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LightEffect.entries.filter { it.group == group }.forEach { e ->
-                    FilterChip(selected = s.effect == e, onClick = { set { it.copy(effect = e) } }, label = { Text(e.label) })
+        Fold("Effect", open = true, summary = s.effect.label) {
+            LightGroup.entries.forEach { group ->
+                Label(group.label)
+                FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LightEffect.entries.filter { it.group == group }.forEach { e ->
+                        FilterChip(selected = s.effect == e, onClick = { setAndShow { it.copy(effect = e) } }, label = { Text(e.label) })
+                    }
                 }
             }
         }
 
         if (s.effect.isCrack) {
-            Section("Cracking")
-            SwitchRow("All at once", "The whole crack appears in one hit instead of spreading", s.crackAllAtOnce) { v -> set { it.copy(crackAllAtOnce = v) } }
-            Label(if (s.crackAllAtOnce) "Centred on" else "Spreads from")
-            FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                CrackOrigin.entries.forEach { o ->
-                    FilterChip(selected = s.crackOrigin == o, onClick = { set { it.copy(crackOrigin = o) } }, label = { Text(o.label) })
+            val lightning = s.effect == LightEffect.CRACK_LIGHTNING
+            Fold("${s.effect.label} settings", open = true) {
+                Label("How it starts")
+                SwitchRow("All at once", "The whole crack appears in one hit instead of spreading", s.crackAllAtOnce) { v -> setAndShow { it.copy(crackAllAtOnce = v) } }
+                Note(if (s.crackAllAtOnce) "Centred on:" else "Spreads from:")
+                FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CrackOrigin.entries.forEach { o ->
+                        FilterChip(selected = s.crackOrigin == o, onClick = { setAndShow { it.copy(crackOrigin = o) } }, label = { Text(o.label) })
+                    }
+                }
+                SwitchRow("Flash on impact", "A burst of light where the crack hits", s.crackFlash) { v -> setAndShow { it.copy(crackFlash = v) } }
+                if (s.crackFlash) {
+                    SwitchRow("Flash fills the whole screen", "Off: the flash is a burst where the crack starts", s.crackFlashFull) { v -> setAndShow { it.copy(crackFlashFull = v) } }
+                }
+
+                if (lightning) {
+                    Label("Where it lands")
+                    SwitchRow(
+                        "Land at the bottom as I'm holding it",
+                        "Turned sideways, it lands along whichever side is down. Upright, upside down or lying flat, it lands along the bottom.",
+                        s.lightningTilt,
+                    ) { v -> setAndShow { it.copy(lightningTilt = v) } }
+                    if (s.lightningTilt) {
+                        val mode by produceState(Tilt.landing) {
+                            while (true) {
+                                value = Tilt.landing
+                                kotlinx.coroutines.delay(250)
+                            }
+                        }
+                        Note("Right now: ${Tilt.label(mode)}.")
+                    }
+                }
+
+                if (lightning && s.crackOrigin == CrackOrigin.CAMERA) {
+                    Label("Camera hole ring")
+                    SwitchRow("Glow around the camera hole", "Where the lightning comes from", s.camRing) { v -> setAndShow { it.copy(camRing = v) } }
+                    if (s.camRing) {
+                        Note("The ring shows on your real camera hole while you move these sliders.")
+                        SliderRow("Move left / right", "%+.1f dp".format(s.camOffsetX), s.camOffsetX, -40f..40f) { v -> camChange { it.copy(camOffsetX = (v * 2).roundToInt() / 2f) } }
+                        SliderRow("Move up / down", "%+.1f dp".format(s.camOffsetY), s.camOffsetY, -40f..40f) { v -> camChange { it.copy(camOffsetY = (v * 2).roundToInt() / 2f) } }
+                        SliderRow("Ring size", "%+.1f dp".format(s.camSizeAdjust), s.camSizeAdjust, -20f..40f) { v -> camChange { it.copy(camSizeAdjust = (v * 2).roundToInt() / 2f) } }
+                        SliderRow("Ring thickness", "%.1f dp".format(s.camRingDp), s.camRingDp, 0.5f..16f) { v -> camChange { it.copy(camRingDp = (v * 2).roundToInt() / 2f) } }
+                        SliderRow("Ring glow", "${(s.camRingGlow * 100).roundToInt()} %", s.camRingGlow, 0f..5f) { v -> camChange { it.copy(camRingGlow = (v * 20).roundToInt() / 20f) } }
+                        if (showRing) LiveCamRing(s)
+                    }
+                }
+
+                Label("Shape")
+                SliderRow("Line thickness", "${s.crackLineDp.roundToInt()} dp", s.crackLineDp, 1f..16f, ::preview) { v -> set { it.copy(crackLineDp = v.roundToInt().toFloat()) } }
+                SliderRow("Detail", "${s.crackDetail} / 10", s.crackDetail.toFloat(), 1f..10f, ::preview) { v -> set { it.copy(crackDetail = v.roundToInt()) } }
+                SliderRow("Number of cracks", "${s.crackCount}", s.crackCount.toFloat(), 1f..6f, ::preview) { v -> set { it.copy(crackCount = v.roundToInt()) } }
+                SliderRow("Jaggedness", "${(s.crackJagged * 100).roundToInt()} %", s.crackJagged, 0.2f..2f, ::preview) { v -> set { it.copy(crackJagged = (v * 20).roundToInt() / 20f) } }
+                SliderRow("Branch length", "${(s.crackBranchLength * 100).roundToInt()} %", s.crackBranchLength, 0.3f..2.5f, ::preview) { v -> set { it.copy(crackBranchLength = (v * 20).roundToInt() / 20f) } }
+                SwitchRow("White-hot core", "A bright white line down the middle of each crack", s.crackCore) { v -> setAndShow { it.copy(crackCore = v) } }
+
+                Label("Motion")
+                SliderRow("Screen shake", if (s.crackShake == 0f) "Off" else "${(s.crackShake * 100).roundToInt()} %", s.crackShake, 0f..3f, ::preview) { v -> set { it.copy(crackShake = (v * 20).roundToInt() / 20f) } }
+                SliderRow("Cracks per alert", "${s.crackRepeats}×", s.crackRepeats.toFloat(), 1f..6f, ::preview) { v -> set { it.copy(crackRepeats = v.roundToInt()) } }
+                SwitchRow("Flicker", "Flickers like lightning while it forms", s.crackFlicker) { v -> setAndShow { it.copy(crackFlicker = v) } }
+                SwitchRow("Shimmer", "Gently pulses once it's formed", s.crackShimmer) { v -> setAndShow { it.copy(crackShimmer = v) } }
+                SwitchRow("Pull back at the end", "The crack retreats into where it started instead of just fading", s.crackRetract) { v -> setAndShow { it.copy(crackRetract = v) } }
+                SwitchRow("Also light the screen edge", "A glow around the edge while it's cracked", s.crackEdgeGlow) { v -> setAndShow { it.copy(crackEdgeGlow = v) } }
+                SwitchRow("Same crack every time", "Off: every notification gets a new random crack", s.crackSamePattern) { v -> setAndShow { it.copy(crackSamePattern = v) } }
+                if (s.crackSamePattern) {
+                    OutlinedButton(
+                        onClick = { setAndShow { it.copy(crackSeed = kotlin.random.Random.nextLong()) } },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    ) { Text("Try a different crack") }
                 }
             }
-            SliderRow("Line thickness", "${s.crackLineDp.roundToInt()} dp", s.crackLineDp, 1f..16f) { v -> set { it.copy(crackLineDp = v.roundToInt().toFloat()) } }
-            SliderRow("Detail", "${s.crackDetail} / 10", s.crackDetail.toFloat(), 1f..10f) { v -> set { it.copy(crackDetail = v.roundToInt()) } }
-            SwitchRow("Flash on impact", "A burst of light where the crack hits", s.crackFlash) { v -> set { it.copy(crackFlash = v) } }
-            if (s.crackFlash) {
-                SwitchRow("Flash fills the whole screen", "Off: the flash is a burst where the crack starts", s.crackFlashFull) { v -> set { it.copy(crackFlashFull = v) } }
+        }
+
+        Fold("Colour", open = true, summary = s.colorMode.label) {
+            FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ColorMode.entries.forEach { m ->
+                    FilterChip(selected = s.colorMode == m, onClick = { setAndShow { it.copy(colorMode = m) } }, label = { Text(m.label) })
+                }
             }
-            if (s.effect == LightEffect.CRACK_LIGHTNING) {
-                if (s.lightningTilt) {
-                    // Live readout of which of the three modes the phone is in right now.
-                    val mode by produceState(Tilt.landing) {
-                        while (true) {
-                            value = Tilt.landing
-                            kotlinx.coroutines.delay(250)
-                        }
-                    }
-                    Note("Right now: ${Tilt.label(mode)}. Turn the phone to see it change.")
+            when (s.colorMode) {
+                ColorMode.APP -> {
+                    Note("Each notification uses its app's colour (or its icon's main colour). This one is used when an app has none:")
+                    ColorRow("Fallback colour", s.color1) { picking = 1 }
+                }
+                ColorMode.ONE -> ColorRow("Colour", s.color1) { picking = 1 }
+                ColorMode.TWO -> {
+                    ColorRow("First colour", s.color1) { picking = 1 }
+                    ColorRow("Second colour", s.color2) { picking = 2 }
+                }
+                ColorMode.RAINBOW -> Note("Every effect turns through all the colours of the rainbow.")
+            }
+        }
+
+        Fold("Look", summary = "Speed ${speedLabel(s.speed)} · ${secondsLabel(s.seconds)} · brightness ${s.brightness} %") {
+            // Speed slider runs from 0.25x to 20x; spread out so slow speeds are still easy to set.
+            SliderRow("Speed", speedLabel(s.speed), speedToSlider(s.speed), 0f..1f, ::preview) { p -> set { it.copy(speed = sliderToSpeed(p)) } }
+            SliderRow("Plays for", secondsLabel(s.seconds), secondsToSlider(s.seconds), 0f..1f, ::preview) { p -> set { it.copy(seconds = sliderToSeconds(p)) } }
+            SliderRow("Brightness", "${s.brightness} %", s.brightness.toFloat(), 20f..300f, ::preview) { v -> set { it.copy(brightness = (v / 5).roundToInt() * 5) } }
+            Note("Over 100 % the light is stacked for an extra-bright, blown-out look.")
+            SliderRow("Glow", "${(s.glow * 100).roundToInt()} %", s.glow, 0f..5f, ::preview) { v -> set { it.copy(glow = (v * 20).roundToInt() / 20f) } }
+            // Edge line thickness and corners only matter for edge effects (or a crack's edge glow).
+            if (!s.effect.isCrack || s.crackEdgeGlow) {
+                SliderRow("Edge line thickness", "${s.thicknessDp.roundToInt()} dp", s.thicknessDp, 1f..30f, ::preview) { v -> set { it.copy(thicknessDp = v.roundToInt().toFloat()) } }
+                SwitchRow("Match my screen's corners", "Follows the exact curve of your screen's corners", s.matchCorners) { v -> setAndShow { it.copy(matchCorners = v) } }
+                if (!s.matchCorners) {
+                    SliderRow("Corner curve", "${s.cornerDp.roundToInt()} dp", s.cornerDp, 0f..120f, ::preview) { v -> set { it.copy(cornerDp = v.roundToInt().toFloat()) } }
+                }
+            }
+        }
+
+        Fold("When", summary = listOfNotNull(
+            "in use".takeIf { s.onUnlocked }, "lock screen".takeIf { s.onLocked }, "AOD".takeIf { s.onAod },
+            "wakes screen".takeIf { s.wakeScreen },
+        ).joinToString(" · ").ifEmpty { "never" }) {
+            SwitchRow("While using the phone", "Lights up over whatever's on screen", s.onUnlocked) { v -> set { it.copy(onUnlocked = v) } }
+            SwitchRow("On the lock screen", "Lights up while locked", s.onLocked) { v -> set { it.copy(onLocked = v) } }
+            SwitchRow(
+                "On the Always On Display",
+                "Lights up on the Always On Display without waking the phone. Smoothness depends on the phone (the AOD refreshes slowly).",
+                s.onAod,
+            ) { v -> set { it.copy(onAod = v) } }
+            SwitchRow(
+                "Wake the screen",
+                "When the screen is off, turn it on for each notification so you see the lighting. Needs \"Full screen notifications\" in Setup.",
+                s.wakeScreen,
+            ) { v -> set { it.copy(wakeScreen = v) } }
+            if (s.wakeScreen) {
+                SwitchRow(
+                    "Wake from the Always On Display too",
+                    "Samsung may not show other apps' lighting on the AOD. On: the AOD wakes to the lock screen and the lighting plays there. Off: it tries to play on the AOD itself.",
+                    s.wakeFromAod,
+                ) { v -> set { it.copy(wakeFromAod = v) } }
+            }
+            SwitchRow("Include silent notifications", "Also light up for notifications apps send quietly", s.includeSilent) { v -> set { it.copy(includeSilent = v) } }
+        }
+
+        Fold("Reliability", summary = if (s.alwaysReady) "Always ready" else "Off") {
+            SwitchRow(
+                "Always ready",
+                "Keeps Glow Alerts running so Android never puts it to sleep or delays it, and reconnects it if it's ever cut off. Uses more battery.",
+                s.alwaysReady,
+            ) { v ->
+                set { it.copy(alwaysReady = v) }
+                KeepAlive.start(context)
+            }
+            if (s.alwaysReady) {
+                SwitchRow(
+                    "Show the \"ready\" notification",
+                    "Off: no notification at all. Glow Alerts still stays running through its lighting service (which Android keeps on), with the same keep-awake and reconnect checks.",
+                    s.readyNotification,
+                ) { v ->
+                    set { it.copy(readyNotification = v) }
+                    KeepAlive.start(context)
                 }
                 SwitchRow(
-                    "Land at the bottom as I'm holding it",
-                    "Turned sideways, the lightning lands at the middle of whichever side is down. Upright, upside down or lying flat, it lands at the bottom.",
-                    s.lightningTilt,
-                ) { v -> set { it.copy(lightningTilt = v) } }
+                    "Keep the processor awake",
+                    "Never lets the phone's processor fully sleep, for the fastest possible reaction. Uses noticeably more battery.",
+                    s.keepAwake,
+                ) { v ->
+                    set { it.copy(keepAwake = v) }
+                    KeepAlive.start(context)
+                }
             }
-            if (s.effect == LightEffect.CRACK_LIGHTNING && s.crackOrigin == CrackOrigin.CAMERA) {
-                Label("Camera hole ring")
-                LiveCamRing(s)
-                Note("The ring shows live round your camera hole while you're on this part of the settings.")
-                SwitchRow("Glow around the camera hole", "Where the lightning comes from", s.camRing) { v -> set { it.copy(camRing = v) } }
-                SliderRow("Move left / right", "%+.1f dp".format(s.camOffsetX), s.camOffsetX, -40f..40f) { v -> set { it.copy(camOffsetX = (v * 2).roundToInt() / 2f) } }
-                SliderRow("Move up / down", "%+.1f dp".format(s.camOffsetY), s.camOffsetY, -40f..40f) { v -> set { it.copy(camOffsetY = (v * 2).roundToInt() / 2f) } }
-                SliderRow("Ring size", "%+.1f dp".format(s.camSizeAdjust), s.camSizeAdjust, -20f..40f) { v -> set { it.copy(camSizeAdjust = (v * 2).roundToInt() / 2f) } }
-                SliderRow("Ring thickness", "%.1f dp".format(s.camRingDp), s.camRingDp, 0.5f..16f) { v -> set { it.copy(camRingDp = (v * 2).roundToInt() / 2f) } }
-                SliderRow("Ring glow", "${(s.camRingGlow * 100).roundToInt()} %", s.camRingGlow, 0f..5f) { v -> set { it.copy(camRingGlow = (v * 20).roundToInt() / 20f) } }
-                OutlinedButton(
-                    onClick = { playFullScreen(context, s.copy(seconds = 10f, crackRepeats = 1)) },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                ) { Text("Show it for 10 s to line it up") }
-            }
-            SwitchRow("Also light the screen edge", "A glow around the edge while it's cracked", s.crackEdgeGlow) { v -> set { it.copy(crackEdgeGlow = v) } }
-            SliderRow("Number of cracks", "${s.crackCount}", s.crackCount.toFloat(), 1f..6f) { v -> set { it.copy(crackCount = v.roundToInt()) } }
-            SliderRow("Jaggedness", "${(s.crackJagged * 100).roundToInt()} %", s.crackJagged, 0.2f..2f) { v -> set { it.copy(crackJagged = (v * 20).roundToInt() / 20f) } }
-            SliderRow("Branch length", "${(s.crackBranchLength * 100).roundToInt()} %", s.crackBranchLength, 0.3f..2.5f) { v -> set { it.copy(crackBranchLength = (v * 20).roundToInt() / 20f) } }
-            SliderRow("Screen shake", if (s.crackShake == 0f) "Off" else "${(s.crackShake * 100).roundToInt()} %", s.crackShake, 0f..3f) { v -> set { it.copy(crackShake = (v * 20).roundToInt() / 20f) } }
-            SliderRow("Cracks per alert", "${s.crackRepeats}×", s.crackRepeats.toFloat(), 1f..6f) { v -> set { it.copy(crackRepeats = v.roundToInt()) } }
-            SwitchRow("White-hot core", "A bright white line down the middle of each crack", s.crackCore) { v -> set { it.copy(crackCore = v) } }
-            SwitchRow("Flicker", "Flickers like lightning while it forms", s.crackFlicker) { v -> set { it.copy(crackFlicker = v) } }
-            SwitchRow("Shimmer", "Gently pulses once it's formed", s.crackShimmer) { v -> set { it.copy(crackShimmer = v) } }
-            SwitchRow("Pull back at the end", "The crack retreats into where it started instead of just fading", s.crackRetract) { v -> set { it.copy(crackRetract = v) } }
-            SwitchRow("Same crack every time", "Off: every notification gets a new random crack", s.crackSamePattern) { v -> set { it.copy(crackSamePattern = v) } }
-            if (s.crackSamePattern) {
-                OutlinedButton(
-                    onClick = { set { it.copy(crackSeed = kotlin.random.Random.nextLong()) } },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                ) { Text("Try a different crack") }
-            }
-            Note("Speed (under Look) sets how fast cracks spread; \"Plays for\" sets how long they stay.")
+            Note("Tip: also set Settings → Battery → Background usage limits so Glow Alerts is under \"Never auto sleeping apps\".")
         }
 
-        Section("Colour")
-        FlowRow(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ColorMode.entries.forEach { m ->
-                FilterChip(selected = s.colorMode == m, onClick = { set { it.copy(colorMode = m) } }, label = { Text(m.label) })
-            }
-        }
-        when (s.colorMode) {
-            ColorMode.APP -> {
-                Note("Each notification uses its app's colour (or its icon's main colour). This one is used when an app has none:")
-                ColorRow("Fallback colour", s.color1) { picking = 1 }
-            }
-            ColorMode.ONE -> ColorRow("Colour", s.color1) { picking = 1 }
-            ColorMode.TWO -> {
-                ColorRow("First colour", s.color1) { picking = 1 }
-                ColorRow("Second colour", s.color2) { picking = 2 }
-            }
-            ColorMode.RAINBOW -> Note("Every effect turns through all the colours of the rainbow.")
+        Fold("Apps", summary = if (s.excluded.isEmpty()) "All apps light up" else "${s.excluded.size} switched off") {
+            AppList(s.excluded) { pkg, on -> set { it.copy(excluded = if (on) it.excluded - pkg else it.excluded + pkg) } }
         }
 
-        Section("Look")
-        // Speed slider runs from 0.25x to 20x; spread out so slow speeds are still easy to set.
-        SliderRow("Speed", speedLabel(s.speed), speedToSlider(s.speed), 0f..1f) { p -> set { it.copy(speed = sliderToSpeed(p)) } }
-        SliderRow("Line thickness (edge effects)", "${s.thicknessDp.roundToInt()} dp", s.thicknessDp, 1f..30f) { v -> set { it.copy(thicknessDp = v.roundToInt().toFloat()) } }
-        SliderRow("Glow", "${(s.glow * 100).roundToInt()} %", s.glow, 0f..5f) { v -> set { it.copy(glow = (v * 20).roundToInt() / 20f) } }
-        SliderRow("Brightness", "${s.brightness} %", s.brightness.toFloat(), 20f..300f) { v -> set { it.copy(brightness = (v / 5).roundToInt() * 5) } }
-        Note("Over 100 % the light is stacked for an extra-bright, blown-out look.")
-        SliderRow("Plays for", secondsLabel(s.seconds), secondsToSlider(s.seconds), 0f..1f) { p -> set { it.copy(seconds = sliderToSeconds(p)) } }
-        SwitchRow("Match my screen's corners", "Follows the exact curve of your screen's corners", s.matchCorners) { v -> set { it.copy(matchCorners = v) } }
-        if (!s.matchCorners) {
-            SliderRow("Corner curve", "${s.cornerDp.roundToInt()} dp", s.cornerDp, 0f..120f) { v -> set { it.copy(cornerDp = v.roundToInt().toFloat()) } }
-        }
-
-        Section("When")
-        SwitchRow("While using the phone", "Lights up over whatever's on screen", s.onUnlocked) { v -> set { it.copy(onUnlocked = v) } }
-        SwitchRow("On the lock screen", "Lights up while locked", s.onLocked) { v -> set { it.copy(onLocked = v) } }
-        SwitchRow(
-            "On the Always On Display",
-            "Lights up on the Always On Display without waking the phone. Smoothness depends on the phone (the AOD refreshes slowly).",
-            s.onAod,
-        ) { v -> set { it.copy(onAod = v) } }
-        SwitchRow(
-            "Wake the screen",
-            "When the screen is off, turn it on for each notification so you see the lighting. Needs \"Full screen notifications\" in Setup.",
-            s.wakeScreen,
-        ) { v -> set { it.copy(wakeScreen = v) } }
-        if (s.wakeScreen) {
-            SwitchRow(
-                "Wake from the Always On Display too",
-                "Samsung may not show other apps' lighting on the AOD. On: the AOD wakes to the lock screen and the lighting plays there. Off: it tries to play on the AOD itself.",
-                s.wakeFromAod,
-            ) { v -> set { it.copy(wakeFromAod = v) } }
-        }
-        SwitchRow("Include silent notifications", "Also light up for notifications apps send quietly", s.includeSilent) { v -> set { it.copy(includeSilent = v) } }
-
-        Section("Reliability")
-        SwitchRow(
-            "Always ready",
-            "Keeps Glow Alerts running in the foreground (with a small silent notification) so Android never puts it to sleep " +
-                "or delays it, and reconnects it if it's ever cut off. Uses more battery.",
-            s.alwaysReady,
-        ) { v ->
-            set { it.copy(alwaysReady = v) }
-            KeepAlive.start(context)
-        }
-        if (s.alwaysReady) {
-            SwitchRow(
-                "Show the \"ready\" notification",
-                "Off: no notification at all. Glow Alerts still stays running through its lighting service (which Android keeps on), with the same keep-awake and reconnect checks.",
-                s.readyNotification,
-            ) { v ->
-                set { it.copy(readyNotification = v) }
-                KeepAlive.start(context)
+        Fold("Recent activity", summary = Log.lines.firstOrNull() ?: "Nothing yet") {
+            if (Log.lines.isEmpty()) Note("Nothing yet. New notifications will be listed here with what Glow Alerts did.")
+            Log.lines.take(20).forEach {
+                Text(it, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 1.dp))
             }
-            SwitchRow(
-                "Keep the processor awake",
-                "Never lets the phone's processor fully sleep, for the fastest possible reaction. Uses noticeably more battery.",
-                s.keepAwake,
-            ) { v ->
-                set { it.copy(keepAwake = v) }
-                KeepAlive.start(context)
-            }
-        }
-        Note("Tip: also set Settings → Battery → Background usage limits so Glow Alerts is under \"Never auto sleeping apps\".")
-
-        Section("Apps")
-        AppList(s.excluded) { pkg, on -> set { it.copy(excluded = if (on) it.excluded - pkg else it.excluded + pkg) } }
-
-        Section("Recent activity")
-        if (Log.lines.isEmpty()) Note("Nothing yet. New notifications will be listed here with what Glow Alerts did.")
-        Log.lines.take(15).forEach {
-            Text(it, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 1.dp))
         }
         Spacer(Modifier.size(40.dp))
     }
@@ -319,12 +375,31 @@ private fun Screen() {
             onDismiss = { picking = 0 },
             onPick = { c ->
                 val which = picking
-                set { if (which == 1) it.copy(color1 = c) else it.copy(color2 = c) }
+                setAndShow { if (which == 1) it.copy(color1 = c) else it.copy(color2 = c) }
                 Prefs.addRecentColor(context, c)
                 picking = 0
             },
         )
     }
+}
+
+/** A section that folds open and shut; [summary] shows while it's shut. */
+@Composable
+private fun Fold(title: String, open: Boolean = false, summary: String? = null, content: @Composable () -> Unit) {
+    var expanded by rememberSaveable(title) { mutableStateOf(open) }
+    Row(
+        Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+            if (!expanded && summary != null) {
+                Text(summary, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+            }
+        }
+        Text(if (expanded) "▲" else "▼", color = MaterialTheme.colorScheme.primary)
+    }
+    if (expanded) content()
 }
 
 @Composable
@@ -496,11 +571,6 @@ private fun AppList(excluded: Set<String>, onChange: (String, Boolean) -> Unit) 
 }
 
 @Composable
-private fun Section(title: String) {
-    Text(title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 16.dp, top = 22.dp, bottom = 4.dp))
-}
-
-@Composable
 private fun Label(text: String) {
     Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 4.dp))
 }
@@ -525,13 +595,20 @@ private fun SwitchRow(title: String, summary: String, checked: Boolean, onChange
 }
 
 @Composable
-private fun SliderRow(title: String, value: String, current: Float, range: ClosedFloatingPointRange<Float>, onChange: (Float) -> Unit) {
+private fun SliderRow(
+    title: String,
+    value: String,
+    current: Float,
+    range: ClosedFloatingPointRange<Float>,
+    onFinished: () -> Unit = {},
+    onChange: (Float) -> Unit,
+) {
     Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
         Row {
             Text(title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Text(value, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
         }
-        Slider(value = current, onValueChange = onChange, valueRange = range)
+        Slider(value = current, onValueChange = onChange, valueRange = range, onValueChangeFinished = onFinished)
     }
 }
 
