@@ -196,7 +196,7 @@ class LightService : AccessibilityService() {
                     retract = s.crackRetract,
                     fixedSeed = if (s.crackSamePattern) s.crackSeed else null,
                     flashFull = s.crackFlashFull,
-                    landing = if (s.lightningTilt) Tilt.landing else Tilt.BOTTOM,
+                    landing = if (s.lightningTilt) Tilt.screenLanding(context) else Tilt.BOTTOM,
                     camRing = s.camRing,
                     camDx = s.camOffsetX * density,
                     camDy = s.camOffsetY * density,

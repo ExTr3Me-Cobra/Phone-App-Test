@@ -61,6 +61,28 @@ object Tilt : SensorEventListener {
         }
     }
 
+    /**
+     * Where to land in screen terms. [landing] is measured against the phone itself; if the
+     * screen has turned to landscape too (an app that rotates), its "bottom" already is the
+     * side facing down, so convert.
+     */
+    fun screenLanding(context: Context): Int {
+        val mode = landing
+        if (mode == BOTTOM) return BOTTOM
+        val rotation = runCatching {
+            context.getSystemService(android.hardware.display.DisplayManager::class.java)
+                .getDisplay(android.view.Display.DEFAULT_DISPLAY).rotation
+        }.getOrDefault(0)
+        // Phone edges going round: 0 bottom, 1 left, 2 top, 3 right. A turned screen's bottom
+        // is the phone's edge number [rotation].
+        val phoneEdge = if (mode == LEFT) 1 else 3
+        return when (((phoneEdge - rotation) % 4 + 4) % 4) {
+            1 -> LEFT
+            3 -> RIGHT
+            else -> BOTTOM
+        }
+    }
+
     /** For the settings screen. */
     fun label(mode: Int = landing) = when (mode) {
         LEFT -> "Strike left"

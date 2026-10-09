@@ -292,8 +292,9 @@ object Cracks {
                 // sideways strikes are drawn turned round, see [sideways]).
                 var sx = ox
                 var sy = oy
-                if (sy > h * 0.7f) {
+                if (o != CrackOrigin.CAMERA && sy > h * 0.7f) {
                     // Starting at the bottom, where it lands: strike from the top instead.
+                    // (From the camera it always starts at the camera.)
                     sx = w * (0.5f + (rnd.nextFloat() - 0.5f) * 0.3f)
                     sy = 0f
                 }

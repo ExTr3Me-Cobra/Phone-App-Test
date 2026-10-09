@@ -198,7 +198,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         val scale = width / context.resources.displayMetrics.widthPixels.toFloat()
         val hole = runCatching {
             context.getSystemService(DisplayManager::class.java).getDisplay(Display.DEFAULT_DISPLAY)
-                ?.cutout?.boundingRectTop?.takeIf { !it.isEmpty }
+                ?.cutout?.boundingRects?.filter { !it.isEmpty }?.minByOrNull { it.width() * it.height() }
         }.getOrNull()
         val density = resources.displayMetrics.density
         if (hole != null) {

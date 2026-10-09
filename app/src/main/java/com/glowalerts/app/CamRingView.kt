@@ -37,7 +37,7 @@ class CamRingView(context: Context) : View(context) {
         val density = resources.displayMetrics.density
         val hole = runCatching {
             context.getSystemService(DisplayManager::class.java).getDisplay(Display.DEFAULT_DISPLAY)
-                ?.cutout?.boundingRectTop?.takeIf { !it.isEmpty }
+                ?.cutout?.boundingRects?.filter { !it.isEmpty }?.minByOrNull { it.width() * it.height() }
         }.getOrNull()
         // Same position maths as the real lighting, in screen pixels…
         val camX = hole?.exactCenterX() ?: (resources.displayMetrics.widthPixels / 2f)
