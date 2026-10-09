@@ -40,6 +40,17 @@
             android:exported="false"
             android:label="Pick a colour" />
 
+        <!-- See-through and untouchable: opened for a moment when Android stalls the lighting. -->
+        <activity
+            android:name=".BoostActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.GlowAlerts.Invisible" />
+
         <!-- Turns the screen on for notifications that arrive while it's off (optional). -->
         <activity
             android:name=".WakeActivity"

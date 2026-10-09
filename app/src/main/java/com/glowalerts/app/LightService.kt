@@ -101,11 +101,34 @@ class LightService : AccessibilityService() {
             removeLayer(layer)
         }
         val playAt = SystemClock.uptimeMillis()
-        layer.onShown = { confirmed ->
+        var nudged = false
+        layer.onShown = { shown ->
+            BoostActivity.close()
             val ms = SystemClock.uptimeMillis() - playAt
-            if (!confirmed) Log.add("Lighting: Android didn't confirm it showed (started anyway)")
-            else if (ms > 400) Log.add("Lighting: took ${ms} ms to appear")
+            when {
+                !shown -> Log.add("Lighting: Android never showed it${if (nudged) ", even with the app brought to the front" else ""}")
+                nudged -> Log.add("Lighting: Android held it back – brought the app to the front (${ms} ms)")
+                ms > 400 -> Log.add("Lighting: took ${ms} ms to appear")
+            }
         }
+        // Android sometimes holds back drawing for apps in the background. If the lighting
+        // hasn't reached the screen shortly after the screen is on, open a see-through screen
+        // for a moment: that counts as the app being in front and releases it, the same as you
+        // opening the app.
+        main.postDelayed(object : Runnable {
+            var onFor = 0L
+            var tries = 0
+            override fun run() {
+                if (layer.parent !== box || layer.shown || nudged || ++tries > 40) return
+                onFor = if (screenVisible(this@LightService) && !onAod(this@LightService)) onFor + STALL_MS else 0L
+                if (onFor >= STALL_MS) {
+                    nudged = true
+                    BoostActivity.open(this@LightService)
+                } else {
+                    main.postDelayed(this, STALL_MS)
+                }
+            }
+        }, STALL_MS)
         box.addView(layer, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         // If the screen never lights up, don't leave the layer waiting forever.
         main.postDelayed(safety, spec.durationMs + 20_000)
@@ -145,6 +168,7 @@ class LightService : AccessibilityService() {
     companion object {
         private const val MAX_LAYERS = 12
         private const val CHECK_MS = 500L
+        private const val STALL_MS = 250L
 
         @Volatile
         var instance: LightService? = null

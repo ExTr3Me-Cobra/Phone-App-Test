@@ -104,8 +104,11 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     /** Waiting for the first frame to reach the screen before the clock starts. */
     private var waitingSince = 0L
 
-    /** Told when the first frame reaches the screen (true) or never confirmed it did (false). */
+    /** Told when the first frame reaches the screen (true), or it gave up waiting (false). */
     var onShown: ((Boolean) -> Unit)? = null
+
+    /** The first frame has reached the screen and the effect is running. */
+    val shown get() = start != 0L
 
     // The whole edge: a rounded rectangle that starts (and ends) at the top centre.
     private val path = Path()
@@ -247,8 +250,12 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             started = true
             // Start the clock only once the first frame has actually reached the screen. A window
             // that was hidden can take a moment to show, which used to eat most of a short alert.
-            if (waitingSince == 0L) {
-                waitingSince = now
+            if (waitingSince == 0L) waitingSince = now
+            if (now - waitingSince > GIVE_UP_MS) {
+                start = now
+                onShown?.invoke(false)
+            } else {
+                // Asked for every frame while waiting, in case Android drops one.
                 viewTreeObserver.registerFrameCommitCallback {
                     if (start == 0L) {
                         start = SystemClock.uptimeMillis()
@@ -256,9 +263,6 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
                     }
                     invalidate()
                 }
-            } else if (now - waitingSince > 600) {
-                start = now
-                onShown?.invoke(false)
             }
         }
         val t = if (start == 0L) 0L else now - start
@@ -820,3 +824,5 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         )
     }
 }
+
+private const val GIVE_UP_MS = 3_000L
