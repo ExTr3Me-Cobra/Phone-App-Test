@@ -16,6 +16,10 @@ final class Prefs {
     static final String NOTIFICATION = "notification";
     static final String AUTO_OFF_MIN = "auto_off_min";
     static final String KEEP_VIBRATE = "keep_vibrate";
+    static final String ALWAYS_READY = "always_ready";
+    static final String FAST_CHECK = "fast_check";
+    static final String KEEP_AWAKE = "keep_awake";
+    static final String READY_NOTIFICATION = "ready_notification";
     static final String HOME_ON = "home_on";
     static final String HOME_LAT = "home_lat";
     static final String HOME_LNG = "home_lng";
@@ -56,6 +60,25 @@ final class Prefs {
     }
 
     /** If the sound mode is changed some other way, put it back to vibrate (true) or end the mode. */
+    /** Run in the foreground so Android never puts the app to sleep. */
+    static boolean alwaysReady(Context c) {
+        return get(c).getBoolean(ALWAYS_READY, true);
+    }
+
+    /** Check location every ~20 s with GPS instead of every ~2 min. */
+    static boolean fastCheck(Context c) {
+        return get(c).getBoolean(FAST_CHECK, true);
+    }
+
+    /** Never let the processor fully sleep (fastest reactions, more battery). */
+    static boolean keepAwake(Context c) {
+        return get(c).getBoolean(KEEP_AWAKE, true);
+    }
+
+    static boolean readyNotification(Context c) {
+        return get(c).getBoolean(READY_NOTIFICATION, true);
+    }
+
     static boolean keepVibrate(Context c) {
         return get(c).getBoolean(KEEP_VIBRATE, true);
     }

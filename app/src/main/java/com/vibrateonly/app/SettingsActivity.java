@@ -77,6 +77,28 @@ public class SettingsActivity extends Activity {
         test.setOnClickListener(v -> ModeController.vibrate(this, true));
         content.addView(test);
 
+        heading("Reliability");
+        toggle("Always ready",
+                "Keeps Vibrate Only running in the foreground (with a small silent notification) so "
+                        + "Android never puts it to sleep, and restarts it after a reboot.",
+                Prefs.ALWAYS_READY, true);
+        if (Prefs.alwaysReady(this)) {
+            toggle("Show the \"running\" notification",
+                    "Off hides it; Always ready keeps working either way.",
+                    Prefs.READY_NOTIFICATION, true);
+            toggle("Keep the processor awake",
+                    "Never lets the phone fully sleep, so location checks aren't delayed while it's "
+                            + "locked. Uses more battery.",
+                    Prefs.KEEP_AWAKE, true);
+        }
+        toggle("Fast home checking",
+                "Checks your location with GPS about every 20 seconds (or after moving 15 m) instead "
+                        + "of every 2 minutes, so leaving and getting home are noticed sooner. Uses "
+                        + "more battery.",
+                Prefs.FAST_CHECK, true);
+        content.addView(text("Tip: also set Settings → Battery → Background usage limits so Vibrate "
+                + "Only is under \"Never auto sleeping apps\".", 14));
+
         heading("Behaviour");
         toggle("Show a notification while on",
                 "A silent notification with a \"Turn off\" button, so you can see the mode is on.",
@@ -112,6 +134,7 @@ public class SettingsActivity extends Activity {
 
     private void changed() {
         Home.register(this);
+        KeepAlive.start(this);
         ModeController.refresh(this);
         VibrateOnlyService service = VibrateOnlyService.instance;
         if (service != null) service.refresh();
@@ -132,7 +155,7 @@ public class SettingsActivity extends Activity {
         sw.setOnCheckedChangeListener((b, on) -> {
             Prefs.get(this).edit().putBoolean(key, on).apply();
             changed();
-            if (Prefs.HOME_ON.equals(key)) content.post(this::render);
+            if (Prefs.HOME_ON.equals(key) || Prefs.ALWAYS_READY.equals(key)) content.post(this::render);
         });
         row.addView(sw);
         row.setOnClickListener(v -> sw.toggle());

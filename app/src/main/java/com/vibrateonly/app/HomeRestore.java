@@ -12,5 +12,6 @@ public class HomeRestore extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Home.register(context);
+        KeepAlive.start(context);
     }
 }

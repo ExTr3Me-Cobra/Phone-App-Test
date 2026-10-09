@@ -68,6 +68,8 @@ final class Home {
             stopBackup(app);
             return;
         }
+        // Restart the backup check so a change to "fast checking" takes effect.
+        stopBackup(app);
         startBackup(app);
         Geofence fence = new Geofence.Builder()
                 .setRequestId("home")
@@ -148,10 +150,17 @@ final class Home {
     static synchronized void startBackup(Context c) {
         Context app = c.getApplicationContext();
         if (backup != null) return;
-        LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 120_000L)
-                .setMinUpdateIntervalMillis(30_000L)
-                .setMinUpdateDistanceMeters(40f)
-                .build();
+        boolean fast = Prefs.fastCheck(app);
+        // Fast: GPS every ~20 s (or after moving 15 m). Normal: low-power, every ~2 minutes.
+        LocationRequest request = fast
+                ? new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 20_000L)
+                        .setMinUpdateIntervalMillis(10_000L)
+                        .setMinUpdateDistanceMeters(15f)
+                        .build()
+                : new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 120_000L)
+                        .setMinUpdateIntervalMillis(30_000L)
+                        .setMinUpdateDistanceMeters(40f)
+                        .build();
         backup = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult result) {

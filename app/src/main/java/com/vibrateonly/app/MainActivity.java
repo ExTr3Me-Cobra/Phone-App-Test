@@ -46,6 +46,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        KeepAlive.start(this);
         ModeController.addListener(onModeChanged);
         VibrateOnlyService service = VibrateOnlyService.instance;
         if (service != null) service.refresh();
