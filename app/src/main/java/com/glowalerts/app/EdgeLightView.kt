@@ -197,7 +197,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             // Screen still fully off: wait, so the whole effect is seen. (It does play on the
             // Always On Display.)
             if (!LightService.screenVisible(context)) {
-                postInvalidateDelayed(100)
+                postInvalidateDelayed(30)
                 return
             }
             start = now

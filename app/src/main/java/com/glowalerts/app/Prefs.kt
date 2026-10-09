@@ -111,6 +111,10 @@ data class Settings(
     val wakeScreen: Boolean = false,
     /** Also light up for notifications the app sends quietly. */
     val includeSilent: Boolean = true,
+    /** Run a foreground service so Android never puts the app to sleep or delays it. */
+    val alwaysReady: Boolean = true,
+    /** Also keep the processor awake all the time (uses more battery). */
+    val keepAwake: Boolean = true,
     /** Apps that never light up. */
     val excluded: Set<String> = emptySet(),
     /** Colours picked recently, newest first. */
@@ -151,6 +155,8 @@ object Prefs {
                 onAod = p.getBoolean("onAod", d.onAod),
                 wakeScreen = p.getBoolean("wakeScreen", d.wakeScreen),
                 includeSilent = p.getBoolean("includeSilent", d.includeSilent),
+                alwaysReady = p.getBoolean("alwaysReady", d.alwaysReady),
+                keepAwake = p.getBoolean("keepAwake", d.keepAwake),
                 excluded = p.getStringSet("excluded", emptySet()).orEmpty().toSet(),
                 recentColors = p.getString("recentColors", "").orEmpty().split(",")
                     .mapNotNull { it.toLongOrNull()?.toInt() },
@@ -187,6 +193,8 @@ object Prefs {
             .putBoolean("onAod", s.onAod)
             .putBoolean("wakeScreen", s.wakeScreen)
             .putBoolean("includeSilent", s.includeSilent)
+            .putBoolean("alwaysReady", s.alwaysReady)
+            .putBoolean("keepAwake", s.keepAwake)
             .putStringSet("excluded", s.excluded)
             .putString("recentColors", s.recentColors.joinToString(",") { (it.toLong() and 0xFFFFFFFFL).toString() })
             .apply()

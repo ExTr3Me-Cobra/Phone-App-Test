@@ -13,8 +13,10 @@ import android.os.Looper
 import android.provider.Settings as AndroidSettings
 import android.view.Display
 import android.view.RoundedCorner
+import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
+import android.widget.FrameLayout
 import androidx.core.graphics.drawable.toBitmap
 
 /**
@@ -24,21 +26,27 @@ import androidx.core.graphics.drawable.toBitmap
  */
 class LightService : AccessibilityService() {
     private val main = Handler(Looper.getMainLooper())
-    private var view: EdgeLightView? = null
-    private val safetyRemove = Runnable { remove() }
+
+    /**
+     * One full-screen window that stays attached all the time (hidden while idle), so lighting
+     * starts instantly. Each notification adds its own layer, so effects overlap.
+     */
+    private var container: FrameLayout? = null
 
     override fun onServiceConnected() {
         instance = this
+        attach()
+        KeepAlive.start(this)
     }
 
     override fun onDestroy() {
-        remove()
+        detach()
         if (instance === this) instance = null
         super.onDestroy()
     }
 
     override fun onUnbind(intent: android.content.Intent?): Boolean {
-        remove()
+        detach()
         if (instance === this) instance = null
         return super.onUnbind(intent)
     }
@@ -46,44 +54,66 @@ class LightService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
     override fun onInterrupt() = Unit
 
-    fun play(spec: LightSpec) = main.post {
-        val existing = view
-        if (existing != null) {
-            existing.spec = spec
-            existing.restart()
-        } else {
-            val v = EdgeLightView(this, spec) { remove() }
-            val lp = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSLUCENT,
-            ).apply {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
-                fitInsetsTypes = 0
-                title = "Glow Alerts lighting"
-            }
-            runCatching { getSystemService(WindowManager::class.java).addView(v, lp) }
-                .onSuccess { view = v }
-                .onFailure { Log.add("Lighting: couldn't draw (${it.message})") }
+    /** Adds the (hidden) window if it isn't there. Returns it, or null if Android refused. */
+    private fun attach(): FrameLayout? {
+        container?.let { return it }
+        val box = FrameLayout(this).apply { visibility = View.GONE }
+        val lp = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            PixelFormat.TRANSLUCENT,
+        ).apply {
+            layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            fitInsetsTypes = 0
+            title = "Glow Alerts lighting"
         }
-        // If the screen never lights up, don't leave the window waiting forever.
-        main.removeCallbacks(safetyRemove)
-        main.postDelayed(safetyRemove, spec.durationMs + 20_000)
+        return runCatching { getSystemService(WindowManager::class.java).addView(box, lp) }
+            .onFailure { Log.add("Lighting: couldn't draw (${it.message})") }
+            .map { box.also { container = it } }
+            .getOrNull()
     }
 
-    private fun remove() {
-        main.removeCallbacks(safetyRemove)
-        val v = view ?: return
-        view = null
-        runCatching { getSystemService(WindowManager::class.java).removeView(v) }
+    private fun detach() {
+        val box = container ?: return
+        container = null
+        runCatching { getSystemService(WindowManager::class.java).removeView(box) }
+    }
+
+    /** Whether the drawing window is attached and ready. */
+    val ready get() = container != null
+
+    /** Plays one effect on top of any that are already playing. */
+    fun play(spec: LightSpec) = main.post {
+        val box = attach() ?: return@post
+        // Keep it sensible: drop the oldest when lots arrive at once.
+        while (box.childCount >= MAX_LAYERS) box.removeViewAt(0)
+        lateinit var layer: EdgeLightView
+        val safety = Runnable { removeLayer(layer) }
+        layer = EdgeLightView(this, spec) {
+            main.removeCallbacks(safety)
+            removeLayer(layer)
+        }
+        box.addView(layer, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        box.visibility = View.VISIBLE
+        // If the screen never lights up, don't leave the layer waiting forever.
+        main.postDelayed(safety, spec.durationMs + 20_000)
+    }
+
+    private fun removeLayer(layer: View) {
+        val box = container ?: return
+        box.removeView(layer)
+        if (box.childCount == 0) box.visibility = View.GONE
     }
 
     companion object {
+        private const val MAX_LAYERS = 8
+
         @Volatile
         var instance: LightService? = null
             private set

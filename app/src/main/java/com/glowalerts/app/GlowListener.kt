@@ -14,24 +14,42 @@ import android.service.notification.StatusBarNotification
  * while you use the phone, on the lock screen, and on the Always On Display.
  */
 class GlowListener : NotificationListenerService() {
-    /** Keys already seen, so updates to an existing notification don't light up again. */
-    private val seen = HashSet<String>()
+    /**
+     * What each notification last said. Messaging apps put each new message into the same
+     * notification, so a changed notification that's allowed to alert again counts as new.
+     */
+    private val seen = HashMap<String, String>()
 
     override fun onListenerConnected() {
         instance = this
-        runCatching { activeNotifications?.forEach { seen.add(it.key) } }
+        runCatching { activeNotifications?.forEach { seen[it.key] = signature(it) } }
+        KeepAlive.start(this)
     }
 
     override fun onListenerDisconnected() {
         if (instance === this) instance = null
+        // Ask Android to connect us again straight away.
+        runCatching { requestRebind(ComponentName(this, GlowListener::class.java)) }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification, rankingMap: RankingMap) {
         seen.remove(sbn.key)
     }
 
+    /** Title + text + time: changes when an app adds a new message to an existing notification. */
+    private fun signature(sbn: StatusBarNotification): String {
+        val ex = sbn.notification.extras
+        return "${ex.getCharSequence(Notification.EXTRA_TITLE)}|${ex.getCharSequence(Notification.EXTRA_TEXT)}|" +
+            "${ex.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)?.lastOrNull()}|" +
+            "${(ex.get(Notification.EXTRA_MESSAGES) as? Array<*>)?.size}|${sbn.notification.`when`}"
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification, rankingMap: RankingMap) {
-        val isUpdate = !seen.add(sbn.key)
+        val sig = signature(sbn)
+        val previous = seen.put(sbn.key, sig)
+        // An update only counts when its content changed and the app lets it alert again.
+        val isUpdate = previous != null && (previous == sig ||
+            sbn.notification.flags and Notification.FLAG_ONLY_ALERT_ONCE != 0)
         val ranking = Ranking().takeIf { rankingMap.getRanking(sbn.key, it) }
         val name = appName(this, sbn.packageName)
         val reason = skipReason(sbn, ranking, isUpdate)
@@ -40,7 +58,8 @@ class GlowListener : NotificationListenerService() {
             return
         }
         val color = LightService.appColor(this, sbn.notification.color, sbn.packageName)
-        light(this, name, color)
+        val late = System.currentTimeMillis() - sbn.postTime
+        light(this, if (late > 1500) "$name (arrived ${late / 1000.0}s late)" else name, color)
     }
 
     /** Null when this notification should light up; otherwise why not. */
@@ -51,7 +70,7 @@ class GlowListener : NotificationListenerService() {
             !s.enabled -> "Glow Alerts is off"
             sbn.packageName == packageName && n.channelId != TEST_CHANNEL -> OWN
             sbn.packageName in s.excluded -> "app switched off"
-            isUpdate -> "update of an existing notification"
+            isUpdate -> "same notification again (no new content)"
             sbn.isOngoing -> "ongoing (music, navigation, downloads…)"
             n.flags and Notification.FLAG_GROUP_SUMMARY != 0 -> "group summary"
             n.extras.getString(Notification.EXTRA_TEMPLATE).orEmpty().contains("MediaStyle") -> "media"

@@ -92,7 +92,10 @@ private fun Screen() {
     Prefs.get(context)
     val s by Prefs.flow.collectAsState()
     var tick by remember { mutableIntStateOf(0) }
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { tick++ }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        tick++
+        KeepAlive.start(context)
+    }
     fun set(change: (Settings) -> Settings) = Prefs.update(context, change)
     // Which colour the picker is open for: 1, 2, or 0 = closed.
     var picking by remember { mutableIntStateOf(0) }
@@ -200,6 +203,28 @@ private fun Screen() {
             s.wakeScreen,
         ) { v -> set { it.copy(wakeScreen = v) } }
         SwitchRow("Include silent notifications", "Also light up for notifications apps send quietly", s.includeSilent) { v -> set { it.copy(includeSilent = v) } }
+
+        Section("Reliability")
+        SwitchRow(
+            "Always ready",
+            "Keeps Glow Alerts running in the foreground (with a small silent notification) so Android never puts it to sleep " +
+                "or delays it, and reconnects it if it's ever cut off. Uses more battery.",
+            s.alwaysReady,
+        ) { v ->
+            set { it.copy(alwaysReady = v) }
+            KeepAlive.start(context)
+        }
+        if (s.alwaysReady) {
+            SwitchRow(
+                "Keep the processor awake",
+                "Never lets the phone's processor fully sleep, for the fastest possible reaction. Uses noticeably more battery.",
+                s.keepAwake,
+            ) { v ->
+                set { it.copy(keepAwake = v) }
+                KeepAlive.start(context)
+            }
+        }
+        Note("Tip: also set Settings → Battery → Background usage limits so Glow Alerts is under \"Never auto sleeping apps\".")
 
         Section("Apps")
         AppList(s.excluded) { pkg, on -> set { it.copy(excluded = if (on) it.excluded - pkg else it.excluded + pkg) } }
