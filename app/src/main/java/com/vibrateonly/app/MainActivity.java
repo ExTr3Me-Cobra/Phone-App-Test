@@ -148,7 +148,7 @@ public class MainActivity extends Activity {
                 + "on. If it was off, they just work normally.\n"
                 + "• While something is connected, the two-button press is ignored.\n"
                 + "• While ON, a single volume button changes the media volume when something "
-                + "is playing (unmuting it), otherwise the alarm volume. It never takes the phone "
+                + "is playing (unmuting it until 30 seconds after it stops), otherwise the alarm volume. It never takes the phone "
                 + "off vibrate.\n"
                 + "• Optional: switch on automatically at your workplace and off when you leave "
                 + "(Settings → Workplace).", 15));

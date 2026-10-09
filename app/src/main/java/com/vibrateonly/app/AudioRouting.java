@@ -7,7 +7,7 @@ import android.media.AudioManager;
 /** Media muting, headphone / speaker detection and volume-button behaviour. */
 final class AudioRouting {
     private static final String KEY_MUTED_BY_US = "media_muted_by_us";
-    /** You turned media up with the volume buttons, so leave it unmuted until the mode ends. */
+    /** You turned media up with the volume buttons: leave it unmuted until 30 s after it stops. */
     private static final String KEY_MEDIA_BY_USER = "media_by_user";
 
     private AudioRouting() {}
@@ -71,9 +71,20 @@ final class AudioRouting {
         }
     }
 
+    /** Media was unmuted with the volume buttons and hasn't been muted again yet. */
+    static boolean unmutedByUser(Context c) {
+        return Prefs.get(c).getBoolean(KEY_MEDIA_BY_USER, false);
+    }
+
+    /** Media stopped a while ago: mute it again (if the mode is still in force). */
+    static void muteAgain(Context c) {
+        Prefs.get(c).edit().putBoolean(KEY_MEDIA_BY_USER, false).apply();
+        applyMediaMute(c);
+    }
+
     /**
      * A single volume press while the mode is in force. With something playing it changes the
-     * media volume (unmuting it if Vibrate Only had muted it); otherwise the alarm volume. It
+     * media volume (unmuting it until 30 s after it stops playing); otherwise the alarm volume. It
      * never touches the ringer, so the phone stays on vibrate.
      */
     static void adjustWhileActive(Context c, int direction, boolean showFeedback) {

@@ -31,6 +31,8 @@ public class VibrateOnlyService extends AccessibilityService {
     private final Handler handler = new Handler(Looper.getMainLooper());
     /** Wait this long after headphones / a speaker disconnect before Vibrate Only comes back. */
     private static final long RESUME_DELAY_MS = 5_000;
+    /** Media unmuted with the volume buttons is muted again this long after it stops playing. */
+    private static final long REMUTE_DELAY_MS = 30_000;
 
     private AudioManager audio;
     private ScreenOffKeyCatcher screenOffCatcher;
@@ -83,6 +85,25 @@ public class VibrateOnlyService extends AccessibilityService {
         }
     };
 
+    private final Runnable remuteMedia = () -> {
+        if (!audio.isMusicActive() && AudioRouting.unmutedByUser(this)) {
+            AudioRouting.muteAgain(this);
+        }
+    };
+
+    /** Something started or stopped playing: re-mute media 30 s after it stops. */
+    private final AudioManager.AudioPlaybackCallback playbackCallback =
+            new AudioManager.AudioPlaybackCallback() {
+                @Override
+                public void onPlaybackConfigChanged(
+                        java.util.List<android.media.AudioPlaybackConfiguration> configs) {
+                    handler.removeCallbacks(remuteMedia);
+                    if (!audio.isMusicActive() && AudioRouting.unmutedByUser(VibrateOnlyService.this)) {
+                        handler.postDelayed(remuteMedia, REMUTE_DELAY_MS);
+                    }
+                }
+            };
+
     /** Headphones / speaker gone for 5 s: Vibrate Only comes back (if it was on). */
     private final Runnable resumeAfterDisconnect = () -> {
         if (!AudioRouting.mediaDeviceConnected(this)) ModeController.setDeviceConnected(this, false);
@@ -107,6 +128,7 @@ public class VibrateOnlyService extends AccessibilityService {
     private void checkDevices() {
         if (AudioRouting.mediaDeviceConnected(this)) {
             handler.removeCallbacks(resumeAfterDisconnect);
+        handler.removeCallbacks(remuteMedia);
             ModeController.setDeviceConnected(this, true);
         } else if (ModeController.deviceConnected(this)) {
             handler.removeCallbacks(resumeAfterDisconnect);
@@ -127,6 +149,7 @@ public class VibrateOnlyService extends AccessibilityService {
         registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
         audio.addOnModeChangedListener(getMainExecutor(), audioModeListener);
         audio.registerAudioDeviceCallback(deviceCallback, handler);
+        audio.registerAudioPlaybackCallback(playbackCallback, handler);
 
         if (!isScreenOn()) screenOffCatcher.enable();
         // Catch up with anything connected or disconnected while the service wasn't running.
@@ -151,6 +174,7 @@ public class VibrateOnlyService extends AccessibilityService {
             unregisterReceiver(receiver);
             audio.removeOnModeChangedListener(audioModeListener);
             audio.unregisterAudioDeviceCallback(deviceCallback);
+            audio.unregisterAudioPlaybackCallback(playbackCallback);
             screenOffCatcher.disable();
         }
         handler.removeCallbacks(forwardPending);
