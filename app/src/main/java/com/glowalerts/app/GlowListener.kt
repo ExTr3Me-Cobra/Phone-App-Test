@@ -123,18 +123,23 @@ class GlowListener : NotificationListenerService() {
             when {
                 aod -> {
                     if (!s.onAod) return Log.add("$name: Always On Display lighting is off")
-                    where = "Always On Display"
+                    if (s.wakeScreen && s.wakeFromAod) {
+                        // Samsung may not show other apps' drawing on the AOD: wake to the lock
+                        // screen so the lighting is sure to be seen.
+                        Waker.wake(context, name)
+                        where = "Always On Display – waking to the lock screen"
+                    } else {
+                        where = "Always On Display"
+                    }
                 }
                 !visible -> {
-                    // Screen fully off: wake it if asked; otherwise wait for the AOD (which One UI
-                    // shows for new notifications when it's switched on) or for you to turn it on.
                     when {
-                        s.wakeScreen && s.onLocked -> {
-                            Waker.wake(context)
+                        s.wakeScreen && (s.onLocked || s.onAod) -> {
+                            Waker.wake(context, name)
                             where = "screen off – waking it"
                         }
-                        LightService.aodEnabled(context) && s.onAod -> where = "screen off – waiting for the Always On Display"
-                        s.onLocked -> where = "screen off – plays when the screen turns on"
+                        LightService.aodEnabled(context) && s.onAod -> where = "screen off – waiting for the Always On Display (Wake the screen is off)"
+                        s.onLocked -> where = "screen off – plays when you turn the screen on (Wake the screen is off)"
                         else -> return Log.add("$name: lock screen lighting is off")
                     }
                 }

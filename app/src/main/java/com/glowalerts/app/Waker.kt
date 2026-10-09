@@ -49,8 +49,28 @@ object Waker {
             nm.areNotificationsEnabled() && (Build.VERSION.SDK_INT < 34 || nm.canUseFullScreenIntent())
     }
 
-    fun wake(context: Context) {
+    /** Android's "Turn screen on" permission (needed for the wake lock route). */
+    fun turnScreenOnAllowed(context: Context): Boolean = runCatching {
+        context.getSystemService(android.app.AppOpsManager::class.java).unsafeCheckOpNoThrow(
+            "android:turn_screen_on", android.os.Process.myUid(), context.packageName,
+        ) == android.app.AppOpsManager.MODE_ALLOWED
+    }.getOrDefault(false)
+
+    /** Turns the screen on, then checks it worked and logs why if it didn't. */
+    fun wake(context: Context, label: String = "Wake") {
         val app = context.applicationContext
+        val fsi = fullScreenAllowed(app)
+        Handler(Looper.getMainLooper()).postDelayed({
+            val on = app.getSystemService(PowerManager::class.java).isInteractive
+            if (on) {
+                Log.add("$label: screen turned on ✓")
+            } else {
+                Log.add(
+                    "$label: screen stayed OFF ✗ (full screen notifications: ${if (fsi) "allowed" else "NOT allowed – see Setup"}, " +
+                        "turn screen on: ${if (turnScreenOnAllowed(app)) "allowed" else "not allowed"})",
+                )
+            }
+        }, 1_800)
         @Suppress("DEPRECATION")
         runCatching {
             app.getSystemService(PowerManager::class.java).newWakeLock(

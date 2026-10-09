@@ -124,6 +124,7 @@ private fun Screen() {
 
         Section("Setup")
         Steps(tick, s.wakeScreen)
+        PhoneCheck(tick)
 
         Section("Preview")
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -257,9 +258,16 @@ private fun Screen() {
         ) { v -> set { it.copy(onAod = v) } }
         SwitchRow(
             "Wake the screen",
-            "When the screen is fully off (no Always On Display), turn it on so you see the lighting. Needs \"Full screen notifications\" in Setup.",
+            "When the screen is off, turn it on for each notification so you see the lighting. Needs \"Full screen notifications\" in Setup.",
             s.wakeScreen,
         ) { v -> set { it.copy(wakeScreen = v) } }
+        if (s.wakeScreen) {
+            SwitchRow(
+                "Wake from the Always On Display too",
+                "Samsung may not show other apps' lighting on the AOD. On: the AOD wakes to the lock screen and the lighting plays there. Off: it tries to play on the AOD itself.",
+                s.wakeFromAod,
+            ) { v -> set { it.copy(wakeFromAod = v) } }
+        }
         SwitchRow("Include silent notifications", "Also light up for notifications apps send quietly", s.includeSilent) { v -> set { it.copy(includeSilent = v) } }
 
         Section("Reliability")
@@ -362,6 +370,34 @@ private fun Steps(tick: Int, wake: Boolean) {
         Step("5. Full screen notifications", "Needed for \"Wake the screen\" (how alarm apps turn the screen on).", fsi) {
             open(context, Intent(AndroidSettings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, pkgUri))
         }
+    }
+}
+
+/**
+ * Phone settings outside this app that stop notifications waking or showing on the lock screen /
+ * AOD (Samsung's, or changed by the Shade app made earlier).
+ */
+@Composable
+private fun PhoneCheck(tick: Int) {
+    val context = LocalContext.current
+    val cr = context.contentResolver
+    val problems = remember(tick) {
+        buildList {
+            val lockNotes = runCatching { AndroidSettings.Secure.getInt(cr, "lock_screen_show_notifications", 1) }.getOrDefault(1)
+            if (lockNotes == 0) add("Notifications are hidden on the lock screen (Settings → Notifications → Lock screen notifications). With them hidden, the AOD and lock screen don't react to new notifications.")
+            val headsUp = runCatching { AndroidSettings.Global.getInt(cr, "heads_up_notifications_enabled", 1) }.getOrDefault(1)
+            if (headsUp == 0) add("Notification pop-ups are switched off for the whole phone. The Shade app's \"Turn off Samsung's duplicates\" does this: open Shade and switch it back, or uninstall Shade.")
+            val shade = runCatching { context.packageManager.getPackageInfo("com.shadeui.app", 0); true }.getOrDefault(false)
+            if (shade) add("The Shade app is installed. If it's switched on, it can hide or replace Samsung's notifications; turn it off while testing.")
+            if (!LightService.aodEnabled(context)) add("Always On Display is off, so the screen stays black until something wakes it. Keep \"Wake the screen\" on (below), or turn on AOD in Settings → Lock screen and AOD.")
+        }
+    }
+    if (problems.isEmpty()) return
+    Label("Phone settings to check")
+    problems.forEach { Note("⚠️ $it") }
+    Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = { open(context, Intent("android.settings.NOTIFICATION_SETTINGS")) }) { Text("Notification settings") }
+        OutlinedButton(onClick = { open(context, Intent(AndroidSettings.ACTION_SECURITY_SETTINGS)) }) { Text("Lock screen") }
     }
 }
 

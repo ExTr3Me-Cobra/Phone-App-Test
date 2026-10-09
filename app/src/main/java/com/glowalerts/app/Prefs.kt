@@ -145,7 +145,9 @@ data class Settings(
     val onLocked: Boolean = true,
     val onAod: Boolean = true,
     /** Turn the screen on for notifications that arrive while it's fully off. */
-    val wakeScreen: Boolean = false,
+    val wakeScreen: Boolean = true,
+    /** On the Always On Display, wake to the lock screen so the lighting is sure to show. */
+    val wakeFromAod: Boolean = true,
     /** Also light up for notifications the app sends quietly. */
     val includeSilent: Boolean = true,
     /** Run a foreground service so Android never puts the app to sleep or delays it. */
@@ -211,7 +213,8 @@ object Prefs {
                 onUnlocked = p.getBoolean("onUnlocked", d.onUnlocked),
                 onLocked = p.getBoolean("onLocked", d.onLocked),
                 onAod = p.getBoolean("onAod", d.onAod),
-                wakeScreen = p.getBoolean("wakeScreen", d.wakeScreen),
+                wakeScreen = p.getBoolean("wakeScreen2", d.wakeScreen),
+                wakeFromAod = p.getBoolean("wakeFromAod", d.wakeFromAod),
                 includeSilent = p.getBoolean("includeSilent", d.includeSilent),
                 alwaysReady = p.getBoolean("alwaysReady", d.alwaysReady),
                 keepAwake = p.getBoolean("keepAwake", d.keepAwake),
@@ -269,7 +272,8 @@ object Prefs {
             .putBoolean("onUnlocked", s.onUnlocked)
             .putBoolean("onLocked", s.onLocked)
             .putBoolean("onAod", s.onAod)
-            .putBoolean("wakeScreen", s.wakeScreen)
+            .putBoolean("wakeScreen2", s.wakeScreen)
+            .putBoolean("wakeFromAod", s.wakeFromAod)
             .putBoolean("includeSilent", s.includeSilent)
             .putBoolean("alwaysReady", s.alwaysReady)
             .putBoolean("keepAwake", s.keepAwake)
