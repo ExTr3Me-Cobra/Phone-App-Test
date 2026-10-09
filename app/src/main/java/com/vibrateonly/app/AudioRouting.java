@@ -7,6 +7,8 @@ import android.media.AudioManager;
 /** Media muting, headphone / speaker detection and volume-button behaviour. */
 final class AudioRouting {
     private static final String KEY_MUTED_BY_US = "media_muted_by_us";
+    /** You turned media up with the volume buttons, so leave it unmuted until the mode ends. */
+    private static final String KEY_MEDIA_BY_USER = "media_by_user";
 
     private AudioRouting() {}
 
@@ -50,7 +52,10 @@ final class AudioRouting {
      */
     static void applyMediaMute(Context c) {
         AudioManager am = c.getSystemService(AudioManager.class);
-        boolean shouldMute = ModeController.isActive(c) && Prefs.muteMedia(c);
+        boolean active = ModeController.isActive(c);
+        if (!active) Prefs.get(c).edit().putBoolean(KEY_MEDIA_BY_USER, false).apply();
+        boolean shouldMute = active && Prefs.muteMedia(c)
+                && !Prefs.get(c).getBoolean(KEY_MEDIA_BY_USER, false);
         boolean mutedByUs = Prefs.get(c).getBoolean(KEY_MUTED_BY_US, false);
         boolean muted = am.isStreamMute(AudioManager.STREAM_MUSIC);
         if (shouldMute) {
@@ -67,12 +72,22 @@ final class AudioRouting {
     }
 
     /**
-     * A single volume press while the mode is in force: changes the alarm volume (the only sound
-     * left), never touching the ringer, so the phone stays on vibrate.
+     * A single volume press while the mode is in force. With something playing it changes the
+     * media volume (unmuting it if Vibrate Only had muted it); otherwise the alarm volume. It
+     * never touches the ringer, so the phone stays on vibrate.
      */
     static void adjustWhileActive(Context c, int direction, boolean showFeedback) {
         AudioManager am = c.getSystemService(AudioManager.class);
-        am.adjustStreamVolume(AudioManager.STREAM_ALARM, direction,
-                showFeedback ? AudioManager.FLAG_SHOW_UI : 0);
+        int flags = showFeedback ? AudioManager.FLAG_SHOW_UI : 0;
+        if (am.isMusicActive()) {
+            Prefs.get(c).edit().putBoolean(KEY_MEDIA_BY_USER, true).apply();
+            if (Prefs.get(c).getBoolean(KEY_MUTED_BY_US, false)) {
+                am.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+                Prefs.get(c).edit().putBoolean(KEY_MUTED_BY_US, false).apply();
+            }
+            am.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, flags);
+            return;
+        }
+        am.adjustStreamVolume(AudioManager.STREAM_ALARM, direction, flags);
     }
 }

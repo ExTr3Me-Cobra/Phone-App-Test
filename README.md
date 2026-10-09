@@ -8,7 +8,7 @@ press **Volume Up + Volume Down at the same time**.
 | Phone calls, texts, notifications, system sounds | Vibrate only |
 | Alarms | Sound normally |
 | Music / video / media | Muted |
-| Volume buttons | Alarm volume. They never take the phone off vibrate. |
+| Volume buttons | Media volume while something is playing (unmutes it), otherwise alarm volume. They never take the phone off vibrate. |
 
 * One long buzz = mode turned **ON**. Two long buzzes = mode turned **OFF** (only when you press
   the buttons).
