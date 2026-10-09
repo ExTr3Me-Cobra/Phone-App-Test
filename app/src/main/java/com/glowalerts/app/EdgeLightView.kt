@@ -58,6 +58,17 @@ data class CrackSpec(
     val detail: Int = 5,
     val flash: Boolean = true,
     val edgeGlow: Boolean = false,
+    val jagged: Float = 1f,
+    val branchLength: Float = 1f,
+    val count: Int = 1,
+    val shake: Float = 1f,
+    val core: Boolean = true,
+    val flicker: Boolean = false,
+    val shimmer: Boolean = true,
+    val repeats: Int = 1,
+    val retract: Boolean = false,
+    /** Fixed pattern seed, or null for a new random crack each time. */
+    val fixedSeed: Long? = null,
 )
 
 /**
@@ -123,6 +134,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         finished = false
         seed = Random.nextLong()
         crackShape = null
+        crackRound = -1
         invalidate()
     }
 
@@ -211,7 +223,7 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         }
         // Fade in and out at the ends.
         val env = if (s.durationMs == 0L) 1f else min(1f, min(t / 250f, (s.durationMs - t) / 400f))
-        val cycle = 2200f / s.speed.coerceAtLeast(0.1f)
+        val cycle = max(60f, 2200f / s.speed.coerceAtLeast(0.05f))
         val phase = (t % cycle.toLong()) / cycle
         cycles = t / cycle
         val a = (s.brightness * env).coerceIn(0f, 1f)
@@ -220,11 +232,12 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         applyColors(phase)
         if (s.effect.isCrack) {
             // The in-app preview repeats with a fresh crack every few seconds.
-            val loop = (4200f / s.speed.coerceAtLeast(0.1f)).toLong()
+            val loop = (4200f / s.speed.coerceAtLeast(0.05f)).toLong()
             if (s.durationMs == 0L && s.keepGoing == null && t > loop) {
                 start = now
                 seed = Random.nextLong()
                 crackShape = null
+                crackRound = -1
             }
             drawCrack(canvas, if (s.durationMs == 0L && s.keepGoing == null) t % loop else t, phase, a, w)
             postInvalidateOnAnimation()
@@ -390,21 +403,52 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         color = Color.WHITE
     }
 
+    /** Which repeat the crack is on, so each repeat can get a fresh pattern. */
+    private var crackRound = -1
+
     /**
      * Cracks spreading across the screen from the chosen side (or all at once), with a shudder
-     * while they spread and an optional flash where they hit.
+     * while they spread and an optional flash where they hit. Can repeat several times per
+     * alert and pull back into where it started at the end.
      */
-    private fun drawCrack(canvas: Canvas, t: Long, phase: Float, alpha: Float, w: Float) {
+    private fun drawCrack(canvas: Canvas, t0: Long, phase: Float, alpha0: Float, w: Float) {
         val c = spec.crack
+        val total = if (spec.durationMs > 0) spec.durationMs else (4200f / spec.speed.coerceAtLeast(0.05f)).toLong()
+        val repeats = c.repeats.coerceIn(1, 10)
+        val roundMs = max(1L, total / repeats)
+        val round = (t0 / roundMs).toInt().coerceAtMost(repeats - 1)
+        val t = t0 - round * roundMs
+        if (round != crackRound) {
+            crackRound = round
+            if (round > 0 && c.fixedSeed == null) seed = Random.nextLong()
+            crackShape = null
+        }
         val shape = crackShape ?: Cracks.build(
-            spec.effect, width.toFloat(), height.toFloat(), c.origin, c.detail, seed, camX, camY,
+            spec.effect, width.toFloat(), height.toFloat(), c.origin, c.detail, c.fixedSeed ?: seed, camX, camY,
+            c.jagged, c.branchLength, c.count,
         ).also { crackShape = it }
-        val spreadMs = 1100f / spec.speed.coerceAtLeast(0.1f)
-        val reveal = if (c.allAtOnce) {
+
+        val spreadMs = max(30f, 1100f / spec.speed.coerceAtLeast(0.05f))
+        var reveal = if (c.allAtOnce) {
             shape.maxDist
         } else {
             val p = (t / spreadMs).coerceIn(0f, 1f)
             (1f - (1f - p).pow(2.2f)) * shape.maxDist
+        }
+        // Pull back into the starting point over the last part of each round.
+        var alpha = alpha0
+        if (c.retract) {
+            val back = min(roundMs * 0.35f, spreadMs * 1.2f)
+            val left = roundMs - t
+            if (left < back) reveal *= (left / back).coerceIn(0f, 1f)
+        } else if (repeats > 1) {
+            // Fade between rounds so each new crack starts clean.
+            alpha *= min(1f, (roundMs - t) / 250f).coerceIn(0f, 1f)
+        }
+        // Lightning-style flicker while it forms.
+        if (c.flicker && t < spreadMs + 400) {
+            val f = sin(t * 0.21f) + sin(t * 0.077f + 1.3f)
+            if (f > 0.7f) alpha *= 0.15f
         }
 
         for (path in crackPaths) path.reset()
@@ -424,11 +468,11 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
         // The screen "shudders" while the crack runs.
         val quakeMs = if (c.allAtOnce) 450f else spreadMs + 250f
         canvas.save()
-        if (t < quakeMs) {
-            val amp = unit * 0.01f * (1f - t / quakeMs)
+        if (t < quakeMs && c.shake > 0f) {
+            val amp = unit * 0.01f * c.shake * (1f - t / quakeMs)
             canvas.translate(sin(t * 0.11f) * amp, cos(t * 0.083f) * amp * 0.6f)
         }
-        val shimmer = 0.85f + 0.15f * sin(2 * PI * phase).toFloat()
+        val shimmer = if (c.shimmer) 0.85f + 0.15f * sin(2 * PI * phase).toFloat() else 1f
         if (c.edgeGlow) glowLine(canvas, path, w, alpha * 0.6f * shimmer)
         val lw = c.lineWidthPx
         val widths = floatArrayOf(1f, 0.6f, 0.35f)
@@ -437,10 +481,12 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
             val lwl = lw * widths[level]
             stroke(canvas, p, lwl * 3f, alpha * 0.5f * shimmer, blur = lwl * 2.5f)
             stroke(canvas, p, lwl, alpha * shimmer, blur = 0f)
-            // A hot white core down the middle of each crack.
-            core.strokeWidth = max(1f, lwl * 0.35f)
-            core.alpha = (alpha * 0.7f * shimmer * 255).toInt().coerceIn(0, 255)
-            canvas.drawPath(p, core)
+            if (c.core) {
+                // A hot white core down the middle of each crack.
+                core.strokeWidth = max(1f, lwl * 0.35f)
+                core.alpha = (alpha * 0.7f * shimmer * 255).toInt().coerceIn(0, 255)
+                canvas.drawPath(p, core)
+            }
         }
         canvas.restore()
 

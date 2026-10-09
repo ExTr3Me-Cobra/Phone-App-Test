@@ -25,6 +25,7 @@ import android.service.notification.NotificationListenerService
 class KeepAlive : Service() {
     private val main = Handler(Looper.getMainLooper())
     private var wakeLock: PowerManager.WakeLock? = null
+    private var shownChannel: String? = null
 
     private val watchdog = object : Runnable {
         override fun run() {
@@ -52,14 +53,24 @@ class KeepAlive : Service() {
                 setShowBadge(false)
             },
         )
+        // A switched-off channel: the service still runs, but its notification is never shown.
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_HIDDEN, "Always ready (hidden)", NotificationManager.IMPORTANCE_NONE).apply {
+                description = "Used when the \"ready\" notification is switched off in Glow Alerts."
+                setShowBadge(false)
+            },
+        )
         val open = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val n = Notification.Builder(this, CHANNEL)
+        val n = Notification.Builder(this, if (s.readyNotification) CHANNEL else CHANNEL_HIDDEN)
             .setSmallIcon(R.drawable.ic_stat)
             .setContentTitle("Glow Alerts is ready")
             .setContentText("Watching for notifications")
             .setOngoing(true)
             .setContentIntent(open)
             .build()
+        // Switching between shown and hidden: take the old notification down first.
+        if (shownChannel != null && shownChannel != n.channelId) runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
+        shownChannel = n.channelId
         runCatching { startForeground(ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE) }
             .onFailure { Log.add("Always ready: couldn't start (${it.message})") }
 
@@ -88,6 +99,7 @@ class KeepAlive : Service() {
 
     companion object {
         private const val CHANNEL = "ready"
+        private const val CHANNEL_HIDDEN = "ready_hidden"
         private const val ID = 0x6A
         private const val WATCH_MS = 15_000L
 

@@ -102,6 +102,28 @@ data class Settings(
     val crackFlash: Boolean = true,
     /** Also glow around the screen edge while cracked. */
     val crackEdgeGlow: Boolean = false,
+    /** How zig-zag the cracks are, 0.2..2 (1 = normal). */
+    val crackJagged: Float = 1f,
+    /** How long the side branches grow, 0.3..2.5 (1 = normal). */
+    val crackBranchLength: Float = 1f,
+    /** How many main cracks, 1..6. */
+    val crackCount: Int = 1,
+    /** How hard the screen shudders while it cracks, 0..3 (1 = normal). */
+    val crackShake: Float = 1f,
+    /** A white-hot line down the middle of each crack. */
+    val crackCore: Boolean = true,
+    /** Flicker like lightning while forming. */
+    val crackFlicker: Boolean = false,
+    /** Cracks shimmer (gently pulse) once formed. */
+    val crackShimmer: Boolean = true,
+    /** How many times it cracks during one alert, 1..6. */
+    val crackRepeats: Int = 1,
+    /** At the end, the crack pulls back into where it started instead of just fading. */
+    val crackRetract: Boolean = false,
+    /** Use the same crack every time instead of a new random one. */
+    val crackSamePattern: Boolean = false,
+    /** The saved pattern for [crackSamePattern]. */
+    val crackSeed: Long = 20261009L,
 
     // When
     val onUnlocked: Boolean = true,
@@ -115,6 +137,8 @@ data class Settings(
     val alwaysReady: Boolean = true,
     /** Also keep the processor awake all the time (uses more battery). */
     val keepAwake: Boolean = true,
+    /** Show the "Glow Alerts is ready" notification (Always ready works either way). */
+    val readyNotification: Boolean = true,
     /** Apps that never light up. */
     val excluded: Set<String> = emptySet(),
     /** Colours picked recently, newest first. */
@@ -150,6 +174,17 @@ object Prefs {
                 crackDetail = p.getInt("crackDetail", d.crackDetail),
                 crackFlash = p.getBoolean("crackFlash", d.crackFlash),
                 crackEdgeGlow = p.getBoolean("crackEdgeGlow", d.crackEdgeGlow),
+                crackJagged = p.getFloat("crackJagged", d.crackJagged),
+                crackBranchLength = p.getFloat("crackBranchLength", d.crackBranchLength),
+                crackCount = p.getInt("crackCount", d.crackCount),
+                crackShake = p.getFloat("crackShake", d.crackShake),
+                crackCore = p.getBoolean("crackCore", d.crackCore),
+                crackFlicker = p.getBoolean("crackFlicker", d.crackFlicker),
+                crackShimmer = p.getBoolean("crackShimmer", d.crackShimmer),
+                crackRepeats = p.getInt("crackRepeats", d.crackRepeats),
+                crackRetract = p.getBoolean("crackRetract", d.crackRetract),
+                crackSamePattern = p.getBoolean("crackSamePattern", d.crackSamePattern),
+                crackSeed = p.getLong("crackSeed", d.crackSeed),
                 onUnlocked = p.getBoolean("onUnlocked", d.onUnlocked),
                 onLocked = p.getBoolean("onLocked", d.onLocked),
                 onAod = p.getBoolean("onAod", d.onAod),
@@ -157,6 +192,7 @@ object Prefs {
                 includeSilent = p.getBoolean("includeSilent", d.includeSilent),
                 alwaysReady = p.getBoolean("alwaysReady", d.alwaysReady),
                 keepAwake = p.getBoolean("keepAwake", d.keepAwake),
+                readyNotification = p.getBoolean("readyNotification", d.readyNotification),
                 excluded = p.getStringSet("excluded", emptySet()).orEmpty().toSet(),
                 recentColors = p.getString("recentColors", "").orEmpty().split(",")
                     .mapNotNull { it.toLongOrNull()?.toInt() },
@@ -188,6 +224,17 @@ object Prefs {
             .putInt("crackDetail", s.crackDetail)
             .putBoolean("crackFlash", s.crackFlash)
             .putBoolean("crackEdgeGlow", s.crackEdgeGlow)
+            .putFloat("crackJagged", s.crackJagged)
+            .putFloat("crackBranchLength", s.crackBranchLength)
+            .putInt("crackCount", s.crackCount)
+            .putFloat("crackShake", s.crackShake)
+            .putBoolean("crackCore", s.crackCore)
+            .putBoolean("crackFlicker", s.crackFlicker)
+            .putBoolean("crackShimmer", s.crackShimmer)
+            .putInt("crackRepeats", s.crackRepeats)
+            .putBoolean("crackRetract", s.crackRetract)
+            .putBoolean("crackSamePattern", s.crackSamePattern)
+            .putLong("crackSeed", s.crackSeed)
             .putBoolean("onUnlocked", s.onUnlocked)
             .putBoolean("onLocked", s.onLocked)
             .putBoolean("onAod", s.onAod)
@@ -195,6 +242,7 @@ object Prefs {
             .putBoolean("includeSilent", s.includeSilent)
             .putBoolean("alwaysReady", s.alwaysReady)
             .putBoolean("keepAwake", s.keepAwake)
+            .putBoolean("readyNotification", s.readyNotification)
             .putStringSet("excluded", s.excluded)
             .putString("recentColors", s.recentColors.joinToString(",") { (it.toLong() and 0xFFFFFFFFL).toString() })
             .apply()

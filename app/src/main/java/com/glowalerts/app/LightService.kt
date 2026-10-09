@@ -112,7 +112,7 @@ class LightService : AccessibilityService() {
     }
 
     companion object {
-        private const val MAX_LAYERS = 8
+        private const val MAX_LAYERS = 12
 
         @Volatile
         var instance: LightService? = null
@@ -183,6 +183,16 @@ class LightService : AccessibilityService() {
                     detail = s.crackDetail,
                     flash = s.crackFlash,
                     edgeGlow = s.crackEdgeGlow,
+                    jagged = s.crackJagged,
+                    branchLength = s.crackBranchLength,
+                    count = s.crackCount,
+                    shake = s.crackShake,
+                    core = s.crackCore,
+                    flicker = s.crackFlicker,
+                    shimmer = s.crackShimmer,
+                    repeats = s.crackRepeats,
+                    retract = s.crackRetract,
+                    fixedSeed = if (s.crackSamePattern) s.crackSeed else null,
                 ),
             )
         }

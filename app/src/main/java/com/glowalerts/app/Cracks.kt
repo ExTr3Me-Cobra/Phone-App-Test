@@ -30,7 +30,7 @@ class CrackShape(
 
 /** Builds the crack patterns. Every call with a new seed gives a different crack. */
 object Cracks {
-    private class Builder(val w: Float, val h: Float, val rnd: Random) {
+    private class Builder(val w: Float, val h: Float, val rnd: Random, val jag: Float, val branchLen: Float) {
         val pts = ArrayList<Float>()
         val dist = ArrayList<Float>()
         val len = ArrayList<Float>()
@@ -60,11 +60,12 @@ object Cracks {
             var y = y0
             var a = angle
             var d = d0
+            val wob = wobble * jag
             var travelled = 0f
             val step = unit * (if (lvl == 0) 0.035f else 0.025f)
             while (travelled < length && inside(x, y, unit * 0.05f)) {
                 // Wander, but keep drifting back to the main heading.
-                a += (rnd.nextFloat() - 0.5f) * wobble + (angle - a) * 0.35f
+                a += (rnd.nextFloat() - 0.5f) * wob + (angle - a) * 0.35f
                 val s = step * (0.6f + rnd.nextFloat() * 0.8f)
                 val nx = x + cos(a) * s
                 val ny = y + sin(a) * s
@@ -76,7 +77,7 @@ object Cracks {
                 if (lvl < 2 && rnd.nextFloat() < branchChance) {
                     val side = if (rnd.nextBoolean()) 1 else -1
                     val ba = a + side * (0.4f + rnd.nextFloat() * 0.7f)
-                    val bl = unit * (if (lvl == 0) 0.12f + rnd.nextFloat() * 0.18f else 0.04f + rnd.nextFloat() * 0.07f)
+                    val bl = branchLen * unit * (if (lvl == 0) 0.12f + rnd.nextFloat() * 0.18f else 0.04f + rnd.nextFloat() * 0.07f)
                     jagged(x, y, ba, bl, d, lvl + 1, branchChance * 0.6f, wobble)
                 }
             }
@@ -90,10 +91,13 @@ object Cracks {
 
     fun build(
         effect: LightEffect, w: Float, h: Float, origin: CrackOrigin, detail: Int, seed: Long,
-        camX: Float, camY: Float,
+        camX: Float, camY: Float, jagged: Float = 1f, branchLength: Float = 1f, count: Int = 1,
     ): CrackShape {
         val rnd = Random(seed)
-        val b = Builder(w, h, rnd)
+        val b = Builder(w, h, rnd, jagged.coerceIn(0.1f, 3f), branchLength.coerceIn(0.2f, 3f))
+        val n = count.coerceIn(1, 8)
+        // Extra main cracks fan out around the main direction.
+        val fan = { i: Int -> if (n == 1) 0f else (i - (n - 1) / 2f) / (n - 1) * 1.1f + (rnd.nextFloat() - 0.5f) * 0.2f }
         val o = if (origin == CrackOrigin.RANDOM) {
             CrackOrigin.entries.filter { it != CrackOrigin.RANDOM }.random(rnd)
         } else {
@@ -121,12 +125,15 @@ object Cracks {
                 // One big fissure right across the screen, with side cracks.
                 val heading = if (centred) (rnd.nextFloat() - 0.5f) * 0.8f else toCentre
                 val chance = 0.04f + k * 0.022f
-                b.jagged(ox, oy, heading, b.diag * 1.2f, 0f, 0, chance, wobble = 0.7f)
-                if (centred) b.jagged(ox, oy, heading + PI.toFloat(), b.diag * 1.2f, 0f, 0, chance, wobble = 0.7f)
+                for (i in 0 until n) {
+                    val hd = heading + fan(i)
+                    b.jagged(ox, oy, hd, b.diag * 1.2f, 0f, 0, chance, wobble = 0.7f)
+                    if (centred) b.jagged(ox, oy, hd + PI.toFloat(), b.diag * 1.2f, 0f, 0, chance, wobble = 0.7f)
+                }
             }
             LightEffect.CRACK_SHATTER -> {
                 // Cracks bursting out in every direction from the impact point.
-                val rays = 5 + k
+                val rays = 5 + k + (n - 1) * 3
                 val start = rnd.nextFloat() * 2 * PI.toFloat()
                 for (i in 0 until rays) {
                     val a = start + i * 2 * PI.toFloat() / rays + (rnd.nextFloat() - 0.5f) * 0.4f
@@ -135,7 +142,7 @@ object Cracks {
             }
             LightEffect.CRACK_WEB -> {
                 // Spokes out from the impact, joined by rings like a spider's web.
-                val rays = 6 + k / 2
+                val rays = 6 + k / 2 + (n - 1) * 2
                 val start = rnd.nextFloat() * 2 * PI.toFloat()
                 val angles = FloatArray(rays) { start + it * 2 * PI.toFloat() / rays + (rnd.nextFloat() - 0.5f) * 0.3f }
                 val reach = b.diag
@@ -170,12 +177,15 @@ object Cracks {
             LightEffect.CRACK_LIGHTNING -> {
                 // A branching crack forking towards the far side, like lightning.
                 val heading = if (centred) -PI.toFloat() / 2 + (rnd.nextFloat() - 0.5f) else toCentre
-                b.jagged(ox, oy, heading, b.diag * 1.1f, 0f, 0, 0.1f + k * 0.03f, wobble = 0.9f)
-                if (centred) b.jagged(ox, oy, heading + PI.toFloat(), b.diag * 1.1f, 0f, 0, 0.1f + k * 0.03f, wobble = 0.9f)
+                for (i in 0 until n) {
+                    val hd = heading + fan(i)
+                    b.jagged(ox, oy, hd, b.diag * 1.1f, 0f, 0, 0.1f + k * 0.03f, wobble = 0.9f)
+                    if (centred) b.jagged(ox, oy, hd + PI.toFloat(), b.diag * 1.1f, 0f, 0, 0.1f + k * 0.03f, wobble = 0.9f)
+                }
             }
             LightEffect.CRACK_FAULTS -> {
                 // Several roughly parallel cracks crossing the screen.
-                val lines = 2 + k / 3
+                val lines = 2 + k / 3 + (n - 1)
                 val heading = if (centred) 0f else toCentre
                 val nx = -sin(heading)
                 val ny = cos(heading)
@@ -194,7 +204,7 @@ object Cracks {
             }
             LightEffect.CRACK_EDGES -> {
                 // Cracks creeping in from all round the screen edge, starting nearest the origin.
-                val count = 6 + k * 2
+                val count = (6 + k * 2) * n
                 val perimeter = 2 * (w + h)
                 for (i in 0 until count) {
                     val p = (i + rnd.nextFloat() * 0.8f) / count * perimeter

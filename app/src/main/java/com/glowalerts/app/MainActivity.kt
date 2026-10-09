@@ -69,6 +69,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.ln
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -156,7 +158,23 @@ private fun Screen() {
             SliderRow("Detail", "${s.crackDetail} / 10", s.crackDetail.toFloat(), 1f..10f) { v -> set { it.copy(crackDetail = v.roundToInt()) } }
             SwitchRow("Flash on impact", "A burst of light where the crack hits", s.crackFlash) { v -> set { it.copy(crackFlash = v) } }
             SwitchRow("Also light the screen edge", "A glow around the edge while it's cracked", s.crackEdgeGlow) { v -> set { it.copy(crackEdgeGlow = v) } }
-            Note("Each notification gets a freshly random crack. Speed sets how fast it spreads.")
+            SliderRow("Number of cracks", "${s.crackCount}", s.crackCount.toFloat(), 1f..6f) { v -> set { it.copy(crackCount = v.roundToInt()) } }
+            SliderRow("Jaggedness", "${(s.crackJagged * 100).roundToInt()} %", s.crackJagged, 0.2f..2f) { v -> set { it.copy(crackJagged = (v * 20).roundToInt() / 20f) } }
+            SliderRow("Branch length", "${(s.crackBranchLength * 100).roundToInt()} %", s.crackBranchLength, 0.3f..2.5f) { v -> set { it.copy(crackBranchLength = (v * 20).roundToInt() / 20f) } }
+            SliderRow("Screen shake", if (s.crackShake == 0f) "Off" else "${(s.crackShake * 100).roundToInt()} %", s.crackShake, 0f..3f) { v -> set { it.copy(crackShake = (v * 20).roundToInt() / 20f) } }
+            SliderRow("Cracks per alert", "${s.crackRepeats}×", s.crackRepeats.toFloat(), 1f..6f) { v -> set { it.copy(crackRepeats = v.roundToInt()) } }
+            SwitchRow("White-hot core", "A bright white line down the middle of each crack", s.crackCore) { v -> set { it.copy(crackCore = v) } }
+            SwitchRow("Flicker", "Flickers like lightning while it forms", s.crackFlicker) { v -> set { it.copy(crackFlicker = v) } }
+            SwitchRow("Shimmer", "Gently pulses once it's formed", s.crackShimmer) { v -> set { it.copy(crackShimmer = v) } }
+            SwitchRow("Pull back at the end", "The crack retreats into where it started instead of just fading", s.crackRetract) { v -> set { it.copy(crackRetract = v) } }
+            SwitchRow("Same crack every time", "Off: every notification gets a new random crack", s.crackSamePattern) { v -> set { it.copy(crackSamePattern = v) } }
+            if (s.crackSamePattern) {
+                OutlinedButton(
+                    onClick = { set { it.copy(crackSeed = kotlin.random.Random.nextLong()) } },
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                ) { Text("Try a different crack") }
+            }
+            Note("Speed (under Look) sets how fast cracks spread; \"Plays for\" sets how long they stay.")
         }
 
         Section("Colour")
@@ -179,7 +197,8 @@ private fun Screen() {
         }
 
         Section("Look")
-        SliderRow("Speed", "%.2fx".format(s.speed), s.speed, 0.25f..3f) { v -> set { it.copy(speed = (v * 20).roundToInt() / 20f) } }
+        // Speed slider runs from 0.25x to 20x; spread out so slow speeds are still easy to set.
+        SliderRow("Speed", speedLabel(s.speed), speedToSlider(s.speed), 0f..1f) { p -> set { it.copy(speed = sliderToSpeed(p)) } }
         SliderRow("Line thickness (edge effects)", "${s.thicknessDp.roundToInt()} dp", s.thicknessDp, 1f..30f) { v -> set { it.copy(thicknessDp = v.roundToInt().toFloat()) } }
         SliderRow("Glow", "${(s.glow * 100).roundToInt()} %", s.glow, 0f..2f) { v -> set { it.copy(glow = (v * 20).roundToInt() / 20f) } }
         SliderRow("Brightness", "${s.brightness} %", s.brightness.toFloat(), 20f..100f) { v -> set { it.copy(brightness = v.roundToInt()) } }
@@ -215,6 +234,14 @@ private fun Screen() {
             KeepAlive.start(context)
         }
         if (s.alwaysReady) {
+            SwitchRow(
+                "Show the \"ready\" notification",
+                "Off: hides the \"Glow Alerts is ready\" notification. Always ready keeps working either way.",
+                s.readyNotification,
+            ) { v ->
+                set { it.copy(readyNotification = v) }
+                KeepAlive.start(context)
+            }
             SwitchRow(
                 "Keep the processor awake",
                 "Never lets the phone's processor fully sleep, for the fastest possible reaction. Uses noticeably more battery.",
@@ -468,3 +495,17 @@ private fun sendTest(context: Context, delayMs: Long) {
         runCatching { app.getSystemService(NotificationManager::class.java).notify((System.currentTimeMillis() % 100000).toInt(), n) }
     }, delayMs)
 }
+
+/** The speed slider runs 0..1 and maps to 0.25x..20x on a curve. */
+private const val SPEED_MIN = 0.25f
+private const val SPEED_MAX = 20f
+
+private fun sliderToSpeed(p: Float): Float {
+    val v = SPEED_MIN * (SPEED_MAX / SPEED_MIN).toDouble().pow(p.toDouble()).toFloat()
+    return if (v < 3f) (v * 20).roundToInt() / 20f else (v * 4).roundToInt() / 4f
+}
+
+private fun speedToSlider(speed: Float): Float =
+    (ln(speed.coerceIn(SPEED_MIN, SPEED_MAX) / SPEED_MIN) / ln(SPEED_MAX / SPEED_MIN)).coerceIn(0f, 1f)
+
+private fun speedLabel(speed: Float) = if (speed < 3f) "%.2fx".format(speed) else "%.1fx".format(speed)
