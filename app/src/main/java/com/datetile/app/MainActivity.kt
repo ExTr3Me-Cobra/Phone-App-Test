@@ -245,7 +245,7 @@ private fun Screen() {
             }
 
             Section("Special days", if (s.specials.isEmpty()) "Birthdays, holidays…" else "${s.specials.size} saved") {
-                SpecialDays(s) { set(it) }
+                SpecialDays(s) { new -> set { new } }
             }
 
             Section("When you tap it", s.tap.label) {
