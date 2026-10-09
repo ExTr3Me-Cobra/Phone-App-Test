@@ -29,8 +29,10 @@ public class VibrateOnlyService extends AccessibilityService {
     static VibrateOnlyService instance;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    /** Wait this long after headphones / a speaker disconnect before Vibrate Only comes back. */
+    private static final long RESUME_DELAY_MS = 5_000;
+
     private AudioManager audio;
-    private CallRinger callRinger;
     private ScreenOffKeyCatcher screenOffCatcher;
 
     /** Buttons whose press we swallowed, so we also swallow their release and repeats. */
@@ -53,8 +55,6 @@ public class VibrateOnlyService extends AccessibilityService {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (Intent.ACTION_SCREEN_OFF.equals(action)) {
-                // Power button during an incoming call means "silence".
-                if (callRinger.isRinging()) callRinger.silence();
                 screenOffCatcher.enable();
             } else if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 screenOffCatcher.disable();
@@ -83,26 +83,42 @@ public class VibrateOnlyService extends AccessibilityService {
         }
     };
 
-    /** Headphones plugged in or out: unmute or mute media, update the notification. */
+    /** Headphones / speaker gone for 5 s: Vibrate Only comes back (if it was on). */
+    private final Runnable resumeAfterDisconnect = () -> {
+        if (!AudioRouting.mediaDeviceConnected(this)) ModeController.setDeviceConnected(this, false);
+    };
+
+    /**
+     * Headphones or a speaker connected: the phone behaves normally straight away. Disconnected:
+     * after a short wait (so a Bluetooth hiccup doesn't count) Vibrate Only comes back.
+     */
     private final AudioDeviceCallback deviceCallback = new AudioDeviceCallback() {
         @Override
         public void onAudioDevicesAdded(AudioDeviceInfo[] added) {
-            ModeController.refresh(VibrateOnlyService.this);
+            checkDevices();
         }
 
         @Override
         public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) {
-            ModeController.refresh(VibrateOnlyService.this);
+            checkDevices();
         }
     };
+
+    private void checkDevices() {
+        if (AudioRouting.mediaDeviceConnected(this)) {
+            handler.removeCallbacks(resumeAfterDisconnect);
+            ModeController.setDeviceConnected(this, true);
+        } else if (ModeController.deviceConnected(this)) {
+            handler.removeCallbacks(resumeAfterDisconnect);
+            handler.postDelayed(resumeAfterDisconnect, RESUME_DELAY_MS);
+        }
+    }
 
     @Override
     protected void onServiceConnected() {
         instance = this;
         audio = getSystemService(AudioManager.class);
-        callRinger = new CallRinger(this);
-        callRinger.register();
-        screenOffCatcher = new ScreenOffKeyCatcher(this, () -> ModeController.toggle(this));
+        screenOffCatcher = new ScreenOffKeyCatcher(this, () -> ModeController.buttonsPressed(this));
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -113,12 +129,14 @@ public class VibrateOnlyService extends AccessibilityService {
         audio.registerAudioDeviceCallback(deviceCallback, handler);
 
         if (!isScreenOn()) screenOffCatcher.enable();
-        ModeController.refresh(this);
+        // Catch up with anything connected or disconnected while the service wasn't running.
+        ModeController.setDeviceConnected(this, AudioRouting.mediaDeviceConnected(this));
+        ModeController.apply(this);
+        Workplace.register(this);
     }
 
     /** Called by the app screens after permissions or settings change. */
     void refresh() {
-        callRinger.register();
         if (isScreenOn() || !Prefs.screenOff(this)) {
             screenOffCatcher.disable();
         } else {
@@ -133,10 +151,10 @@ public class VibrateOnlyService extends AccessibilityService {
             unregisterReceiver(receiver);
             audio.removeOnModeChangedListener(audioModeListener);
             audio.unregisterAudioDeviceCallback(deviceCallback);
-            callRinger.unregister();
             screenOffCatcher.disable();
         }
         handler.removeCallbacks(forwardPending);
+        handler.removeCallbacks(resumeAfterDisconnect);
         super.onDestroy();
     }
 
@@ -170,10 +188,7 @@ public class VibrateOnlyService extends AccessibilityService {
         }
 
         // Ringing or in a call: let the buttons do their usual job (e.g. silence the ringer).
-        if (callRinger.isRinging() || audio.getMode() != AudioManager.MODE_NORMAL) {
-            callRinger.silence();
-            return false;
-        }
+        if (audio.getMode() != AudioManager.MODE_NORMAL) return false;
 
         if (comboActive) {
             consumedDown.add(key);
@@ -186,7 +201,7 @@ public class VibrateOnlyService extends AccessibilityService {
             pendingKey = 0;
             comboActive = true;
             consumedDown.add(key);
-            ModeController.toggle(this);
+            ModeController.buttonsPressed(this);
             return true;
         }
 
@@ -203,7 +218,7 @@ public class VibrateOnlyService extends AccessibilityService {
 
     /**
      * A single (non-combo) volume press. Normally does what the button would have done; while the
-     * mode is on, changes headphone media or call/alarm volume instead so vibrate is kept.
+     * mode is in force, changes the alarm volume instead so vibrate is kept.
      */
     private void adjustVolume(int key) {
         int direction = key == KeyEvent.KEYCODE_VOLUME_UP

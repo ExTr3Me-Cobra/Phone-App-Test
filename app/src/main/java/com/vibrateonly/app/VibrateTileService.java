@@ -12,7 +12,7 @@ public class VibrateTileService extends TileService {
 
     @Override
     public void onClick() {
-        ModeController.toggle(this);
+        ModeController.toggleFromScreen(this);
         update();
     }
 

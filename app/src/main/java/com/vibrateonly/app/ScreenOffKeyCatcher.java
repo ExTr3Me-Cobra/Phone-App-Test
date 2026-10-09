@@ -16,7 +16,7 @@ import android.os.SystemClock;
  * does send volume presses to an active "remote playback" media session. While the screen is
  * off this keeps such a session open (it plays no sound) so the two-button combo still works.
  * Single presses change media volume when that's what the buttons would normally do with the
- * screen off (something playing; and, while the mode is on, only through headphones).
+ * screen off (something playing), or the alarm volume while the mode is on.
  */
 final class ScreenOffKeyCatcher {
     /** Screen-off presses arrive less precisely, so allow a bit more time than with the screen on. */
@@ -88,9 +88,7 @@ final class ScreenOffKeyCatcher {
         pendingDirection = 0;
         if (direction == 0) return;
         if (ModeController.isActive(context)) {
-            if (AudioRouting.headphonesConnected(context)) {
-                audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
-            }
+            AudioRouting.adjustWhileActive(context, direction, false);
         } else if (audio.isMusicActive()) {
             audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
         }

@@ -75,16 +75,21 @@ public class MainActivity extends Activity {
         content.addView(title);
 
         boolean active = ModeController.isActive(this);
-        TextView status = text(active ? "Vibrate Only Mode is ON" : "Vibrate Only Mode is OFF", 20);
+        boolean waiting = ModeController.isWanted(this) && !active;
+        TextView status = text(active ? "Vibrate Only Mode is ON"
+                : waiting ? "Off while headphones / speaker are connected"
+                : "Vibrate Only Mode is OFF", 20);
         status.setTypeface(Typeface.DEFAULT_BOLD);
-        status.setTextColor(active ? 0xFF2E7D32 : 0xFF9E9E9E);
+        status.setTextColor(active ? 0xFF2E7D32 : waiting ? 0xFFEF6C00 : 0xFF9E9E9E);
         status.setPadding(0, dp(8), 0, dp(4));
         content.addView(status);
-        content.addView(text("Press Volume Up and Volume Down at the same time to switch it on or "
-                + "off. One long buzz = ON, two long buzzes = OFF.", 15));
+        content.addView(text(waiting
+                ? "Vibrate Only comes back on 5 seconds after they disconnect."
+                : "Press Volume Up and Volume Down at the same time to switch it on or "
+                        + "off. One long buzz = ON, two long buzzes = OFF.", 15));
         Button toggle = new Button(this);
-        toggle.setText(active ? "Turn off now" : "Turn on now");
-        toggle.setOnClickListener(v -> ModeController.toggle(this));
+        toggle.setText(active ? "Turn off now" : waiting ? "Don't turn back on" : "Turn on now");
+        toggle.setOnClickListener(v -> ModeController.toggleFromScreen(this));
         content.addView(toggle);
         Button settings = new Button(this);
         settings.setText("Settings");
@@ -109,21 +114,14 @@ public class MainActivity extends Activity {
                             Uri.parse("package:" + getPackageName()))));
         }
 
-        step("2. Let calls ring out loud",
-                "Allow the Phone permission so the app knows when a call is coming in and can "
-                        + "ring for it while everything else is on vibrate.",
-                checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
-                        == PackageManager.PERMISSION_GRANTED,
-                () -> requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, 1));
-
-        step("3. Allow sound-mode changes",
+        step("2. Allow sound-mode changes",
                 "Find \"Vibrate Only\" in the list and allow it. Needed so the app can switch "
                         + "sound modes even when Do Not Disturb is involved.",
                 getSystemService(NotificationManager.class).isNotificationPolicyAccessGranted(),
                 () -> startActivity(
                         new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)));
 
-        step("4. Keep it running in the background",
+        step("3. Keep it running in the background",
                 "Choose \"Allow\" so Samsung's battery saver never stops the app. Also check "
                         + "Settings > Battery > Background usage limits and make sure Vibrate "
                         + "Only is not in \"Sleeping\" or \"Deep sleeping\" apps.",
@@ -132,7 +130,7 @@ public class MainActivity extends Activity {
                         Uri.parse("package:" + getPackageName()))));
 
         if (Prefs.showNotification(this)) {
-            step("5. Show the \"mode is on\" notification",
+            step("4. Show the \"mode is on\" notification",
                     "Allow notifications so the app can show a silent reminder with a "
                             + "\"Turn off\" button while the mode is on. (Optional; can be "
                             + "switched off in Settings.)",
@@ -143,14 +141,16 @@ public class MainActivity extends Activity {
         }
 
         heading("How it works");
-        content.addView(text("• While ON: texts, notifications and system sounds vibrate only.\n"
-                + "• Phone calls still ring out loud (and vibrate). Alarms still sound.\n"
-                + "• Music and videos are muted, unless headphones or earbuds are connected.\n"
-                + "• The volume buttons keep working: with headphones they change headphone "
-                + "volume; without, they change the call ringtone (or alarm) volume. They never "
-                + "take the phone off vibrate.\n"
-                + "• While ringing, any volume button or the power button silences the call.\n"
-                + "• Only the two-button press (or the Turn off buttons) ends the mode.", 15));
+        content.addView(text("• While ON: calls, texts, notifications and system sounds "
+                + "vibrate only, and music and videos are muted. Alarms still sound.\n"
+                + "• Connecting headphones, earbuds or any speaker (Bluetooth, wired, USB, car) "
+                + "switches it off straight away; 5 seconds after they disconnect it comes back "
+                + "on. If it was off, they just work normally.\n"
+                + "• While something is connected, the two-button press is ignored.\n"
+                + "• While ON, a single volume button changes the alarm volume and never takes "
+                + "the phone off vibrate.\n"
+                + "• Optional: switch on automatically at your workplace and off when you leave "
+                + "(Settings → Workplace).", 15));
     }
 
     private void heading(String s) {

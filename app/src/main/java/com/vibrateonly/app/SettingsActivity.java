@@ -1,24 +1,26 @@
 package com.vibrateonly.app;
 
 import android.app.Activity;
+import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.graphics.Insets;
 import android.graphics.Typeface;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.WindowInsets;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /** All adjustable options. Every change takes effect immediately. */
 public class SettingsActivity extends Activity {
     private LinearLayout content;
-    private CallRinger previewRinger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +38,6 @@ public class SettingsActivity extends Activity {
             return WindowInsets.CONSUMED;
         });
         setContentView(scroll);
-        render();
     }
 
     private void render() {
@@ -59,24 +60,12 @@ public class SettingsActivity extends Activity {
                 new int[] {100, 150, 250, 400});
 
         heading("Media");
-        toggle("Mute media without headphones",
-                "While the mode is on, music and videos are muted unless headphones or earbuds "
-                        + "(wired or Bluetooth) are connected. Any Bluetooth audio device counts as "
-                        + "headphones.",
+        toggle("Mute media",
+                "While the mode is on, music and videos are muted. (Connecting headphones or a "
+                        + "speaker switches the mode off anyway until they disconnect.)",
                 Prefs.MUTE_MEDIA, true);
 
-        heading("Calls & alarms");
-        toggle("Calls ring out loud",
-                "While the mode is on, incoming calls ring (and vibrate). Turn off to have calls "
-                        + "vibrate only.",
-                Prefs.CALLS_RING, true);
-        callVolume();
-        choice("Volume buttons without headphones change",
-                "While the mode is on. With headphones connected they always change headphone "
-                        + "volume. The sound mode always stays on vibrate.",
-                Prefs.KEYS_TARGET, Prefs.TARGET_RING,
-                new String[] {"Call ringtone volume", "Alarm volume", "Both"},
-                new int[] {Prefs.TARGET_RING, Prefs.TARGET_ALARM, Prefs.TARGET_BOTH});
+        workplace();
 
         heading("On / off buzz");
         choice("Buzz strength", null, Prefs.VIB_STRENGTH, 255,
@@ -108,12 +97,21 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
-        if (previewRinger != null) previewRinger.stop();
-        super.onPause();
+    protected void onResume() {
+        super.onResume();
+        Workplace.register(this);
+        render();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        Workplace.register(this);
+        render();
     }
 
     private void changed() {
+        Workplace.register(this);
         ModeController.refresh(this);
         VibrateOnlyService service = VibrateOnlyService.instance;
         if (service != null) service.refresh();
@@ -134,6 +132,7 @@ public class SettingsActivity extends Activity {
         sw.setOnCheckedChangeListener((b, on) -> {
             Prefs.get(this).edit().putBoolean(key, on).apply();
             changed();
+            if (Prefs.WORK_ON.equals(key)) content.post(this::render);
         });
         row.addView(sw);
         row.setOnClickListener(v -> sw.toggle());
@@ -168,45 +167,114 @@ public class SettingsActivity extends Activity {
         content.addView(row);
     }
 
-    private void callVolume() {
-        AudioManager am = getSystemService(AudioManager.class);
-        int max = am.getStreamMaxVolume(AudioManager.STREAM_RING);
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.VERTICAL);
-        row.setPadding(0, dp(10), 0, dp(10));
-        TextView label = bold("");
-        row.addView(label);
-        row.addView(text("How loud calls ring while the mode is on. This is separate from the "
-                + "phone's own ringtone slider, which Android always shows at 0 in vibrate mode. "
-                + "The volume buttons also change this while the mode is on (without headphones). "
-                + "0 = calls vibrate only.", 14));
-        SeekBar bar = new SeekBar(this);
-        bar.setMax(max);
-        bar.setProgress(Prefs.callVolume(this));
-        label.setText("Call ringtone volume: " + bar.getProgress() + " / " + max);
-        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
-                label.setText("Call ringtone volume: " + progress + " / " + max);
-                if (fromUser) Prefs.setCallVolume(SettingsActivity.this, progress);
-            }
+    /** Turn on at work, off when leaving. */
+    private void workplace() {
+        heading("Workplace");
+        toggle("Turn on at my workplace",
+                "Vibrate Only switches on when you arrive and off when you leave. You can still "
+                        + "use the buttons in between. Arriving or leaving can take a few minutes "
+                        + "to be noticed.",
+                Prefs.WORK_ON, false);
+        if (!Prefs.workplaceOn(this)) return;
 
-            @Override
-            public void onStartTrackingTouch(SeekBar s) {}
+        boolean fine = Workplace.hasLocationPermission(this);
+        boolean always = Workplace.hasBackgroundPermission(this);
+        if (!fine || !always) {
+            content.addView(bold(fine ? "⬜ Location: choose \"Allow all the time\""
+                    : "⬜ Allow location"));
+            content.addView(text(fine
+                    ? "Needed so it works while the app is closed. On the next screen pick "
+                            + "\"Allow all the time\" (and keep \"Use precise location\" on)."
+                    : "Choose \"While using the app\" with precise location; the next step "
+                            + "asks for \"all the time\".", 14));
+            TextView grant = link("Allow");
+            grant.setOnClickListener(v -> requestPermissions(fine
+                    ? new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}
+                    : new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION}, 10));
+            content.addView(grant);
+        } else {
+            content.addView(text("✅ Location allowed all the time", 14));
+        }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar s) {
-                StatusNotifier.update(SettingsActivity.this);
+        content.addView(bold(Prefs.hasWorkplace(this)
+                ? String.format(java.util.Locale.US, "Workplace: %.5f, %.5f",
+                        Prefs.workLat(this), Prefs.workLng(this))
+                : "Workplace: not set yet"));
+        TextView here = link("Use where I am now (do this at work)");
+        here.setOnClickListener(v -> {
+            if (!fine) {
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION}, 10);
+                return;
             }
+            here.setText("Finding your location…");
+            Workplace.currentLocation(this, loc -> runOnUiThread(() -> {
+                if (loc == null) {
+                    Toast.makeText(this, "Couldn't get your location. Is Location on?",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Prefs.setWorkplace(this, loc.getLatitude(), loc.getLongitude());
+                    Toast.makeText(this, "Workplace saved", Toast.LENGTH_SHORT).show();
+                    changed();
+                }
+                render();
+            }));
         });
-        row.addView(bar);
-        TextView test = link("Test call ringtone (3 seconds)");
-        test.setOnClickListener(v -> {
-            if (previewRinger == null) previewRinger = new CallRinger(this);
-            previewRinger.preview(3000);
-        });
-        row.addView(test);
-        content.addView(row);
+        content.addView(here);
+        TextView typed = link("Enter coordinates (e.g. copied from Google Maps)");
+        typed.setOnClickListener(v -> enterCoordinates());
+        content.addView(typed);
+        if (Prefs.hasWorkplace(this)) {
+            TextView map = link("Check it on the map");
+            map.setOnClickListener(v -> {
+                String pos = Prefs.workLat(this) + "," + Prefs.workLng(this);
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("geo:" + pos + "?q=" + pos + "(Workplace)")));
+                } catch (Exception e) {
+                    Toast.makeText(this, "No maps app found", Toast.LENGTH_SHORT).show();
+                }
+            });
+            content.addView(map);
+        }
+        choice("Workplace size",
+                "How far from that spot still counts as being at work. Bigger is more "
+                        + "reliable; smaller is more exact.",
+                Prefs.WORK_RADIUS, 150,
+                new String[] {"100 m", "150 m", "250 m", "400 m", "800 m"},
+                new int[] {100, 150, 250, 400, 800});
+        String last = Workplace.lastEvent(this);
+        if (last != null) content.addView(text("Last: " + last, 14));
+    }
+
+    /** Accepts "51.5007, -0.1246" (Google Maps: press and hold a spot, tap the numbers to copy). */
+    private void enterCoordinates() {
+        EditText input = new EditText(this);
+        input.setHint("51.50070, -0.12460");
+        if (Prefs.hasWorkplace(this)) input.setText(Prefs.workLat(this) + ", " + Prefs.workLng(this));
+        new AlertDialog.Builder(this)
+                .setTitle("Workplace coordinates")
+                .setMessage("In Google Maps, press and hold your workplace, then tap the numbers "
+                        + "that appear to copy them, and paste them here.")
+                .setView(input)
+                .setPositiveButton("Save", (d, w) -> {
+                    String[] parts = input.getText().toString().replace("(", "").replace(")", "")
+                            .split("[,\\s]+");
+                    try {
+                        double lat = Double.parseDouble(parts[0].trim());
+                        double lng = Double.parseDouble(parts[1].trim());
+                        if (Math.abs(lat) > 90 || Math.abs(lng) > 180) throw new NumberFormatException();
+                        Prefs.setWorkplace(this, lat, lng);
+                        changed();
+                        render();
+                    } catch (RuntimeException e) {
+                        Toast.makeText(this, "That doesn't look like coordinates",
+                                Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void heading(String s) {

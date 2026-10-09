@@ -7,6 +7,11 @@ on:
 permissions:
   contents: write
 
+# One build at a time, so every build signs with the same saved key.
+concurrency:
+  group: vibrate-only-build
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,10 +25,28 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Every build must be signed with the same key, or Android refuses to install it as an
+      # update ("App not installed"). The key is made once and kept in the build cache.
+      - name: Reuse the same signing key
+        uses: actions/cache@v4
+        with:
+          path: signing/vibrateonly.keystore
+          key: vibrateonly-signing-key-v1
+
+      - name: Make the signing key (first build only)
+        run: |
+          mkdir -p signing
+          if [ ! -f signing/vibrateonly.keystore ]; then
+            keytool -genkeypair -v -keystore signing/vibrateonly.keystore -alias vibrateonly \
+              -keyalg RSA -keysize 2048 -validity 36500 \
+              -storepass android -keypass android -dname "CN=Vibrate Only"
+          fi
+          keytool -list -v -keystore signing/vibrateonly.keystore -storepass android | grep SHA256
+
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace -PsignKeystore=$PWD/signing/vibrateonly.keystore
           cp app/build/outputs/apk/release/app-release.apk VibrateOnly.apk
 
       - uses: actions/upload-artifact@v4

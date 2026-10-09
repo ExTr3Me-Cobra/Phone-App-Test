@@ -13,8 +13,8 @@ public class ActionReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if ((ACTION_TURN_OFF.equals(action) || ACTION_AUTO_OFF.equals(action))
-                && ModeController.isActive(context)) {
-            ModeController.deactivate(context);
+                && ModeController.isWanted(context)) {
+            ModeController.turnOff(context);
         }
     }
 }
