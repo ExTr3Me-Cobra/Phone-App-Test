@@ -44,8 +44,15 @@ public class MainActivity extends Activity {
     };
 
     private LinearLayout content;
+    /** Slider steps: 1000 per bar, so each colour moves in 0.1% steps. */
+    private static final int STEPS = 1000;
+
     private final SeekBar[] bars = new SeekBar[3];
     private final TextView[] labels = new TextView[3];
+    /** The exact colour levels (percent, one decimal); the sliders only show them. */
+    private final float[] levels = new float[3];
+    private SeekBar strengthBar;
+    private TextView strengthLabel;
     private View swatch;
     private Switch master;
     private boolean updatingBars;
@@ -109,27 +116,35 @@ public class MainActivity extends Activity {
 
         // Colour
         heading("Colour");
-        content.addView(text("How much of each colour reaches the screen. 100% = normal. "
-                + "Changes show instantly.", 14));
+        content.addView(text("How much of each colour reaches the screen. 100% = normal. Moves in "
+                + "0.1% steps; the sliders are extra fine near 100%, and − / + nudge by 0.1%.", 14));
         swatch = new View(this);
         content.addView(swatch, new LinearLayout.LayoutParams(-1, dp(36)));
         String[] names = {"Red", "Green", "Blue"};
         String[] keys = {Tint.KEY_RED, Tint.KEY_GREEN, Tint.KEY_BLUE};
         int[] colors = {0xFFE53935, 0xFF43A047, 0xFF1E88E5};
         for (int i = 0; i < 3; i++) {
+            final int ch = i;
+            levels[i] = Tint.level(this, keys[i]);
             labels[i] = text("", 16);
             labels[i].setTypeface(Typeface.DEFAULT_BOLD);
             labels[i].setTextColor(colors[i]);
             labels[i].setPadding(0, dp(12), 0, 0);
+            labels[i].setTag(names[i]);
             content.addView(labels[i]);
+
+            LinearLayout line = new LinearLayout(this);
+            line.setGravity(Gravity.CENTER_VERTICAL);
+            line.addView(nudge("−", () -> setLevel(ch, levels[ch] - 0.1f)));
             SeekBar bar = new SeekBar(this);
-            bar.setMax(100);
-            bar.setProgress(Tint.level(this, keys[i]));
+            bar.setMax(STEPS);
+            bar.setProgress(toSlider(levels[i]));
             bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar s, int p, boolean fromUser) {
-                    if (updatingBars) return;
-                    saveFromBars();
+                    if (updatingBars || !fromUser) return;
+                    levels[ch] = fromSlider(p);
+                    saveLevels();
                 }
 
                 @Override
@@ -139,9 +154,42 @@ public class MainActivity extends Activity {
                 public void onStopTrackingTouch(SeekBar s) {}
             });
             bars[i] = bar;
-            content.addView(bar);
-            labels[i].setTag(names[i]);
+            line.addView(bar, new LinearLayout.LayoutParams(0, -2, 1f));
+            line.addView(nudge("+", () -> setLevel(ch, levels[ch] + 0.1f)));
+            content.addView(line);
         }
+
+        // Strength: fades the whole look in and out, keeping its colour balance.
+        strengthLabel = text("", 16);
+        strengthLabel.setTypeface(Typeface.DEFAULT_BOLD);
+        strengthLabel.setPadding(0, dp(16), 0, 0);
+        content.addView(strengthLabel);
+        content.addView(text("Fades the whole tint in or out smoothly, keeping the same colour "
+                + "balance. 100% = exactly the levels above.", 14));
+        LinearLayout sLine = new LinearLayout(this);
+        sLine.setGravity(Gravity.CENTER_VERTICAL);
+        sLine.addView(nudge("−", () -> setStrength(Tint.strength(this) - 0.1f)));
+        strengthBar = new SeekBar(this);
+        strengthBar.setMax(STEPS);
+        strengthBar.setProgress(Math.round(Tint.strength(this) * 10));
+        strengthBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar s, int p, boolean fromUser) {
+                if (!fromUser) return;
+                Tint.setStrength(MainActivity.this, p / 10f);
+                if (!Tint.enabled(MainActivity.this)) master.setChecked(true);
+                updateLabels();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar s) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar s) {}
+        });
+        sLine.addView(strengthBar, new LinearLayout.LayoutParams(0, -2, 1f));
+        sLine.addView(nudge("+", () -> setStrength(Tint.strength(this) + 0.1f)));
+        content.addView(sLine);
         updateLabels();
 
         // Presets
@@ -159,8 +207,8 @@ public class MainActivity extends Activity {
             content.addView(text("Tap to use. Long-press to delete.", 14));
             LinearLayout savedRow = chipRow();
             for (String[] look : saved) {
-                Button chip = chip(look[0], () -> setLevels(Integer.parseInt(look[1]),
-                        Integer.parseInt(look[2]), Integer.parseInt(look[3])));
+                Button chip = chip(look[0], () -> setLevels(Float.parseFloat(look[1]),
+                        Float.parseFloat(look[2]), Float.parseFloat(look[3])));
                 chip.setOnLongClickListener(v -> {
                     confirmDelete(look[0]);
                     return true;
@@ -180,30 +228,69 @@ public class MainActivity extends Activity {
                 + "• The tint also shows up in screenshots.", 14));
     }
 
-    private void saveFromBars() {
-        Tint.setLevels(this, bars[0].getProgress(), bars[1].getProgress(), bars[2].getProgress());
+    private void saveLevels() {
+        Tint.setLevels(this, levels[0], levels[1], levels[2]);
         if (!Tint.enabled(this)) master.setChecked(true); // also turns the tint on
         updateLabels();
     }
 
-    private void setLevels(int r, int g, int b) {
+    /** One colour to an exact value (from the − / + buttons). */
+    private void setLevel(int ch, float value) {
+        levels[ch] = Math.round(Math.max(0f, Math.min(100f, value)) * 10f) / 10f;
+        updatingBars = true;
+        bars[ch].setProgress(toSlider(levels[ch]));
+        updatingBars = false;
+        saveLevels();
+    }
+
+    private void setStrength(float value) {
+        float v = Math.round(Math.max(0f, Math.min(100f, value)) * 10f) / 10f;
+        Tint.setStrength(this, v);
+        strengthBar.setProgress(Math.round(v * 10));
+        if (!Tint.enabled(this)) master.setChecked(true);
+        updateLabels();
+    }
+
+    private void setLevels(float r, float g, float b) {
         Tint.setLevels(this, r, g, b);
+        Tint.setStrength(this, 100f);
         Tint.setEnabled(this, true);
         render();
     }
 
+    /**
+     * Slider position to level: curved so the top of the range (90-100%, where small tweaks
+     * matter most) gets far more of the slider's length.
+     */
+    private static float fromSlider(int p) {
+        double x = 1.0 - p / (double) STEPS;
+        return Math.round((float) (100.0 * (1.0 - x * x)) * 10f) / 10f;
+    }
+
+    private static int toSlider(float level) {
+        double x = Math.sqrt(Math.max(0.0, 1.0 - level / 100.0));
+        return (int) Math.round((1.0 - x) * STEPS);
+    }
+
     private void updateLabels() {
         for (int i = 0; i < 3; i++) {
-            labels[i].setText(labels[i].getTag() + ": " + bars[i].getProgress() + "%");
+            labels[i].setText(String.format(java.util.Locale.US, "%s: %.1f%%", labels[i].getTag(), levels[i]));
         }
+        float s = Tint.strength(this);
+        strengthLabel.setText(String.format(java.util.Locale.US, "Strength: %.1f%%", s));
         // What white looks like through the overlay with the current settings.
-        int o = Tint.overlayColor(bars[0].getProgress(), bars[1].getProgress(),
-                bars[2].getProgress());
-        float a = Color.alpha(o) / 255f;
-        swatch.setBackgroundColor(Color.rgb(
-                (1 - a) + a * Color.red(o) / 255f,
-                (1 - a) + a * Color.green(o) / 255f,
-                (1 - a) + a * Color.blue(o) / 255f));
+        swatch.setBackgroundColor(Tint.whiteThrough(Tint.effective(levels[0], s),
+                Tint.effective(levels[1], s), Tint.effective(levels[2], s)));
+    }
+
+    /** A small − / + button for 0.1% nudges (hold-free: tap repeatedly). */
+    private Button nudge(String label, Runnable action) {
+        Button b = button(label, action);
+        b.setMinWidth(0);
+        b.setMinimumWidth(0);
+        b.setPadding(0, 0, 0, 0);
+        b.setLayoutParams(new LinearLayout.LayoutParams(dp(44), dp(44)));
+        return b;
     }
 
     private List<String[]> loadSaved() {
@@ -238,9 +325,11 @@ public class MainActivity extends Activity {
                     List<String[]> looks = loadSaved();
                     String name = typed.isEmpty() ? "Look " + (looks.size() + 1) : typed;
                     looks.removeIf(l -> l[0].equals(name)); // same name replaces the old one
-                    looks.add(new String[] {name, String.valueOf(bars[0].getProgress()),
-                            String.valueOf(bars[1].getProgress()),
-                            String.valueOf(bars[2].getProgress())});
+                    float st = Tint.strength(this);
+                    looks.add(new String[] {name,
+                            String.valueOf(Tint.effective(levels[0], st)),
+                            String.valueOf(Tint.effective(levels[1], st)),
+                            String.valueOf(Tint.effective(levels[2], st))});
                     storeSaved(looks);
                     render();
                 })

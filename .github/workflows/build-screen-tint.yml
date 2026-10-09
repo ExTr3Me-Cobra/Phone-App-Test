@@ -7,6 +7,11 @@ on:
 permissions:
   contents: write
 
+# One build at a time, so every build signs with the same saved key.
+concurrency:
+  group: screen-tint-build
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,10 +25,28 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Every build must be signed with the same key, or Android refuses to install it as an
+      # update ("App not installed"). The key is made once and kept in the build cache.
+      - name: Reuse the same signing key
+        uses: actions/cache@v4
+        with:
+          path: signing/screentint.keystore
+          key: screentint-signing-key-v1
+
+      - name: Make the signing key (first build only)
+        run: |
+          mkdir -p signing
+          if [ ! -f signing/screentint.keystore ]; then
+            keytool -genkeypair -v -keystore signing/screentint.keystore -alias screentint \
+              -keyalg RSA -keysize 2048 -validity 36500 \
+              -storepass android -keypass android -dname "CN=Screen Tint"
+          fi
+          keytool -list -v -keystore signing/screentint.keystore -storepass android | grep SHA256
+
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace -PsignKeystore=$PWD/signing/screentint.keystore
           cp app/build/outputs/apk/release/app-release.apk ScreenTint.apk
 
       - uses: actions/upload-artifact@v4

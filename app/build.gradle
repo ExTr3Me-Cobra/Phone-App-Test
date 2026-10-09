@@ -15,11 +15,22 @@ android {
         versionName = "1.0.${versionCode}"
     }
 
+    signingConfigs {
+        // The build server passes the same keystore every time, so new versions install as updates.
+        if (project.hasProperty('signKeystore')) {
+            stable {
+                storeFile = file(project.property('signKeystore'))
+                storePassword = 'android'
+                keyAlias = 'screentint'
+                keyPassword = 'android'
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled = false
-            // Signed with the build machine's debug key so the APK installs without extra setup.
-            signingConfig = signingConfigs.debug
+            signingConfig = project.hasProperty('signKeystore') ? signingConfigs.stable : signingConfigs.debug
         }
     }
 

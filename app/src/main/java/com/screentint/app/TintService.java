@@ -16,12 +16,12 @@ import android.view.accessibility.AccessibilityEvent;
 public class TintService extends AccessibilityService
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     private WindowManager windowManager;
-    private View overlay;
+    private TintView overlay;
 
     @Override
     protected void onServiceConnected() {
         windowManager = getSystemService(WindowManager.class);
-        overlay = new View(this);
+        overlay = new TintView(this);
 
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -30,8 +30,10 @@ public class TintService extends AccessibilityService
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                         | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSLUCENT);
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                        | WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                // High-precision surface, so very small changes aren't rounded away.
+                PixelFormat.RGBA_F16);
         lp.layoutInDisplayCutoutMode =
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
         lp.setFitInsetsTypes(0);
@@ -51,9 +53,13 @@ public class TintService extends AccessibilityService
 
     private void apply() {
         if (overlay == null) return;
-        int color = Tint.overlayColor(this);
-        overlay.setBackgroundColor(color);
-        overlay.setVisibility(color == 0 ? View.GONE : View.VISIBLE);
+        float[] tint = Tint.overlay(this);
+        if (tint == null) {
+            overlay.setVisibility(View.GONE);
+            return;
+        }
+        overlay.setTint(tint);
+        overlay.setVisibility(View.VISIBLE);
     }
 
     @Override
