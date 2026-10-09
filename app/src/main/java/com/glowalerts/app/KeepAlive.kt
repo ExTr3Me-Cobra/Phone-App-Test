@@ -103,15 +103,64 @@ class KeepAlive : Service() {
         private const val ID = 0x6A
         private const val WATCH_MS = 15_000L
 
-        /** Starts (or updates, or stops) the service to match the settings. Safe to call any time. */
+        /**
+         * Starts (or updates, or stops) "Always ready" to match the settings. Safe to call any
+         * time. With the notification shown it runs as a foreground service; with it hidden the
+         * same keep-awake and reconnect checks run inside the app's accessibility service, which
+         * Android keeps running anyway, so there's no notification at all.
+         */
         fun start(context: Context) {
             val app = context.applicationContext
             val intent = Intent(app, KeepAlive::class.java)
-            if (Prefs.get(app).alwaysReady) {
+            val s = Prefs.get(app)
+            if (s.alwaysReady && s.readyNotification) {
+                Background.stop()
                 runCatching { app.startForegroundService(intent) }
             } else {
                 app.stopService(intent)
+                if (s.alwaysReady) Background.start(app) else Background.stop()
             }
+        }
+    }
+
+    /** "Always ready" without a notification: wake lock and reconnect checks, no service. */
+    private object Background {
+        private val main = Handler(Looper.getMainLooper())
+        private var wakeLock: PowerManager.WakeLock? = null
+        private var app: Context? = null
+
+        private val watchdog = object : Runnable {
+            override fun run() {
+                val c = app ?: return
+                if (GlowListener.isEnabled(c) && GlowListener.instance == null) {
+                    runCatching {
+                        NotificationListenerService.requestRebind(ComponentName(c, GlowListener::class.java))
+                    }
+                }
+                main.postDelayed(this, WATCH_MS)
+            }
+        }
+
+        fun start(context: Context) {
+            app = context
+            if (Prefs.get(context).keepAwake) {
+                if (wakeLock == null) {
+                    wakeLock = context.getSystemService(PowerManager::class.java)
+                        .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "glowalerts:ready")
+                        .apply { setReferenceCounted(false); acquire() }
+                }
+            } else {
+                wakeLock?.let { if (it.isHeld) it.release() }
+                wakeLock = null
+            }
+            main.removeCallbacks(watchdog)
+            main.post(watchdog)
+        }
+
+        fun stop() {
+            main.removeCallbacks(watchdog)
+            wakeLock?.let { if (it.isHeld) it.release() }
+            wakeLock = null
         }
     }
 }

@@ -283,7 +283,7 @@ private fun Screen() {
         if (s.alwaysReady) {
             SwitchRow(
                 "Show the \"ready\" notification",
-                "Off: hides the \"Glow Alerts is ready\" notification. Always ready keeps working either way.",
+                "Off: no notification at all. Glow Alerts still stays running through its lighting service (which Android keeps on), with the same keep-awake and reconnect checks.",
                 s.readyNotification,
             ) { v ->
                 set { it.copy(readyNotification = v) }
