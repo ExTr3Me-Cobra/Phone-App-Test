@@ -359,12 +359,9 @@ private fun Steps(tick: Int, wake: Boolean) {
     Step("3. Unrestricted battery", "So Samsung never puts Glow Alerts to sleep.", battery) {
         open(context, Intent(AndroidSettings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkgUri))
     }
-    Step("4. Allow notifications", "For the test button (and the screen wake).", notify) {
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            activity?.requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
-        } else {
-            open(context, Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(AndroidSettings.EXTRA_APP_PACKAGE, context.packageName))
-        }
+    Step("4. Allow notifications", "Turn on \"Allow notifications\" for Glow Alerts. Needed for the test button and to wake the screen.", notify) {
+        // The settings page always works, even if the permission pop-up was turned down before.
+        open(context, Intent(AndroidSettings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(AndroidSettings.EXTRA_APP_PACKAGE, context.packageName))
     }
     if (wake) {
         Step("5. Full screen notifications", "Needed for \"Wake the screen\" (how alarm apps turn the screen on).", fsi) {

@@ -54,7 +54,8 @@ class GlowListener : NotificationListenerService() {
         val name = appName(this, sbn.packageName)
         val reason = skipReason(sbn, ranking, isUpdate)
         if (reason != null) {
-            if (reason != OWN) Log.add("$name: skipped ($reason)")
+            // Repeats are routine (System UI refreshes its own notifications all the time).
+            if (reason != OWN && !isUpdate) Log.add("$name: skipped ($reason)")
             return
         }
         val color = LightService.appColor(this, sbn.notification.color, sbn.packageName)

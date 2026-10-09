@@ -21,8 +21,15 @@ import java.util.Locale
 
 /** Shown for a moment by the full-screen alert: its only job is turning the screen on. */
 class WakeActivity : Activity() {
+    companion object {
+        /** Set when the wake screen opens, for the log. */
+        @Volatile
+        var opened = false
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        opened = true
         setShowWhenLocked(true)
         setTurnScreenOn(true)
         getSystemService(NotificationManager::class.java).cancel(Waker.WAKE_ID)
@@ -59,6 +66,7 @@ object Waker {
     /** Turns the screen on, then checks it worked and logs why if it didn't. */
     fun wake(context: Context, label: String = "Wake") {
         val app = context.applicationContext
+        WakeActivity.opened = false
         val fsi = fullScreenAllowed(app)
         Handler(Looper.getMainLooper()).postDelayed({
             val on = app.getSystemService(PowerManager::class.java).isInteractive
@@ -66,11 +74,24 @@ object Waker {
                 Log.add("$label: screen turned on ✓")
             } else {
                 Log.add(
-                    "$label: screen stayed OFF ✗ (full screen notifications: ${if (fsi) "allowed" else "NOT allowed – see Setup"}, " +
+                    "$label: screen stayed OFF ✗ (wake screen ${if (WakeActivity.opened) "opened" else "never opened"}, " +
+                        "full screen alerts: ${if (fsi) "allowed" else "NOT allowed – allow notifications + full screen in Setup"}, " +
                         "turn screen on: ${if (turnScreenOnAllowed(app)) "allowed" else "not allowed"})",
                 )
             }
         }, 1_800)
+        // Route 1: open the invisible wake screen directly. Apps with a running accessibility
+        // service are allowed to open screens from the background, and the wake screen turns
+        // the display on as it opens. Doesn't need notifications to be allowed.
+        val direct = runCatching {
+            app.startActivity(
+                Intent(app, WakeActivity::class.java).addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION or Intent.FLAG_ACTIVITY_NO_USER_ACTION,
+                ),
+            )
+        }.isSuccess
+        if (!direct) Log.add("$label: couldn't open the wake screen directly")
+        // Route 2: a wake lock that turns the screen on (needs "turn screen on").
         @Suppress("DEPRECATION")
         runCatching {
             app.getSystemService(PowerManager::class.java).newWakeLock(
@@ -78,10 +99,8 @@ object Waker {
                 "glowalerts:wake",
             ).acquire(3_000)
         }
-        if (!fullScreenAllowed(app)) {
-            Log.add("Wake: \"Full screen notifications\" isn't allowed for Glow Alerts")
-            return
-        }
+        // Route 3: an alarm-style full-screen alert (needs notifications + full screen allowed).
+        if (!fullScreenAllowed(app)) return
         val nm = app.getSystemService(NotificationManager::class.java)
         nm.createNotificationChannel(
             NotificationChannel(WAKE_CHANNEL, "Screen wake", NotificationManager.IMPORTANCE_HIGH).apply {
