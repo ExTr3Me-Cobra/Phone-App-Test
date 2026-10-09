@@ -5,13 +5,20 @@ import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Looper;
 import android.util.Log;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 
@@ -58,8 +65,10 @@ final class Home {
         client.removeGeofences(pi);
         if (!Prefs.homeOn(app) || !Prefs.hasHome(app)
                 || !hasLocationPermission(app) || !hasBackgroundPermission(app)) {
+            stopBackup(app);
             return;
         }
+        startBackup(app);
         Geofence fence = new Geofence.Builder()
                 .setRequestId("home")
                 .setCircularRegion(Prefs.homeLat(app), Prefs.homeLng(app), Prefs.homeRadius(app))
@@ -78,7 +87,13 @@ final class Home {
             client.addGeofences(request, pi)
                     .addOnFailureListener(e -> {
                         Log.w(TAG, "Home watch failed", e);
-                        noteEvent(app, "Couldn't watch home (is Location turned on?)");
+                        int code = e instanceof ApiException ? ((ApiException) e).getStatusCode() : -1;
+                        noteEvent(app, code == GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE
+                                ? "Android's area watching is unavailable: turn on Google Location "
+                                        + "Accuracy (Settings → Location → Location services). The "
+                                        + "backup check still runs"
+                                : "Couldn't set up Android's area watching (code " + code
+                                        + "). The backup check still runs");
                     });
         } catch (SecurityException e) {
             Log.w(TAG, "No location permission", e);
@@ -116,6 +131,87 @@ final class Home {
     /** Forget where you were (new home spot), so the next report counts as a change. */
     static void forgetState(Context c) {
         Prefs.get(c).edit().remove(KEY_AT_HOME).apply();
+    }
+
+    // ------------------------------------------------------------------ backup location check
+
+    private static final String KEY_LAST_DISTANCE = "home_last_distance";
+    private static final String KEY_LAST_CHECK = "home_last_check";
+    private static LocationCallback backup;
+
+    /**
+     * A second, independent way to notice leaving and getting home: a location reading every
+     * couple of minutes (or after moving ~50 m), compared with the home spot. Android's area
+     * watching can be slow or unavailable on some phones; this catches what it misses.
+     */
+    @SuppressLint("MissingPermission")
+    static synchronized void startBackup(Context c) {
+        Context app = c.getApplicationContext();
+        if (backup != null) return;
+        LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 120_000L)
+                .setMinUpdateIntervalMillis(30_000L)
+                .setMinUpdateDistanceMeters(40f)
+                .build();
+        backup = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult result) {
+                Location loc = result.getLastLocation();
+                if (loc != null) checkLocation(app, loc, "backup check");
+            }
+        };
+        try {
+            LocationServices.getFusedLocationProviderClient(app)
+                    .requestLocationUpdates(request, backup, Looper.getMainLooper());
+        } catch (SecurityException e) {
+            backup = null;
+        }
+    }
+
+    static synchronized void stopBackup(Context c) {
+        if (backup == null) return;
+        LocationServices.getFusedLocationProviderClient(c.getApplicationContext()).removeLocationUpdates(backup);
+        backup = null;
+    }
+
+    /** Compares a location with home and switches the mode if you've clearly left or come back. */
+    static void checkLocation(Context c, Location loc, String how) {
+        if (!Prefs.homeOn(c) || !Prefs.hasHome(c)) return;
+        if (loc.hasAccuracy() && loc.getAccuracy() > 400f) return; // too vague to judge
+        float[] out = new float[1];
+        Location.distanceBetween(Prefs.homeLat(c), Prefs.homeLng(c), loc.getLatitude(), loc.getLongitude(), out);
+        float distance = out[0];
+        Prefs.get(c).edit()
+                .putFloat(KEY_LAST_DISTANCE, distance)
+                .putLong(KEY_LAST_CHECK, System.currentTimeMillis())
+                .apply();
+        float radius = Prefs.homeRadius(c);
+        float margin = Math.max(50f, loc.hasAccuracy() ? loc.getAccuracy() : 50f);
+        if (distance <= radius) {
+            arrived(c, true, how);
+        } else if (distance > radius + margin) {
+            arrived(c, false, how);
+        }
+        // In between: not sure yet, leave it as it is.
+    }
+
+    /** Leaving (false) or getting home (true), from either way of watching. */
+    static void arrived(Context c, boolean atHome, String how) {
+        if (!atHomeChanged(c, atHome)) return;
+        String waiting = !atHome && ModeController.deviceConnected(c)
+                ? " (waiting until headphones / speaker disconnect)" : "";
+        noteEvent(c, (atHome ? "Got home: Vibrate Only off" : "Left home: Vibrate Only on" + waiting)
+                + " – " + how);
+        ModeController.setByLocation(c, !atHome);
+    }
+
+    /** "About 1.2 km from home (checked 14:05)", or null before the first reading. */
+    static String lastReading(Context c) {
+        SharedPreferences p = Prefs.get(c);
+        if (!p.contains(KEY_LAST_CHECK)) return null;
+        float d = p.getFloat(KEY_LAST_DISTANCE, 0f);
+        String dist = d < 1000 ? Math.round(d) + " m" : String.format(java.util.Locale.US, "%.1f km", d / 1000f);
+        String when = DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(p.getLong(KEY_LAST_CHECK, 0)));
+        return "About " + dist + " from home (checked " + when + ")";
     }
 
     static String lastEvent(Context c) {

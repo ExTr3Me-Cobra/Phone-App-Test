@@ -245,8 +245,15 @@ public class SettingsActivity extends Activity {
                 Prefs.HOME_RADIUS, 150,
                 new String[] {"100 m", "150 m", "250 m", "400 m", "800 m"},
                 new int[] {100, 150, 250, 400, 800});
+        String reading = Home.lastReading(this);
+        content.addView(text(reading != null ? "Right now: " + reading
+                : "Right now: no location reading yet (it checks every couple of minutes)", 14));
         String last = Home.lastEvent(this);
         if (last != null) content.addView(text("Last: " + last, 14));
+        content.addView(text("If it doesn't switch when you leave: make sure Location is on, "
+                + "\"Google Location Accuracy\" is on (Settings → Location → Location services), "
+                + "and Vibrate Only's location permission is \"Allow all the time\". Connected car "
+                + "Bluetooth or earbuds keep Vibrate Only off until they disconnect.", 14));
     }
 
     /** Accepts "51.5007, -0.1246" (Google Maps: press and hold a spot, tap the numbers to copy). */

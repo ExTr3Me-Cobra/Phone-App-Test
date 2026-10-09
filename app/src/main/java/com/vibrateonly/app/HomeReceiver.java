@@ -17,13 +17,9 @@ public class HomeReceiver extends BroadcastReceiver {
         if (event == null || event.hasError() || !Prefs.homeOn(context)) return;
         int transition = event.getGeofenceTransition();
         if (transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-            if (!Home.atHomeChanged(context, false)) return;
-            Home.noteEvent(context, "Left home: Vibrate Only on");
-            ModeController.setByLocation(context, true);
+            Home.arrived(context, false, "area watch");
         } else if (transition == Geofence.GEOFENCE_TRANSITION_ENTER) {
-            if (!Home.atHomeChanged(context, true)) return;
-            Home.noteEvent(context, "Got home: Vibrate Only off");
-            ModeController.setByLocation(context, false);
+            Home.arrived(context, true, "area watch");
         }
     }
 }
