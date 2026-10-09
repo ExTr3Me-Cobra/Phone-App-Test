@@ -97,6 +97,9 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     private var start = 0L
     private var finished = false
 
+    /** The effect has drawn its first frame on screen. */
+    val started get() = start != 0L
+
     // The whole edge: a rounded rectangle that starts (and ends) at the top centre.
     private val path = Path()
     private val measure = PathMeasure()
@@ -213,6 +216,17 @@ class EdgeLightView(context: Context, spec: LightSpec, private val onDone: () ->
     }
 
     override fun onDraw(canvas: Canvas) {
+        // A drawing error must never take the lighting down: log it and end this effect.
+        try {
+            drawFrame(canvas)
+        } catch (e: Exception) {
+            Log.add("Lighting: drawing error (${e.javaClass.simpleName}: ${e.message})")
+            finished = true
+            post(onDone)
+        }
+    }
+
+    private fun drawFrame(canvas: Canvas) {
         if (finished || length == 0f) return
         val now = SystemClock.uptimeMillis()
         if (start == 0L) {

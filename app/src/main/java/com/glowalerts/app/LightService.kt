@@ -91,7 +91,7 @@ class LightService : AccessibilityService() {
     val ready get() = container != null
 
     /** Plays one effect on top of any that are already playing. */
-    fun play(spec: LightSpec) = main.post {
+    fun play(spec: LightSpec, retry: Boolean = false) = main.post {
         val box = attach() ?: return@post
         // Keep it sensible: drop the oldest when lots arrive at once.
         while (box.childCount >= MAX_LAYERS) box.removeViewAt(0)
@@ -105,6 +105,31 @@ class LightService : AccessibilityService() {
         box.visibility = View.VISIBLE
         // If the screen never lights up, don't leave the layer waiting forever.
         main.postDelayed(safety, spec.durationMs + 20_000)
+        // Check it really appeared. Android sometimes leaves a window that was hidden for a while
+        // without a working surface: then rebuild the window and play the effect again.
+        main.postDelayed(object : Runnable {
+            var shownFor = 0L
+            override fun run() {
+                if (layer.parent !== box || layer.started) return
+                // Only judge it while the screen is properly on (it waits while the screen is off).
+                shownFor = if (screenVisible(this@LightService) && !onAod(this@LightService)) shownFor + CHECK_MS else 0L
+                if (shownFor < CHECK_MS * 2) {
+                    main.postDelayed(this, CHECK_MS)
+                    return
+                }
+                main.removeCallbacks(safety)
+                removeLayer(layer)
+                if (retry) {
+                    Log.add("Lighting: still didn't appear after rebuilding the window")
+                    return
+                }
+                Log.add("Lighting: didn't appear – rebuilt the drawing window and played again")
+                // Another effect is drawing fine, so the window works: just try again in it.
+                val windowWorks = (0 until box.childCount).any { (box.getChildAt(it) as? EdgeLightView)?.started == true }
+                if (!windowWorks) detach()
+                play(spec, retry = true)
+            }
+        }, CHECK_MS)
     }
 
     private fun removeLayer(layer: View) {
@@ -115,6 +140,7 @@ class LightService : AccessibilityService() {
 
     companion object {
         private const val MAX_LAYERS = 12
+        private const val CHECK_MS = 500L
 
         @Volatile
         var instance: LightService? = null
