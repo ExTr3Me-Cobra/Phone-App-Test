@@ -31,7 +31,7 @@ object RingReader {
 
     // Military + decimal: 09-OCT-26 14.68  (14 hours + 0.68 of an hour). The date is optional.
     private val DECIMAL_DATED = Regex(
-        """(\d{1,2})\s*-\s*([A-Za-z0-9]{3})\s*-\s*(\d{2,4})\s+(\d{1,2})\s*[.,]\s*(\d{1,4})(?![\d:])""",
+        """(\d{1,2})\s*-\s*([A-Za-z0-9]{3})\s*-\s*(\d{2,4})\s+(\d{1,2})\s*[.,]\s*(\d{1,4})(?![\d:.]|\s*[AaPp]\.?\s*[Mm])""",
     )
     private val DECIMAL_ALONE = Regex("""^(\d{1,2})\s*[.,]\s*(\d{1,4})$""")
 
