@@ -36,9 +36,9 @@ object RingReader {
     private val DECIMAL_ALONE = Regex("""^(\d{1,2})\s*[.,]\s*(\d{1,4})$""")
 
     // Short form, code then time: "BT:08.87", "OL - 12.33", "IL 2:41:06 PM". Today's date.
-    private val SHORT_DECIMAL = Regex("""\b([A-Za-z]{2})\s*[:\-=]?\s*(\d{1,2})\s*[.,]\s*(\d{1,4})(?![\d:.]|\s*[AaPp]\.?\s*[Mm])""")
+    private val SHORT_DECIMAL = Regex("""\b([A-Za-z]{2})\s*[=:\-]?\s*(\d{1,2})\s*[.,]\s*(\d{1,4})(?![\d:.]|\s*[AaPp]\.?\s*[Mm])""")
     private val SHORT_12H = Regex(
-        """\b([A-Za-z]{2})\s*[:\-=]?\s*(\d{1,2})\s*[.:]\s*(\d{2})(?:\s*[.:]\s*(\d{2}))?\s*([AaPp])\s*\.?\s*[Mm]\b""",
+        """\b([A-Za-z]{2})\s*[=:\-]?\s*(\d{1,2})\s*[.:]\s*(\d{2})(?:\s*[.:]\s*(\d{2}))?\s*([AaPp])\s*\.?\s*[Mm]\b""",
     )
 
     /** Rings written as code-then-time on one line, in the chosen style. */
