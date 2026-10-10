@@ -3,6 +3,7 @@ package com.clockout.app
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,7 +12,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.FilterChip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -104,6 +111,7 @@ private fun Screen() {
     var rawText by remember { mutableStateOf("") }
     var editing by remember { mutableStateOf<Ring?>(null) }
     var adding by remember { mutableStateOf(false) }
+    var scan by remember { mutableStateOf<Scan?>(null) }
 
     fun readImage(uri: Uri) {
         reading = true
@@ -113,29 +121,39 @@ private fun Screen() {
             message = "Couldn't open that picture."
             return
         }
+        val photo = thumbnail(context, uri)
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS).process(image)
             .addOnSuccessListener { text ->
                 reading = false
                 rawText = text.text
-                val found = RingReader.read(text)
+                val mode = Store.settings.value.decimal
+                var found = RingReader.read(text, mode)
+                var other = false
+                // Nothing in the chosen time style: see if the picture uses the other one.
                 if (found.isEmpty()) {
-                    message = "No clock rings found. Try again closer, straight on, with the whole table in the picture – or add them by hand."
-                } else {
-                    Store.setRings(context, found)
-                    val unknown = found.count { it.code == "?" }
-                    message = "Read ${found.size} ring${if (found.size == 1) "" else "s"}." +
-                        (if (unknown > 0) " $unknown without a code – tap to fix." else "") + " Check they match your screen."
+                    RingReader.read(text, !mode).takeIf { it.isNotEmpty() }?.let { found = it; other = true }
                 }
+                scan = Scan(found, text.text, if (other) !mode else mode, other, photo)
             }
             .addOnFailureListener {
                 reading = false
-                message = "Couldn't read the picture (${it.message})."
+                scan = Scan(emptyList(), "", Store.settings.value.decimal, false, photo, error = it.message ?: "unknown error")
             }
     }
 
     val photoFile = remember { File(context.cacheDir, "photos").apply { mkdirs() }.let { File(it, "rings.jpg") } }
     val photoUri = remember { FileProvider.getUriForFile(context, "${context.packageName}.files", photoFile) }
-    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) readImage(photoUri) }
+    var launchedAt by remember { mutableStateOf(0L) }
+    val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
+        // Some camera apps save the picture but don't say so: use it if it's fresh.
+        val fresh = photoFile.exists() && photoFile.length() > 0 && photoFile.lastModified() >= launchedAt - 2_000
+        if (ok || fresh) readImage(photoUri) else message = "No picture taken."
+    }
+    fun takePicture() {
+        photoFile.delete()
+        launchedAt = System.currentTimeMillis()
+        camera.launch(photoUri)
+    }
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> if (uri != null) readImage(uri) }
     val notifyPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     LaunchedEffect(s.remind) {
@@ -153,7 +171,7 @@ private fun Screen() {
         ResultCard(rings, s, now)
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { camera.launch(photoUri) }, enabled = !reading, modifier = Modifier.weight(1f)) { Text("📷  Scan clock rings") }
+            Button(onClick = { takePicture() }, enabled = !reading, modifier = Modifier.weight(1f)) { Text("📷  Scan clock rings") }
             OutlinedButton(onClick = {
                 gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             }, enabled = !reading) { Text("From photos") }
@@ -182,7 +200,7 @@ private fun Screen() {
                 Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(r.code, fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = Modifier.width(48.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(Fmt.time(r.time), fontSize = 18.sp)
+                        Text(Fmt.show(r.time, s), fontSize = 18.sp)
                         Text(
                             (MEANINGS[r.code.uppercase()] ?: if (r.code == "?") "Unknown code – tap to fix" else "Code ${r.code}") +
                                 if (off) " · off the clock" else " · on the clock",
@@ -214,9 +232,23 @@ private fun Screen() {
         Spacer(Modifier.height(32.dp))
     }
 
+    scan?.let { sc ->
+        ScanDialog(
+            sc, s, now,
+            onUse = {
+                if (sc.decimal != s.decimal) Store.setSettings(context, s.copy(decimal = sc.decimal))
+                Store.setRings(context, sc.rings)
+                message = null
+                scan = null
+            },
+            onRetake = { scan = null; takePicture() },
+            onDismiss = { scan = null },
+        )
+    }
+
     editing?.let { r ->
         RingDialog(
-            title = "Edit ring", initial = r,
+            title = "Edit ring", initial = r, s = s,
             onDismiss = { editing = null },
             onDelete = { Store.setRings(context, rings - r); editing = null },
             onSave = { new -> Store.setRings(context, rings - r + new); editing = null },
@@ -225,7 +257,7 @@ private fun Screen() {
     if (adding) {
         val last = rings.lastOrNull()
         RingDialog(
-            title = "Add a ring",
+            title = "Add a ring", s = s,
             initial = Ring(if (last == null) "BT" else if (Calc.isOff(last.code, s)) "IL" else "OL", now.withNano(0)),
             onDismiss = { adding = false },
             onDelete = null,
@@ -255,7 +287,11 @@ private fun ResultCard(rings: List<Ring>, s: Settings, now: LocalDateTime) {
                 r.onClock && r.clockOut != null -> {
                     val reached = r.remaining.isZero
                     Text(if (reached) "You reached ${Fmt.dur(target)} at" else "Clock out at", style = MaterialTheme.typography.titleMedium)
-                    Text(Fmt.time(r.clockOut), fontSize = 44.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        if (s.decimal) Fmt.decimal(r.clockOut.toLocalTime()) else Fmt.time(r.clockOut),
+                        fontSize = 44.sp, fontWeight = FontWeight.Bold,
+                    )
+                    if (s.decimal) Text(Fmt.time(r.clockOut), fontSize = 18.sp)
                     Text(
                         if (reached) "You're ${Fmt.dur(r.worked - target)} over – go home!"
                         else "${Fmt.dur(r.remaining)} to go · ${Fmt.dur(r.worked)} worked",
@@ -267,7 +303,7 @@ private fun ResultCard(rings: List<Ring>, s: Settings, now: LocalDateTime) {
                     Text("Off the clock", style = MaterialTheme.typography.titleMedium)
                     Text("${Fmt.dur(r.remaining)} left to work", fontSize = 28.sp, fontWeight = FontWeight.Bold)
                     Text("${Fmt.dur(r.worked)} worked so far.")
-                    Text("Clock back in now → clock out at ${Fmt.time(now + r.remaining)}", fontSize = 18.sp)
+                    Text("Clock back in now → clock out at ${Fmt.show(now + r.remaining, s)}", fontSize = 18.sp)
                 }
             }
             if (r != null) {
@@ -283,6 +319,14 @@ private fun SettingsPanel(s: Settings) {
     val context = LocalContext.current
     fun set(new: Settings) = Store.setSettings(context, new)
     Text("Settings", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+
+    Text("Times on my clock screen look like")
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(selected = !s.decimal, onClick = { set(s.copy(decimal = false)) }, label = { Text("2:41:06 PM (12-hour)") })
+        FilterChip(selected = s.decimal, onClick = { set(s.copy(decimal = true)) }, label = { Text("14.68 (military + decimal)") })
+    }
+    if (s.decimal) Text("14.68 means 14 hours and 0.68 of an hour = 2:40:48 PM.",
+        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
     var targetText by remember { mutableStateOf(Fmt.dur(Duration.ofSeconds(s.targetSeconds)).removeSuffix(":00")) }
     OutlinedTextField(
@@ -330,10 +374,11 @@ private fun SettingsPanel(s: Settings) {
 }
 
 @Composable
-private fun RingDialog(title: String, initial: Ring, onDismiss: () -> Unit, onDelete: (() -> Unit)?, onSave: (Ring) -> Unit) {
+private fun RingDialog(title: String, initial: Ring, s: Settings, onDismiss: () -> Unit, onDelete: (() -> Unit)?, onSave: (Ring) -> Unit) {
     var code by remember { mutableStateOf(initial.code) }
-    var time by remember { mutableStateOf(Fmt.time(initial.time)) }
-    val parsed = Fmt.parseClock(time)
+    var time by remember { mutableStateOf(if (s.decimal) Fmt.decimal(initial.time.toLocalTime()) else Fmt.time(initial.time)) }
+    val parsed = Fmt.parseAny(time, s)
+    val example = if (s.decimal) "14.68" else "2:41:06 PM"
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -343,9 +388,9 @@ private fun RingDialog(title: String, initial: Ring, onDismiss: () -> Unit, onDe
                     code, { code = it.uppercase().take(4) }, label = { Text("Code (BT, MV, OL, IL, ET…)") }, singleLine = true,
                 )
                 OutlinedTextField(
-                    time, { time = it }, label = { Text("Time, e.g. 2:41:06 PM") }, singleLine = true,
+                    time, { time = it }, label = { Text("Time, e.g. $example") }, singleLine = true,
                     isError = parsed == null,
-                    supportingText = { if (parsed == null) Text("Type it like 2:41:06 PM") },
+                    supportingText = { Text(if (parsed == null) "Type it like $example" else Fmt.time(parsed)) },
                 )
                 Text(initial.time.toLocalDate().toString(), style = MaterialTheme.typography.bodySmall)
             }
@@ -359,6 +404,106 @@ private fun RingDialog(title: String, initial: Ring, onDismiss: () -> Unit, onDe
         dismissButton = {
             Row {
                 if (onDelete != null) TextButton(onClick = onDelete) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+                TextButton(onClick = onDismiss) { Text("Cancel") }
+            }
+        },
+    )
+}
+
+/** What one scan found, waiting for you to confirm. */
+private class Scan(
+    val rings: List<Ring>,
+    val raw: String,
+    /** The time style the rings were read in. */
+    val decimal: Boolean,
+    /** Read in the other style than the one chosen in Settings. */
+    val switched: Boolean,
+    val photo: ImageBitmap?,
+    val error: String? = null,
+)
+
+private fun thumbnail(context: Context, uri: Uri): ImageBitmap? = runCatching {
+    ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri)) { d, info, _ ->
+        val scale = (info.size.width / 900).coerceAtLeast(1)
+        d.setTargetSize(info.size.width / scale, info.size.height / scale)
+    }.asImageBitmap()
+}.getOrNull()
+
+/** Shows what was read and when that means you clock out, before anything is saved. */
+@Composable
+private fun ScanDialog(sc: Scan, current: Settings, now: LocalDateTime, onUse: () -> Unit, onRetake: () -> Unit, onDismiss: () -> Unit) {
+    val s = current.copy(decimal = sc.decimal)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (sc.rings.isEmpty()) "Couldn't find your rings" else "Here's what I read") },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                sc.photo?.let {
+                    Image(
+                        it, contentDescription = "Your picture",
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 160.dp),
+                        contentScale = ContentScale.Fit,
+                    )
+                }
+                if (sc.rings.isEmpty()) {
+                    Text(sc.error?.let { "Reading failed: $it" } ?: "I didn't see any codes with times (like 013 IL  09-OCT-26 02.41.06 PM) in this picture.")
+                    Text("Try again with the TR CODE and TR DATETIME columns filling most of the picture, held straight on, without glare.")
+                    if (sc.raw.isNotBlank()) {
+                        Text("What I could read:", fontWeight = FontWeight.Bold)
+                        Text(sc.raw.take(600), style = MaterialTheme.typography.bodySmall)
+                    }
+                    return@Column
+                }
+                if (sc.switched) {
+                    Text(
+                        "These look like ${if (sc.decimal) "military + decimal" else "12-hour"} times, so I read them that way " +
+                            "(and will switch the setting).",
+                        color = MaterialTheme.colorScheme.tertiary,
+                    )
+                }
+                sc.rings.forEach { r ->
+                    Row {
+                        Text(r.code, fontWeight = FontWeight.Bold, modifier = Modifier.width(44.dp))
+                        Text(Fmt.show(r.time, s), Modifier.weight(1f))
+                        Text(if (Calc.isOff(r.code, s)) "off" else "on", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                val unknown = sc.rings.count { it.code == "?" }
+                if (unknown > 0) Text("$unknown time${if (unknown == 1) "" else "s"} without a code – you can fix that after.",
+                    color = MaterialTheme.colorScheme.error)
+                HorizontalDivider()
+                val r = Calc.compute(sc.rings, s, now)
+                val target = Duration.ofSeconds(s.targetSeconds)
+                when {
+                    r == null -> Unit
+                    r.finished -> Text("Day finished: ${Fmt.dur(r.worked)} on the clock.", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    r.onClock && r.clockOut != null -> {
+                        Text("You need to clock out at", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            if (s.decimal) Fmt.decimal(r.clockOut.toLocalTime()) else Fmt.time(r.clockOut),
+                            fontSize = 34.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary,
+                        )
+                        if (s.decimal) Text(Fmt.time(r.clockOut))
+                        Text(
+                            if (r.remaining.isZero) "You've already reached ${Fmt.dur(target)}."
+                            else "${Fmt.dur(r.remaining)} still to work · ${Fmt.dur(r.worked)} worked so far",
+                        )
+                    }
+                    else -> {
+                        Text("You're off the clock right now.", fontWeight = FontWeight.Bold)
+                        Text("${Fmt.dur(r.worked)} worked · ${Fmt.dur(r.remaining)} left.")
+                        Text("Clock back in now → clock out at ${Fmt.show(now + r.remaining, s)}")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (sc.rings.isNotEmpty()) TextButton(onClick = onUse) { Text("Looks right – use these") }
+            else TextButton(onClick = onRetake) { Text("Try again") }
+        },
+        dismissButton = {
+            Row {
+                if (sc.rings.isNotEmpty()) TextButton(onClick = onRetake) { Text("Retake") }
                 TextButton(onClick = onDismiss) { Text("Cancel") }
             }
         },

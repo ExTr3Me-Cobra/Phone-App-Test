@@ -56,7 +56,7 @@ object Reminder {
         val n = Notification.Builder(c, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat)
             .setContentTitle(if (early) "Clock out in ${s.remindBefore} min" else "Time to clock out")
-            .setContentText("${Fmt.dur(java.time.Duration.ofSeconds(s.targetSeconds))} reached at ${Fmt.time(out)}")
+            .setContentText("${Fmt.dur(java.time.Duration.ofSeconds(s.targetSeconds))} reached at ${Fmt.show(out, s)}")
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()

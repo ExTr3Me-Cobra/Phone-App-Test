@@ -15,6 +15,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 /** One clock ring: its two-letter code (BT, MV, OL, IL, ET…) and when it happened. */
 data class Ring(val code: String, val time: LocalDateTime)
@@ -27,6 +28,12 @@ object RingReader {
     private val DATETIME = Regex(
         """(\d{1,2})\s*-\s*([A-Za-z0-9]{3})\s*-\s*(\d{2,4})\s+(\d{1,2})\s*[.:,]\s*(\d{2})\s*[.:,]\s*(\d{2})\s*([AaPp])\s*\.?\s*[Mm]""",
     )
+
+    // Military + decimal: 09-OCT-26 14.68  (14 hours + 0.68 of an hour). The date is optional.
+    private val DECIMAL_DATED = Regex(
+        """(\d{1,2})\s*-\s*([A-Za-z0-9]{3})\s*-\s*(\d{2,4})\s+(\d{1,2})\s*[.,]\s*(\d{1,4})(?![\d:])""",
+    )
+    private val DECIMAL_ALONE = Regex("""^(\d{1,2})\s*[.,]\s*(\d{1,4})$""")
 
     // 013 IL
     private val CODE = Regex("""\b[0-9Oo]{3}\s+([A-Z]{2})\b""")
@@ -51,7 +58,34 @@ object RingReader {
         LocalDateTime.of(year, month(mon) ?: return null, d.toInt(), hour, mm.toInt(), ss.toInt())
     }.getOrNull()
 
-    fun read(text: Text): List<Ring> {
+    /** Hours with a decimal fraction ("14", "68") as a time of day. */
+    fun decimalTime(hours: String, fraction: String): LocalTime? {
+        val h = hours.toIntOrNull() ?: return null
+        if (h > 24) return null
+        val secs = (("0.$fraction").toDouble() * 3600).roundToInt()
+        val total = h * 3600 + secs
+        if (total >= 24 * 3600) return null
+        return LocalTime.ofSecondOfDay(total.toLong())
+    }
+
+    private fun parseDecimal(m: MatchResult): LocalDateTime? = runCatching {
+        val (d, mon, y, hh, frac) = m.destructured
+        val year = y.toInt().let { if (it < 100) 2000 + it else it }
+        LocalDate.of(year, month(mon) ?: return null, d.toInt()).atTime(decimalTime(hh, frac) ?: return null)
+    }.getOrNull()
+
+    /** Times on one line of text, in the chosen format. Undated decimal times get [day]. */
+    private fun timesIn(line: String, decimal: Boolean, day: LocalDate): List<LocalDateTime> {
+        if (!decimal) return DATETIME.findAll(line).mapNotNull { parseTime(it) }.toList()
+        val dated = DECIMAL_DATED.findAll(line).mapNotNull { parseDecimal(it) }.toList()
+        if (dated.isNotEmpty()) return dated
+        val rest = CODE.replace(line, "").trim()
+        val m = DECIMAL_ALONE.find(rest) ?: return emptyList()
+        return listOfNotNull(decimalTime(m.groupValues[1], m.groupValues[2])?.let { day.atTime(it) })
+    }
+
+    fun read(text: Text, decimal: Boolean): List<Ring> {
+        val day = LocalDate.now()
         val times = mutableListOf<Found>()
         val codes = mutableListOf<Found>()
         val paired = mutableListOf<Ring>()
@@ -61,7 +95,7 @@ object RingReader {
             val box: Rect = line.boundingBox ?: Rect()
             val y = box.exactCenterY()
             val h = box.height().toFloat().coerceAtLeast(1f)
-            val lineTimes = DATETIME.findAll(t).mapNotNull { parseTime(it) }.toList()
+            val lineTimes = timesIn(t, decimal, day)
             val lineCodes = CODE.findAll(t).map { it.groupValues[1] }.toList()
             // A whole row read as one line: "013 IL 09-OCT-26 02.41.06 PM".
             if (lineTimes.size == 1 && lineCodes.size == 1) {
@@ -129,6 +163,8 @@ data class Settings(
     val offCodes: Set<String> = setOf("OL", "ET"),
     val remind: Boolean = true,
     val remindBefore: Int = 5,
+    /** The clock shows military time with decimal hours (14.68) instead of 2:40:48 PM. */
+    val decimal: Boolean = false,
 )
 
 /** Saved rings and settings. */
@@ -156,6 +192,7 @@ object Store {
             offCodes = p.getString("off", "OL,ET")!!.split(",").map { it.trim().uppercase() }.filter { it.isNotEmpty() }.toSet(),
             remind = p.getBoolean("remind", true),
             remindBefore = p.getInt("remindBefore", 5),
+            decimal = p.getBoolean("decimal", false),
         )
     }
 
@@ -170,18 +207,42 @@ object Store {
         settingsState.value = s
         c.getSharedPreferences(FILE, Context.MODE_PRIVATE).edit()
             .putLong("target", s.targetSeconds).putString("off", s.offCodes.joinToString(","))
-            .putBoolean("remind", s.remind).putInt("remindBefore", s.remindBefore).apply()
+            .putBoolean("remind", s.remind).putInt("remindBefore", s.remindBefore)
+            .putBoolean("decimal", s.decimal).apply()
         Reminder.update(c)
     }
 }
 
 object Fmt {
+
     private val clock = DateTimeFormatter.ofPattern("h:mm:ss a", Locale.US)
     fun time(t: LocalDateTime): String = t.format(clock)
     fun time(t: LocalTime): String = t.format(clock)
     fun dur(d: Duration): String {
         val s = d.seconds.coerceAtLeast(0)
         return "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60)
+    }
+
+    /** Military time with decimal hours: 2:40:48 PM -> "14.68". */
+    fun decimal(t: LocalTime): String {
+        var h = t.hour
+        var hundredths = ((t.minute * 60 + t.second) / 36.0).roundToInt()
+        if (hundredths == 100) { h += 1; hundredths = 0 }
+        return "%02d.%02d".format(h, hundredths)
+    }
+
+    /** A time the way the clock shows it, with the other style alongside in decimal mode. */
+    fun show(t: LocalDateTime, s: Settings): String =
+        if (s.decimal) "${decimal(t.toLocalTime())}  (${time(t)})" else time(t)
+
+    /** A typed time in either style ("14.68", "2:41:06 PM", "14:41"). */
+    fun parseAny(raw: String, s: Settings): LocalTime? {
+        if (s.decimal) {
+            Regex("""^\s*(\d{1,2})\s*[.,]\s*(\d{1,4})\s*$""").find(raw)?.let {
+                return RingReader.decimalTime(it.groupValues[1], it.groupValues[2])
+            }
+        }
+        return parseClock(raw)
     }
 
     /** "2:41:06 PM", "2.41.06 pm", "14:41:06"… Null if it can't be read. */
