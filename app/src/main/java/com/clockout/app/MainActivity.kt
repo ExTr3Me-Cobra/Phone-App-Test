@@ -101,7 +101,7 @@ private fun Screen() {
     val context = LocalContext.current
     val rings by Store.rings.collectAsState()
     val s by Store.settings.collectAsState()
-    var now by remember { mutableStateOf(LocalDateTime.now()) }
+    var now by remember { mutableStateOf(LocalDateTime.now().withNano(0)) }
     var reading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var rawText by remember { mutableStateOf("") }
@@ -111,7 +111,7 @@ private fun Screen() {
     LaunchedEffect(Unit) {
         while (true) {
             val before = now.toLocalDate()
-            now = LocalDateTime.now()
+            now = LocalDateTime.now().withNano(0)
             if (now.toLocalDate() != before && Store.clearOldDays(context)) {
                 scan = null
                 rawText = ""
