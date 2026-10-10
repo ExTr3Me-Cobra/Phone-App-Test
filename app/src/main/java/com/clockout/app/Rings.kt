@@ -35,6 +35,30 @@ object RingReader {
     )
     private val DECIMAL_ALONE = Regex("""^(\d{1,2})\s*[.,]\s*(\d{1,4})$""")
 
+    // Short form, code then time: "BT:08.87", "OL - 12.33", "IL 2:41:06 PM". Today's date.
+    private val SHORT_DECIMAL = Regex("""\b([A-Za-z]{2})\s*[:\-=]?\s*(\d{1,2})\s*[.,]\s*(\d{1,4})(?![\d:.]|\s*[AaPp]\.?\s*[Mm])""")
+    private val SHORT_12H = Regex(
+        """\b([A-Za-z]{2})\s*[:\-=]?\s*(\d{1,2})\s*[.:]\s*(\d{2})(?:\s*[.:]\s*(\d{2}))?\s*([AaPp])\s*\.?\s*[Mm]\b""",
+    )
+
+    /** Rings written as code-then-time on one line, in the chosen style. */
+    private fun shortForm(line: String, decimal: Boolean, day: LocalDate): List<Ring> =
+        if (decimal) {
+            SHORT_DECIMAL.findAll(line).mapNotNull { m ->
+                decimalTime(m.groupValues[2], m.groupValues[3])?.let { Ring(m.groupValues[1].uppercase(), day.atTime(it)) }
+            }.toList()
+        } else {
+            SHORT_12H.findAll(line).mapNotNull { m ->
+                val h = m.groupValues[2].toInt()
+                if (h !in 1..12) return@mapNotNull null
+                val min = m.groupValues[3].toInt()
+                val sec = m.groupValues[4].ifEmpty { "0" }.toInt()
+                if (min > 59 || sec > 59) return@mapNotNull null
+                val hour = h % 12 + if (m.groupValues[5].uppercase() == "P") 12 else 0
+                Ring(m.groupValues[1].uppercase(), day.atTime(hour, min, sec))
+            }.toList()
+        }
+
     // 013 IL
     private val CODE = Regex("""\b[0-9Oo]{3}\s+([A-Z]{2})\b""")
 
@@ -97,6 +121,14 @@ object RingReader {
             val h = box.height().toFloat().coerceAtLeast(1f)
             val lineTimes = timesIn(t, decimal, day)
             val lineCodes = CODE.findAll(t).map { it.groupValues[1] }.toList()
+            // "BT:08.87" style: code and time together, no row numbers or dates.
+            if (lineTimes.isEmpty() && lineCodes.isEmpty()) {
+                val short = shortForm(t, decimal, day)
+                if (short.isNotEmpty()) {
+                    paired += short
+                    continue
+                }
+            }
             // A whole row read as one line: "013 IL 09-OCT-26 02.41.06 PM".
             if (lineTimes.size == 1 && lineCodes.size == 1) {
                 paired += Ring(lineCodes[0], lineTimes[0])

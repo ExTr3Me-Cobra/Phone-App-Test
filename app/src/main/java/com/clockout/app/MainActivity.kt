@@ -446,8 +446,8 @@ private fun ScanDialog(sc: Scan, current: Settings, now: LocalDateTime, onUse: (
                     )
                 }
                 if (sc.rings.isEmpty()) {
-                    Text(sc.error?.let { "Reading failed: $it" } ?: "I didn't see any codes with times (like 013 IL  09-OCT-26 02.41.06 PM) in this picture.")
-                    Text("Try again with the TR CODE and TR DATETIME columns filling most of the picture, held straight on, without glare.")
+                    Text(sc.error?.let { "Reading failed: $it" } ?: "I didn't see any codes with times (like BT: 08.87, or 013 IL  09-OCT-26 02.41.06 PM) in this picture.")
+                    Text("Try again with your rings filling most of the picture, held straight on, without glare.")
                     if (sc.raw.isNotBlank()) {
                         Text("What I could read:", fontWeight = FontWeight.Bold)
                         Text(sc.raw.take(600), style = MaterialTheme.typography.bodySmall)
