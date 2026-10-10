@@ -228,6 +228,21 @@ object Store {
         )
     }
 
+    /** A new day has started: yesterday's rings no longer count. True if anything was cleared. */
+    fun clearOldDays(c: Context): Boolean {
+        val today = LocalDate.now()
+        val kept = ringState.value.filter { !it.time.toLocalDate().isBefore(today) }
+        if (kept.size == ringState.value.size) return false
+        setRings(c, kept)
+        clearPhotos(c)
+        return true
+    }
+
+    /** Removes any saved pictures. */
+    fun clearPhotos(c: Context) {
+        runCatching { java.io.File(c.cacheDir, "photos").listFiles()?.forEach { it.delete() } }
+    }
+
     fun setRings(c: Context, rings: List<Ring>) {
         ringState.value = rings.sortedBy { it.time }
         val a = JSONArray(ringState.value.map { JSONObject().put("code", it.code).put("time", it.time.toString()) })

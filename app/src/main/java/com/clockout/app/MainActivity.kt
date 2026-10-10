@@ -77,7 +77,9 @@ import kotlin.math.roundToInt
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Crash.install(this)
         Store.load(this)
+        Store.clearOldDays(this)
         Reminder.ensureChannel(this)
         enableEdgeToEdge()
         setContent {
@@ -100,25 +102,32 @@ private fun Screen() {
     val rings by Store.rings.collectAsState()
     val s by Store.settings.collectAsState()
     var now by remember { mutableStateOf(LocalDateTime.now()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            now = LocalDateTime.now()
-            delay(1000)
-        }
-    }
     var reading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var rawText by remember { mutableStateOf("") }
     var editing by remember { mutableStateOf<Ring?>(null) }
     var adding by remember { mutableStateOf(false) }
     var scan by remember { mutableStateOf<Scan?>(null) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val before = now.toLocalDate()
+            now = LocalDateTime.now()
+            if (now.toLocalDate() != before && Store.clearOldDays(context)) {
+                scan = null
+                rawText = ""
+                message = "New day – yesterday's rings were cleared."
+            }
+            delay(1000)
+        }
+    }
 
     fun readImage(uri: Uri) {
         reading = true
         message = null
+        scan = null
         val image = runCatching { InputImage.fromFilePath(context, uri) }.getOrElse {
             reading = false
-            message = "Couldn't open that picture."
+            message = "Couldn't open that picture (${it.javaClass.simpleName}: ${it.message})."
             return
         }
         val photo = thumbnail(context, uri)
@@ -126,14 +135,19 @@ private fun Screen() {
             .addOnSuccessListener { text ->
                 reading = false
                 rawText = text.text
-                val mode = Store.settings.value.decimal
-                var found = RingReader.read(text, mode)
-                var other = false
-                // Nothing in the chosen time style: see if the picture uses the other one.
-                if (found.isEmpty()) {
-                    RingReader.read(text, !mode).takeIf { it.isNotEmpty() }?.let { found = it; other = true }
+                scan = try {
+                    val mode = Store.settings.value.decimal
+                    var found = RingReader.read(text, mode)
+                    var other = false
+                    // Nothing in the chosen time style: see if the picture uses the other one.
+                    if (found.isEmpty()) {
+                        RingReader.read(text, !mode).takeIf { it.isNotEmpty() }?.let { found = it; other = true }
+                    }
+                    Scan(found, text.text, if (other) !mode else mode, other, photo)
+                } catch (e: Throwable) {
+                    Crash.note(context, e)
+                    Scan(emptyList(), text.text, Store.settings.value.decimal, false, photo, error = "${e.javaClass.simpleName}: ${e.message}")
                 }
-                scan = Scan(found, text.text, if (other) !mode else mode, other, photo)
             }
             .addOnFailureListener {
                 reading = false
@@ -168,7 +182,13 @@ private fun Screen() {
     ) {
         Text("Clock Out", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
 
+        CrashCard()
+
         ResultCard(rings, s, now)
+        if (rings.isNotEmpty()) Text(
+            "Clears itself at midnight.",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { takePicture() }, enabled = !reading, modifier = Modifier.weight(1f)) { Text("📷  Scan clock rings") }
@@ -218,7 +238,13 @@ private fun Screen() {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { adding = true }) { Text("+ Add a ring") }
-            if (rings.isNotEmpty()) TextButton(onClick = { Store.setRings(context, emptyList()); message = null }) { Text("Clear all") }
+            if (rings.isNotEmpty() || rawText.isNotBlank()) TextButton(onClick = {
+                Store.setRings(context, emptyList())
+                Store.clearPhotos(context)
+                rawText = ""
+                scan = null
+                message = "Cleared. Ready for a new picture."
+            }) { Text("Clear picture & rings") }
         }
 
         HorizontalDivider()
@@ -424,8 +450,9 @@ private class Scan(
 
 private fun thumbnail(context: Context, uri: Uri): ImageBitmap? = runCatching {
     ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, uri)) { d, info, _ ->
-        val scale = (info.size.width / 900).coerceAtLeast(1)
-        d.setTargetSize(info.size.width / scale, info.size.height / scale)
+        val scale = (maxOf(info.size.width, info.size.height) / 900).coerceAtLeast(1)
+        d.setTargetSize((info.size.width / scale).coerceAtLeast(1), (info.size.height / scale).coerceAtLeast(1))
+        d.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
     }.asImageBitmap()
 }.getOrNull()
 
@@ -453,6 +480,14 @@ private fun ScanDialog(sc: Scan, current: Settings, now: LocalDateTime, onUse: (
                         Text(sc.raw.take(600), style = MaterialTheme.typography.bodySmall)
                     }
                     return@Column
+                }
+                val days = sc.rings.map { it.time.toLocalDate() }.distinct()
+                if (days.any { it != java.time.LocalDate.now() }) {
+                    Text(
+                        "These rings are dated ${days.joinToString { it.toString() }}, not today – " +
+                            "they'll be cleared at the next day change.",
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
                 if (sc.switched) {
                     Text(
@@ -508,4 +543,20 @@ private fun ScanDialog(sc: Scan, current: Settings, now: LocalDateTime, onUse: (
             }
         },
     )
+}
+
+/** Shows what went wrong last time the app crashed, so it can be fixed. */
+@Composable
+private fun CrashCard() {
+    val context = LocalContext.current
+    var report by remember { mutableStateOf(Crash.last(context)) }
+    val text = report ?: return
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("Clock Out hit a problem last time", fontWeight = FontWeight.Bold)
+            Text("Screenshot this and send it to me so it can be fixed:", style = MaterialTheme.typography.bodySmall)
+            Text(text.lines().take(14).joinToString("\n"), style = MaterialTheme.typography.bodySmall)
+            TextButton(onClick = { Crash.clear(context); report = null }) { Text("Dismiss") }
+        }
+    }
 }
