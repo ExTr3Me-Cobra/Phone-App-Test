@@ -73,7 +73,7 @@ private fun WorkoutCard(w: Workout) {
                 Text(w.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Text(Units.date(w.start), color = Sub, fontSize = 13.sp)
             }
-            Box(Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)).background(Color.White).padding(3.dp)) {
+            Box(Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black)) {
                 BodyMapView(remember(w.id) { Stats.muscleLoad(w) }, Modifier.fillMaxSize())
             }
         }

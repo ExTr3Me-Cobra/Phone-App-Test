@@ -43,110 +43,137 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
-/** The front-and-back muscle chart, drawn from [BodyMapData]. */
+/** The muscle heatmap: your body picture with muscles shaded white → light red → dark red. */
 object BodyMap {
-    enum class View { BOTH, FRONT, BACK }
+    enum class View(val box: FloatArray) {
+        BOTH(floatArrayOf(60f, 70f, 1022f, 910f)),
+        FRONT(BodyMapData.frontBox),
+        BACK(BodyMapData.backBox),
+        FRONT_UPPER(floatArrayOf(95f, 160f, 475f, 540f)),
+        FRONT_LOWER(floatArrayOf(95f, 450f, 475f, 830f)),
+        BACK_UPPER(floatArrayOf(610f, 160f, 990f, 540f)),
+        BACK_LOWER(floatArrayOf(610f, 450f, 990f, 830f)),
+    }
 
-    private fun smooth(pts: FloatArray, mirrorX: Float?, closed: Boolean): Path {
+    @Volatile private var base: Bitmap? = null
+
+    fun init(c: Context) {
+        if (base == null) base = runCatching { c.assets.open("body.jpg").use { BitmapFactory.decodeStream(it) } }.getOrNull()
+    }
+
+    private val cache = object : LruCache<String, Bitmap>(28 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Bitmap) = value.byteCount
+    }
+
+    private fun path(r: BodyMapData.Region, mirrorX: Float?): Path {
+        val pts = r.pts
         val n = pts.size / 2
         fun x(i: Int): Float { val v = pts[2 * ((i % n + n) % n)]; return if (mirrorX != null) 2 * mirrorX - v else v }
         fun y(i: Int): Float = pts[2 * ((i % n + n) % n) + 1]
         val p = Path()
         p.moveTo(x(0), y(0))
-        val last = if (closed) n else n - 1
-        for (i in 0 until last) {
-            val i0 = if (!closed && i == 0) 0 else i - 1
-            val i3 = if (!closed && i + 2 > n - 1) n - 1 else i + 2
-            val c1x = x(i) + (x(i + 1) - x(i0)) / 6f
-            val c1y = y(i) + (y(i + 1) - y(i0)) / 6f
-            val c2x = x(i + 1) - (x(i3) - x(i)) / 6f
-            val c2y = y(i + 1) - (y(i3) - y(i)) / 6f
-            p.cubicTo(c1x, c1y, c2x, c2y, x(i + 1), y(i + 1))
+        for (i in 0 until n) {
+            p.cubicTo(
+                x(i) + (x(i + 1) - x(i - 1)) / 6f, y(i) + (y(i + 1) - y(i - 1)) / 6f,
+                x(i + 1) - (x(i + 2) - x(i)) / 6f, y(i + 1) - (y(i + 2) - y(i)) / 6f,
+                x(i + 1), y(i + 1),
+            )
         }
-        if (closed) p.close()
+        p.close()
         return p
     }
 
     private class Shape(val muscle: String, val path: Path, val front: Boolean)
 
-    private val outlines by lazy { listOf(smooth(BodyMapData.frontOutline, null, true), smooth(BodyMapData.backOutline, null, true)) }
     private val shapes: List<Shape> by lazy {
         BodyMapData.regions.flatMap { r ->
-            val front = r.pts[0] < 200f
-            listOfNotNull(
-                Shape(r.muscle, smooth(r.pts, null, true), front),
-                r.mirrorX?.let { Shape(r.muscle, smooth(r.pts, it, true), front) },
-            )
+            listOfNotNull(Shape(r.muscle, path(r, null), r.front), r.mirrorX?.let { Shape(r.muscle, path(r, it), r.front) })
         }
     }
-    private val lines: List<Pair<Path, Boolean>> by lazy {
-        BodyMapData.lines.flatMap { r -> listOf(smooth(r.pts, null, false) to (r.pts[0] < 200f), smooth(r.pts, r.mirrorX, false) to (r.pts[0] < 200f)) } +
-            listOf(
-                Path().apply { moveTo(100f, 140f); lineTo(100f, 234f) } to true,
-                Path().apply { moveTo(300f, 62f); lineTo(300f, 228f) } to false,
-            )
+
+    private val LEGS = setOf("quadriceps", "hamstrings", "calves", "glutes", "adductors", "abductors")
+
+    /** The best crop for an exercise's small picture. */
+    fun thumbView(muscles: List<String>): View {
+        val front = shapes.count { it.front && it.muscle in muscles }
+        val back = shapes.count { !it.front && it.muscle in muscles }
+        val legs = muscles.firstOrNull() in LEGS
+        return when {
+            back > front -> if (legs) View.BACK_LOWER else View.BACK_UPPER
+            else -> if (legs) View.FRONT_LOWER else View.FRONT_UPPER
+        }
     }
 
-    /** Which side shows these muscles best. */
-    fun bestView(muscles: List<String>): View {
-        val f = shapes.count { it.front && it.muscle in muscles }
-        val b = shapes.count { !it.front && it.muscle in muscles }
-        return if (b > f) View.BACK else View.FRONT
-    }
+    // White -> pale pink -> salmon -> red -> deep dark red.
+    private val STOPS = floatArrayOf(0f, 0.12f, 0.35f, 0.65f, 1f)
+    private val COLORS = intArrayOf(0xFFFFFFFF.toInt(), 0xFFFFD2CB.toInt(), 0xFFF4887C.toInt(), 0xFFCF3029.toInt(), 0xFF780006.toInt())
 
-    /** 0 -> white, a little -> light red, 1 -> dark red. */
+    /** 0 = not worked (white) … 1 = worked hardest (dark red), with every shade in between. */
     fun heat(v: Float): Int {
-        if (v <= 0f) return 0xFFF6F6F6.toInt()
+        if (v <= 0f) return COLORS[0]
         val t = v.coerceIn(0f, 1f)
-        val lo = intArrayOf(248, 182, 176); val hi = intArrayOf(146, 14, 20)
-        val c = IntArray(3) { (lo[it] + (hi[it] - lo[it]) * t).toInt() }
-        return android.graphics.Color.rgb(c[0], c[1], c[2])
+        for (i in 1 until STOPS.size) {
+            if (t <= STOPS[i]) {
+                val f = (t - STOPS[i - 1]) / (STOPS[i] - STOPS[i - 1])
+                val a = COLORS[i - 1]; val b = COLORS[i]
+                fun ch(sh: Int) = (((a shr sh) and 255) + (((b shr sh) and 255) - ((a shr sh) and 255)) * f).toInt()
+                return android.graphics.Color.rgb(ch(16), ch(8), ch(0))
+            }
+        }
+        return COLORS.last()
     }
 
-    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
-    private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeJoin = Paint.Join.ROUND; strokeCap = Paint.Cap.ROUND }
-
-    /** Draws into a canvas of [w] x [h] pixels. [levels]: muscle -> 0..1. */
-    fun draw(c: android.graphics.Canvas, w: Float, h: Float, levels: Map<String, Float>, view: View) {
-        val (x0, x1) = when (view) {
-            View.BOTH -> 0f to 400f
-            View.FRONT -> 0f to 200f
-            View.BACK -> 200f to 400f
+    /** Draws the picture with [levels] (muscle -> 0..1), cropped to [view], about [widthPx] wide. */
+    fun render(levels: Map<String, Float>, view: View, widthPx: Int): Bitmap? {
+        val src = base ?: return null
+        val key = "${view.name}:$widthPx:" + levels.entries.sortedBy { it.key }.joinToString(",") { "${it.key}=${"%.3f".format(it.value)}" }
+        cache.get(key)?.let { return it }
+        val box = view.box
+        val bw = box[2] - box[0]; val bh = box[3] - box[1]
+        val s = (widthPx / bw).coerceIn(0.05f, 1.5f)
+        val w = (bw * s).toInt().coerceAtLeast(1); val h = (bh * s).toInt().coerceAtLeast(1)
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = android.graphics.Canvas(out)
+        c.scale(s, s); c.translate(-box[0], -box[1])
+        c.drawBitmap(src, 0f, 0f, Paint(Paint.FILTER_BITMAP_FLAG))
+        if (levels.values.any { it > 0f }) {
+            val tint = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            val tc = android.graphics.Canvas(tint)
+            tc.drawColor(android.graphics.Color.WHITE)
+            tc.scale(s, s); tc.translate(-box[0], -box[1])
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                style = Paint.Style.FILL
+                maskFilter = android.graphics.BlurMaskFilter((3f * s).coerceAtLeast(0.6f), android.graphics.BlurMaskFilter.Blur.NORMAL)
+            }
+            // Lighter shades first so darker muscles win where shapes touch.
+            for (sh in shapes.sortedBy { levels[it.muscle] ?: 0f }) {
+                val v = levels[sh.muscle] ?: 0f
+                if (v <= 0f) continue
+                paint.color = heat(v)
+                tc.drawPath(sh.path, paint)
+            }
+            android.graphics.Canvas(out).drawBitmap(tint, 0f, 0f, Paint().apply {
+                xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.MULTIPLY)
+            })
+            tint.recycle()
         }
-        val bw = x1 - x0
-        val bh = 445f
-        val k = minOf(w / bw, h / bh)
-        c.save()
-        c.translate((w - bw * k) / 2f - x0 * k, (h - bh * k) / 2f)
-        c.scale(k, k)
-        val thin = 1f / k.coerceAtLeast(0.01f)
-        fun visible(front: Boolean) = view == View.BOTH || (view == View.FRONT) == front
-        outlines.forEachIndexed { i, p ->
-            if (!visible(i == 0)) return@forEachIndexed
-            fill.color = 0xFFF6F6F6.toInt(); c.drawPath(p, fill)
-        }
-        for (s in shapes) {
-            if (!visible(s.front)) continue
-            fill.color = heat(levels[s.muscle] ?: 0f)
-            c.drawPath(s.path, fill)
-            stroke.color = 0xFF555555.toInt(); stroke.strokeWidth = maxOf(0.8f, thin * 0.9f)
-            c.drawPath(s.path, stroke)
-        }
-        stroke.color = 0xFF8A8A8A.toInt(); stroke.strokeWidth = maxOf(0.6f, thin * 0.7f)
-        for ((p, front) in lines) if (visible(front)) c.drawPath(p, stroke)
-        stroke.color = 0xFF141414.toInt(); stroke.strokeWidth = maxOf(1.4f, thin * 1.2f)
-        outlines.forEachIndexed { i, p -> if (visible(i == 0)) c.drawPath(p, stroke) }
-        c.restore()
+        cache.put(key, out)
+        return out
     }
 
     fun levelsFor(e: Exercise): Map<String, Float> =
-        e.secondary.associateWith { 0.35f } + e.primary.associateWith { 1f }
+        e.secondary.associateWith { 0.4f } + e.primary.associateWith { 1f }
 }
 
+/** The body picture with a heatmap, fitted into [modifier]'s space. */
 @Composable
 fun BodyMapView(levels: Map<String, Float>, modifier: Modifier, view: BodyMap.View = BodyMap.View.BOTH) {
-    Canvas(modifier) {
-        drawIntoCanvas { BodyMap.draw(it.nativeCanvas, size.width, size.height, levels, view) }
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
+        val px = with(androidx.compose.ui.platform.LocalDensity.current) { maxWidth.toPx().toInt().coerceIn(64, 1100) }
+        val bmp by androidx.compose.runtime.produceState<ImageBitmap?>(null, levels, view, px) {
+            value = withContext(Dispatchers.Default) { BodyMap.render(levels, view, px)?.asImageBitmap() }
+        }
+        bmp?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
     }
 }
 
@@ -269,14 +296,14 @@ fun ExerciseThumb(e: Exercise?, size: Dp = 56.dp) {
         img = if (e == null) null else withContext(Dispatchers.IO) { Pictures.load(e.id, version) }
     }
     Box(
-        Modifier.size(size).clip(CircleShape).background(Color.White),
+        Modifier.size(size).clip(CircleShape).background(Color.Black),
         contentAlignment = Alignment.Center,
     ) {
         val bmp = img
         if (bmp != null) {
             Image(bmp, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         } else if (e != null) {
-            BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize().padding(size / 14), BodyMap.bestView(e.primary))
+            BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize(), BodyMap.thumbView(e.primary))
         }
     }
 }
@@ -287,10 +314,10 @@ fun ExercisePicture(e: Exercise, modifier: Modifier) {
     val version by Store.imageVersion.collectAsState()
     var img by remember(e.id, version) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(e.id, version) { img = withContext(Dispatchers.IO) { Pictures.load(e.id, version) } }
-    Box(modifier.background(Color.White), contentAlignment = Alignment.Center) {
+    Box(modifier.background(if (img != null) Color.White else Color.Black), contentAlignment = Alignment.Center) {
         val bmp = img
         if (bmp != null) Image(bmp, e.name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
-        else BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize().padding(12.dp))
+        else BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize())
     }
 }
 

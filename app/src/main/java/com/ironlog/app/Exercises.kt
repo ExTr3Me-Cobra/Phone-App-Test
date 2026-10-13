@@ -352,8 +352,8 @@ fun EditExerciseScreen(id: String?) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 MUSCLES.forEach { m -> FilterChip(m in secondary, { if (m in secondary) secondary.remove(m) else { secondary.add(m); primary.remove(m) } }, { Text(titleCase(m)) }) }
             }
-            BodyMapView(primary.associateWith { 1f } + secondary.associateWith { 0.35f }.filterKeys { it !in primary },
-                Modifier.fillMaxWidth().height(260.dp).clip(RoundedCornerShape(12.dp)).background(Color.White).padding(8.dp))
+            BodyMapView(primary.associateWith { 1f } + secondary.associateWith { 0.4f }.filterKeys { it !in primary },
+                Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black))
             Text("Add a picture from the exercise's page after saving.", color = Sub, fontSize = 13.sp)
             if (existing != null) GreyButton("Delete exercise", textColor = Red) { deleting = true }
         }

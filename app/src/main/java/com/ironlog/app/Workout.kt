@@ -398,17 +398,22 @@ fun SummaryScreen(id: String) {
 }
 
 @Composable
-fun WorkoutHeatmap(w: Workout) {
-    val load = remember(w.id, w.end) { Stats.muscleLoad(w) }
-    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color.White).padding(12.dp)) {
-        Text("Muscles worked", color = Color.Black, fontWeight = FontWeight.Bold)
-        BodyMapView(load, Modifier.fillMaxWidth().height(300.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            Text("Less", color = Color.DarkGray, fontSize = 12.sp)
-            listOf(0.05f, 0.35f, 0.65f, 1f).forEach { v ->
-                Box(Modifier.padding(horizontal = 3.dp).height(10.dp).fillMaxWidth(0.08f).background(Color(BodyMap.heat(v))))
+fun WorkoutHeatmap(w: Workout) = Heatmap(remember(w.id, w.end, w.items) { Stats.muscleLoad(w) }, "Muscles worked")
+
+/** Front and back body picture shaded by how hard each muscle worked, with a key. */
+@Composable
+fun Heatmap(load: Map<String, Float>, title: String) {
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color.Black).padding(12.dp)) {
+        Text(title, color = Color.White, fontWeight = FontWeight.Bold)
+        BodyMapView(load, Modifier.fillMaxWidth().height(340.dp))
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+            Text("Not worked", color = Sub, fontSize = 12.sp)
+            HSpacer(6)
+            (0..8).forEach { i ->
+                Box(Modifier.height(12.dp).fillMaxWidth(0.035f).background(Color(BodyMap.heat(i / 8f))))
             }
-            Text("More", color = Color.DarkGray, fontSize = 12.sp)
+            HSpacer(6)
+            Text("Hardest", color = Sub, fontSize = 12.sp)
         }
     }
 }

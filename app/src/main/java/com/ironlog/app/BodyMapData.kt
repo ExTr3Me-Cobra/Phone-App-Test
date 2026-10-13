@@ -1,72 +1,47 @@
 package com.ironlog.app
 
-/** Outlines for the front and back body chart (generated). Coordinates in a 400 x 450 box. */
+/**
+ * Muscle outlines traced on the body picture (assets/body.jpg, 1082 x 976).
+ * Each shape is mirrored to the other side unless it sits on the centre line (neck).
+ */
 object BodyMapData {
-    val frontOutline = floatArrayOf(100f, 6f, 113f, 9f, 119f, 22f, 120f, 38f, 117f, 52f, 112f, 60f, 113f, 66f, 126f, 72f, 146f, 76f, 162f, 82f, 172f, 96f, 176f, 118f, 178f, 140f, 182f, 162f, 186f, 190f, 190f, 220f, 194f, 250f, 196f, 270f, 198f, 288f, 190f, 300f, 182f, 294f, 178f, 272f, 172f, 248f, 166f, 220f, 160f, 192f, 156f, 168f, 152f, 150f, 148f, 162f, 144f, 190f, 146f, 212f, 152f, 232f, 156f, 258f, 154f, 292f, 148f, 322f, 150f, 344f, 152f, 370f, 146f, 400f, 140f, 420f, 148f, 432f, 142f, 438f, 118f, 436f, 118f, 420f, 120f, 400f, 116f, 372f, 116f, 344f, 118f, 322f, 112f, 292f, 106f, 262f, 102f, 252f, 94f, 262f, 88f, 292f, 82f, 322f, 84f, 344f, 84f, 372f, 80f, 400f, 82f, 420f, 82f, 436f, 58f, 438f, 52f, 432f, 60f, 420f, 54f, 400f, 48f, 370f, 50f, 344f, 52f, 322f, 46f, 292f, 44f, 258f, 48f, 232f, 54f, 212f, 56f, 190f, 52f, 162f, 48f, 150f, 44f, 168f, 40f, 192f, 34f, 220f, 28f, 248f, 22f, 272f, 18f, 294f, 10f, 300f, 2f, 288f, 4f, 270f, 6f, 250f, 10f, 220f, 14f, 190f, 18f, 162f, 22f, 140f, 24f, 118f, 28f, 96f, 38f, 82f, 54f, 76f, 74f, 72f, 87f, 66f, 88f, 60f, 83f, 52f, 80f, 38f, 81f, 22f, 87f, 9f)
-    val backOutline = floatArrayOf(300f, 6f, 313f, 9f, 319f, 22f, 320f, 38f, 317f, 52f, 312f, 60f, 313f, 66f, 326f, 72f, 346f, 76f, 362f, 82f, 372f, 96f, 376f, 118f, 378f, 140f, 382f, 162f, 386f, 190f, 390f, 220f, 394f, 250f, 396f, 270f, 398f, 288f, 390f, 300f, 382f, 294f, 378f, 272f, 372f, 248f, 366f, 220f, 360f, 192f, 356f, 168f, 352f, 150f, 348f, 162f, 344f, 190f, 346f, 212f, 352f, 232f, 356f, 258f, 354f, 292f, 348f, 322f, 350f, 344f, 352f, 370f, 346f, 400f, 340f, 420f, 348f, 432f, 342f, 438f, 318f, 436f, 318f, 420f, 320f, 400f, 316f, 372f, 316f, 344f, 318f, 322f, 312f, 292f, 306f, 262f, 302f, 252f, 294f, 262f, 288f, 292f, 282f, 322f, 284f, 344f, 284f, 372f, 280f, 400f, 282f, 420f, 282f, 436f, 258f, 438f, 252f, 432f, 260f, 420f, 254f, 400f, 248f, 370f, 250f, 344f, 252f, 322f, 246f, 292f, 244f, 258f, 248f, 232f, 254f, 212f, 256f, 190f, 252f, 162f, 248f, 150f, 244f, 168f, 240f, 192f, 234f, 220f, 228f, 248f, 222f, 272f, 218f, 294f, 210f, 300f, 202f, 288f, 204f, 270f, 206f, 250f, 210f, 220f, 214f, 190f, 218f, 162f, 222f, 140f, 224f, 118f, 228f, 96f, 238f, 82f, 254f, 76f, 274f, 72f, 287f, 66f, 288f, 60f, 283f, 52f, 280f, 38f, 281f, 22f, 287f, 9f)
-    /** Muscle, shape, mirrored to the other side (x around 100 for the front, 300 for the back). */
+    const val W = 1082f
+    const val H = 976f
+    /** Crop boxes: left, top, right, bottom. */
+    val frontBox = floatArrayOf(100f, 80f, 470f, 900f)
+    val backBox = floatArrayOf(615f, 80f, 985f, 900f)
     val regions: List<Region> = listOf(
-        Region("neck", floatArrayOf(90f, 56f, 110f, 56f, 113f, 68f, 100f, 74f, 87f, 68f), null),
-        Region("traps", floatArrayOf(112f, 62f, 118f, 70f, 140f, 77f, 122f, 79f, 110f, 71f), 100f),
-        Region("shoulders", floatArrayOf(124f, 80f, 140f, 78f, 150f, 88f, 146f, 104f, 140f, 94f), 100f),
-        Region("shoulders", floatArrayOf(142f, 78f, 160f, 84f, 170f, 100f, 170f, 122f, 162f, 130f, 152f, 112f, 150f, 90f), 100f),
-        Region("chest", floatArrayOf(102f, 86f, 124f, 82f, 140f, 92f, 152f, 108f, 150f, 126f, 136f, 136f, 114f, 138f, 102f, 132f), 100f),
-        Region("biceps", floatArrayOf(152f, 130f, 164f, 128f, 172f, 144f, 176f, 166f, 172f, 186f, 162f, 188f, 156f, 170f, 151f, 148f), 100f),
-        Region("triceps", floatArrayOf(170f, 126f, 176f, 140f, 178f, 160f, 176f, 176f, 172f, 150f), 100f),
-        Region("forearms", floatArrayOf(160f, 192f, 176f, 188f, 184f, 206f, 190f, 232f, 192f, 262f, 182f, 266f, 174f, 244f, 165f, 214f), 100f),
-        Region("forearms", floatArrayOf(158f, 196f, 164f, 200f, 166f, 230f, 162f, 214f), 100f),
-        Region("abdominals", floatArrayOf(102f, 142f, 115f, 141f, 117f, 158f, 102f, 159f), 100f),
-        Region("abdominals", floatArrayOf(102f, 163f, 117f, 162f, 118f, 180f, 102f, 181f), 100f),
-        Region("abdominals", floatArrayOf(102f, 185f, 118f, 184f, 118f, 201f, 102f, 202f), 100f),
-        Region("abdominals", floatArrayOf(102f, 206f, 118f, 205f, 116f, 222f, 108f, 232f, 102f, 234f), 100f),
-        Region("abdominals", floatArrayOf(121f, 146f, 136f, 140f, 144f, 166f, 142f, 192f, 146f, 214f, 132f, 222f, 122f, 210f, 122f, 176f), 100f),
-        Region("serratus", floatArrayOf(140f, 131f, 151f, 129f, 150f, 137f, 141f, 139f), 100f),
-        Region("serratus", floatArrayOf(140f, 141f, 151f, 140f, 149f, 148f, 140f, 150f), 100f),
-        Region("serratus", floatArrayOf(140f, 151f, 150f, 151f, 147f, 159f, 139f, 160f), 100f),
-        Region("grip", floatArrayOf(180f, 268f, 192f, 266f, 198f, 282f, 195f, 298f, 186f, 301f, 179f, 286f), 100f),
-        Region("adductors", floatArrayOf(104f, 250f, 116f, 236f, 124f, 262f, 122f, 292f, 114f, 306f, 106f, 280f), 100f),
-        Region("quadriceps", floatArrayOf(126f, 232f, 142f, 222f, 150f, 244f, 148f, 280f, 140f, 304f, 130f, 300f, 124f, 268f), 100f),
-        Region("quadriceps", floatArrayOf(146f, 232f, 156f, 256f, 154f, 292f, 146f, 318f, 140f, 308f, 150f, 276f), 100f),
-        Region("quadriceps", floatArrayOf(118f, 292f, 130f, 300f, 136f, 320f, 128f, 330f, 118f, 320f), 100f),
-        Region("abductors", floatArrayOf(144f, 206f, 154f, 224f, 152f, 240f, 144f, 224f), 100f),
-        Region("calves", floatArrayOf(118f, 346f, 132f, 338f, 140f, 352f, 136f, 388f, 124f, 402f, 118f, 380f), 100f),
-        Region("calves", floatArrayOf(140f, 350f, 148f, 350f, 150f, 374f, 144f, 398f, 138f, 392f, 140f, 372f), 100f),
-        Region("neck", floatArrayOf(290f, 50f, 310f, 50f, 312f, 62f, 300f, 66f, 288f, 62f), null),
-        Region("traps", floatArrayOf(300f, 56f, 312f, 60f, 322f, 70f, 344f, 80f, 328f, 94f, 312f, 108f, 305f, 138f, 300f, 146f), 300f),
-        Region("shoulders", floatArrayOf(326f, 80f, 346f, 78f, 362f, 88f, 370f, 106f, 366f, 126f, 356f, 128f, 348f, 106f, 334f, 92f), 300f),
-        Region("middle back", floatArrayOf(304f, 100f, 318f, 98f, 324f, 112f, 320f, 132f, 306f, 138f), 300f),
-        Region("rotator cuff", floatArrayOf(323f, 104f, 340f, 100f, 348f, 110f, 345f, 123f, 329f, 126f, 323f, 116f), 300f),
-        Region("rotator cuff", floatArrayOf(328f, 128f, 346f, 124f, 350f, 135f, 336f, 139f), 300f),
-        Region("grip", floatArrayOf(380f, 268f, 392f, 266f, 398f, 282f, 395f, 298f, 386f, 301f, 379f, 286f), 300f),
-        Region("lats", floatArrayOf(306f, 142f, 324f, 132f, 346f, 138f, 352f, 150f, 346f, 172f, 334f, 192f, 318f, 206f, 306f, 196f), 300f),
-        Region("lower back", floatArrayOf(302f, 172f, 312f, 168f, 318f, 196f, 318f, 222f, 302f, 228f), 300f),
-        Region("triceps", floatArrayOf(352f, 130f, 366f, 128f, 374f, 146f, 377f, 168f, 372f, 188f, 360f, 190f, 355f, 170f, 350f, 148f), 300f),
-        Region("biceps", floatArrayOf(350f, 140f, 354f, 160f, 352f, 178f, 348f, 156f), 300f),
-        Region("forearms", floatArrayOf(360f, 192f, 376f, 188f, 384f, 206f, 390f, 232f, 392f, 262f, 382f, 266f, 374f, 244f, 365f, 214f), 300f),
-        Region("glutes", floatArrayOf(302f, 230f, 326f, 222f, 346f, 232f, 352f, 252f, 346f, 276f, 322f, 284f, 302f, 274f), 300f),
-        Region("abductors", floatArrayOf(336f, 210f, 350f, 222f, 352f, 238f, 340f, 224f), 300f),
-        Region("hamstrings", floatArrayOf(306f, 288f, 324f, 286f, 326f, 316f, 322f, 340f, 312f, 336f, 306f, 314f), 300f),
-        Region("hamstrings", floatArrayOf(326f, 286f, 348f, 284f, 352f, 306f, 344f, 332f, 330f, 342f, 328f, 316f), 300f),
-        Region("adductors", floatArrayOf(302f, 280f, 306f, 284f, 306f, 316f, 302f, 320f, 299f, 300f), 300f),
-        Region("calves", floatArrayOf(314f, 346f, 330f, 340f, 332f, 370f, 328f, 402f, 318f, 392f, 312f, 370f), 300f),
-        Region("calves", floatArrayOf(332f, 340f, 348f, 350f, 350f, 378f, 342f, 400f, 334f, 398f, 334f, 370f), 300f),
+        Region("chest", floatArrayOf(283f, 222f, 255f, 214f, 228f, 222f, 208f, 240f, 204f, 265f, 214f, 288f, 240f, 300f, 268f, 298f, 283f, 292f), 285f, true),
+        Region("shoulders", floatArrayOf(228f, 212f, 205f, 206f, 182f, 212f, 166f, 232f, 160f, 258f, 165f, 285f, 176f, 300f, 190f, 290f, 200f, 262f, 210f, 240f, 222f, 222f), 285f, true),
+        Region("traps", floatArrayOf(272f, 196f, 250f, 208f, 228f, 212f, 250f, 218f, 272f, 214f), 285f, true),
+        Region("biceps", floatArrayOf(196f, 280f, 185f, 272f, 170f, 285f, 160f, 315f, 158f, 345f, 165f, 360f, 180f, 352f, 192f, 325f, 198f, 300f), 285f, true),
+        Region("triceps", floatArrayOf(162f, 282f, 150f, 295f, 142f, 322f, 146f, 350f, 155f, 352f, 158f, 320f), 285f, true),
+        Region("forearms", floatArrayOf(172f, 358f, 160f, 355f, 140f, 372f, 126f, 405f, 122f, 440f, 126f, 455f, 142f, 455f, 155f, 428f, 165f, 398f, 174f, 372f), 285f, true),
+        Region("grip", floatArrayOf(125f, 458f, 150f, 457f, 168f, 470f, 172f, 500f, 160f, 515f, 138f, 512f, 124f, 490f), 285f, true),
+        Region("abdominals", floatArrayOf(283f, 300f, 262f, 305f, 258f, 340f, 258f, 380f, 262f, 420f, 272f, 450f, 285f, 460f), 285f, true),
+        Region("abdominals", floatArrayOf(256f, 344f, 240f, 346f, 226f, 338f, 222f, 370f, 225f, 410f, 240f, 440f, 258f, 450f, 262f, 420f, 258f, 380f), 285f, true),
+        Region("serratus", floatArrayOf(252f, 302f, 232f, 300f, 222f, 312f, 226f, 330f, 242f, 342f, 256f, 334f), 285f, true),
+        Region("quadriceps", floatArrayOf(200f, 470f, 240f, 458f, 258f, 470f, 260f, 530f, 255f, 590f, 242f, 630f, 222f, 640f, 200f, 630f, 190f, 600f, 186f, 540f, 190f, 495f), 285f, true),
+        Region("adductors", floatArrayOf(258f, 470f, 280f, 480f, 282f, 505f, 276f, 550f, 262f, 590f, 255f, 590f, 260f, 530f), 285f, true),
+        Region("abductors", floatArrayOf(196f, 445f, 186f, 470f, 182f, 500f, 190f, 500f, 200f, 470f), 285f, true),
+        Region("calves", floatArrayOf(232f, 680f, 244f, 700f, 244f, 750f, 236f, 780f, 226f, 770f, 224f, 720f), 285f, true),
+        Region("calves", floatArrayOf(190f, 690f, 198f, 700f, 200f, 760f, 192f, 800f, 184f, 790f, 180f, 740f), 285f, true),
+        Region("neck", floatArrayOf(272f, 182f, 298f, 182f, 300f, 214f, 285f, 222f, 270f, 214f), null, true),
+        Region("traps", floatArrayOf(800f, 182f, 785f, 185f, 770f, 200f, 745f, 212f, 725f, 222f, 745f, 232f, 760f, 240f, 775f, 270f, 790f, 320f, 800f, 345f), 800f, false),
+        Region("shoulders", floatArrayOf(720f, 222f, 700f, 215f, 678f, 222f, 660f, 245f, 652f, 275f, 660f, 300f, 680f, 300f, 700f, 280f, 715f, 255f), 800f, false),
+        Region("rotator cuff", floatArrayOf(720f, 242f, 760f, 240f, 770f, 250f, 765f, 295f, 735f, 300f, 720f, 290f), 800f, false),
+        Region("middle back", floatArrayOf(770f, 240f, 790f, 245f, 797f, 300f, 793f, 330f, 780f, 320f, 770f, 290f), 800f, false),
+        Region("lats", floatArrayOf(722f, 302f, 760f, 302f, 780f, 322f, 790f, 360f, 788f, 400f, 770f, 420f, 750f, 430f, 735f, 410f, 725f, 370f, 718f, 330f), 800f, false),
+        Region("lower back", floatArrayOf(790f, 335f, 800f, 332f, 800f, 445f, 785f, 445f, 775f, 420f, 780f, 370f), 800f, false),
+        Region("triceps", floatArrayOf(712f, 290f, 695f, 280f, 665f, 290f, 648f, 310f, 640f, 345f, 648f, 362f, 670f, 358f, 690f, 345f, 705f, 320f), 800f, false),
+        Region("forearms", floatArrayOf(665f, 362f, 648f, 362f, 640f, 390f, 642f, 430f, 648f, 460f, 662f, 462f, 672f, 430f, 680f, 395f, 690f, 370f), 800f, false),
+        Region("grip", floatArrayOf(645f, 462f, 665f, 462f, 690f, 478f, 695f, 505f, 680f, 518f, 655f, 516f, 642f, 495f), 800f, false),
+        Region("glutes", floatArrayOf(800f, 432f, 770f, 426f, 748f, 440f, 738f, 470f, 745f, 505f, 770f, 522f, 797f, 520f, 800f, 500f), 800f, false),
+        Region("abductors", floatArrayOf(742f, 415f, 762f, 420f, 752f, 440f, 738f, 455f), 800f, false),
+        Region("hamstrings", floatArrayOf(735f, 524f, 788f, 527f, 792f, 560f, 785f, 610f, 770f, 655f, 745f, 660f, 725f, 640f, 712f, 590f, 715f, 545f), 800f, false),
+        Region("adductors", floatArrayOf(790f, 527f, 800f, 530f, 800f, 580f, 794f, 600f, 790f, 570f), 800f, false),
+        Region("calves", floatArrayOf(705f, 665f, 745f, 665f, 758f, 690f, 755f, 740f, 740f, 770f, 720f, 775f, 700f, 760f, 692f, 720f, 695f, 690f), 800f, false),
+        Region("neck", floatArrayOf(786f, 160f, 814f, 160f, 816f, 190f, 800f, 196f, 784f, 190f), null, false),
     )
-    val lines: List<Region> = listOf(
-        Region("", floatArrayOf(102f, 110f, 118f, 120f, 140f, 118f), 100f),
-        Region("", floatArrayOf(150f, 92f, 158f, 110f, 162f, 128f), 100f),
-        Region("", floatArrayOf(134f, 240f, 136f, 272f, 138f, 300f), 100f),
-        Region("", floatArrayOf(160f, 136f, 165f, 160f, 165f, 182f), 100f),
-        Region("", floatArrayOf(170f, 200f, 178f, 230f, 184f, 262f), 100f),
-        Region("", floatArrayOf(126f, 160f, 140f, 156f), 100f),
-        Region("", floatArrayOf(126f, 182f, 142f, 178f), 100f),
-        Region("", floatArrayOf(126f, 202f, 142f, 198f), 100f),
-        Region("", floatArrayOf(132f, 336f, 128f, 328f, 134f, 322f, 142f, 330f), 100f),
-        Region("", floatArrayOf(302f, 90f, 316f, 84f, 332f, 82f), 300f),
-        Region("", floatArrayOf(318f, 150f, 332f, 160f, 340f, 180f), 300f),
-        Region("", floatArrayOf(306f, 252f, 326f, 260f, 348f, 256f), 300f),
-        Region("", floatArrayOf(348f, 88f, 354f, 108f, 358f, 126f), 300f),
-        Region("", floatArrayOf(360f, 140f, 364f, 165f, 364f, 186f), 300f),
-        Region("", floatArrayOf(370f, 200f, 378f, 230f, 384f, 262f), 300f),
-    )
-    class Region(val muscle: String, val pts: FloatArray, val mirrorX: Float?)
+    class Region(val muscle: String, val pts: FloatArray, val mirrorX: Float?, val front: Boolean)
 }
