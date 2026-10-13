@@ -83,13 +83,6 @@ fun ProfileScreen() {
                 StatBox("Time", Units.duration(workouts.sumOf { (it.end ?: it.start) - it.start }), Modifier.weight(1f))
                 StatBox("Sets", "${workouts.sumOf { it.doneSets }}", Modifier.weight(1f))
             }
-            val monthAgo = System.currentTimeMillis() - 30L * 24 * 3600 * 1000
-            val recent = workouts.filter { it.start >= monthAgo }
-            if (recent.isNotEmpty()) {
-                val merged = Workout("m", null, "", 0, 0, recent.flatMap { it.items })
-                Text("Last 30 days", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                WorkoutHeatmap(merged)
-            }
             Spacer(30)
         }
     }
