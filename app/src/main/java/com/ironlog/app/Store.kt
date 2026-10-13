@@ -1,0 +1,141 @@
+package com.ironlog.app
+
+import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
+import java.util.UUID
+import com.ironlog.app.Json.objs
+
+/** Everything the app remembers, saved as small JSON files. */
+object Store {
+    private lateinit var dir: File
+    private var loaded = false
+
+    private val _exercises = MutableStateFlow<Map<String, Exercise>>(emptyMap())
+    private val _routines = MutableStateFlow<List<Routine>>(emptyList())
+    private val _workouts = MutableStateFlow<List<Workout>>(emptyList())
+    private val _active = MutableStateFlow<Workout?>(null)
+    private val _profile = MutableStateFlow(Profile())
+    private val _images = MutableStateFlow(0)
+
+    val exercises: StateFlow<Map<String, Exercise>> get() = _exercises
+    val routines: StateFlow<List<Routine>> get() = _routines
+    /** Finished workouts, newest first. */
+    val workouts: StateFlow<List<Workout>> get() = _workouts
+    val active: StateFlow<Workout?> get() = _active
+    val profile: StateFlow<Profile> get() = _profile
+    /** Changes whenever an exercise picture is added or removed. */
+    val imageVersion: StateFlow<Int> get() = _images
+
+    fun newId(): String = UUID.randomUUID().toString().take(12)
+
+    fun load(c: Context) {
+        if (loaded) return
+        loaded = true
+        dir = c.filesDir
+        val builtIn = runCatching {
+            JSONArray(c.assets.open("exercises.json").bufferedReader().readText()).objs().map { Exercise.fromJson(it, false) }
+        }.getOrDefault(emptyList())
+        val custom = read("custom.json")?.let { JSONArray(it).objs().map { o -> Exercise.fromJson(o, true) } } ?: emptyList()
+        _exercises.value = (builtIn + custom).associateBy { it.id }
+        _routines.value = read("routines.json")?.let { JSONArray(it).objs().map(Json::routine) } ?: emptyList()
+        _workouts.value = read("workouts.json")?.let { JSONArray(it).objs().map(Json::workout) }?.sortedByDescending { it.start } ?: emptyList()
+        _active.value = read("active.json")?.let { runCatching { Json.workout(JSONObject(it)) }.getOrNull() }
+        _profile.value = read("profile.json")?.let { runCatching { Json.profile(JSONObject(it)) }.getOrNull() } ?: Profile()
+    }
+
+    private fun read(name: String): String? = runCatching { File(dir, name).takeIf { it.exists() }?.readText() }.getOrNull()
+    private fun write(name: String, text: String) {
+        runCatching {
+            val tmp = File(dir, "$name.tmp")
+            tmp.writeText(text)
+            tmp.renameTo(File(dir, name))
+        }
+    }
+
+    fun exercise(id: String): Exercise? = _exercises.value[id]
+
+    // ----- exercises -----
+    fun saveCustomExercise(e: Exercise) {
+        _exercises.value = _exercises.value + (e.id to e.copy(custom = true))
+        write("custom.json", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }).toString())
+    }
+
+    fun deleteCustomExercise(id: String) {
+        _exercises.value = _exercises.value - id
+        write("custom.json", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }).toString())
+        imageFile(id).delete()
+        _images.value++
+    }
+
+    // ----- pictures -----
+    fun imageFile(id: String) = File(File(dir, "images").apply { mkdirs() }, id.replace(Regex("[^A-Za-z0-9_-]"), "_") + ".jpg")
+    fun hasImage(id: String) = imageFile(id).exists()
+    fun imageChanged() { _images.value++ }
+
+    // ----- routines -----
+    fun saveRoutine(r: Routine) {
+        val list = _routines.value.toMutableList()
+        val i = list.indexOfFirst { it.id == r.id }
+        if (i >= 0) list[i] = r else list += r
+        setRoutines(list)
+    }
+
+    fun deleteRoutine(id: String) = setRoutines(_routines.value.filter { it.id != id })
+
+    fun setRoutines(list: List<Routine>) {
+        _routines.value = list
+        write("routines.json", JSONArray(list.map(Json::routine)).toString())
+    }
+
+    // ----- workouts -----
+    fun setActive(w: Workout?) {
+        _active.value = w
+        if (w == null) File(dir, "active.json").delete() else write("active.json", Json.workout(w).toString())
+    }
+
+    fun saveWorkout(w: Workout) {
+        val list = (_workouts.value.filter { it.id != w.id } + w).sortedByDescending { it.start }
+        setWorkouts(list)
+    }
+
+    fun deleteWorkout(id: String) = setWorkouts(_workouts.value.filter { it.id != id })
+
+    private fun setWorkouts(list: List<Workout>) {
+        _workouts.value = list
+        write("workouts.json", JSONArray(list.map(Json::workout)).toString())
+    }
+
+    fun workout(id: String): Workout? = _workouts.value.firstOrNull { it.id == id }
+
+    // ----- profile -----
+    fun setProfile(p: Profile) {
+        _profile.value = p
+        write("profile.json", Json.profile(p).toString())
+    }
+
+    /** Exercises used most recently first. */
+    fun recentExerciseIds(limit: Int = 12): List<String> =
+        _workouts.value.flatMap { w -> w.items.map { it.exerciseId } }.distinct().take(limit)
+
+    // ----- backup -----
+    fun backup(): String = JSONObject()
+        .put("app", "Iron Log").put("version", 1)
+        .put("routines", JSONArray(_routines.value.map(Json::routine)))
+        .put("workouts", JSONArray(_workouts.value.map(Json::workout)))
+        .put("custom", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }))
+        .put("profile", Json.profile(_profile.value.copy(apiKey = "")))
+        .toString()
+
+    fun restore(text: String) {
+        val o = JSONObject(text)
+        val key = _profile.value.apiKey
+        o.optJSONArray("custom")?.objs()?.forEach { saveCustomExercise(Exercise.fromJson(it, true)) }
+        o.optJSONArray("routines")?.let { setRoutines(it.objs().map(Json::routine)) }
+        o.optJSONArray("workouts")?.let { setWorkouts(it.objs().map(Json::workout).sortedByDescending { w -> w.start }) }
+        o.optJSONObject("profile")?.let { setProfile(Json.profile(it).copy(apiKey = key)) }
+    }
+}
