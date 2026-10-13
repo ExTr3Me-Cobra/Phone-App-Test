@@ -62,7 +62,7 @@ data class PlanSet(
     val failure: Boolean = false,
 )
 
-data class RoutineItem(val exerciseId: String, val sets: List<PlanSet>, val restSec: Int = 90)
+data class RoutineItem(val exerciseId: String, val sets: List<PlanSet>, val restSec: Int = 90, val note: String = "")
 
 data class Routine(val id: String, val name: String, val items: List<RoutineItem>)
 
@@ -76,7 +76,7 @@ data class DoneSet(
     val done: Boolean = false,
 )
 
-data class WorkoutItem(val exerciseId: String, val sets: List<DoneSet>, val restSec: Int = 90)
+data class WorkoutItem(val exerciseId: String, val sets: List<DoneSet>, val restSec: Int = 90, val note: String = "")
 
 data class Workout(
     val id: String,
@@ -119,10 +119,10 @@ object Json {
     fun planSet(o: JSONObject) = PlanSet(o.optIntOrNull("r"), o.optDoubleOrNull("w"), o.optIntOrNull("t"), o.optDoubleOrNull("d"), o.optBoolean("f"))
 
     fun routine(r: Routine) = JSONObject().put("id", r.id).put("name", r.name).put("items", JSONArray(r.items.map { i ->
-        JSONObject().put("ex", i.exerciseId).put("rest", i.restSec).put("sets", JSONArray(i.sets.map(::planSet)))
+        JSONObject().put("ex", i.exerciseId).put("rest", i.restSec).put("note", i.note).put("sets", JSONArray(i.sets.map(::planSet)))
     }))
     fun routine(o: JSONObject) = Routine(o.getString("id"), o.getString("name"), o.getJSONArray("items").objs().map { i ->
-        RoutineItem(i.getString("ex"), i.getJSONArray("sets").objs().map(::planSet), i.optInt("rest", 90))
+        RoutineItem(i.getString("ex"), i.getJSONArray("sets").objs().map(::planSet), i.optInt("rest", 90), i.optString("note"))
     })
 
     fun doneSet(s: DoneSet) = JSONObject().putOpt2("w", s.weight).putOpt2("r", s.reps).putOpt2("t", s.seconds)
@@ -132,13 +132,13 @@ object Json {
     fun workout(w: Workout) = JSONObject().put("id", w.id).putOpt2("routine", w.routineId).put("name", w.name)
         .put("start", w.start).putOpt2("end", w.end).putOpt2("bw", w.bodyweight)
         .put("items", JSONArray(w.items.map { i ->
-            JSONObject().put("ex", i.exerciseId).put("rest", i.restSec).put("sets", JSONArray(i.sets.map(::doneSet)))
+            JSONObject().put("ex", i.exerciseId).put("rest", i.restSec).put("note", i.note).put("sets", JSONArray(i.sets.map(::doneSet)))
         }))
     fun workout(o: JSONObject) = Workout(
         o.getString("id"), if (o.has("routine")) o.getString("routine") else null, o.getString("name"),
         o.getLong("start"), if (o.has("end")) o.getLong("end") else null,
         o.getJSONArray("items").objs().map { i ->
-            WorkoutItem(i.getString("ex"), i.getJSONArray("sets").objs().map(::doneSet), i.optInt("rest", 90))
+            WorkoutItem(i.getString("ex"), i.getJSONArray("sets").objs().map(::doneSet), i.optInt("rest", 90), i.optString("note"))
         },
         o.optDoubleOrNull("bw"),
     )

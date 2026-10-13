@@ -1,6 +1,9 @@
 package com.ironlog.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,11 +38,19 @@ fun NumField(
     modifier: Modifier,
     keyboard: KeyboardType = KeyboardType.Decimal,
     background: Color = Color.Transparent,
+    outlined: Boolean = false,
     onChange: (String) -> Unit,
 ) {
     var text by remember(key) { mutableStateOf(initial) }
-    Box(modifier.clip(RoundedCornerShape(6.dp)).background(background).padding(horizontal = 6.dp, vertical = 4.dp), contentAlignment = Alignment.CenterStart) {
-        if (text.isEmpty()) Text(placeholder, color = Sub, fontSize = 17.sp)
+    val shape = RoundedCornerShape(if (outlined) 10.dp else 6.dp)
+    Box(
+        modifier.clip(shape).background(background)
+            .then(if (outlined) Modifier.border(1.dp, Color(0xFF3A3A3C), shape) else Modifier)
+            .padding(horizontal = 6.dp, vertical = if (outlined) 12.dp else 4.dp),
+        contentAlignment = if (outlined) Alignment.Center else Alignment.CenterStart,
+    ) {
+        val align = if (outlined) TextAlign.Center else TextAlign.Start
+        if (text.isEmpty()) Text(placeholder, color = Sub, fontSize = 17.sp, textAlign = align, modifier = if (outlined) Modifier.fillMaxWidth() else Modifier)
         BasicTextField(
             value = text,
             onValueChange = { t ->
@@ -48,10 +59,10 @@ fun NumField(
                 onChange(clean)
             },
             singleLine = true,
-            textStyle = TextStyle(color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Medium),
+            textStyle = TextStyle(color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Medium, textAlign = align),
             cursorBrush = SolidColor(Blue),
             keyboardOptions = KeyboardOptions(keyboardType = keyboard),
+            modifier = if (outlined) Modifier.fillMaxWidth() else Modifier,
         )
     }
 }
-

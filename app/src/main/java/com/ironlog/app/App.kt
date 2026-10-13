@@ -259,7 +259,7 @@ fun HSpacer(w: Int) = androidx.compose.foundation.layout.Spacer(Modifier.width(w
 fun columnsFor(t: ExType, withPrevious: Boolean): List<Pair<String, Float>> {
     val prev = if (withPrevious) listOf("PREVIOUS" to 2.2f) else emptyList()
     return listOf("SET" to 0.9f) + prev + when (t) {
-        ExType.WEIGHT -> listOf(Units.w.uppercase() to 1.4f, "REPS" to 1.2f)
+        ExType.WEIGHT -> listOf("⇹ " + Units.w.uppercase() to 1.4f, "REPS" to 1.2f)
         ExType.BODYWEIGHT -> listOf("+" + Units.w.uppercase() to 1.4f, "REPS" to 1.2f)
         ExType.TIMED -> listOf("TIME" to 2.6f)
         ExType.CARDIO -> listOf(Units.dist.uppercase() to 1.4f, "TIME" to 1.2f)

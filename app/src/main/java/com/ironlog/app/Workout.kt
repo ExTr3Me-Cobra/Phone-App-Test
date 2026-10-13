@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,7 +61,7 @@ object Workouts {
             name = r?.name ?: "Workout",
             start = System.currentTimeMillis(),
             items = r?.items?.map { i ->
-                WorkoutItem(i.exerciseId, i.sets.map { p -> DoneSet(p.weight, p.reps, p.seconds, p.distance, p.failure, false) }, i.restSec)
+                WorkoutItem(i.exerciseId, i.sets.map { p -> DoneSet(p.weight, p.reps, p.seconds, p.distance, p.failure, false) }, i.restSec, i.note)
             } ?: emptyList(),
             bodyweight = Store.profile.value.bodyweight,
         )
@@ -81,6 +82,12 @@ object Workouts {
 
     fun updateSet(i: Int, n: Int, change: (DoneSet) -> DoneSet) = updateItem(i) { item ->
         item.copy(sets = item.sets.toMutableList().also { if (n in it.indices) it[n] = change(it[n]) })
+    }
+
+    fun saveNoteToRoutine(routineId: String?, exerciseId: String, note: String) {
+        val r = Store.routines.value.firstOrNull { it.id == routineId } ?: return
+        if (r.items.none { it.exerciseId == exerciseId }) return
+        Store.saveRoutine(r.copy(items = r.items.map { if (it.exerciseId == exerciseId) it.copy(note = note) else it }))
     }
 
     /** Ends the workout: keeps finished sets, saves it, and returns its id (null if nothing was done). */
@@ -120,37 +127,36 @@ fun ActiveWorkoutScreen() {
     var confirmDiscard by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
-        // Header: session timer, sets and reps done, and the muscles worked so far.
-        var showMap by remember { mutableStateOf(true) }
-        Column(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(16.dp, 8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("⌄", fontSize = 26.sp, modifier = Modifier.clickable { Nav.back() }.padding(end = 12.dp))
-                Text(w.name, fontSize = 17.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), color = Sub)
-                Text("End", color = Blue, fontWeight = FontWeight.Bold, fontSize = 17.sp,
-                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Blue.copy(alpha = 0.15f)).clickable { confirmEnd = true }
-                        .padding(horizontal = 14.dp, vertical = 6.dp))
-            }
-            Text(
-                Units.clock(now - w.start), fontSize = 44.sp, fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
-            )
-            val doneSets = w.items.flatMap { it.sets }.filter { it.done }
-            Row(Modifier.fillMaxWidth()) {
-                StatBox("Sets", "${doneSets.size}", Modifier.weight(1f))
-                StatBox("Reps", "${doneSets.sumOf { it.reps ?: 0 }}", Modifier.weight(1f))
-                StatBox("Volume", "${Units.weight(Stats.volume(w))} ${Units.w}", Modifier.weight(1f))
-                Text(if (showMap) "Hide map ▲" else "Muscles ▼", color = Blue, fontSize = 13.sp,
-                    modifier = Modifier.align(Alignment.CenterVertically).clickable { showMap = !showMap }.padding(4.dp))
-            }
-            if (showMap) {
-                val load = remember(w.items) { Stats.muscleLoad(w) }
-                Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(170.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black)) {
-                    BodyMapView(load, Modifier.fillMaxSize())
-                    if (load.isEmpty()) Text("Tick off a set to see the muscles you've worked", color = Sub, fontSize = 12.sp,
-                        modifier = Modifier.align(Alignment.BottomCenter).padding(6.dp))
-                }
+        // Top bar: timer, rest timer button, Finish.
+        var bigMap by remember { mutableStateOf(false) }
+        var manualRest by remember { mutableStateOf(false) }
+        Row(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("⌄", fontSize = 28.sp, modifier = Modifier.clickable { Nav.back() }.padding(horizontal = 8.dp))
+            Text(Units.clock(now - w.start), color = Blue, fontSize = 24.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+            Text("⏱", fontSize = 26.sp, modifier = Modifier.clickable { manualRest = true }.padding(horizontal = 14.dp))
+            Text("Finish", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Blue).clickable { confirmEnd = true }
+                    .padding(horizontal = 18.dp, vertical = 9.dp))
+        }
+        // Stats row with the live muscle map (tap it to enlarge).
+        val doneSets = w.items.flatMap { it.sets }.filter { it.done }
+        val load = remember(w.items) { Stats.muscleLoad(w) }
+        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1.2f)) { Text("Duration", color = Sub, fontSize = 13.sp); Text(Units.clock(now - w.start), color = Blue, fontSize = 17.sp) }
+            StatBox("Volume", "${Units.weight(Stats.volume(w))} ${Units.w}", Modifier.weight(1.3f))
+            StatBox("Sets", "${doneSets.size}", Modifier.weight(0.8f))
+            StatBox("Reps", "${doneSets.sumOf { it.reps ?: 0 }}", Modifier.weight(0.8f))
+            Box(Modifier.size(width = 64.dp, height = 56.dp).clip(RoundedCornerShape(8.dp)).background(Color.Black).clickable { bigMap = !bigMap }) {
+                BodyMapView(load, Modifier.fillMaxSize())
             }
         }
+        if (bigMap) Box(Modifier.fillMaxWidth().height(260.dp).padding(horizontal = 16.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black).clickable { bigMap = false }) {
+            BodyMapView(load, Modifier.fillMaxSize())
+            if (load.isEmpty()) Text("Tick off a set to see the muscles you've worked", color = Sub, fontSize = 12.sp,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(6.dp))
+        }
+        androidx.compose.material3.HorizontalDivider(color = Card2)
+        if (manualRest) RestPicker(0, { manualRest = false }) { sec -> manualRest = false; if (sec > 0) Rest.start(context, sec) else Rest.stop(context) }
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp)) {
             items(w.items.size) { i ->
                 val item = w.items[i]
@@ -172,6 +178,21 @@ fun ActiveWorkoutScreen() {
                             })
                         }
                     }
+                }
+                // Notes (kept with the routine, so they're there next time).
+                var note by remember(w.id, i) { mutableStateOf(item.note) }
+                Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp)) {
+                    if (note.isEmpty()) Text("Add notes here...", color = Sub, fontSize = 17.sp)
+                    androidx.compose.foundation.text.BasicTextField(
+                        note, { t ->
+                            note = t
+                            Workouts.updateItem(i) { it.copy(note = t) }
+                            Workouts.saveNoteToRoutine(w.routineId, item.exerciseId, t)
+                        },
+                        textStyle = androidx.compose.ui.text.TextStyle(color = Color(0xFFB0B0B5), fontSize = 17.sp),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(Blue),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
                 RestLine(item.restSec) { restFor = i }
                 if (ex != null) {
@@ -196,7 +217,7 @@ fun ActiveWorkoutScreen() {
                         Workouts.update { ww -> ww.copy(items = ww.items + ids.map { WorkoutItem(it, List(3) { DoneSet() }, rest) }) }
                     })
                 }
-                BigButton("End Routine", Green, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) { confirmEnd = true }
+                BigButton("Finish Workout", Green, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) { confirmEnd = true }
                 GreyButton("Discard Workout", Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), Red) { confirmDiscard = true }
             }
         }
@@ -227,17 +248,19 @@ fun ActiveWorkoutScreen() {
 @Composable
 private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet?, cols: List<Pair<String, Float>>, rest: Int, wid: String) {
     val context = LocalContext.current
-    val bg = when {
-        s.done -> Green.copy(alpha = 0.18f)
-        n % 2 == 1 -> Card
-        else -> Bg
-    }
+    val bg = if (s.done) Green.copy(alpha = 0.15f) else Bg
     val k = "$wid:$i:${ex.id}:$n"
     Row(Modifier.fillMaxWidth().background(bg).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-        SetLabel(n, s.failure, Modifier.weight(cols[0].second).clickable { Workouts.updateSet(i, n) { it.copy(failure = !it.failure) } }.padding(vertical = 6.dp))
+        Box(Modifier.weight(cols[0].second)) {
+            Box(
+                Modifier.size(42.dp).clip(RoundedCornerShape(8.dp)).background(Card2)
+                    .clickable { Workouts.updateSet(i, n) { it.copy(failure = !it.failure) } },
+                contentAlignment = Alignment.Center,
+            ) { SetLabel(n, s.failure, Modifier) }
+        }
         // Previous: tap to copy it in.
         Text(
-            prev?.let { Units.set(ex.type, it) } ?: "-", color = Sub, fontSize = 14.sp, maxLines = 1,
+            prev?.let { Units.set(ex.type, it) } ?: "-", color = Sub, fontSize = 16.sp, maxLines = 1,
             modifier = Modifier.weight(cols[1].second).clickable(enabled = prev != null) {
                 prev?.let { p ->
                     Workouts.updateSet(i, n) { it.copy(weight = p.weight, reps = p.reps, seconds = p.seconds, distance = p.distance) }
@@ -245,24 +268,23 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                 }
             },
         )
-        val fieldBg = if (s.done) Color.Transparent else Card2
         // Refreshes the boxes when numbers are filled in for you (not while you type).
         val vk = "$k:${Workouts.refresh}:${s.done}"
         when (ex.type) {
             ExType.WEIGHT, ExType.BODYWEIGHT -> {
                 NumField(Units.weight(s.weight).takeIf { s.weight != null } ?: "", prev?.weight?.let { Units.weight(it) } ?: "0", "$vk:w",
-                    Modifier.weight(cols[2].second).padding(end = 6.dp), background = fieldBg) { v ->
+                    Modifier.weight(cols[2].second).padding(end = 6.dp), outlined = true) { v ->
                     Workouts.updateSet(i, n) { it.copy(weight = v.toDoubleOrNull()?.let(Units::fromShown)) }
                 }
                 NumField(s.reps?.toString() ?: "", prev?.reps?.toString() ?: if (s.failure) "max" else "0", "$vk:r",
-                    Modifier.weight(cols[3].second).padding(end = 6.dp), KeyboardType.Number, fieldBg) { v ->
+                    Modifier.weight(cols[3].second).padding(end = 6.dp), KeyboardType.Number, outlined = true) { v ->
                     Workouts.updateSet(i, n) { it.copy(reps = v.toIntOrNull()) }
                 }
             }
             ExType.TIMED -> {
                 Row(Modifier.weight(cols[2].second), verticalAlignment = Alignment.CenterVertically) {
                     NumField(Units.time(s.seconds), prev?.seconds?.let { Units.time(it) } ?: "0:30", "$vk:t",
-                        Modifier.weight(1f).padding(end = 6.dp), background = fieldBg) { v ->
+                        Modifier.weight(1f).padding(end = 6.dp), outlined = true) { v ->
                         Workouts.updateSet(i, n) { it.copy(seconds = Units.parseTime(v)) }
                     }
                     Stopwatch { sec -> Workouts.updateSet(i, n) { it.copy(seconds = sec) } }
@@ -270,18 +292,18 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
             }
             ExType.CARDIO -> {
                 NumField(Units.distance(s.distance), prev?.distance?.let { Units.distance(it) } ?: "0", "$vk:d",
-                    Modifier.weight(cols[2].second).padding(end = 6.dp), background = fieldBg) { v ->
+                    Modifier.weight(cols[2].second).padding(end = 6.dp), outlined = true) { v ->
                     Workouts.updateSet(i, n) { it.copy(distance = v.toDoubleOrNull()?.let(Units::distFromShown)) }
                 }
                 NumField(Units.time(s.seconds), prev?.seconds?.let { Units.time(it) } ?: "0:00", "$vk:t",
-                    Modifier.weight(cols[3].second).padding(end = 6.dp), background = fieldBg) { v ->
+                    Modifier.weight(cols[3].second).padding(end = 6.dp), outlined = true) { v ->
                     Workouts.updateSet(i, n) { it.copy(seconds = Units.parseTime(v)) }
                 }
             }
         }
         var del by remember { mutableStateOf(false) }
         Box(
-            Modifier.weight(0.8f).clip(RoundedCornerShape(6.dp)).background(if (s.done) Green else Card2)
+            Modifier.weight(0.8f).clip(RoundedCornerShape(10.dp)).background(if (s.done) Green else Card2)
                 .combinedClickableCompat(
                     onClick = {
                         if (!s.done) {
@@ -302,9 +324,9 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                     },
                     onLongClick = { del = true },
                 )
-                .padding(vertical = 6.dp),
+                .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center,
-        ) { Text("✓", color = Color.White, fontWeight = FontWeight.Bold) }
+        ) { Text("✓", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp) }
         if (del) ConfirmText("Delete set ${n + 1}?", {
             del = false
             Workouts.updateItem(i) { it.copy(sets = it.sets.toMutableList().also { l -> l.removeAt(n) }) }

@@ -136,6 +136,7 @@ fun RoutineViewScreen(id: String) {
                 val item = r.items[i]
                 val ex = Store.exercise(item.exerciseId)
                 ExerciseHeader(ex)
+                if (item.note.isNotBlank()) Text(item.note, color = Sub, fontSize = 16.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp))
                 RestLine(item.restSec, null)
                 if (ex != null) {
                     TableHeader(columnsFor(ex.type, false))
@@ -247,6 +248,10 @@ fun RoutineEditScreen(id: String?) {
                         }
                     }
                 }
+                OutlinedTextField(
+                    item.note, { t -> updateItem(i) { it.copy(note = t) } },
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp), placeholder = { Text("Add notes here...") },
+                )
                 RestLine(item.restSec) { restFor = i }
                 if (ex != null) {
                     val cols = columnsFor(ex.type, false)

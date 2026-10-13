@@ -146,14 +146,14 @@ object Units {
     }
 
     fun set(t: ExType, s: DoneSet): String = when (t) {
-        ExType.WEIGHT -> "${weight(s.weight ?: 0.0)} $w × ${s.reps ?: 0}"
-        ExType.BODYWEIGHT -> (if ((s.weight ?: 0.0) > 0) "+${weight(s.weight)} $w × " else "") + "${s.reps ?: 0} reps"
+        ExType.WEIGHT -> "${weight(s.weight ?: 0.0)}$w x ${s.reps ?: 0}"
+        ExType.BODYWEIGHT -> (if ((s.weight ?: 0.0) > 0) "+${weight(s.weight)}$w x " else "") + "${s.reps ?: 0} reps"
         ExType.TIMED -> time(s.seconds ?: 0)
         ExType.CARDIO -> "${distance(s.distance ?: 0.0)} $dist · ${time(s.seconds ?: 0)}"
     }
 
     fun restLabel(sec: Int): String = when {
-        sec <= 0 -> "Off"
+        sec <= 0 -> "OFF"
         sec % 60 == 0 -> "${sec / 60}min 0s"
         sec > 60 -> "${sec / 60}min ${sec % 60}s"
         else -> "${sec}s"
