@@ -74,7 +74,7 @@ fun PickerScreen(req: Route.Picker?) {
     var muscle by remember { mutableStateOf<String?>(null) }
     var dialog by remember { mutableStateOf(0) }
     val selected = remember { mutableStateListOf<String>() }
-    val sorted = remember(all) { all.values.sortedBy { it.name.lowercase() } }
+    val sorted = remember(all) { all.values.filter { !it.hidden }.sortedBy { it.name.lowercase() } }
     val words = query.lowercase().split(" ").filter { it.isNotBlank() }
     val filtered = sorted.filter { e ->
         (equipment == null || e.equipment == equipment) &&

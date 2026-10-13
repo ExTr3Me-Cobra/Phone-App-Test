@@ -75,7 +75,7 @@ fun ProfileScreen() {
                 color = Sub, fontSize = 12.sp)
 
             Spacer(6)
-            GreyButton("📚  Exercises (${Store.exercises.value.size})") { Nav.go(Route.Library) }
+            GreyButton("📚  Exercises (${Store.exercises.value.values.count { !it.hidden }})") { Nav.go(Route.Library) }
 
             Text("All time", fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
@@ -165,8 +165,9 @@ fun SettingsScreen() {
                 listOf("low", "medium", "high").forEach { q -> FilterChip(p.imageQuality == q, { set(p.copy(imageQuality = q)) }, { Text(titleCase(q)) }) }
             }
             var allDialog by remember { mutableStateOf(false) }
-            GreyButton("✨ Make pictures for every exercise (${Store.exercises.value.size})", textColor = Blue) { allDialog = true }
-            if (allDialog) GenDialog("AI pictures: every exercise", Store.exercises.value.values.sortedBy { it.name }.map { it.id }) { allDialog = false }
+            val shown = Store.exercises.value.values.filter { !it.hidden }
+            GreyButton("✨ Make pictures for every exercise (${shown.size})", textColor = Blue) { allDialog = true }
+            if (allDialog) GenDialog("AI pictures: every exercise", shown.sortedBy { it.name }.map { it.id }) { allDialog = false }
             GenPanel()
             Text("For one routine, use the button on that routine (or its ••• menu on the Workout tab).", color = Sub, fontSize = 13.sp)
             Text("You can also make or add a picture on any exercise's page.", color = Sub, fontSize = 13.sp)

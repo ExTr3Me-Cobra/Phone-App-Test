@@ -8,6 +8,7 @@ Run: python3 tools/build_exercises.py
 import json, re, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from extra_exercises import EXTRA
+from cleanup import REMOVE, RENAME
 
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json')
@@ -116,7 +117,14 @@ for (name, eq, t, p, s, cat, h) in EXTRA:
     eid = 'x_' + re.sub(r'[^A-Za-z0-9]+', '_', name).strip('_')
     out.append(fix({'i': eid, 'n': name, 'e': eq, 't': t, 'p': p, 's': s, 'c': cat, 'h': h}))
     added += 1
+names_now = {e['n'] for e in out}
+missing = (REMOVE | set(RENAME)) - names_now
+assert not missing, missing
+for e in out:
+    if e['n'] in REMOVE: e['x'] = 1
+    if e['n'] in RENAME: e['n'] = RENAME[e['n']]
 json.dump(out, open(OUT, 'w'), separators=(',', ':'), ensure_ascii=False)
+print('hidden:', sum(1 for e in out if e.get('x')), ' renamed:', len(RENAME), ' shown:', sum(1 for e in out if not e.get('x')))
 from collections import Counter
 print(f'{len(out)} exercises ({added} added)')
 print('no secondary:', sum(1 for e in out if not e['s']), ' non-stretch no secondary:', sum(1 for e in out if not e['s'] and e['c'] != 'stretching'))

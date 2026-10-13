@@ -21,6 +21,8 @@ data class Exercise(
     val category: String = "strength",
     val instructions: List<String> = emptyList(),
     val custom: Boolean = false,
+    /** Kept for old workouts but not offered in the list. */
+    val hidden: Boolean = false,
 ) {
     val mainMuscle: String get() = primary.firstOrNull()?.let(::titleCase) ?: "Other"
 
@@ -33,6 +35,7 @@ data class Exercise(
             type = runCatching { ExType.valueOf(o.getString("t")) }.getOrDefault(ExType.WEIGHT),
             primary = o.optJSONArray("p").strings(), secondary = o.optJSONArray("s").strings(),
             category = o.optString("c", "strength"), instructions = o.optJSONArray("h").strings(), custom = custom,
+            hidden = o.optInt("x", 0) == 1,
         )
     }
 }
