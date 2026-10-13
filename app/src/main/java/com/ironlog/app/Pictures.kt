@@ -191,10 +191,14 @@ object Pictures {
         return bmp
     }
 
+    /** Saved pictures are small: square, 512 x 512, compressed (about 30–60 KB each). */
+    private const val SIZE = 512
+
     private fun save(id: String, bmp: Bitmap) {
-        val scale = minOf(1f, 768f / maxOf(bmp.width, bmp.height))
-        val out = if (scale < 1f) Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt(), (bmp.height * scale).toInt(), true) else bmp
-        Store.imageFile(id).outputStream().use { out.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+        val side = minOf(bmp.width, bmp.height)
+        val square = Bitmap.createBitmap(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side)
+        val out = if (side > SIZE) Bitmap.createScaledBitmap(square, SIZE, SIZE, true) else square
+        Store.imageFile(id).outputStream().use { out.compress(Bitmap.CompressFormat.JPEG, 82, it) }
         Store.imageChanged()
     }
 
@@ -234,7 +238,7 @@ object Pictures {
             "performing the exercise \"${e.name}\" with correct form, shown at the most recognisable point of the movement. " +
             "His body is rendered in light grey monochrome with clearly defined individual muscles and fine muscle-fibre detail, " +
             "like a medical anatomy drawing. Highlight the ${list(e.primary)} in dark red.$sec$eq " +
-            "Full body visible, three-quarter view, centred, soft shadow, no text, no labels, no watermark."
+            "Square 1:1 image, full body visible, three-quarter view, centred, soft shadow, no text, no labels, no watermark."
     }
 
     /** What happened when asking for a picture. [code] is the HTTP status (0 = couldn't connect). */
@@ -253,6 +257,10 @@ object Pictures {
             .put("size", "1024x1024")
             .put("n", 1)
         if (p.imageQuality.isNotBlank()) body.put("quality", p.imageQuality)
+        // A compressed JPEG is a much smaller download (gpt-image models only).
+        if (p.imageModel.ifBlank { "gpt-image-1" }.startsWith("gpt-image")) {
+            body.put("output_format", "jpeg").put("output_compression", 80)
+        }
         try {
             val conn = (URL("https://api.openai.com/v1/images/generations").openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
