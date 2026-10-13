@@ -185,8 +185,11 @@ object Pictures {
         val key = "$id#$version"
         cache.get(key)?.let { return it }
         val f = Store.imageFile(id)
-        if (!f.exists()) return null
-        val bmp = runCatching { BitmapFactory.decodeFile(f.path)?.asImageBitmap() }.getOrNull() ?: return null
+        // Your own / generated picture first, then one built into the app.
+        val bmp = runCatching {
+            if (f.exists()) BitmapFactory.decodeFile(f.path)?.asImageBitmap()
+            else Store.bundledImage(id)?.use { BitmapFactory.decodeStream(it) }?.asImageBitmap()
+        }.getOrNull() ?: return null
         cache.put(key, bmp)
         return bmp
     }
@@ -289,6 +292,64 @@ object Pictures {
         } catch (t: Throwable) {
             Result(false, 0, "Couldn't reach OpenAI (${t.message ?: t.javaClass.simpleName}).")
         }
+    }
+
+    /**
+     * Saves your pictures as zip files of up to ~20 MB each (small enough for GitHub's upload
+     * page) into [folder]. Returns how many pictures and files.
+     */
+    fun exportPack(c: Context, folder: Uri): Pair<Int, Int> {
+        val files = Store.imagesDir().listFiles { f -> f.name.endsWith(".jpg") }?.sortedBy { it.name } ?: emptyList()
+        if (files.isEmpty()) return 0 to 0
+        val parent = android.provider.DocumentsContract.buildDocumentUriUsingTree(
+            folder, android.provider.DocumentsContract.getTreeDocumentId(folder),
+        )
+        val limit = 20L * 1024 * 1024
+        val parts = mutableListOf<MutableList<File>>(mutableListOf())
+        var size = 0L
+        for (f in files) {
+            if (size + f.length() > limit && parts.last().isNotEmpty()) { parts += mutableListOf<File>(); size = 0 }
+            parts.last() += f
+            size += f.length()
+        }
+        val stamp = java.time.LocalDate.now().toString()
+        parts.forEachIndexed { i, part ->
+            val name = "iron-log-pictures-$stamp-part${i + 1}-of-${parts.size}.zip"
+            val doc = android.provider.DocumentsContract.createDocument(c.contentResolver, parent, "application/zip", name)
+                ?: error("Couldn't create $name")
+            c.contentResolver.openOutputStream(doc)!!.use { os ->
+                java.util.zip.ZipOutputStream(os).use { zip ->
+                    for (f in part) {
+                        zip.putNextEntry(java.util.zip.ZipEntry("pictures/" + f.name))
+                        f.inputStream().use { it.copyTo(zip) }
+                        zip.closeEntry()
+                    }
+                }
+            }
+        }
+        return files.size to parts.size
+    }
+
+    /** Adds the pictures from picture-pack zips. Returns how many were added. */
+    fun importPack(c: Context, uris: List<Uri>): Int {
+        var n = 0
+        for (u in uris) {
+            c.contentResolver.openInputStream(u)?.use { input ->
+                java.util.zip.ZipInputStream(input).use { zip ->
+                    while (true) {
+                        val e = zip.nextEntry ?: break
+                        val name = File(e.name).name
+                        if (!e.isDirectory && name.endsWith(".jpg") && name.matches(Regex("[A-Za-z0-9_-]+\\.jpg"))) {
+                            File(Store.imagesDir(), name).outputStream().use { zip.copyTo(it) }
+                            n++
+                        }
+                        zip.closeEntry()
+                    }
+                }
+            }
+        }
+        Store.imageChanged()
+        return n
     }
 
     /** OpenAI's approximate price per 1024×1024 gpt-image-1 picture, in US dollars. */

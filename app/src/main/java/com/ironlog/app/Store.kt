@@ -13,6 +13,9 @@ import com.ironlog.app.Json.objs
 object Store {
     private lateinit var dir: File
     private var loaded = false
+    private var assets: android.content.res.AssetManager? = null
+    /** Pictures built into the app (assets/pictures/<name>.jpg). */
+    private var bundled: Set<String> = emptySet()
 
     private val _exercises = MutableStateFlow<Map<String, Exercise>>(emptyMap())
     private val _routines = MutableStateFlow<List<Routine>>(emptyList())
@@ -36,6 +39,8 @@ object Store {
         if (loaded) return
         loaded = true
         dir = c.filesDir
+        assets = c.assets
+        bundled = runCatching { c.assets.list("pictures")?.toSet() }.getOrNull() ?: emptySet()
         val builtIn = runCatching {
             JSONArray(c.assets.open("exercises.json").bufferedReader().readText()).objs().map { Exercise.fromJson(it, false) }
         }.getOrDefault(emptyList())
@@ -72,8 +77,13 @@ object Store {
     }
 
     // ----- pictures -----
-    fun imageFile(id: String) = File(File(dir, "images").apply { mkdirs() }, id.replace(Regex("[^A-Za-z0-9_-]"), "_") + ".jpg")
-    fun hasImage(id: String) = imageFile(id).exists()
+    fun imageName(id: String) = id.replace(Regex("[^A-Za-z0-9_-]"), "_") + ".jpg"
+    fun imagesDir() = File(dir, "images").apply { mkdirs() }
+    fun imageFile(id: String) = File(imagesDir(), imageName(id))
+    /** A picture built into the app for this exercise, if any. */
+    fun bundledImage(id: String): java.io.InputStream? =
+        if (imageName(id) in bundled) runCatching { assets?.open("pictures/" + imageName(id)) }.getOrNull() else null
+    fun hasImage(id: String) = imageFile(id).exists() || imageName(id) in bundled
     fun imageChanged() { _images.value++ }
 
     // ----- routines -----

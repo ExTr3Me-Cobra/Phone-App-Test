@@ -109,6 +109,31 @@ fun SettingsScreen() {
         }.getOrElse { "That file isn't an Iron Log backup." }
     }
 
+    var packMsg by remember { mutableStateOf<String?>(null) }
+    val exportPics = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            packMsg = "Exporting…"
+            scope.launch {
+                packMsg = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    runCatching {
+                        val (pics, parts) = Pictures.exportPack(context, uri)
+                        if (pics == 0) "No pictures to export yet." else "Exported $pics pictures in $parts zip file${if (parts == 1) "" else "s"}."
+                    }.getOrElse { "Export failed: ${it.message}" }
+                }
+            }
+        }
+    }
+    val importPics = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        if (uris.isNotEmpty()) {
+            packMsg = "Importing…"
+            scope.launch {
+                packMsg = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    runCatching { "Imported ${Pictures.importPack(context, uris)} pictures." }.getOrElse { "Import failed: ${it.message}" }
+                }
+            }
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
         TopBar("Settings")
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -145,6 +170,20 @@ fun SettingsScreen() {
             GenPanel()
             Text("For one routine, use the button on that routine (or its ••• menu on the Workout tab).", color = Sub, fontSize = 13.sp)
             Text("You can also make or add a picture on any exercise's page.", color = Sub, fontSize = 13.sp)
+
+            Spacer(8)
+            Text("Picture pack", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Export saves all your exercise pictures as zip files (split into parts under 20 MB) in a folder you pick – " +
+                    "share them, or upload them to the app's GitHub page to have them built into the app. " +
+                    "Import adds pictures from those zip files (pick all the parts at once).",
+                color = Sub, fontSize = 13.sp,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                GreyButton("Export pictures", Modifier.weight(1f)) { exportPics.launch(null) }
+                GreyButton("Import pictures", Modifier.weight(1f)) { importPics.launch(arrayOf("application/zip", "application/octet-stream", "*/*")) }
+            }
+            packMsg?.let { Text(it, color = Blue) }
 
             Spacer(8)
             Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
