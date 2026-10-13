@@ -9,6 +9,7 @@ import json, re, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from extra_exercises import EXTRA
 from cleanup import REMOVE, RENAME
+from weights import RULES, DEFAULT, FALLBACK
 
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json')
@@ -117,6 +118,16 @@ for (name, eq, t, p, s, cat, h) in EXTRA:
     eid = 'x_' + re.sub(r'[^A-Za-z0-9]+', '_', name).strip('_')
     out.append(fix({'i': eid, 'n': name, 'e': eq, 't': t, 'p': p, 's': s, 'c': cat, 'h': h}))
     added += 1
+def weight(e, m):
+    name = e['n'].lower()
+    for rx, need, ws in RULES:
+        if m in ws and re.search(rx, name) and (need is None or need in e['p']):
+            return ws[m]
+    return DEFAULT.get(m, FALLBACK)
+
+for e in out:
+    e['w'] = [weight(e, m) for m in e['s']]
+
 names_now = {e['n'] for e in out}
 missing = (REMOVE | set(RENAME)) - names_now
 assert not missing, missing
@@ -130,3 +141,10 @@ print(f'{len(out)} exercises ({added} added)')
 print('no secondary:', sum(1 for e in out if not e['s']), ' non-stretch no secondary:', sum(1 for e in out if not e['s'] and e['c'] != 'stretching'))
 print('primary counts:', Counter(m for e in out for m in e['p']).most_common())
 print('secondary new groups:', {g: sum(1 for e in out if g in e['s']) for g in ('serratus', 'rotator cuff', 'grip')})
+
+import statistics
+ws = [w for e in out for w in e['w']]
+print('secondary weights: mean %.2f, min %.2f, max %.2f, count %d' % (statistics.mean(ws), min(ws), max(ws), len(ws)))
+for n in ['Barbell Bench Press - Medium Grip', 'Barbell Deadlift', 'Pullups', 'Barbell Squat', 'Dumbbell Bicep Curl', 'Standing Military Press', 'Bent Over Barbell Row', 'Pushups']:
+    e = next(x for x in out if x['n'] == n)
+    print(n, 'P:', e['p'], 'S:', dict(zip(e['s'], e['w'])))

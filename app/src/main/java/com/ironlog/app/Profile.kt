@@ -147,6 +147,41 @@ fun SettingsScreen() {
             GreyButton(Units.restLabel(p.defaultRest)) { pick = true }
             if (pick) RestPicker(p.defaultRest, { pick = false }) { set(p.copy(defaultRest = it)); pick = false }
 
+            Text("Rest timer alert", fontWeight = FontWeight.Bold)
+            val soundName = remember(p.restSound) {
+                when (p.restSound) {
+                    "none" -> "Silent"
+                    "" -> "Phone's default alarm sound"
+                    else -> runCatching {
+                        android.media.RingtoneManager.getRingtone(context, android.net.Uri.parse(p.restSound))?.getTitle(context)
+                    }.getOrNull() ?: "Chosen sound"
+                }
+            }
+            val picker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+                if (r.resultCode == android.app.Activity.RESULT_OK) {
+                    @Suppress("DEPRECATION")
+                    val uri = r.data?.getParcelableExtra<android.net.Uri>(android.media.RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+                    set(Store.profile.value.copy(restSound = uri?.toString() ?: "none"))
+                }
+            }
+            GreyButton("🔔  Sound: $soundName") {
+                val i = android.content.Intent(android.media.RingtoneManager.ACTION_RINGTONE_PICKER)
+                    .putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_TYPE, android.media.RingtoneManager.TYPE_ALL)
+                    .putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_TITLE, "Rest timer sound")
+                    .putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, true)
+                    .putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, false)
+                if (p.restSound.isNotBlank() && p.restSound != "none") {
+                    i.putExtra(android.media.RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, android.net.Uri.parse(p.restSound))
+                }
+                runCatching { picker.launch(i) }
+            }
+            Row(Modifier.fillMaxWidth().clickable { set(p.copy(restVibrate = !p.restVibrate)) }, verticalAlignment = Alignment.CenterVertically) {
+                Text("Vibrate", Modifier.weight(1f))
+                androidx.compose.material3.Switch(p.restVibrate, { set(p.copy(restVibrate = it)) })
+            }
+            GreyButton("Test the alert", textColor = Blue) { Rest.alert(context) }
+            Text("Plays at alarm volume, so you hear it even when your phone is on vibrate.", color = Sub, fontSize = 12.sp)
+
             Spacer(8)
             Text("AI exercise pictures (OpenAI)", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(

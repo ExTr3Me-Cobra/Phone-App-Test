@@ -162,7 +162,7 @@ object BodyMap {
     }
 
     fun levelsFor(e: Exercise): Map<String, Float> =
-        e.secondary.associateWith { 0.4f } + e.primary.associateWith { 1f }
+        e.secondary.associateWith { e.secondaryWeight(it) } + e.primary.associateWith { 1f }
 }
 
 /** The body picture with a heatmap, fitted into [modifier]'s space. */

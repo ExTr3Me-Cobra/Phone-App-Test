@@ -23,7 +23,15 @@ data class Exercise(
     val custom: Boolean = false,
     /** Kept for old workouts but not offered in the list. */
     val hidden: Boolean = false,
+    /** How hard each secondary muscle works compared with the primary (0..1). */
+    val secondaryWeights: List<Float> = emptyList(),
 ) {
+    /** Secondary muscle -> weight (0.3 when not known). */
+    fun secondaryWeight(m: String): Float {
+        val i = secondary.indexOf(m)
+        return secondaryWeights.getOrNull(i) ?: 0.3f
+    }
+
     val mainMuscle: String get() = primary.firstOrNull()?.let(::titleCase) ?: "Other"
 
     fun toJson(): JSONObject = JSONObject().put("i", id).put("n", name).put("e", equipment).put("t", type.name)
@@ -36,6 +44,7 @@ data class Exercise(
             primary = o.optJSONArray("p").strings(), secondary = o.optJSONArray("s").strings(),
             category = o.optString("c", "strength"), instructions = o.optJSONArray("h").strings(), custom = custom,
             hidden = o.optInt("x", 0) == 1,
+            secondaryWeights = o.optJSONArray("w")?.let { a -> List(a.length()) { a.getDouble(it).toFloat() } } ?: emptyList(),
         )
     }
 }
@@ -93,6 +102,9 @@ data class Profile(
     val imageModel: String = "gpt-image-1",
     val imageQuality: String = "medium",
     val defaultRest: Int = 90,
+    /** Rest-over sound: "" = phone's default alarm sound, "none" = silent, else a sound's address. */
+    val restSound: String = "",
+    val restVibrate: Boolean = true,
 )
 
 // ---------- JSON ----------
@@ -134,10 +146,12 @@ object Json {
     fun profile(p: Profile) = JSONObject().putOpt2("bw", p.bodyweight).putOpt2("h", p.heightIn).putOpt2("age", p.age)
         .put("male", p.male).put("kg", p.kg).put("key", p.apiKey).put("model", p.imageModel)
         .put("quality", p.imageQuality).put("rest", p.defaultRest)
+        .put("restSound", p.restSound).put("restVibrate", p.restVibrate)
     fun profile(o: JSONObject) = Profile(
         o.optDoubleOrNull("bw"), o.optIntOrNull("h"), o.optIntOrNull("age"), o.optBoolean("male", true),
         o.optBoolean("kg"), o.optString("key"), o.optString("model", "gpt-image-1").ifBlank { "gpt-image-1" },
         o.optString("quality", "medium"), o.optInt("rest", 90),
+        o.optString("restSound", ""), o.optBoolean("restVibrate", true),
     )
 
     fun JSONArray.objs(): List<JSONObject> = List(length()) { getJSONObject(it) }

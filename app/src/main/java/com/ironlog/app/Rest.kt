@@ -60,25 +60,54 @@ object Rest {
 
     private const val ID = 77
 
+    private const val ALERT_CHANNEL = "rest_alert"
+
+    /** Silent channel: the sound and buzz are played by the app so you can choose them. */
     fun ensureChannel(c: Context) {
-        val ch = NotificationChannel(CHANNEL, "Rest timer", NotificationManager.IMPORTANCE_HIGH).apply {
-            description = "Tells you when your rest is over"
-            enableVibration(true)
-            vibrationPattern = longArrayOf(0, 400, 200, 400)
-            setSound(
-                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
-                AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build(),
-            )
+        val nm = c.getSystemService(NotificationManager::class.java)
+        runCatching { nm.deleteNotificationChannel(CHANNEL) }
+        nm.createNotificationChannel(
+            NotificationChannel(ALERT_CHANNEL, "Rest timer", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "Tells you when your rest is over (sound and vibration are set in Iron Log)"
+                setSound(null, null)
+                enableVibration(false)
+            },
+        )
+    }
+
+    private var ringtone: android.media.Ringtone? = null
+
+    /** Plays the chosen rest-over sound and vibration. */
+    fun alert(c: Context) {
+        Store.load(c)
+        val p = Store.profile.value
+        if (p.restVibrate) runCatching {
+            val v = c.getSystemService(android.os.VibratorManager::class.java).defaultVibrator
+            v.vibrate(android.os.VibrationEffect.createWaveform(longArrayOf(0, 400, 200, 400, 200, 600), -1))
         }
-        c.getSystemService(NotificationManager::class.java).createNotificationChannel(ch)
+        if (p.restSound != "none") runCatching {
+            val uri = if (p.restSound.isBlank()) RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            else android.net.Uri.parse(p.restSound)
+            ringtone?.stop()
+            ringtone = RingtoneManager.getRingtone(c, uri)?.apply {
+                audioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
+                isLooping = false
+                play()
+            }
+            // Long alarm sounds: stop after a few seconds.
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ ringtone?.stop() }, 5_000)
+        }
     }
 
     fun notifyDone(c: Context) {
         ensureChannel(c)
+        alert(c)
         val open = PendingIntent.getActivity(
             c, 0, Intent(c, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_IMMUTABLE,
         )
-        val n = Notification.Builder(c, CHANNEL)
+        val n = Notification.Builder(c, ALERT_CHANNEL)
             .setSmallIcon(R.drawable.ic_stat)
             .setContentTitle("Rest over")
             .setContentText("Time for your next set 💪")

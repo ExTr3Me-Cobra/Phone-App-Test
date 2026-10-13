@@ -66,6 +66,7 @@ object Workouts {
         )
         Store.setActive(w)
         Rest.stop(c)
+        WorkoutService.start(c)
         Nav.go(Route.Active)
     }
 
@@ -86,6 +87,7 @@ object Workouts {
     fun finish(c: Context): String? {
         val w = Store.active.value ?: return null
         Rest.stop(c)
+        WorkoutService.stop(c)
         val kept = w.copy(
             end = System.currentTimeMillis(),
             items = w.items.map { it.copy(sets = it.sets.filter { s -> s.done }) }.filter { it.sets.isNotEmpty() },
@@ -98,6 +100,7 @@ object Workouts {
 
     fun discard(c: Context) {
         Rest.stop(c)
+        WorkoutService.stop(c)
         Store.setActive(null)
     }
 }
@@ -117,20 +120,35 @@ fun ActiveWorkoutScreen() {
     var confirmDiscard by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
-        // Header: name, timer, volume, sets.
-        Column(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(16.dp, 10.dp)) {
+        // Header: session timer, sets and reps done, and the muscles worked so far.
+        var showMap by remember { mutableStateOf(true) }
+        Column(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(16.dp, 8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("⌄", fontSize = 26.sp, modifier = Modifier.clickable { Nav.back() }.padding(end = 12.dp))
-                Text(w.name, fontSize = 19.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text(w.name, fontSize = 17.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f), color = Sub)
                 Text("End", color = Blue, fontWeight = FontWeight.Bold, fontSize = 17.sp,
                     modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Blue.copy(alpha = 0.15f)).clickable { confirmEnd = true }
                         .padding(horizontal = 14.dp, vertical = 6.dp))
             }
-            Spacer(8)
-            Row {
-                StatBox("Duration", Units.clock(now - w.start), Modifier.weight(1f))
+            Text(
+                Units.clock(now - w.start), fontSize = 44.sp, fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
+            )
+            val doneSets = w.items.flatMap { it.sets }.filter { it.done }
+            Row(Modifier.fillMaxWidth()) {
+                StatBox("Sets", "${doneSets.size}", Modifier.weight(1f))
+                StatBox("Reps", "${doneSets.sumOf { it.reps ?: 0 }}", Modifier.weight(1f))
                 StatBox("Volume", "${Units.weight(Stats.volume(w))} ${Units.w}", Modifier.weight(1f))
-                StatBox("Sets", "${w.doneSets}", Modifier.weight(1f))
+                Text(if (showMap) "Hide map ▲" else "Muscles ▼", color = Blue, fontSize = 13.sp,
+                    modifier = Modifier.align(Alignment.CenterVertically).clickable { showMap = !showMap }.padding(4.dp))
+            }
+            if (showMap) {
+                val load = remember(w.items) { Stats.muscleLoad(w) }
+                Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(170.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black)) {
+                    BodyMapView(load, Modifier.fillMaxSize())
+                    if (load.isEmpty()) Text("Tick off a set to see the muscles you've worked", color = Sub, fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.BottomCenter).padding(6.dp))
+                }
             }
         }
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp)) {

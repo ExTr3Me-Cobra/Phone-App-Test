@@ -234,7 +234,11 @@ fun ExerciseDetailScreen(id: String) {
 
             Text(e.name, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
             Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
-            if (e.secondary.isNotEmpty()) Text("Secondary: " + e.secondary.joinToString { titleCase(it) }, color = Sub, modifier = Modifier.padding(horizontal = 16.dp))
+            if (e.secondary.isNotEmpty()) Text(
+                "Secondary: " + e.secondary.sortedByDescending { e.secondaryWeight(it) }
+                    .joinToString { "${titleCase(it)} (${(e.secondaryWeight(it) * 100).toInt()}%)" },
+                color = Sub, modifier = Modifier.padding(horizontal = 16.dp),
+            )
             Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
 
             // Ranking

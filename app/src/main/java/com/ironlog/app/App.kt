@@ -81,11 +81,18 @@ object Nav {
 }
 
 class MainActivity : ComponentActivity() {
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra("openWorkout", false) && Store.active.value != null && Nav.top != Route.Active) Nav.go(Route.Active)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Store.load(this)
         BodyMap.init(this)
         Rest.ensureChannel(this)
+        WorkoutService.start(this)
+        if (intent?.getBooleanExtra("openWorkout", false) == true && Store.active.value != null) Nav.go(Route.Active)
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
         }
