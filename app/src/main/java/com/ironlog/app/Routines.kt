@@ -57,6 +57,7 @@ fun WorkoutTab() {
     val routines by Store.routines.collectAsState()
     val context = LocalContext.current
     var deleting by remember { mutableStateOf<Routine?>(null) }
+    var aiFor by remember { mutableStateOf<Routine?>(null) }
     Column(Modifier.fillMaxSize()) {
         TopBar("Workout", back = false)
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)) {
@@ -91,6 +92,7 @@ fun WorkoutTab() {
                                     menu = false
                                     Store.saveRoutine(r.copy(id = Store.newId(), name = r.name + " (copy)"))
                                 })
+                                DropdownMenuItem({ Text("✨ AI pictures") }, { menu = false; aiFor = r })
                                 DropdownMenuItem({ Text("Delete", color = Red) }, { menu = false; deleting = r })
                             }
                         }
@@ -105,6 +107,7 @@ fun WorkoutTab() {
             }
         }
     }
+    aiFor?.let { r -> GenDialog("AI pictures: ${r.name}", r.items.map { it.exerciseId }.distinct()) { aiFor = null } }
     deleting?.let { r ->
         ConfirmText("Delete \"${r.name}\"? Your logged workouts stay.", { Store.deleteRoutine(r.id); deleting = null }, { deleting = null }, "Delete")
     }
@@ -117,6 +120,8 @@ fun RoutineViewScreen(id: String) {
     val routines by Store.routines.collectAsState()
     val r = routines.firstOrNull { it.id == id } ?: return Nav.back()
     val context = LocalContext.current
+    var ai by remember { mutableStateOf(false) }
+    if (ai) GenDialog("AI pictures: ${r.name}", r.items.map { it.exerciseId }.distinct()) { ai = false }
     Column(Modifier.fillMaxSize()) {
         TopBar("Routine", action = "Edit") { Drafts.openEditor(r.id) }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 32.dp)) {
@@ -124,6 +129,8 @@ fun RoutineViewScreen(id: String) {
                 Text(r.name.ifBlank { "Routine" }, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp))
                 BigButton("Start Routine", modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Workouts.start(context, r) }
                 Spacer(8)
+                GreyButton("✨ Make AI pictures for this routine", Modifier.fillMaxWidth().padding(horizontal = 16.dp), Blue) { ai = true }
+                GenPanel()
             }
             items(r.items.size) { i ->
                 val item = r.items[i]

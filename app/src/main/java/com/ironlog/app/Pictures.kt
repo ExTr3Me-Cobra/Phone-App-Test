@@ -186,8 +186,17 @@ object Pictures {
         Store.imageChanged()
     }
 
+    private fun muscleName(m: String) = when (m) {
+        "grip" -> "hand and finger (grip) muscles"
+        "serratus" -> "serratus anterior"
+        "rotator cuff" -> "rotator cuff (infraspinatus, teres minor)"
+        "abdominals" -> "abdominal muscles"
+        "middle back" -> "rhomboids and middle back"
+        else -> m
+    }
+
     fun prompt(e: Exercise): String {
-        fun list(m: List<String>) = m.joinToString(", ")
+        fun list(m: List<String>) = m.joinToString(", ") { muscleName(it) }
         val sec = if (e.secondary.isNotEmpty()) " Shade the ${list(e.secondary)} in light red." else ""
         val eq = when (e.equipment) {
             "Bodyweight", "Other" -> ""
@@ -201,9 +210,16 @@ object Pictures {
             "Full body visible, three-quarter view, centred, soft shadow, no text, no labels, no watermark."
     }
 
-    /** Makes a picture with OpenAI and saves it. Returns an error message, or null when it worked. */
-    suspend fun generate(e: Exercise, p: Profile): String? = withContext(Dispatchers.IO) {
-        if (p.apiKey.isBlank()) return@withContext "Add your OpenAI API key in Profile → Settings first."
+    /** What happened when asking for a picture. [code] is the HTTP status (0 = couldn't connect). */
+    class Result(val ok: Boolean, val code: Int, val message: String?) {
+        val rateLimited get() = code == 429 && message?.contains("quota", true) != true
+        /** Wrong key, no credit, model not allowed: no point trying more pictures. */
+        val fatal get() = code == 401 || code == 403 || (code == 429 && !rateLimited) || message?.contains("billing", true) == true
+    }
+
+    /** Makes a picture with OpenAI and saves it. */
+    suspend fun generate(e: Exercise, p: Profile): Result = withContext(Dispatchers.IO) {
+        if (p.apiKey.isBlank()) return@withContext Result(false, 401, "Add your OpenAI API key in Profile → Settings first.")
         val body = JSONObject()
             .put("model", p.imageModel.ifBlank { "gpt-image-1" })
             .put("prompt", prompt(e))
@@ -214,7 +230,7 @@ object Pictures {
             val conn = (URL("https://api.openai.com/v1/images/generations").openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 connectTimeout = 30_000
-                readTimeout = 180_000
+                readTimeout = 240_000
                 doOutput = true
                 setRequestProperty("Authorization", "Bearer ${p.apiKey.trim()}")
                 setRequestProperty("Content-Type", "application/json")
@@ -224,21 +240,24 @@ object Pictures {
             val text = (if (code in 200..299) conn.inputStream else conn.errorStream)?.bufferedReader()?.readText().orEmpty()
             if (code !in 200..299) {
                 val msg = runCatching { JSONObject(text).getJSONObject("error").getString("message") }.getOrNull()
-                return@withContext "OpenAI said: ${msg ?: "error $code"}"
+                return@withContext Result(false, code, "OpenAI said: ${msg ?: "error $code"}")
             }
             val item = JSONObject(text).getJSONArray("data").getJSONObject(0)
             val bytes = when {
                 item.has("b64_json") -> Base64.decode(item.getString("b64_json"), Base64.DEFAULT)
                 item.has("url") -> URL(item.getString("url")).openStream().use { it.readBytes() }
-                else -> return@withContext "OpenAI didn't send a picture back."
+                else -> return@withContext Result(false, code, "OpenAI didn't send a picture back.")
             }
-            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext "Couldn't read the picture."
+            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext Result(false, code, "Couldn't read the picture.")
             save(e.id, bmp)
-            null
+            Result(true, code, null)
         } catch (t: Throwable) {
-            "Couldn't reach OpenAI (${t.message ?: t.javaClass.simpleName})."
+            Result(false, 0, "Couldn't reach OpenAI (${t.message ?: t.javaClass.simpleName}).")
         }
     }
+
+    /** OpenAI's approximate price per 1024×1024 gpt-image-1 picture, in US dollars. */
+    fun price(quality: String) = when (quality) { "low" -> 0.011; "high" -> 0.167; else -> 0.042 }
 }
 
 /** Round picture for an exercise: your picture if there is one, otherwise its muscle chart. */

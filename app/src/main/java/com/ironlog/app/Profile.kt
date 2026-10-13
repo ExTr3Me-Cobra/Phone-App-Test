@@ -98,12 +98,10 @@ fun ProfileScreen() {
 @Composable
 fun SettingsScreen() {
     val p by Store.profile.collectAsState()
-    val routines by Store.routines.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     fun set(np: Profile) = Store.setProfile(np)
     var message by remember { mutableStateOf<String?>(null) }
-    var progress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) message = runCatching {
@@ -148,28 +146,11 @@ fun SettingsScreen() {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf("low", "medium", "high").forEach { q -> FilterChip(p.imageQuality == q, { set(p.copy(imageQuality = q)) }, { Text(titleCase(q)) }) }
             }
-            val missing = routines.flatMap { r -> r.items.map { it.exerciseId } }.distinct().filter { !Store.hasImage(it) }
-            GreyButton(
-                if (progress != null) "Making pictures ${progress!!.first}/${progress!!.second}…"
-                else "✨ Make pictures for my routines' exercises (${missing.size})",
-                textColor = Blue,
-            ) {
-                if (progress != null || missing.isEmpty()) return@GreyButton
-                scope.launch {
-                    var done = 0
-                    progress = 0 to missing.size
-                    for (id in missing) {
-                        val e = Store.exercise(id) ?: continue
-                        val err = Pictures.generate(e, Store.profile.value)
-                        if (err != null) { message = err; break }
-                        done++
-                        progress = done to missing.size
-                    }
-                    if (done == missing.size) message = "All $done pictures made."
-                    progress = null
-                }
-            }
-            progress?.let { (d, t) -> LinearProgressIndicator(progress = { d / t.toFloat().coerceAtLeast(1f) }, modifier = Modifier.fillMaxWidth()) }
+            var allDialog by remember { mutableStateOf(false) }
+            GreyButton("✨ Make pictures for every exercise (${Store.exercises.value.size})", textColor = Blue) { allDialog = true }
+            if (allDialog) GenDialog("AI pictures: every exercise", Store.exercises.value.values.sortedBy { it.name }.map { it.id }) { allDialog = false }
+            GenPanel()
+            Text("For one routine, use the button on that routine (or its ••• menu on the Workout tab).", color = Sub, fontSize = 13.sp)
             Text("You can also make or add a picture on any exercise's page.", color = Sub, fontSize = 13.sp)
 
             Spacer(8)

@@ -59,7 +59,7 @@ import java.io.File
 
 val MUSCLES = listOf(
     "abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms", "glutes", "hamstrings",
-    "lats", "lower back", "middle back", "neck", "quadriceps", "shoulders", "traps", "triceps",
+    "lats", "lower back", "middle back", "neck", "quadriceps", "rotator cuff", "serratus", "grip", "shoulders", "traps", "triceps",
 )
 val EQUIPMENT = listOf("Barbell", "Dumbbell", "Cable", "Machine", "Kettlebell", "Bodyweight", "EZ Bar", "Bands", "Medicine Ball", "Exercise Ball", "Foam Roll", "Other")
 
@@ -223,9 +223,9 @@ fun ExerciseDetailScreen(id: String) {
                     busy = true
                     status = "Asking OpenAI for a picture – this takes up to a minute…"
                     scope.launch {
-                        val err = Pictures.generate(e, Store.profile.value)
+                        val r = Pictures.generate(e, Store.profile.value)
                         busy = false
-                        status = err ?: "Done! Saved as this exercise's picture."
+                        status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
                     }
                 }
             }
