@@ -43,6 +43,7 @@ object Rest {
 
     private fun schedule(c: Context, at: Long) {
         _endsAt.value = at
+        ringtone?.stop()
         val am = c.getSystemService(AlarmManager::class.java)
         c.getSystemService(NotificationManager::class.java).cancel(ID)
         runCatching {
@@ -53,6 +54,7 @@ object Rest {
 
     fun stop(c: Context) {
         _endsAt.value = 0L
+        ringtone?.stop()
         c.getSystemService(AlarmManager::class.java).cancel(pi(c))
     }
 

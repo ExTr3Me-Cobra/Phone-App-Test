@@ -317,7 +317,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                                     done = true,
                                 )
                             }
-                            if (rest > 0) Rest.start(context, rest)
+                            if (rest > 0) Rest.start(context, rest) else Rest.stop(context)
                         } else {
                             Workouts.updateSet(i, n) { it.copy(done = false) }
                         }
