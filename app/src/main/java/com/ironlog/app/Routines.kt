@@ -254,7 +254,7 @@ fun RoutineEditScreen(id: String?) {
                             }.padding(vertical = 6.dp))
                             fun setAt(change: (PlanSet) -> PlanSet) =
                                 updateItem(i) { it.copy(sets = it.sets.toMutableList().also { l -> l[n] = change(l[n]) }) }
-                            val k = "${draft.id}:$i:$n"
+                            val k = "${draft.id}:$i:$n:${item.exerciseId}:${item.sets.size}"
                             when (ex.type) {
                                 ExType.WEIGHT, ExType.BODYWEIGHT -> {
                                     NumField(Units.weight(s.weight), "-", "$k:w", Modifier.weight(cols[1].second)) { v ->

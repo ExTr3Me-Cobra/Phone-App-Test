@@ -45,6 +45,8 @@ import kotlinx.coroutines.delay
 
 /** Starting, changing and finishing the workout in progress. */
 object Workouts {
+    /** Bumped when numbers are filled in for you, so the boxes show them. */
+    var refresh by androidx.compose.runtime.mutableIntStateOf(0)
     fun start(c: Context, r: Routine?) {
         val current = Store.active.value
         if (current != null) {
@@ -219,12 +221,15 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
         Text(
             prev?.let { Units.set(ex.type, it) } ?: "-", color = Sub, fontSize = 14.sp, maxLines = 1,
             modifier = Modifier.weight(cols[1].second).clickable(enabled = prev != null) {
-                prev?.let { p -> Workouts.updateSet(i, n) { it.copy(weight = p.weight, reps = p.reps, seconds = p.seconds, distance = p.distance) } }
+                prev?.let { p ->
+                    Workouts.updateSet(i, n) { it.copy(weight = p.weight, reps = p.reps, seconds = p.seconds, distance = p.distance) }
+                    Workouts.refresh++
+                }
             },
         )
         val fieldBg = if (s.done) Color.Transparent else Card2
-        // Version in the key so tapping "previous" refreshes the boxes.
-        val vk = "$k:${s.weight}:${s.reps}:${s.seconds}:${s.distance}"
+        // Refreshes the boxes when numbers are filled in for you (not while you type).
+        val vk = "$k:${Workouts.refresh}:${s.done}"
         when (ex.type) {
             ExType.WEIGHT, ExType.BODYWEIGHT -> {
                 NumField(Units.weight(s.weight).takeIf { s.weight != null } ?: "", prev?.weight?.let { Units.weight(it) } ?: "0", "$vk:w",
