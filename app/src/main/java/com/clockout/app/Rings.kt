@@ -25,9 +25,14 @@ object RingReader {
     private val MONTHS = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
 
     // 09-OCT-26 02.41.06 PM  (dots or colons, a little forgiving about spaces)
+    // Digits the camera sometimes reads as letters (0→O, 1→I/l/|, 5→S, 8→B) are accepted and fixed.
     private val DATETIME = Regex(
-        """(\d{1,2})\s*-\s*([A-Za-z0-9]{3})\s*-\s*(\d{2,4})\s+(\d{1,2})\s*[.:,]\s*(\d{2})\s*[.:,]\s*(\d{2})\s*([AaPp])\s*\.?\s*[Mm]""",
+        """([0-9OoIl|]{1,2})\s*-\s*([A-Za-z0-9]{3})\s*-\s*([0-9OoIl|]{2,4})\s+([0-9OoIl|]{1,2})(?:\s*[.:,;]\s*|\s+)([0-9OoIl|SB]{2})(?:\s*[.:,;]\s*|\s+)([0-9OoIl|SB]{2})\s*([AaPp])\s*\.?\s*[MmNn]""",
     )
+
+    private fun num(s: String): Int = s.map {
+        when (it) { 'O', 'o' -> '0'; 'I', 'l', '|' -> '1'; 'S' -> '5'; 'B' -> '8'; else -> it }
+    }.joinToString("").toInt()
 
     // Military + decimal: 09-OCT-26 14.68  (14 hours + 0.68 of an hour). The date is optional.
     private val DECIMAL_DATED = Regex(
@@ -60,7 +65,10 @@ object RingReader {
         }
 
     // 013 IL
-    private val CODE = Regex("""\b[0-9Oo]{3}\s+([A-Z]{2})\b""")
+    private val CODE = Regex("""\b[0-9OoIl]{3}\s+([A-Z01]{2})\b""")
+
+    /** "0L" -> "OL", "1L" -> "IL": letters in a code misread as digits. */
+    private fun code(raw: String) = raw.uppercase().replace('0', 'O').replace('1', 'I')
 
     // Lines from the details panel underneath ("Code: 013 IL Op Code …", "time: 09-OCT-26 …"),
     // which can belong to other people: ignored.
@@ -76,10 +84,10 @@ object RingReader {
 
     private fun parseTime(m: MatchResult): LocalDateTime? = runCatching {
         val (d, mon, y, hh, mm, ss, ap) = m.destructured
-        var hour = hh.toInt() % 12
+        var hour = num(hh) % 12
         if (ap.uppercase() == "P") hour += 12
-        val year = y.toInt().let { if (it < 100) 2000 + it else it }
-        LocalDateTime.of(year, month(mon) ?: return null, d.toInt(), hour, mm.toInt(), ss.toInt())
+        val year = num(y).let { if (it < 100) 2000 + it else it }
+        LocalDateTime.of(year, month(mon) ?: return null, num(d), hour, num(mm), num(ss))
     }.getOrNull()
 
     /** Hours with a decimal fraction ("14", "68") as a time of day. */
@@ -120,7 +128,7 @@ object RingReader {
             val y = box.exactCenterY()
             val h = box.height().toFloat().coerceAtLeast(1f)
             val lineTimes = timesIn(t, decimal, day)
-            val lineCodes = CODE.findAll(t).map { it.groupValues[1] }.toList()
+            val lineCodes = CODE.findAll(t).map { code(it.groupValues[1]) }.toList()
             // "BT:08.87" style: code and time together, no row numbers or dates.
             if (lineTimes.isEmpty() && lineCodes.isEmpty()) {
                 val short = shortForm(t, decimal, day)
@@ -137,7 +145,14 @@ object RingReader {
             lineTimes.forEach { times += Found(y, h, it) }
             lineCodes.forEach { codes += Found(y, h, it) }
         }
-        // Columns read separately: match each time with the code on the same row.
+        // Columns read separately. Same number of codes and times: pair them top to bottom
+        // (works even when the photo is at an angle).
+        if (times.isNotEmpty() && times.size == codes.size) {
+            val ts = times.sortedBy { it.y }; val cs = codes.sortedBy { it.y }
+            ts.indices.forEach { paired += Ring(cs[it].value as String, ts[it].value as LocalDateTime) }
+            return paired.distinctBy { it.time }.sortedBy { it.time }
+        }
+        // Otherwise match each time with the code on the same row.
         val used = HashSet<Found>()
         for (t in times.sortedBy { it.y }) {
             val best = codes.filter { it !in used }.minByOrNull { abs(it.y - t.y) }
@@ -170,8 +185,8 @@ object Calc {
     fun isOff(code: String, s: Settings) = code.uppercase() in s.offCodes
 
     fun compute(rings: List<Ring>, s: Settings, now: LocalDateTime): Result? {
-        if (rings.isEmpty()) return null
-        val sorted = rings.sortedBy { it.time }
+        val sorted = rings.filter { it.code.uppercase() !in s.ignoreCodes }.sortedBy { it.time }
+        if (sorted.isEmpty()) return null
         var worked = Duration.ZERO
         for (i in 0 until sorted.lastIndex) {
             if (!isOff(sorted[i].code, s)) worked += Duration.between(sorted[i].time, sorted[i + 1].time)
@@ -197,6 +212,8 @@ data class Settings(
     val remindBefore: Int = 5,
     /** The clock shows military time with decimal hours (14.68) instead of 2:40:48 PM. */
     val decimal: Boolean = false,
+    /** Codes that make no difference to time on the clock (job moves): left out entirely. */
+    val ignoreCodes: Set<String> = setOf("MV"),
 )
 
 /** Saved rings and settings. */
@@ -225,6 +242,7 @@ object Store {
             remind = p.getBoolean("remind", true),
             remindBefore = p.getInt("remindBefore", 5),
             decimal = p.getBoolean("decimal", false),
+            ignoreCodes = p.getString("ignore", "MV")!!.split(",").map { it.trim().uppercase() }.filter { it.isNotEmpty() }.toSet(),
         )
     }
 
@@ -255,7 +273,7 @@ object Store {
         c.getSharedPreferences(FILE, Context.MODE_PRIVATE).edit()
             .putLong("target", s.targetSeconds).putString("off", s.offCodes.joinToString(","))
             .putBoolean("remind", s.remind).putInt("remindBefore", s.remindBefore)
-            .putBoolean("decimal", s.decimal).apply()
+            .putBoolean("decimal", s.decimal).putString("ignore", s.ignoreCodes.joinToString(",")).apply()
         Reminder.update(c)
     }
 }

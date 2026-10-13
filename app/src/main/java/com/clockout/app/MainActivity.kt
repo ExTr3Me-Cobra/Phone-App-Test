@@ -143,7 +143,8 @@ private fun Screen() {
                     if (found.isEmpty()) {
                         RingReader.read(text, !mode).takeIf { it.isNotEmpty() }?.let { found = it; other = true }
                     }
-                    Scan(found, text.text, if (other) !mode else mode, other, photo)
+                    val ignore = Store.settings.value.ignoreCodes
+                    Scan(found.filter { it.code.uppercase() !in ignore }, text.text, if (other) !mode else mode, other, photo)
                 } catch (e: Throwable) {
                     Crash.note(context, e)
                     Scan(emptyList(), text.text, Store.settings.value.decimal, false, photo, error = "${e.javaClass.simpleName}: ${e.message}")
@@ -380,6 +381,19 @@ private fun SettingsPanel(s: Settings) {
         },
         label = { Text("Codes that take you OFF the clock") },
         supportingText = { Text("Time after these rings isn't counted (OL = out to lunch, ET = end). Every other code counts as working.") },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    var ignoreText by remember { mutableStateOf(s.ignoreCodes.sorted().joinToString(", ")) }
+    OutlinedTextField(
+        value = ignoreText,
+        onValueChange = { t ->
+            ignoreText = t
+            set(s.copy(ignoreCodes = t.split(",", " ").map { it.trim().uppercase() }.filter { it.isNotEmpty() }.toSet()))
+        },
+        label = { Text("Codes to ignore") },
+        supportingText = { Text("Left out completely, e.g. MV (job moves) – they don't change whether you're on the clock.") },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
