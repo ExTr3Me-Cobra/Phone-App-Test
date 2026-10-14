@@ -225,10 +225,14 @@ fun SettingsScreen() {
             Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text("Saves your routines, workouts, your own exercises and profile to a file (pictures aren't included).", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GreyButton("Save backup", Modifier.weight(1f)) { export.launch("iron-log-backup.json") }
+                GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.json") }
                 GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/json", "*/*")) }
             }
             message?.let { Text(it, color = Blue) }
+            val build = remember {
+                runCatching { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode }.getOrNull()
+            }
+            Text("Loadout · build ${build ?: "?"}", color = Sub, fontSize = 13.sp, modifier = Modifier.padding(top = 16.dp))
             Spacer(30)
         }
     }

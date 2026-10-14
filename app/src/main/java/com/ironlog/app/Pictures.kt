@@ -231,11 +231,13 @@ object Pictures {
             "Bodyweight", "Other" -> ""
             else -> " Show the ${e.equipment.lowercase()} and any bench or machine in matte black and dark grey."
         }
-        return "Clean, highly detailed 3D anatomical fitness illustration on a pure white background. " +
-            "A fit, muscular man with short dark hair, wearing only black athletic shorts, barefoot, " +
+        return "A single, clean, highly detailed 3D anatomical fitness illustration on a pure white background, " +
+            "showing exactly ONE person: a fit, muscular man with short dark hair, wearing only black athletic shorts, barefoot, " +
             "performing the exercise \"${e.name}\" with correct form, shown at the most recognisable point of the movement. " +
             "His body is rendered in light grey monochrome with clearly defined individual muscles and fine muscle-fibre detail, " +
             "like a medical anatomy drawing. Highlight the ${list(main)} in dark red.$sec$eq " +
+            "One figure in one scene only: no second person, no extra views of him, no close-up or inset of a body part, " +
+            "no split panels, no collage, no diagrams. " +
             "Square 1:1 image, full body visible, three-quarter view, centred, soft shadow, no text, no labels, no watermark."
     }
 
