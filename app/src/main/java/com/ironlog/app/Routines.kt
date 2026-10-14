@@ -189,6 +189,7 @@ private fun PlanRowView(t: ExType, n: Int, s: PlanSet) {
             ExType.BODYWEIGHT -> listOf(s.reps?.toString() ?: if (s.failure) "max" else "-")
             ExType.TIMED -> listOf(Units.time(s.seconds).ifEmpty { "-" })
             ExType.CARDIO -> listOf(Units.distance(s.distance).ifEmpty { "-" }, Units.time(s.seconds).ifEmpty { "-" })
+            ExType.WEIGHT_TIME -> listOf(Units.weight(s.weight).ifEmpty { "-" }, Units.time(s.seconds).ifEmpty { "-" })
         }
         values.forEachIndexed { i, v -> Text(v, fontSize = 17.sp, modifier = Modifier.weight(cols[i + 1].second)) }
     }
@@ -285,6 +286,14 @@ fun RoutineEditScreen(id: String?) {
                                 }
                                 ExType.TIMED -> NumField(Units.time(s.seconds), "0:30", "$k:t", Modifier.weight(cols[1].second)) { v ->
                                     setAt { it.copy(seconds = Units.parseTime(v)) }
+                                }
+                                ExType.WEIGHT_TIME -> {
+                                    NumField(Units.weight(s.weight), "-", "$k:w", Modifier.weight(cols[1].second)) { v ->
+                                        setAt { it.copy(weight = v.toDoubleOrNull()?.let(Units::fromShown)) }
+                                    }
+                                    NumField(Units.time(s.seconds), "0:30", "$k:t", Modifier.weight(cols[2].second)) { v ->
+                                        setAt { it.copy(seconds = Units.parseTime(v)) }
+                                    }
                                 }
                                 ExType.CARDIO -> {
                                     NumField(Units.distance(s.distance), "-", "$k:d", Modifier.weight(cols[1].second)) { v ->

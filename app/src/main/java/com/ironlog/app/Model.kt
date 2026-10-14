@@ -9,6 +9,7 @@ enum class ExType(val label: String) {
     BODYWEIGHT("Bodyweight (reps only)"),
     TIMED("Timed hold"),
     CARDIO("Cardio (distance & time)"),
+    WEIGHT_TIME("Weight & time"),
 }
 
 data class Exercise(
@@ -209,6 +210,12 @@ fun Exercise.weightHint(): String {
         type == ExType.BODYWEIGHT -> "No weight to log – reps only (you're lifting your body weight)."
         type == ExType.TIMED -> "No weight to log – just the time."
         type == ExType.CARDIO -> "No weight to log – distance and time."
+        type == ExType.WEIGHT_TIME -> when {
+            Regex("sled|drag").containsMatchIn(n) -> "Log the weight loaded on the sled, plus how long you went."
+            Regex("farmer|suitcase|fat grip|bottoms-up|pinch carry").containsMatchIn(n) ->
+                "Log the weight in one hand (one dumbbell, kettlebell or handle), plus how long you held or carried it."
+            else -> "Log the total weight (bar or frame plus plates), plus how long you held or carried it."
+        }
         n.startsWith("weighted") && (n.contains("pull") || n.contains("dip") || n.contains("chin")) ->
             "Log only the extra weight you add (belt, vest or dumbbell) – not your body weight."
         equipment == "Barbell" || equipment == "EZ Bar" -> when {

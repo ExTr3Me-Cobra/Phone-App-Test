@@ -74,3 +74,9 @@ REPS_ONLY = {
 TIMED_ONLY = {'Balance Board', 'Battling Ropes'}
 # Weighted versions of bodyweight moves: the weight box is the weight you add.
 WEIGHTED = {'Weighted Pull Ups', 'Weighted Bench Dip'}
+# Loaded holds, carries and sled work: logged as weight and time.
+WEIGHT_TIME = {
+    "Farmer's Walk", "Kettlebell Farmer's Carry", 'Suitcase Carry', 'Rickshaw Carry', 'Yoke Walk', 'Plate Pinch Carry',
+    'Plate Pinch', 'Static Barbell Hold', 'Fat Grip Dumbbell Hold', 'Bottoms-Up Kettlebell Hold',
+    'Sled Push', 'Sled Drag - Harness', 'Backward Drag', 'Bear Crawl Sled Drags', 'Sled Overhead Backward Walk',
+}

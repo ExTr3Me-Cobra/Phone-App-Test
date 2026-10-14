@@ -299,6 +299,19 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                     Stopwatch { sec -> Workouts.updateSet(i, n) { it.copy(seconds = sec) } }
                 }
             }
+            ExType.WEIGHT_TIME -> {
+                NumField(Units.weight(s.weight).takeIf { s.weight != null } ?: "", prev?.weight?.let { Units.weight(it) } ?: "0", "$vk:w",
+                    Modifier.weight(cols[2].second).padding(end = 6.dp), outlined = true) { v ->
+                    Workouts.updateSet(i, n) { it.copy(weight = v.toDoubleOrNull()?.let(Units::fromShown)) }
+                }
+                Row(Modifier.weight(cols[3].second), verticalAlignment = Alignment.CenterVertically) {
+                    NumField(Units.time(s.seconds), prev?.seconds?.let { Units.time(it) } ?: "0:30", "$vk:t",
+                        Modifier.weight(1f).padding(end = 6.dp), outlined = true) { v ->
+                        Workouts.updateSet(i, n) { it.copy(seconds = Units.parseTime(v)) }
+                    }
+                    Stopwatch { sec -> Workouts.updateSet(i, n) { it.copy(seconds = sec) } }
+                }
+            }
             ExType.CARDIO -> {
                 NumField(Units.distance(s.distance), prev?.distance?.let { Units.distance(it) } ?: "0", "$vk:d",
                     Modifier.weight(cols[2].second).padding(end = 6.dp), outlined = true) { v ->

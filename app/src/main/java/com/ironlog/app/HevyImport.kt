@@ -156,6 +156,7 @@ object HevyImport {
             val base = c?.first?.let { byName[it.lowercase()] }
             fun has(i: Int?) = i != null && i >= 0 && row.getOrNull(i).orEmpty().isNotBlank()
             val type = c?.third ?: when {
+                (has(cW) || has(cKg)) && has(cT) && !has(cR) -> ExType.WEIGHT_TIME
                 has(cW) || has(cKg) -> ExType.WEIGHT
                 has(cT) && !has(cR) -> ExType.TIMED
                 has(cD) || has(cKm) -> ExType.CARDIO

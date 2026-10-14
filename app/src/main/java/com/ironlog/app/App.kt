@@ -314,6 +314,7 @@ fun columnsFor(t: ExType, withPrevious: Boolean): List<Pair<String, Float>> {
         ExType.BODYWEIGHT -> listOf("REPS" to 2.6f)
         ExType.TIMED -> listOf("TIME" to 2.6f)
         ExType.CARDIO -> listOf(Units.dist.uppercase() to 1.4f, "TIME" to 1.2f)
+        ExType.WEIGHT_TIME -> listOf(Units.w.uppercase() to 1.2f, "TIME" to 1.4f)
     }
 }
 

@@ -29,6 +29,7 @@ object Stats {
         ExType.BODYWEIGHT -> listOf(Metric.BEST_REPS, Metric.TOTAL_REPS)
         ExType.TIMED -> listOf(Metric.TIME)
         ExType.CARDIO -> listOf(Metric.DISTANCE, Metric.TIME)
+        ExType.WEIGHT_TIME -> listOf(Metric.MAX_WEIGHT, Metric.TIME)
     }
 
     /** The value of [m] for one session's sets, or null if there's nothing to show. */
@@ -149,6 +150,7 @@ object Units {
         ExType.BODYWEIGHT -> "${s.reps ?: 0} reps"
         ExType.TIMED -> time(s.seconds ?: 0)
         ExType.CARDIO -> "${distance(s.distance ?: 0.0)} $dist · ${time(s.seconds ?: 0)}"
+        ExType.WEIGHT_TIME -> "${weight(s.weight ?: 0.0)}$w · ${time(s.seconds ?: 0)}"
     }
 
     fun restLabel(sec: Int): String = when {

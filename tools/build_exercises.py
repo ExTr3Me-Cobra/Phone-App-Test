@@ -8,7 +8,7 @@ Run: python3 tools/build_exercises.py
 import json, re, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from extra_exercises import EXTRA
-from cleanup import REMOVE, RENAME, REPS_ONLY, TIMED_ONLY, WEIGHTED
+from cleanup import REMOVE, RENAME, REPS_ONLY, TIMED_ONLY, WEIGHTED, WEIGHT_TIME
 from weights import RULES, DEFAULT, DEFAULT_REFS, FALLBACK, OVERRIDES, OVERRIDE_REFS
 from detail_weights import GROUPS, HEADS, DEFAULT_HEADS, MIDDLE_BACK_EXTRA, ADD, REFS, ABS_SPLIT, RA
 
@@ -199,8 +199,10 @@ for e in out:
     if e['n'] in REPS_ONLY: e['t'] = 'BODYWEIGHT'
     if e['n'] in TIMED_ONLY: e['t'] = 'TIMED'
     if e['n'] in WEIGHTED: e['t'] = 'WEIGHT'
+    if e['n'] in WEIGHT_TIME: e['t'] = 'WEIGHT_TIME'
 names_after = {e['n'] for e in out}
-assert not (REPS_ONLY | TIMED_ONLY | WEIGHTED) - names_after, (REPS_ONLY | TIMED_ONLY | WEIGHTED) - names_after
+ALL_SET = REPS_ONLY | TIMED_ONLY | WEIGHTED | WEIGHT_TIME
+assert not ALL_SET - names_after, ALL_SET - names_after
 json.dump(out, open(OUT, 'w'), separators=(',', ':'), ensure_ascii=False)
 print('hidden:', sum(1 for e in out if e.get('x')), ' renamed:', len(RENAME), ' shown:', sum(1 for e in out if not e.get('x')))
 from collections import Counter
