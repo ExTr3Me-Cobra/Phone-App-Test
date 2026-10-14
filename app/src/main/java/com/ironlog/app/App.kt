@@ -105,6 +105,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StandardsData.init(this)
         Store.load(this)
         BodyMap.init(this)
         Rest.ensureChannel(this)

@@ -1,4 +1,4 @@
-"""Builds StandardsData.kt from the Strength Level tables collected in tools/standards.
+"""Builds app/src/main/assets/standards.json (read by StandardsData.kt) from the Strength Level tables collected in tools/standards.
 
 Sources, merged per exercise and sex, row by row (body weight -> 5 levels):
 - tools/standards/batch_*.json  first collection (rows at 150/180/220 lb men, 120/140/170 lb women)
@@ -15,7 +15,7 @@ Run: python3 tools/gen_standards.py
 """
 import json, os, glob, math
 HERE = os.path.dirname(__file__)
-OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'java', 'com', 'ironlog', 'app', 'StandardsData.kt')
+ASSET = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'standards.json')
 db = {e['n']: e for e in json.load(open(os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json'))) if not e.get('x')}
 
 # Strength Level lift -> exercises in the app: (name, note); note says how it's related when it isn't the same lift.
@@ -204,11 +204,8 @@ def trend_check(lift, sex, rows, reps):
     return rows
 
 
-def kt(v): return '%.1f' % v
-
-
 data = load()
-lines, used, lifts_used, coverage = [], 0, 0, {}
+entries, used, lifts_used, coverage = [], 0, 0, {}
 for lift, exs in MAP.items():
     if lift not in data: report.append(f'{lift}: no data – not ranked'); continue
     if lift in EXCLUDE: report.append(f'{lift}: left out ({EXCLUDE[lift]})'); continue
@@ -224,37 +221,16 @@ for lift, exs in MAP.items():
     if not tables: report.append(f'{lift}: no usable rows'); continue
     lifts_used += 1
     coverage[lift] = {s: [min(t), max(t), len(t)] for s, t in tables.items()}
-    def rowset(sex):
-        t = tables.get(sex)
-        if not t: return 'null'
-        return 'listOf(' + ', '.join(f'{kt(bw)} to doubleArrayOf({", ".join(kt(x) for x in v)})' for bw, v in t.items()) + ')'
     for name, note in exs:
         if name not in db: report.append(f'{lift}: exercise "{name}" not in the database'); continue
-        lines.append(f'        Std({json.dumps(db[name]["i"])}, {json.dumps(lift)}, {rowset("male")}, {rowset("female")}, '
-                     f'reps = {"true" if reps else "false"}, perDumbbell = {"true" if lift in DUMBBELL else "false"}, '
-                     f'note = {json.dumps(note)}),')
+        def rows_of(sex):
+            t = tables.get(sex)
+            return [[bw] + v for bw, v in t.items()] if t else None
+        entries.append({'i': db[name]['i'], 'lift': lift, 'm': rows_of('male'), 'f': rows_of('female'),
+                        'r': reps, 'd': lift in DUMBBELL, 'note': note})
         used += 1
 
-open(OUT, 'w').write('''package com.ironlog.app
-
-/**
- * Strength standards from Strength Level (strengthlevel.com, built from lifts logged by its users),
- * one-rep max in lb (or reps for bodyweight moves) for Beginner / Novice / Intermediate / Advanced / Elite
- * = stronger than 5 / 20 / 50 / 80 / 95% of lifters, at each published body weight.
- * Made by tools/gen_standards.py from the JSON files in tools/standards – edit those and re-run.
- */
-object StandardsData {
-    class Std(
-        val id: String, val lift: String,
-        val male: List<Pair<Double, DoubleArray>>?, val female: List<Pair<Double, DoubleArray>>?,
-        val reps: Boolean, val perDumbbell: Boolean, val note: String?,
-    )
-
-    val all: List<Std> = listOf(
-''' + '\n'.join(lines) + '''
-    )
-}
-''')
+json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')
 print(f'{used} exercises ranked from {lifts_used} lifts; {len(report)} report lines (tools/standards/report.txt)')

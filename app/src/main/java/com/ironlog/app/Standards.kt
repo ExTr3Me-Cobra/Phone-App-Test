@@ -11,7 +11,7 @@ import kotlin.math.ln
  * accounts for most of the difference in size.
  */
 object Standards {
-    private val table: Map<String, StandardsData.Std> = StandardsData.all.associateBy { it.id }
+    private val table: Map<String, StandardsData.Std> by lazy { StandardsData.all.associateBy { it.id } }
 
     fun covers(id: String) = table.containsKey(id)
     fun isReps(id: String) = table[id]?.reps == true
