@@ -131,7 +131,7 @@ object HevyImport {
             custom[id] = Exercise(
                 id, hevy.replace("(band)", "(Band)"), c?.second ?: "Other", type,
                 base?.primary ?: emptyList(), base?.secondary ?: emptyList(), base?.category ?: "strength",
-                base?.instructions ?: emptyList(), custom = true, secondaryWeights = base?.secondaryWeights ?: emptyList(),
+                emptyList(), custom = true, // no directions or picture until you add them secondaryWeights = base?.secondaryWeights ?: emptyList(),
                 detail = base?.detail ?: emptyMap(),
             )
             return id

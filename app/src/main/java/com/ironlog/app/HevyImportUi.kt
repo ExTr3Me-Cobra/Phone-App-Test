@@ -57,7 +57,7 @@ fun HevyMatchScreen() {
             item {
                 Text(
                     "These Hevy exercises have no direct match in Loadout. Tap one to choose which Loadout exercise its sets go to, " +
-                        "or keep it as a new custom exercise. Your choices are remembered for next time.",
+                        "or add it as a new custom exercise (no picture or directions until you add them on its page). Your choices are remembered for next time.",
                     color = Sub, fontSize = 14.sp, modifier = Modifier.padding(bottom = 12.dp),
                 )
             }
