@@ -119,10 +119,14 @@ object BodyMap {
         return COLORS.last()
     }
 
-    /** Draws the picture with [levels] (muscle -> 0..1), cropped to [view], about [widthPx] wide. */
-    fun render(levels: Map<String, Float>, view: View, widthPx: Int): Bitmap? {
+    /**
+     * Draws the picture with [levels] (muscle -> 0..1), cropped to [view], about [widthPx] wide.
+     * With [colors] (muscle -> colour), muscles are shaded in those colours instead (rank map).
+     */
+    fun render(levels: Map<String, Float>, view: View, widthPx: Int, colors: Map<String, Int>? = null): Bitmap? {
         val src = base ?: return null
-        val key = "${view.name}:$widthPx:" + levels.entries.sortedBy { it.key }.joinToString(",") { "${it.key}=${"%.3f".format(it.value)}" }
+        val key = "${view.name}:$widthPx:" + levels.entries.sortedBy { it.key }.joinToString(",") { "${it.key}=${"%.3f".format(it.value)}" } +
+            (colors?.entries?.sortedBy { it.key }?.joinToString(",", prefix = "|") { "${it.key}=${it.value}" } ?: "")
         cache.get(key)?.let { return it }
         val box = view.box
         val bw = box[2] - box[0]; val bh = box[3] - box[1]
@@ -145,7 +149,7 @@ object BodyMap {
             for (sh in shapes.sortedBy { levels[it.muscle] ?: 0f }) {
                 val v = levels[sh.muscle] ?: 0f
                 if (v <= 0f) continue
-                paint.color = heat(v)
+                paint.color = colors?.get(sh.muscle) ?: heat(v)
                 tc.drawPath(sh.path, paint)
             }
             android.graphics.Canvas(out).drawBitmap(tint, 0f, 0f, Paint().apply {
@@ -162,11 +166,11 @@ object BodyMap {
 
 /** The body picture with a heatmap, fitted into [modifier]'s space. */
 @Composable
-fun BodyMapView(levels: Map<String, Float>, modifier: Modifier, view: BodyMap.View = BodyMap.View.BOTH) {
+fun BodyMapView(levels: Map<String, Float>, modifier: Modifier, view: BodyMap.View = BodyMap.View.BOTH, colors: Map<String, Int>? = null) {
     androidx.compose.foundation.layout.BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
         val px = with(androidx.compose.ui.platform.LocalDensity.current) { maxWidth.toPx().toInt().coerceIn(64, 1100) }
-        val bmp by androidx.compose.runtime.produceState<ImageBitmap?>(null, levels, view, px) {
-            value = withContext(Dispatchers.Default) { BodyMap.render(levels, view, px)?.asImageBitmap() }
+        val bmp by androidx.compose.runtime.produceState<ImageBitmap?>(null, levels, view, px, colors) {
+            value = withContext(Dispatchers.Default) { BodyMap.render(levels, view, px, colors)?.asImageBitmap() }
         }
         bmp?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
     }

@@ -170,7 +170,7 @@ fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () ->
             ExerciseThumb(e, 60.dp)
             HSpacer(16)
             Column(Modifier.weight(1f)) {
-                Text(e.name, fontSize = 17.sp, maxLines = 2)
+                Text(starredName(e), fontSize = 17.sp, maxLines = 2)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(e.mainMuscle, color = Sub, fontSize = 15.sp)
                     if (e.custom) { HSpacer(8); Chip("Custom") }
@@ -276,16 +276,13 @@ fun ExerciseDetailScreen(id: String) {
             if (busy) CircularProgressIndicator(Modifier.padding(horizontal = 16.dp))
             status?.let { Text(it, color = Sub, modifier = Modifier.padding(horizontal = 16.dp)) }
 
-            Text(e.name, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
+            Text(starredName(e), fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
             Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
             Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
             MusclesCard(e)
 
             // Ranking
-            if (Standards.covers(e.id)) {
-                val best = sessions.maxOfOrNull { Standards.bestValue(e.id, it.sets) } ?: 0.0
-                RankCard(e, best, profile)
-            }
+            if (Standards.covers(e.id)) ExerciseRankCard(e, profile, workouts)
 
             // Records
             if (sessions.isNotEmpty()) {
@@ -353,28 +350,6 @@ fun MusclesCard(e: Exercise) {
                 modifier = Modifier.padding(top = 6.dp).clickable { sources = !sources })
             if (sources) e.refs.forEach { r ->
                 Text("• " + (Muscles.refs[r] ?: r), color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun RankCard(e: Exercise, best: Double, profile: Profile) {
-    Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
-        Text("How you compare", fontWeight = FontWeight.Bold)
-        val rank = Standards.rank(e.id, best, profile)
-        when {
-            best <= 0 -> Text("Log this exercise to see where you rank.", color = Sub)
-            rank == null -> Text("Add your body weight in Profile to see where you rank.", color = Sub)
-            else -> {
-                Text("Stronger than about ${rank.percentile}% of ${rank.against}", fontSize = 17.sp)
-                Text(
-                    "${rank.level} · based on your best " + if (Standards.isReps(e.id)) "${best.toInt()} reps" else "est. 1-rep max of ${Units.weightU(best)}",
-                    color = Sub, fontSize = 14.sp,
-                )
-                Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
-                    Box(Modifier.fillMaxWidth(rank.percentile / 100f).fillMaxHeight().background(Blue))
-                }
             }
         }
     }

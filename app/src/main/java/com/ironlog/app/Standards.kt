@@ -1,114 +1,199 @@
 package com.ironlog.app
 
-import kotlin.math.pow
+import kotlin.math.exp
+import kotlin.math.floor
+import kotlin.math.ln
 
 /**
- * Rough strength standards, from published tables of what lifters typically manage, for a
- * 180 lb man aged 20-35: Beginner, Novice, Intermediate, Advanced, Elite (about the 5th, 20th,
- * 50th, 80th and 95th percentile of people who lift). Scaled for body weight, sex and age.
- * Dumbbell numbers are per dumbbell. These are estimates.
+ * Where a lift puts you among people who lift, from Strength Level's standards (see [StandardsData]):
+ * adjusted for your body weight (between and beyond the published rows), sex and age.
+ * Height isn't used: no reliable published standards include it, and body weight already
+ * accounts for most of the difference in size.
  */
 object Standards {
-    private class Std(val levels: DoubleArray, val upper: Boolean, val reps: Boolean = false)
-
-    private fun s(vararg v: Double, upper: Boolean) = Std(v, upper)
-    private fun r(vararg v: Double) = Std(v, upper = true, reps = true)
-
-    private val table: Map<String, Std> = buildMap {
-        fun put(ids: List<String>, std: Std) = ids.forEach { put(it, std) }
-        put(listOf("Barbell_Bench_Press_-_Medium_Grip", "Bench_Press_-_Powerlifting"), s(107.0, 151.0, 205.0, 268.0, 336.0, upper = true))
-        put(listOf("Barbell_Squat", "Barbell_Full_Squat"), s(136.0, 190.0, 256.0, 331.0, 413.0, upper = false))
-        put(listOf("Barbell_Deadlift"), s(162.0, 224.0, 300.0, 386.0, 479.0, upper = false))
-        put(listOf("Standing_Military_Press", "Barbell_Shoulder_Press", "Seated_Barbell_Military_Press"), s(70.0, 98.0, 133.0, 173.0, 217.0, upper = true))
-        put(listOf("Bent_Over_Barbell_Row"), s(92.0, 130.0, 180.0, 237.0, 300.0, upper = true))
-        put(listOf("Dumbbell_Bench_Press"), s(38.0, 58.0, 84.0, 115.0, 150.0, upper = true))
-        put(listOf("Dumbbell_Bicep_Curl", "Dumbbell_Alternate_Bicep_Curl"), s(17.0, 29.0, 46.0, 67.0, 90.0, upper = true))
-        put(listOf("Barbell_Curl"), s(49.0, 74.0, 105.0, 142.0, 182.0, upper = true))
-        put(listOf("Wide-Grip_Lat_Pulldown", "Close-Grip_Front_Lat_Pulldown", "Full_Range-Of-Motion_Lat_Pulldown"), s(90.0, 126.0, 171.0, 224.0, 283.0, upper = true))
-        put(listOf("Leg_Press"), s(164.0, 261.0, 391.0, 546.0, 720.0, upper = false))
-        put(listOf("Barbell_Hip_Thrust"), s(109.0, 190.0, 302.0, 439.0, 594.0, upper = false))
-        put(listOf("Front_Barbell_Squat"), s(107.0, 153.0, 210.0, 276.0, 349.0, upper = false))
-        put(listOf("Barbell_Incline_Bench_Press_-_Medium_Grip"), s(89.0, 127.0, 176.0, 233.0, 295.0, upper = true))
-        put(listOf("Dumbbell_Shoulder_Press"), s(30.0, 45.0, 65.0, 89.0, 116.0, upper = true))
-        put(listOf("One-Arm_Dumbbell_Row"), s(39.0, 62.0, 92.0, 128.0, 168.0, upper = true))
-        put(listOf("Leg_Extensions"), s(77.0, 121.0, 178.0, 246.0, 322.0, upper = false))
-        put(listOf("Lying_Leg_Curls", "Seated_Leg_Curl"), s(62.0, 94.0, 135.0, 184.0, 238.0, upper = false))
-        put(listOf("Triceps_Pushdown", "Triceps_Pushdown_-_Rope_Attachment", "Triceps_Pushdown_-_V-Bar_Attachment"), s(46.0, 72.0, 107.0, 149.0, 196.0, upper = true))
-        put(listOf("Seated_Cable_Rows"), s(84.0, 124.0, 175.0, 236.0, 304.0, upper = true))
-        put(listOf("Barbell_Shrug"), s(129.0, 198.0, 288.0, 394.0, 512.0, upper = true))
-        put(listOf("Dumbbell_Shrug"), s(50.0, 80.0, 115.0, 155.0, 200.0, upper = true))
-        put(listOf("Romanian_Deadlift"), s(117.0, 179.0, 258.0, 350.0, 452.0, upper = false))
-        put(listOf("Sumo_Deadlift"), s(167.0, 234.0, 316.0, 410.0, 512.0, upper = false))
-        put(listOf("Side_Lateral_Raise"), s(12.0, 22.0, 35.0, 51.0, 70.0, upper = true))
-        put(listOf("Preacher_Curl"), s(47.0, 72.0, 104.0, 142.0, 184.0, upper = true))
-        put(listOf("Hammer_Curls"), s(20.0, 32.0, 48.0, 68.0, 91.0, upper = true))
-        put(listOf("EZ-Bar_Skullcrusher"), s(46.0, 72.0, 106.0, 147.0, 193.0, upper = true))
-        put(listOf("Close-Grip_Barbell_Bench_Press"), s(103.0, 147.0, 202.0, 265.0, 334.0, upper = true))
-        put(listOf("Goblet_Squat"), s(40.0, 65.0, 97.0, 137.0, 181.0, upper = false))
-        put(listOf("Standing_Calf_Raises"), s(107.0, 187.0, 295.0, 428.0, 580.0, upper = false))
-        put(listOf("Dumbbell_Flyes"), s(18.0, 32.0, 50.0, 73.0, 98.0, upper = true))
-        put(listOf("Dumbbell_Lunges"), s(25.0, 45.0, 73.0, 108.0, 149.0, upper = false))
-        put(listOf("Barbell_Lunge"), s(75.0, 125.0, 190.0, 265.0, 350.0, upper = false))
-        put(listOf("Pullups", "V-Bar_Pullup"), r(0.5, 3.0, 10.0, 18.0, 26.0))
-        put(listOf("Chin-Up"), r(1.0, 4.0, 11.0, 19.0, 27.0))
-        put(listOf("Pushups"), r(4.0, 16.0, 32.0, 51.0, 72.0))
-        put(listOf("Dips_-_Triceps_Version", "Dips_-_Chest_Version"), r(1.0, 6.0, 16.0, 28.0, 40.0))
-    }
-
-    private val PCT = doubleArrayOf(5.0, 20.0, 50.0, 80.0, 95.0)
-    private val NAMES = listOf("Beginner", "Novice", "Intermediate", "Advanced", "Elite")
+    private val table: Map<String, StandardsData.Std> = StandardsData.all.associateBy { it.id }
 
     fun covers(id: String) = table.containsKey(id)
     fun isReps(id: String) = table[id]?.reps == true
+    fun info(id: String) = table[id]
 
-    class Rank(val percentile: Int, val level: String, val against: String)
+    /** Can you be ranked on this with your profile? (Some rep standards are men-only.) */
+    fun covers(id: String, p: Profile): Boolean {
+        val s = table[id] ?: return false
+        return if (p.male) s.male != null else s.female != null
+    }
 
-    private fun ageFactor(age: Int?): Double = when {
-        age == null -> 1.0
-        age < 18 -> 0.88
-        age <= 35 -> 1.0
-        age <= 40 -> 0.97
-        age <= 50 -> 0.92
-        age <= 60 -> 0.84
-        age <= 70 -> 0.74
-        else -> 0.64
+    private val PCT = doubleArrayOf(5.0, 20.0, 50.0, 80.0, 95.0)
+
+    /**
+     * Age adjustment: Strength Level's by-age tables (bench press, intermediate), as a share of
+     * the 25–40 peak. Applied to every lift.
+     */
+    private val AGE = listOf(15 to 0.85, 20 to 0.98, 25 to 1.0, 40 to 1.0, 45 to 0.95, 50 to 0.89, 55 to 0.82,
+        60 to 0.75, 65 to 0.67, 70 to 0.61, 75 to 0.55, 80 to 0.49, 85 to 0.44, 90 to 0.39)
+
+    fun ageFactor(age: Int?): Double {
+        if (age == null) return 1.0
+        if (age <= AGE.first().first) return AGE.first().second
+        if (age >= AGE.last().first) return AGE.last().second
+        val i = AGE.indexOfLast { it.first <= age }
+        val (a0, f0) = AGE[i]; val (a1, f1) = AGE[i + 1]
+        return f0 + (f1 - f0) * (age - a0) / (a1 - a0).toDouble()
+    }
+
+    /** The five level values for a body weight: log-log interpolation between rows, extended past the ends. */
+    private fun levelsAt(rows: List<Pair<Double, DoubleArray>>, bw: Double): DoubleArray = DoubleArray(5) { k ->
+        fun v(i: Int) = maxOf(rows[i].second[k], 0.5) // "< 1 rep" cells count as half a rep
+        val i = when {
+            bw <= rows.first().first -> 0
+            bw >= rows.last().first -> rows.size - 2
+            else -> rows.indexOfLast { it.first <= bw }.coerceAtMost(rows.size - 2)
+        }
+        val x0 = ln(rows[i].first); val x1 = ln(rows[i + 1].first)
+        val slope = ((ln(v(i + 1)) - ln(v(i))) / (x1 - x0)).coerceIn(-2.0, 1.5)
+        exp(ln(v(i)) + slope * (ln(bw) - x0))
     }
 
     /**
-     * Where [value] (an estimated 1-rep max in lb, or a rep count for bodyweight moves) puts you.
-     * Null if this exercise has no standard or your body weight isn't set.
+     * Percentile among lifters (0–99.9) for [value] (est. 1-rep max in lb, or reps).
+     * Null if there's no standard for you or your body weight isn't set.
      */
-    fun rank(id: String, value: Double, p: Profile): Rank? {
-        val std = table[id] ?: return null
+    fun percentile(id: String, value: Double, p: Profile): Double? {
+        val s = table[id] ?: return null
         if (value <= 0) return null
+        val rows = (if (p.male) s.male else s.female) ?: return null
+        val bw = p.bodyweight ?: return null
         val f = ageFactor(p.age)
-        val levels = if (std.reps) {
-            val sex = if (p.male) 1.0 else if (id == "Pushups") 0.55 else 0.4
-            std.levels.map { it * sex * f }
-        } else {
-            val bw = p.bodyweight ?: return null
-            val sex = if (p.male) 1.0 else if (std.upper) 0.58 else 0.82
-            std.levels.map { it * (bw / 180.0).pow(0.67) * sex * f }
-        }
-        val pct = when {
-            value <= levels[0] -> (PCT[0] * value / levels[0]).coerceAtLeast(1.0)
-            value >= levels[4] -> (95 + 4 * ((value - levels[4]) / (levels[4] * 0.25)).coerceAtMost(1.0))
+        val lv = levelsAt(rows, bw).map { it * f }
+        return when {
+            value <= lv[0] -> PCT[0] * value / lv[0]
+            value >= lv[4] -> 95 + 4.9 * (1 - exp(-(value - lv[4]) / (lv[4] - lv[3]).coerceAtLeast(1.0)))
             else -> {
-                val i = (0 until 4).first { value < levels[it + 1] }
-                PCT[i] + (PCT[i + 1] - PCT[i]) * (value - levels[i]) / (levels[i + 1] - levels[i])
+                val i = (0 until 4).first { value < lv[it + 1] }
+                PCT[i] + (PCT[i + 1] - PCT[i]) * (value - lv[i]) / (lv[i + 1] - lv[i])
             }
-        }
-        val level = NAMES[(levels.indexOfLast { value >= it }).coerceAtLeast(0)]
-        val who = (if (p.male) "men" else "women") +
-            (p.bodyweight?.let { " around ${Units.weightU(it)}" } ?: "") +
-            (p.age?.let { ", age ${it}" } ?: "")
-        return Rank(pct.toInt().coerceIn(1, 99), level, who)
+        }.coerceIn(0.0, 99.9)
     }
 
-    /** The best rankable number in a set of sets: est. 1RM, or best reps. */
+    /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done }
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
+    }
+
+    fun who(p: Profile) = (if (p.male) "men" else "women") +
+        (p.bodyweight?.let { " around ${Units.weightU(it)}" } ?: "") + (p.age?.let { ", age $it" } ?: "")
+}
+
+/** The 20 ranks: Wood 1 (everyone) … Diamond 3 (top 15%), Olympian (top 10%), Legend (top 5%). */
+enum class Tier(val label: String, val badge: String, val color: Long) {
+    WOOD_1("Wood 1", "wood_1", 0xFFD9B48A), WOOD_2("Wood 2", "wood_2", 0xFFC1925F), WOOD_3("Wood 3", "wood_3", 0xFFA06A3A),
+    BRONZE_1("Bronze 1", "bronze_1", 0xFFF3A774), BRONZE_2("Bronze 2", "bronze_2", 0xFFE0803F), BRONZE_3("Bronze 3", "bronze_3", 0xFFC0601F),
+    SILVER_1("Silver 1", "silver_1", 0xFFDCE3EC), SILVER_2("Silver 2", "silver_2", 0xFFB6C2D1), SILVER_3("Silver 3", "silver_3", 0xFF8E9DB2),
+    GOLD_1("Gold 1", "gold_1", 0xFFFFE27D), GOLD_2("Gold 2", "gold_2", 0xFFF7C743), GOLD_3("Gold 3", "gold_3", 0xFFDDA21A),
+    PLATINUM_1("Platinum 1", "platinum_1", 0xFF97F2EA), PLATINUM_2("Platinum 2", "platinum_2", 0xFF52D8D0), PLATINUM_3("Platinum 3", "platinum_3", 0xFF1FB4AE),
+    DIAMOND_1("Diamond 1", "diamond_1", 0xFF94C8FF), DIAMOND_2("Diamond 2", "diamond_2", 0xFF529DFF), DIAMOND_3("Diamond 3", "diamond_3", 0xFF2371E0),
+    OLYMPIAN("Olympian", "olympian", 0xFFFF6FB5), LEGEND("Legend", "legend", 0xFFA64DFF);
+
+    /** "Top 45%": the share of lifters at this rank or above. */
+    val topPct get() = 100 - ordinal * 5
+
+    companion object {
+        fun of(percentile: Double): Tier = entries[floor(percentile / 5).toInt().coerceIn(0, entries.size - 1)]
+    }
+}
+
+/** "top 47%" for a percentile (stronger than 53% of lifters). */
+fun topLabel(percentile: Double) = "top ${(100 - percentile).toInt().coerceIn(1, 100)}%"
+
+/** Your ranks from your logged workouts. */
+object Ranks {
+    class Ranked(val exercise: Exercise, val value: Double, val percentile: Double) {
+        val tier get() = Tier.of(percentile)
+    }
+
+    /** Each ranked exercise from the last finished session you did it in (skipping it changes nothing). */
+    fun all(workouts: List<Workout>, p: Profile): Map<String, Ranked> {
+        val out = HashMap<String, Ranked>()
+        for (w in workouts.filter { it.end != null }.sortedByDescending { it.start }) {
+            for (id in w.items.map { it.exerciseId }.distinct()) {
+                if (id in out || !Standards.covers(id)) continue
+                val ex = Store.exercise(id) ?: continue
+                val v = Standards.bestValue(id, w.items.filter { it.exerciseId == id }.flatMap { it.sets })
+                if (v <= 0) continue
+                val pct = Standards.percentile(id, v, p) ?: continue
+                out[id] = Ranked(ex, v, pct)
+            }
+        }
+        return out
+    }
+
+    /** Overall: the average percentile of your ranked exercises. */
+    fun overall(ranks: Collection<Double>): Double? = if (ranks.isEmpty()) null else ranks.average()
+
+    /** The main muscles an exercise ranks: its primary group's muscles that work at 75% or more. */
+    fun rankedMuscles(e: Exercise): List<String> =
+        e.muscles.filter { (m, v) -> v >= 0.75f && Muscles.group(m) in e.primary }.keys.toList()
+
+    /** Each main muscle -> your best ranked exercise for it. */
+    fun muscles(ranks: Map<String, Ranked>): Map<String, Ranked> {
+        val out = HashMap<String, Ranked>()
+        for (r in ranks.values) for (m in rankedMuscles(r.exercise)) {
+            if ((out[m]?.percentile ?: -1.0) < r.percentile) out[m] = r
+        }
+        return out
+    }
+
+    /** Each muscle group -> your best ranked exercise where it's the main muscle. */
+    fun groups(ranks: Map<String, Ranked>): Map<String, Ranked> {
+        val out = HashMap<String, Ranked>()
+        for (r in ranks.values) for (g in r.exercise.primary) {
+            if ((out[g]?.percentile ?: -1.0) < r.percentile) out[g] = r
+        }
+        return out
+    }
+
+    // ---- Rank-up celebrations during a workout ----
+
+    class Celebration(val title: String, val subtitle: String, val tier: Tier, val percentile: Double)
+
+    val celebrations = androidx.compose.runtime.mutableStateListOf<Celebration>()
+    private var forWorkout: String? = null
+    private val shownTier = HashMap<String, Int>()
+    private var shownOverall = -1
+
+    /** Call after a set is ticked off: queues a celebration if it raised a rank. */
+    fun onSetDone(w: Workout, exerciseId: String) {
+        if (forWorkout != w.id) { forWorkout = w.id; shownTier.clear(); shownOverall = -1 }
+        val p = Store.profile.value
+        if (!Standards.covers(exerciseId, p)) return
+        val ex = Store.exercise(exerciseId) ?: return
+        val before = all(Store.workouts.value.filter { it.id != w.id }, p)
+        val sets = w.items.filter { it.exerciseId == exerciseId }.flatMap { it.sets }
+        val pct = Standards.percentile(exerciseId, Standards.bestValue(exerciseId, sets), p) ?: return
+        val tier = Tier.of(pct).ordinal
+        val was = maxOf(before[exerciseId]?.tier?.ordinal ?: -1, shownTier[exerciseId] ?: -1)
+        if (tier > was) {
+            shownTier[exerciseId] = tier
+            celebrations += Celebration(ex.name, if (was < 0) "Ranked!" else "Rank up!", Tier.of(pct), pct)
+        }
+        // Overall: this session's numbers only count when they're better than before (drops apply when you finish).
+        val now = HashMap(before.mapValues { it.value.percentile })
+        for (id in w.items.map { it.exerciseId }.distinct()) {
+            if (!Standards.covers(id, p)) continue
+            val s = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
+            val v = Standards.percentile(id, Standards.bestValue(id, s), p) ?: continue
+            now[id] = maxOf(now[id] ?: 0.0, v)
+        }
+        val o = overall(now.values) ?: return
+        val oldO = overall(before.values.map { it.percentile })
+        val oTier = Tier.of(o).ordinal
+        if (oldO == null) { shownOverall = maxOf(shownOverall, oTier); return }
+        val oWas = maxOf(Tier.of(oldO).ordinal, shownOverall)
+        if (oTier > oWas) {
+            shownOverall = oTier
+            celebrations += Celebration("Overall rank", "Your overall rank went up!", Tier.of(o), o)
+        }
     }
 }

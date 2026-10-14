@@ -154,7 +154,7 @@ fun ExerciseHeader(ex: Exercise?, trailing: (@Composable () -> Unit)? = null) {
         Box(Modifier.clickable { ex?.let { Nav.go(Route.ExerciseDetail(it.id)) } }) { ExerciseThumb(ex, 48.dp) }
         HSpacer(14)
         Column(Modifier.weight(1f).clickable { ex?.let { Nav.go(Route.ExerciseDetail(it.id)) } }) {
-            Text(ex?.name ?: "Missing exercise", color = Blue, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            Text(starredName(ex), color = Blue, fontSize = 18.sp, fontWeight = FontWeight.Medium)
             if (ex?.custom == true) { Spacer(4); Chip("Custom") }
         }
         trailing?.invoke()

@@ -39,6 +39,7 @@ fun HomeScreen() {
     Column(Modifier.fillMaxSize()) {
         TopBar("Home", back = false)
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+            item { HomeRankCard() }
             item {
                 val weekAgo = System.currentTimeMillis() - 7L * 24 * 3600 * 1000
                 val week = workouts.filter { it.start >= weekAgo }
@@ -132,7 +133,7 @@ fun WorkoutDetailScreen(id: String) {
                 }) {
                     ExerciseThumb(ex, 44.dp)
                     HSpacer(12)
-                    Text(ex?.name ?: "Missing exercise", color = Blue, fontSize = 17.sp)
+                    Text(starredName(ex), color = Blue, fontSize = 17.sp)
                 }
                 item.sets.forEachIndexed { n, s ->
                     Row(Modifier.fillMaxWidth().background(if (n % 2 == 1) Card else Bg).padding(horizontal = 8.dp, vertical = 8.dp)) {

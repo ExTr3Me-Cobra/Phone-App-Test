@@ -322,6 +322,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                                     done = true,
                                 )
                             }
+                            Store.active.value?.let { Ranks.onSetDone(it, ex.id) }
                             if (rest > 0) Rest.start(context, rest) else Rest.stop(context)
                         } else {
                             Workouts.updateSet(i, n) { it.copy(done = false) }
@@ -415,26 +416,30 @@ fun SummaryScreen(id: String) {
                     lines.forEach { Text("🏅 " + it.second) }
                 }
             }
-            val ranked = w.items.distinctBy { it.exerciseId }.mapNotNull { Store.exercise(it.exerciseId) }.filter { Standards.covers(it.id) }
+            val ranked = w.items.distinctBy { it.exerciseId }.mapNotNull { Store.exercise(it.exerciseId) }.filter { Standards.covers(it.id, profile) }
             if (ranked.isNotEmpty()) {
-                Text("How you compare", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text("Your ranks", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 if (profile.bodyweight == null) {
                     Text("Add your body weight (and age) in Profile to see how you rank against other lifters.", color = Sub)
                     GreyButton("Open Profile") { Nav.home(2) }
                 }
                 ranked.forEach { e ->
                     val sets = w.items.filter { it.exerciseId == e.id }.flatMap { it.sets }
-                    val best = Standards.bestValue(e.id, sets)
-                    val rank = Standards.rank(e.id, best, profile.copy(bodyweight = w.bodyweight ?: profile.bodyweight))
-                    if (rank != null) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
-                        Text(e.name, color = Blue, fontWeight = FontWeight.Medium)
-                        Text("Stronger than about ${rank.percentile}% of ${rank.against} · ${rank.level}")
-                        Box(Modifier.padding(top = 6.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
-                            Box(Modifier.fillMaxWidth(rank.percentile / 100f).fillMaxHeight().background(Blue))
+                    val pct = Standards.percentile(e.id, Standards.bestValue(e.id, sets), profile)
+                    if (pct != null) Row(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RankBadge(Tier.of(pct), 48.dp)
+                        HSpacer(12)
+                        Column {
+                            Text(starredName(e), color = Blue, fontWeight = FontWeight.Medium)
+                            Text(rankText(pct), color = Color(Tier.of(pct).color))
                         }
                     }
                 }
-                Text("Rankings are estimates from published strength standards.", color = Sub, fontSize = 12.sp)
+                Text("Ranks compare you with people who lift, using Strength Level's standards for your body weight, sex and age.",
+                    color = Sub, fontSize = 12.sp)
             }
             BigButton("Done") { Nav.home(0) }
             Spacer(24)
