@@ -216,6 +216,47 @@ fun SettingsScreen() {
             )
 
             Spacer(8)
+            Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("Saves your routines, workouts, your own exercises and profile to a file (pictures aren't included).", color = Sub, fontSize = 13.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.json") }
+                GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/json", "*/*")) }
+            }
+            message?.let { Text(it, color = Blue) }
+            val build = remember {
+                runCatching { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode }.getOrNull()
+            }
+            // Tap the build number 10 times quickly to unlock the developer settings.
+            var taps by remember { mutableStateOf(0) }
+            var lastTap by remember { mutableStateOf(0L) }
+            Text("Loadout · build ${build ?: "?"}", color = Sub, fontSize = 13.sp,
+                modifier = Modifier.padding(top = 16.dp).clickable(remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, null) {
+                    val now = System.currentTimeMillis()
+                    taps = if (now - lastTap < 700) taps + 1 else 1
+                    lastTap = now
+                    if (p.devUnlocked) {
+                        if (taps == 1) android.widget.Toast.makeText(context, "Developer settings are already on", android.widget.Toast.LENGTH_SHORT).show()
+                    } else if (taps >= 10) {
+                        taps = 0
+                        set(p.copy(devUnlocked = true))
+                        android.widget.Toast.makeText(context, "Developer settings unlocked", android.widget.Toast.LENGTH_SHORT).show()
+                    } else if (taps >= 6) {
+                        android.widget.Toast.makeText(context, "${10 - taps} more taps", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                })
+            if (p.devUnlocked) {
+                Spacer(8)
+                Text("Developer settings", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Red)
+                Row(Modifier.fillMaxWidth().clickable { set(p.copy(devAi = !p.devAi)) }, verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("AI picture tools")
+                        Text("OpenAI picture making (per exercise, per routine, every exercise) and picture-pack export/import.",
+                            color = Sub, fontSize = 13.sp)
+                    }
+                    androidx.compose.material3.Switch(p.devAi, { set(p.copy(devAi = it)) })
+                }
+                if (p.devAi) {
+            Spacer(8)
             Text("AI exercise pictures (OpenAI)", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
                 "Paste an API key from platform.openai.com (API keys). Each picture is made once and saved on your phone; " +
@@ -254,18 +295,9 @@ fun SettingsScreen() {
             }
             packMsg?.let { Text(it, color = Blue) }
 
-            Spacer(8)
-            Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("Saves your routines, workouts, your own exercises and profile to a file (pictures aren't included).", color = Sub, fontSize = 13.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.json") }
-                GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/json", "*/*")) }
+                }
+                GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false)) }
             }
-            message?.let { Text(it, color = Blue) }
-            val build = remember {
-                runCatching { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode }.getOrNull()
-            }
-            Text("Loadout · build ${build ?: "?"}", color = Sub, fontSize = 13.sp, modifier = Modifier.padding(top = 16.dp))
             Spacer(30)
         }
     }

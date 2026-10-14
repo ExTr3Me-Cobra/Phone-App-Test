@@ -241,7 +241,7 @@ fun ExerciseDetailScreen(id: String) {
                         if (hasImage) DropdownMenuItem({ Text("Remove picture", color = Red) }, { menu = false; Pictures.remove(e.id) })
                     }
                 }
-                GreyButton(if (busy) "Generating…" else "✨ AI picture", Modifier.weight(1f), Blue) {
+                if (profile.devAi) GreyButton(if (busy) "Generating…" else "✨ AI picture", Modifier.weight(1f), Blue) {
                     if (!busy) askAi = true
                 }
             }

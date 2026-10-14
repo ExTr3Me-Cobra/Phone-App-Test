@@ -92,7 +92,7 @@ fun WorkoutTab() {
                                     menu = false
                                     Store.saveRoutine(r.copy(id = Store.newId(), name = r.name + " (copy)"))
                                 })
-                                DropdownMenuItem({ Text("✨ AI pictures") }, { menu = false; aiFor = r })
+                                if (Store.profile.value.devAi) DropdownMenuItem({ Text("✨ AI pictures") }, { menu = false; aiFor = r })
                                 DropdownMenuItem({ Text("Delete", color = Red) }, { menu = false; deleting = r })
                             }
                         }
@@ -129,8 +129,10 @@ fun RoutineViewScreen(id: String) {
                 Text(r.name.ifBlank { "Routine" }, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp))
                 BigButton("Start Routine", modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { Workouts.start(context, r) }
                 Spacer(8)
-                GreyButton("✨ Make AI pictures for this routine", Modifier.fillMaxWidth().padding(horizontal = 16.dp), Blue) { ai = true }
-                GenPanel()
+                if (Store.profile.collectAsState().value.devAi) {
+                    GreyButton("✨ Make AI pictures for this routine", Modifier.fillMaxWidth().padding(horizontal = 16.dp), Blue) { ai = true }
+                    GenPanel()
+                }
             }
             items(r.items.size) { i ->
                 val item = r.items[i]
