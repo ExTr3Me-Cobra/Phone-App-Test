@@ -14,6 +14,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,24 +30,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Before a Hevy import: pick a Loadout exercise (or a new custom one) for each Hevy exercise with no direct match. */
+/**
+ * Before a Hevy import: pick a Loadout exercise (or a new custom one) for each Hevy exercise with no
+ * direct match, and tick which Hevy workouts should also become routines.
+ */
 @Composable
 fun HevyMatchScreen() {
     val plan = HevyImport.pending ?: run { Nav.back(); return }
     val choices = HevyImport.choices
+    val picks = HevyImport.routinePicks
     var asking by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val haveRoutines = Store.routines.collectAsState().value.map { it.id }.toSet()
 
     Column(Modifier.fillMaxSize()) {
-        TopBar("Match exercises", action = if (busy) null else "Import") {
+        TopBar("Import from Hevy", action = if (busy) null else "Import") {
             busy = true
             scope.launch {
                 done = withContext(Dispatchers.IO) {
                     runCatching {
-                        val n = HevyImport.import(plan.text, choices.toMap())
-                        "Imported $n workout${if (n == 1) "" else "s"} from Hevy (any already here were skipped)."
+                        val n = HevyImport.import(plan.text, choices.toMap(), picks.filterValues { it }.keys)
+                        val r = Store.lastRoutines
+                        "Imported $n workout${if (n == 1) "" else "s"} from Hevy (any already here were skipped)." +
+                            if (r > 0) " Made $r routine${if (r == 1) "" else "s"} – find them on the Workout tab." else ""
                     }.getOrElse { "Import failed: ${it.message}" }
                 }
                 HevyImport.pending = null
@@ -54,32 +62,79 @@ fun HevyMatchScreen() {
             }
         }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)) {
-            item {
-                Text(
-                    "These Hevy exercises have no direct match in Loadout. Tap one to choose which Loadout exercise its sets go to, " +
-                        "or add it as a new custom exercise (no picture or directions until you add them on its page). Your choices are remembered for next time.",
-                    color = Sub, fontSize = 14.sp, modifier = Modifier.padding(bottom = 12.dp),
-                )
-            }
-            items(plan.unmatched, key = { it.hevy }) { u ->
-                val target = choices[u.hevy].orEmpty().takeIf { it.isNotEmpty() }?.let { Store.exercise(it) }
-                Row(
-                    Modifier.padding(vertical = 5.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
-                        .clickable { asking = u.hevy }.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(u.hevy, fontWeight = FontWeight.Medium)
-                        Text("${u.sets} set${if (u.sets == 1) "" else "s"} from Hevy", color = Sub, fontSize = 12.sp)
-                        Text(
-                            "→ " + (target?.name ?: "New custom exercise \"${u.hevy}\""),
-                            color = if (target != null) Blue else Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp),
-                        )
+            if (plan.unmatched.isNotEmpty()) {
+                item {
+                    Text("Match exercises", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "These Hevy exercises have no direct match in Loadout. Tap one to choose which Loadout exercise its sets go to, " +
+                            "or add it as a new custom exercise (no picture or directions until you add them on its page). Your choices are remembered for next time.",
+                        color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                    )
+                }
+                items(plan.unmatched, key = { "u_" + it.hevy }) { u ->
+                    val target = choices[u.hevy].orEmpty().takeIf { it.isNotEmpty() }?.let { Store.exercise(it) }
+                    Row(
+                        Modifier.padding(vertical = 5.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
+                            .clickable { asking = u.hevy }.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(u.hevy, fontWeight = FontWeight.Medium)
+                            Text("${u.sets} set${if (u.sets == 1) "" else "s"} from Hevy", color = Sub, fontSize = 12.sp)
+                            Text(
+                                "→ " + (target?.name ?: "New custom exercise \"${u.hevy}\""),
+                                color = if (target != null) Blue else Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp),
+                            )
+                        }
+                        if (target != null) ExerciseThumb(target, 44.dp)
+                        Text("›", color = Sub, fontSize = 24.sp, modifier = Modifier.padding(start = 8.dp))
                     }
-                    if (target != null) ExerciseThumb(target, 44.dp)
-                    Text("›", color = Sub, fontSize = 24.sp, modifier = Modifier.padding(start = 8.dp))
+                }
+                item { Spacer(16) }
+            } else item {
+                Text("✓  Every exercise in this file matches a Loadout exercise.", color = Sub, fontSize = 14.sp,
+                    modifier = Modifier.padding(bottom = 16.dp))
+            }
+
+            if (plan.routines.isNotEmpty()) {
+                item {
+                    Text("Create routines (optional)", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Hevy's export doesn't include routines, so Loadout can rebuild them from your workout names. Each ticked one becomes a " +
+                            "routine with the exercises, sets, reps and weights from the most recent workout with that name. " +
+                            "Names you did at least twice are ticked to start with.",
+                        color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                    )
+                    Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp)) {
+                        Text("Tick all", color = Blue, fontSize = 14.sp, modifier = Modifier.clickable {
+                            plan.routines.forEach { if (HevyImport.routineId(it.name) !in haveRoutines) picks[it.name] = true }
+                        }.padding(vertical = 6.dp))
+                        Text("Untick all", color = Blue, fontSize = 14.sp, modifier = Modifier.clickable {
+                            plan.routines.forEach { picks[it.name] = false }
+                        }.padding(vertical = 6.dp))
+                    }
+                }
+                items(plan.routines, key = { "r_" + it.name }) { r ->
+                    val exists = HevyImport.routineId(r.name) in haveRoutines
+                    val on = picks[r.name] == true && !exists
+                    Row(
+                        Modifier.padding(vertical = 5.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
+                            .clickable(enabled = !exists) { picks[r.name] = !on }.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(r.name, fontWeight = FontWeight.Medium)
+                            Text(
+                                if (exists) "Already in your routines" else
+                                    "Done ${r.times} time${if (r.times == 1) "" else "s"} · ${r.exercises} exercise${if (r.exercises == 1) "" else "s"} · last ${r.last.take(10)}",
+                                color = Sub, fontSize = 12.sp,
+                            )
+                        }
+                        androidx.compose.material3.Checkbox(on, { picks[r.name] = it }, enabled = !exists)
+                    }
                 }
             }
+            item { Spacer(40) }
         }
     }
     asking?.let { hevy ->

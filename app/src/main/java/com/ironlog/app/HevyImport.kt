@@ -73,13 +73,19 @@ object HevyImport {
     /** One Hevy exercise that needs a choice. [suggested]: a Loadout exercise id, or "" for a custom one. */
     class Unmatched(val hevy: String, val sets: Int, val suggested: String)
 
-    class Plan(val text: String, val unmatched: List<Unmatched>)
+    /** A workout name from Hevy that can become a routine: done [times] times, last on [last] with [exercises] exercises. */
+    class RoutineOption(val name: String, val times: Int, val last: String, val exercises: Int)
+
+    class Plan(val text: String, val unmatched: List<Unmatched>, val routines: List<RoutineOption>)
 
     /** The file waiting on the matching screen. */
     var pending: Plan? = null
 
     /** Choices on the matching screen (kept here so they survive opening the exercise picker). */
     val choices = androidx.compose.runtime.mutableStateMapOf<String, String>()
+
+    /** Workout names ticked to become routines. */
+    val routinePicks = androidx.compose.runtime.mutableStateMapOf<String, Boolean>()
 
     /** Reads the file and lists the exercises with no direct match. */
     fun prepare(text: String): Plan {
@@ -95,11 +101,32 @@ object HevyImport {
         }
         choices.clear()
         unmatched.forEach { choices[it.hevy] = it.suggested }
-        return Plan(text, unmatched)
+
+        // Workout names -> possible routines (built from the most recent session with that name).
+        val cTitle = rows[0].indexOf("title"); val cStart = rows[0].indexOf("start_time")
+        val routines = if (cTitle < 0 || cStart < 0) emptyList() else {
+            val sessions = rows.drop(1).filter { it.size > maxOf(cTitle, cStart, cEx) && it[cEx].isNotBlank() }
+                .groupBy { it[cTitle].ifBlank { "Workout" } }
+            sessions.map { (name, rs) ->
+                val byStart = rs.groupBy { localTime(it[cStart]) ?: "" }
+                val last = byStart.keys.max()
+                RoutineOption(name, byStart.size, last, byStart.getValue(last).map { it[cEx] }.distinct().size)
+            }.sortedWith(compareByDescending<RoutineOption> { it.times }.thenByDescending { it.last })
+        }
+        routinePicks.clear()
+        val have = Store.routines.value.map { it.id }.toSet()
+        routines.forEach { routinePicks[it.name] = it.times >= 2 && routineId(it.name) !in have }
+        return Plan(text, unmatched, routines)
     }
 
     /** Imports with your [choices] (Hevy name -> exercise id, "" = custom). Returns how many workouts were added. */
-    fun import(text: String, choices: Map<String, String> = emptyMap()): Int {
+    fun routineId(name: String) = "hevy_routine_" + name.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
+
+    /**
+     * Imports with your [choices] (Hevy name -> exercise id, "" = custom) and makes a routine for each
+     * workout name in [routines]. Returns how many workouts were added.
+     */
+    fun import(text: String, choices: Map<String, String> = emptyMap(), routines: Set<String> = emptySet()): Int {
         if (choices.isNotEmpty()) saveChoices(choices)
         val rows = parseCsv(text.trimStart('﻿'))
         if (rows.size < 2) error("Empty file")
@@ -131,7 +158,8 @@ object HevyImport {
             custom[id] = Exercise(
                 id, hevy.replace("(band)", "(Band)"), c?.second ?: "Other", type,
                 base?.primary ?: emptyList(), base?.secondary ?: emptyList(), base?.category ?: "strength",
-                emptyList(), custom = true, // no directions or picture until you add them secondaryWeights = base?.secondaryWeights ?: emptyList(),
+                emptyList(), custom = true, // no directions or picture until you add them
+                secondaryWeights = base?.secondaryWeights ?: emptyList(),
                 detail = base?.detail ?: emptyMap(),
             )
             return id
@@ -158,7 +186,17 @@ object HevyImport {
             (num(cD) ?: num(cKm)?.let { it / 1.609344 })?.let { set.put("d", it) }
             w.items.last().getJSONArray("sets").put(set)
         }
+        // Routines: the exercises and sets of the most recent session with that name.
+        val made = routines.mapNotNull { name ->
+            val latest = workouts.values.filter { it.name == name }.maxByOrNull { it.start } ?: return@mapNotNull null
+            JSONObject().put("id", routineId(name)).put("name", name).put("items", JSONArray(latest.items.map { i ->
+                val sets = i.getJSONArray("sets")
+                JSONObject().put("ex", i.getString("ex")).put("rest", 90).put("note", i.optString("note"))
+                    .put("sets", JSONArray(List(sets.length()) { k -> JSONObject(sets.getJSONObject(k).toString()).apply { remove("x") } }))
+            }))
+        }
         val json = JSONObject().put("app", "Loadout").put("merge", true)
+            .put("routines", JSONArray(made))
             .put("custom", JSONArray(custom.values.map { it.toJson() }))
             .put("workouts", JSONArray(workouts.values.map { w ->
                 JSONObject().put("id", w.id).put("name", w.name).put("start", w.start).apply { w.end?.let { put("end", it) } }

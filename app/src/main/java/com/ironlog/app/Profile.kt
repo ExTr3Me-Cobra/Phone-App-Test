@@ -125,7 +125,7 @@ fun SettingsScreen() {
                         val n = context.contentResolver.openInputStream(uri)!!.use { Store.readBackup(it) }
                         if (n == -1) {
                             withContext(Dispatchers.Main) { Nav.go(Route.HevyMatch) }
-                            return@runCatching "Choose matches for the exercises from Hevy…"
+                            return@runCatching "Choose what to import from Hevy…"
                         }
                         Store.lastImported?.let {
                             "Imported $it workout${if (it == 1) "" else "s"}" + (if (Store.lastHevy) " from Hevy" else "") + " (any already here were skipped)."
@@ -246,11 +246,17 @@ fun SettingsScreen() {
 
             Spacer(8)
             Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back. Restore / Import also takes a workout export (.csv) from Hevy and adds that history.", color = Sub, fontSize = 13.sp)
+            Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back.", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.zip") }
                 GreyButton("Restore / Import", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "text/csv", "text/comma-separated-values", "*/*")) }
             }
+            Spacer(4)
+            Text("Import from the Hevy app", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Restore / Import also takes your workout history from the Hevy app. In Hevy: Profile → Settings → Export & Import Data → " +
+                "Export Workouts, then pick that .csv file here. You'll match any exercises Loadout doesn't recognise and can turn your " +
+                "Hevy workouts into Loadout routines.", color = Sub, fontSize = 13.sp)
+            GreyButton("Import Hevy App data (.csv)") { import.launch(arrayOf("text/csv", "text/comma-separated-values", "text/plain", "*/*")) }
             message?.let { Text(it, color = Blue) }
             val build = remember {
                 runCatching { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode }.getOrNull()

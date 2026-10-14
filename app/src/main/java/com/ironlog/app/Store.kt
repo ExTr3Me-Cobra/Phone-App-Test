@@ -212,9 +212,8 @@ object Store {
             if (HevyImport.looksLikeHevy(text)) {
                 lastHevy = true
                 val plan = HevyImport.prepare(text)
-                // Exercises without a direct match: let the matching screen ask first.
-                if (plan.unmatched.isNotEmpty()) { HevyImport.pending = plan; lastImported = null; return -1 }
-                HevyImport.import(text); return 0
+                // The Hevy import screen asks about unmatched exercises and which routines to make.
+                HevyImport.pending = plan; lastImported = null; return -1
             }
             restore(text); return 0
         }
@@ -248,9 +247,12 @@ object Store {
     var lastImported: Int? = null
         private set
 
+    /** Routines added by the last import. */
+    var lastRoutines = 0
+
     fun restore(text: String) {
         val o = JSONObject(text)
-        lastImported = null
+        lastImported = null; lastRoutines = 0
         // An import (e.g. history from another app) adds workouts and exercises without replacing anything.
         if (o.optBoolean("merge")) {
             o.optJSONArray("custom")?.objs()?.forEach { c ->
@@ -260,6 +262,10 @@ object Store {
             val add = o.optJSONArray("workouts")?.objs()?.map(Json::workout)?.filter { it.id !in have } ?: emptyList()
             setWorkouts((_workouts.value + add).sortedByDescending { w -> w.start })
             lastImported = add.size
+            val haveR = _routines.value.map { it.id }.toSet()
+            val addR = o.optJSONArray("routines")?.objs()?.map(Json::routine)?.filter { it.id !in haveR } ?: emptyList()
+            if (addR.isNotEmpty()) setRoutines(_routines.value + addR)
+            lastRoutines = addR.size
             return
         }
         val key = _profile.value.apiKey
