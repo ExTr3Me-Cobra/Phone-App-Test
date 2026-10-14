@@ -183,6 +183,26 @@ fun SettingsScreen() {
             Text("Plays at alarm volume, so you hear it even when your phone is on vibrate.", color = Sub, fontSize = 12.sp)
 
             Spacer(8)
+            Text("Ranks", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            listOf(
+                Triple("off", "Off", "No ranks, badges, stars or rank-up pop-ups anywhere."),
+                Triple("accurate", "Accurate only", "Only exercises where the published data closely fits your exact body weight, age and sex are ranked."),
+                Triple("all", "All on", "Every ★ exercise is ranked. Where the data doesn't fit you exactly, it's an estimate – tap \"Who you're compared with\" on the exercise to see why."),
+            ).forEach { (key, label, desc) ->
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.rankMode == key) Blue.copy(alpha = 0.15f) else Card)
+                        .clickable { set(p.copy(rankMode = key)) }.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    androidx.compose.material3.RadioButton(p.rankMode == key, { set(p.copy(rankMode = key)) })
+                    Column(Modifier.weight(1f)) {
+                        Text(label, fontWeight = FontWeight.Medium)
+                        Text(desc, color = Sub, fontSize = 13.sp)
+                    }
+                }
+            }
+
+            Spacer(8)
             Text("AI exercise pictures (OpenAI)", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
                 "Paste an API key from platform.openai.com (API keys). Each picture is made once and saved on your phone; " +

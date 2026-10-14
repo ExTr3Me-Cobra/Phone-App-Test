@@ -120,6 +120,8 @@ data class Profile(
     /** Rest-over sound: "" = phone's default alarm sound, "none" = silent, else a sound's address. */
     val restSound: String = "",
     val restVibrate: Boolean = true,
+    /** Ranks: "off", "accurate" (only where your biometrics are well covered by the data) or "all". */
+    val rankMode: String = "accurate",
 )
 
 // ---------- JSON ----------
@@ -161,13 +163,58 @@ object Json {
     fun profile(p: Profile) = JSONObject().putOpt2("bw", p.bodyweight).putOpt2("h", p.heightIn).putOpt2("age", p.age)
         .put("male", p.male).put("kg", p.kg).put("key", p.apiKey).put("model", p.imageModel)
         .put("quality", p.imageQuality).put("rest", p.defaultRest)
-        .put("restSound", p.restSound).put("restVibrate", p.restVibrate)
+        .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
     fun profile(o: JSONObject) = Profile(
         o.optDoubleOrNull("bw"), o.optIntOrNull("h"), o.optIntOrNull("age"), o.optBoolean("male", true),
         o.optBoolean("kg"), o.optString("key"), o.optString("model", "gpt-image-1").ifBlank { "gpt-image-1" },
         o.optString("quality", "medium"), o.optInt("rest", 90),
         o.optString("restSound", ""), o.optBoolean("restVibrate", true),
+        o.optString("rankMode", "accurate").ifBlank { "accurate" },
     )
 
     fun JSONArray.objs(): List<JSONObject> = List(length()) { getJSONObject(it) }
+}
+
+/** What to put in the weight box for this exercise: one dumbbell / one arm, or the total. */
+fun Exercise.weightHint(): String {
+    val n = name.lowercase()
+    val oneSide = Regex("one[- ]arm|single[- ]arm|one[- ]hand|single[- ]hand|alternat|concentration|one[- ]leg|single[- ]leg").containsMatchIn(n)
+    val held2Hands = Regex("pullover|goblet|halo|pirate ship|plie dumbbell squat|seated triceps press|single dumbbell|standing dumbbell triceps extension|" +
+        "two-arm dumbbell triceps extension|kettlebell overhead triceps|vertical swing|kettlebell swing|plate raise|plate twist|plate curl").containsMatchIn(n)
+    return when {
+        type == ExType.BODYWEIGHT -> "No weight to log – reps only (you're lifting your body weight)."
+        type == ExType.TIMED -> "No weight to log – just the time."
+        type == ExType.CARDIO -> "No weight to log – distance and time."
+        n.startsWith("weighted") && (n.contains("pull") || n.contains("dip") || n.contains("chin")) ->
+            "Log only the extra weight you add (belt, vest or dumbbell) – not your body weight."
+        equipment == "Barbell" || equipment == "EZ Bar" -> when {
+            n.contains("smith") -> "Log the total plates on both sides (Smith bars vary; add the bar's weight if it's marked)."
+            oneSide -> "Log the total on the bar you're holding (bar + plates), even though you work one side at a time."
+            else -> "Log the total weight: the bar plus all plates on both sides (an Olympic bar is 45 lb / 20 kg; EZ bars are often 15–25 lb)."
+        }
+        equipment == "Dumbbell" -> when {
+            held2Hands -> "Log the weight of the one dumbbell you hold with both hands."
+            oneSide -> "Log the weight of the one dumbbell in your working hand."
+            else -> "Log the weight of ONE dumbbell, not both added together (two 30 lb dumbbells → 30)."
+        }
+        equipment == "Kettlebell" -> when {
+            held2Hands -> "Log the weight of the one kettlebell you hold with both hands."
+            Regex("two|double").containsMatchIn(n) -> "Log the weight of ONE kettlebell, not both added together."
+            else -> "Log the weight of the kettlebell."
+        }
+        equipment == "Cable" -> when {
+            oneSide -> "Log the stack weight on the one handle you're using (one arm)."
+            Regex("crossover|cable fl|cross over|iron cross").containsMatchIn(n) -> "Log the weight on ONE stack (each side's stack), not both added together."
+            else -> "Log the stack weight (both hands on one handle or bar – the number the pin is in)."
+        }
+        equipment == "Machine" -> when {
+            oneSide -> "Log the weight for the one arm or leg you're working."
+            Regex("leverage|leg press|hack squat|t-bar|sled|plate").containsMatchIn(n) ->
+                "Log the total plates loaded on both sides (not counting the machine's own weight), both arms together."
+            else -> "Log the stack weight (both arms together – the number the pin is in)."
+        }
+        equipment == "Bands" -> "Log the band's resistance if it's marked, otherwise leave the weight blank."
+        equipment == "Medicine Ball" || equipment == "Exercise Ball" -> "Log the weight of the ball."
+        else -> "Log the total weight you move (both arms together)."
+    }
 }

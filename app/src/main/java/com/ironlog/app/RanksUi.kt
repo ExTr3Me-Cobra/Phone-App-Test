@@ -80,7 +80,7 @@ private val StarColor = Color(0xFFC9A94E)
 /** An exercise name, with a small ★ when it counts toward your rank. */
 fun starredName(e: Exercise?, missing: String = "Missing exercise"): AnnotatedString = buildAnnotatedString {
     append(e?.name ?: missing)
-    if (e != null && Standards.covers(e.id)) withStyle(SpanStyle(color = StarColor, fontSize = 0.7.em)) { append("  ★") }
+    if (e != null && Standards.starred(e.id, Store.profile.value)) withStyle(SpanStyle(color = StarColor, fontSize = 0.7.em)) { append("  ★") }
 }
 
 fun rankText(pct: Double) = "${Tier.of(pct).label} (${topLabel(pct)})"
@@ -92,6 +92,7 @@ fun HomeRankCard() {
     val workouts by Store.workouts.collectAsState()
     val profile by Store.profile.collectAsState()
     val exercises by Store.exercises.collectAsState()
+    if (Standards.mode(profile) == Standards.Mode.OFF) return
     val ranks = remember(workouts, profile, exercises) { Ranks.all(workouts, profile) }
     val overall = Ranks.overall(ranks.values.map { it.percentile })
     var open by remember { mutableStateOf(false) }
@@ -99,8 +100,13 @@ fun HomeRankCard() {
         if (overall == null) {
             Text("Your rank", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
-                if (profile.bodyweight == null) "Add your body weight (and age) in Profile, then log an exercise marked ★ to get ranked against other lifters."
-                else "Log an exercise marked ★ to get ranked against other lifters your size, age and sex.",
+                when {
+                    profile.bodyweight == null -> "Add your body weight (and age) in Profile, then log an exercise marked ★ to get ranked against other lifters."
+                    Standards.mode(profile) == Standards.Mode.ACCURATE && StandardsData.all.none { Standards.covers(it.id, profile) } ->
+                        "The published data doesn't cover your exact body weight/age closely enough for Accurate-only ranks. " +
+                            "Switch Ranks to \"All on\" in Profile → Settings to rank anyway."
+                    else -> "Log an exercise marked ★ to get ranked against other lifters your size, age and sex."
+                },
                 color = Sub, fontSize = 14.sp,
             )
             if (profile.bodyweight == null) { Spacer(8); GreyButton("Open Profile") { Nav.home(2) } }
@@ -135,7 +141,8 @@ fun HomeRankCard() {
                     HSpacer(8)
                     Column(Modifier.weight(1f)) {
                         Text(titleCase(g), fontSize = 15.sp)
-                        Text(r.exercise.name, color = Sub, fontSize = 12.sp)
+                        val est = Standards.fit(r.exercise.id, profile)?.exact == false
+                        Text(r.exercise.name + if (est) "  (estimate)" else "", color = Sub, fontSize = 12.sp)
                     }
                     Text(rankText(r.percentile), fontSize = 14.sp)
                 }
@@ -160,13 +167,22 @@ fun HomeRankCard() {
 
 @Composable
 fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
-    val r = remember(workouts, profile, e.id) { Ranks.all(workouts, profile)[e.id] }
+    val mode = Standards.mode(profile)
+    if (mode == Standards.Mode.OFF) return
     val info = Standards.info(e.id) ?: return
+    val fit = Standards.fit(e.id, profile)
+    val r = remember(workouts, profile, e.id) { Ranks.all(workouts, profile)[e.id] }
+    var details by remember { mutableStateOf(false) }
     Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
         Text("Your rank ★", fontWeight = FontWeight.Bold)
         when {
-            !Standards.covers(e.id, profile) -> Text("Ranks for this exercise are only published for men so far.", color = Sub)
-            profile.bodyweight == null -> Text("Add your body weight in Profile to see where you rank.", color = Sub)
+            profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Profile to see where you rank.", color = Sub)
+            mode == Standards.Mode.ACCURATE && !fit.exact -> {
+                Text("Not ranked in Accurate-only mode:", color = Sub)
+                fit.problems.forEach { Text("• $it", color = Sub, fontSize = 13.sp) }
+                Text("Switch Ranks to \"All on\" in Profile → Settings to rank it anyway as an estimate.", color = Sub, fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 4.dp))
+            }
             r == null -> Text("Log this exercise to get your rank.", color = Sub)
             else -> {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -174,7 +190,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                     HSpacer(12)
                     Column {
                         Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
-                        Text("(${topLabel(r.percentile)})")
+                        Text("(${topLabel(r.percentile)})" + if (!fit.exact) "  · estimate" else "")
                     }
                 }
                 Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
@@ -188,9 +204,16 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                 }
             }
         }
-        if (info.perDumbbell) Text("Log the weight of one dumbbell.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
-        Text("Standards: Strength Level \"${info.lift}\" (lifts logged by its users), adjusted for body weight, sex and age." +
-            (info.note?.let { " $it" } ?: ""), color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+        if (fit != null) {
+            Text(if (details) "Who you're compared with ▴" else "Who you're compared with ▾", color = Blue, fontSize = 13.sp,
+                modifier = Modifier.padding(top = 8.dp).clickable { details = !details })
+            if (details) {
+                Text(fit.compared, color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                if (!fit.exact && mode == Standards.Mode.ALL) fit.problems.forEach {
+                    Text("• $it", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp))
+                }
+            }
+        }
     }
 }
 

@@ -279,6 +279,14 @@ fun ExerciseDetailScreen(id: String) {
             Text(starredName(e), fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
             Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
             Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            Row(Modifier.padding(16.dp, 4.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
+                Text("⚖", fontSize = 18.sp)
+                HSpacer(10)
+                Column {
+                    Text("What weight to log", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text(e.weightHint(), color = Sub, fontSize = 14.sp)
+                }
+            }
             MusclesCard(e)
 
             // Ranking

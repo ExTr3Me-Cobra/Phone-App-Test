@@ -17,11 +17,61 @@ object Standards {
     fun isReps(id: String) = table[id]?.reps == true
     fun info(id: String) = table[id]
 
-    /** Can you be ranked on this with your profile? (Some rep standards are men-only.) */
-    fun covers(id: String, p: Profile): Boolean {
-        val s = table[id] ?: return false
-        return if (p.male) s.male != null else s.female != null
+    /** How well the published data matches you for one exercise. */
+    class Fit(val rows: List<Pair<Double, DoubleArray>>, val estimatedFromMen: Boolean, val problems: List<String>, val compared: String) {
+        val exact get() = problems.isEmpty()
     }
+
+    /** Women's levels as a share of men's (at 140 vs 180 lb), averaged over push-ups and dips: used for women's pull-ups/chin-ups. */
+    private val WOMEN_REPS = doubleArrayOf(0.3, 0.23, 0.46, 0.55, 0.62)
+
+    /** The rows to use for you, and anything that makes your percentile less exact. Null without a standard or body weight. */
+    fun fit(id: String, p: Profile): Fit? {
+        val s = table[id] ?: return null
+        val bw = p.bodyweight ?: return null
+        val own = if (p.male) s.male else s.female
+        val rows = own ?: s.male?.map { (w, lv) -> w * 140 / 180 to DoubleArray(5) { lv[it] * WOMEN_REPS[it] } } ?: return null
+        val problems = mutableListOf<String>()
+        val lo = rows.first().first; val hi = rows.last().first
+        if (bw < lo || bw > hi) problems += "Your body weight (${Units.weightU(bw)}) is outside the published rows " +
+            "(${Units.weightU(lo)}–${Units.weightU(hi)}), so the standard is stretched beyond the data."
+        when {
+            p.age == null -> problems += "Your age isn't set, so no age adjustment is made."
+            p.age < 25 || p.age > 40 -> problems += "The adjustment for age ${p.age} is estimated: Strength Level's age data is from the bench press and is applied to every lift."
+        }
+        if (own == null) problems += "No published data for women on this exercise: estimated from men's data, scaled by the women-to-men ratio on push-ups and dips."
+        val sex = if (p.male) "men" else "women"
+        val near = rows.map { it.first }.let { ws ->
+            val below = ws.lastOrNull { it <= bw }; val above = ws.firstOrNull { it >= bw }
+            when {
+                below == null || above == null -> "nearest row ${Units.weightU(if (below == null) ws.first() else ws.last())}, extended"
+                below == above -> "the ${Units.weightU(below)} row"
+                else -> "blended from the ${Units.weightU(below)} and ${Units.weightU(above)} rows"
+            }
+        }
+        val age = when {
+            p.age == null -> "age not set (no adjustment)"
+            p.age in 25..40 -> "age ${p.age} (no adjustment needed)"
+            else -> "age ${p.age} (standards × ${"%.2f".format(ageFactor(p.age))})"
+        }
+        val compared = "Compared with $sex who lift, at your body weight of ${Units.weightU(bw)} ($near), $age. " +
+            "Source: Strength Level \"${s.lift}\"" + (if (own == null) ", men's table scaled for women." else ".") + (s.note?.let { " $it" } ?: "")
+        return Fit(rows, own == null, problems, compared)
+    }
+
+    enum class Mode { OFF, ACCURATE, ALL }
+    fun mode(p: Profile) = when (p.rankMode) { "off" -> Mode.OFF; "all" -> Mode.ALL; else -> Mode.ACCURATE }
+
+    /** Does this exercise get a rank for you in your current mode? */
+    fun covers(id: String, p: Profile): Boolean {
+        val m = mode(p)
+        if (m == Mode.OFF) return false
+        val f = fit(id, p) ?: return false
+        return m == Mode.ALL || f.exact
+    }
+
+    /** Show the ★? (Before your body weight is set, every rankable exercise shows it.) */
+    fun starred(id: String, p: Profile) = mode(p) != Mode.OFF && covers(id) && (p.bodyweight == null || covers(id, p))
 
     private val PCT = doubleArrayOf(5.0, 20.0, 50.0, 80.0, 95.0)
 
@@ -59,9 +109,8 @@ object Standards {
      * Null if there's no standard for you or your body weight isn't set.
      */
     fun percentile(id: String, value: Double, p: Profile): Double? {
-        val s = table[id] ?: return null
         if (value <= 0) return null
-        val rows = (if (p.male) s.male else s.female) ?: return null
+        val rows = fit(id, p)?.rows ?: return null
         val bw = p.bodyweight ?: return null
         val f = ageFactor(p.age)
         val lv = levelsAt(rows, bw).map { it * f }
@@ -118,7 +167,7 @@ object Ranks {
         val out = HashMap<String, Ranked>()
         for (w in workouts.filter { it.end != null }.sortedByDescending { it.start }) {
             for (id in w.items.map { it.exerciseId }.distinct()) {
-                if (id in out || !Standards.covers(id)) continue
+                if (id in out || !Standards.covers(id, p)) continue
                 val ex = Store.exercise(id) ?: continue
                 val v = Standards.bestValue(id, w.items.filter { it.exerciseId == id }.flatMap { it.sets })
                 if (v <= 0) continue
