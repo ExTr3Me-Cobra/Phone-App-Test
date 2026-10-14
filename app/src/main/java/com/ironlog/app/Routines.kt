@@ -183,7 +183,8 @@ private fun PlanRowView(t: ExType, n: Int, s: PlanSet) {
     ) {
         SetLabel(n, s.failure, Modifier.weight(cols[0].second))
         val values = when (t) {
-            ExType.WEIGHT, ExType.BODYWEIGHT -> listOf(Units.weight(s.weight).ifEmpty { "-" }, s.reps?.toString() ?: if (s.failure) "max" else "-")
+            ExType.WEIGHT -> listOf(Units.weight(s.weight).ifEmpty { "-" }, s.reps?.toString() ?: if (s.failure) "max" else "-")
+            ExType.BODYWEIGHT -> listOf(s.reps?.toString() ?: if (s.failure) "max" else "-")
             ExType.TIMED -> listOf(Units.time(s.seconds).ifEmpty { "-" })
             ExType.CARDIO -> listOf(Units.distance(s.distance).ifEmpty { "-" }, Units.time(s.seconds).ifEmpty { "-" })
         }
@@ -268,7 +269,10 @@ fun RoutineEditScreen(id: String?) {
                                 updateItem(i) { it.copy(sets = it.sets.toMutableList().also { l -> l[n] = change(l[n]) }) }
                             val k = "${draft.id}:$i:$n:${item.exerciseId}:${item.sets.size}"
                             when (ex.type) {
-                                ExType.WEIGHT, ExType.BODYWEIGHT -> {
+                                ExType.BODYWEIGHT -> NumField(s.reps?.toString() ?: "", if (s.failure) "max" else "-", "$k:r", Modifier.weight(cols[1].second), KeyboardType.Number) { v ->
+                                    setAt { it.copy(reps = v.toIntOrNull(), weight = null) }
+                                }
+                                ExType.WEIGHT -> {
                                     NumField(Units.weight(s.weight), "-", "$k:w", Modifier.weight(cols[1].second)) { v ->
                                         setAt { it.copy(weight = v.toDoubleOrNull()?.let(Units::fromShown)) }
                                     }

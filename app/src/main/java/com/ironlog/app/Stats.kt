@@ -26,7 +26,7 @@ object Stats {
 
     fun metricsFor(t: ExType): List<Metric> = when (t) {
         ExType.WEIGHT -> listOf(Metric.E1RM, Metric.MAX_WEIGHT, Metric.VOLUME, Metric.BEST_REPS)
-        ExType.BODYWEIGHT -> listOf(Metric.BEST_REPS, Metric.TOTAL_REPS, Metric.MAX_WEIGHT)
+        ExType.BODYWEIGHT -> listOf(Metric.BEST_REPS, Metric.TOTAL_REPS)
         ExType.TIMED -> listOf(Metric.TIME)
         ExType.CARDIO -> listOf(Metric.DISTANCE, Metric.TIME)
     }
@@ -103,7 +103,7 @@ object Stats {
         return load.mapValues { it.value / max }
     }
 
-    fun volume(w: Workout): Double = w.items.sumOf { i ->
+    fun volume(w: Workout): Double = w.items.filter { Store.exercise(it.exerciseId)?.type != ExType.BODYWEIGHT }.sumOf { i ->
         i.sets.filter { it.done }.sumOf { (it.weight ?: 0.0) * (it.reps ?: 0) }
     }
 }
@@ -146,7 +146,7 @@ object Units {
 
     fun set(t: ExType, s: DoneSet): String = when (t) {
         ExType.WEIGHT -> "${weight(s.weight ?: 0.0)}$w x ${s.reps ?: 0}"
-        ExType.BODYWEIGHT -> (if ((s.weight ?: 0.0) > 0) "+${weight(s.weight)}$w x " else "") + "${s.reps ?: 0} reps"
+        ExType.BODYWEIGHT -> "${s.reps ?: 0} reps"
         ExType.TIMED -> time(s.seconds ?: 0)
         ExType.CARDIO -> "${distance(s.distance ?: 0.0)} $dist · ${time(s.seconds ?: 0)}"
     }

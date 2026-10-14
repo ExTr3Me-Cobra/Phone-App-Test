@@ -58,3 +58,19 @@ RENAME = {
  "Body-Up": "Forearm Plank to Push-Up (Body-Up)",
  "Cocoons": "Cocoons (Lying Tuck Crunch)",
 }
+
+# How each exercise is logged, where the source data guessed wrong. Bodyweight = reps only (no weight box).
+REPS_ONLY = {
+    # Pull-ups, chin-ups, dips, rows and push-ups on bars / rings / straps / a ball
+    'Band Assisted Pull-Up', 'Bodyweight Mid Row', 'Bodyweight Walking Lunge', 'Decline Push-Up', 'Dips - Chest Version',
+    'Floor Glute-Ham Raise', 'Gironda Sternum Chins', 'Hyperextensions (Back Extensions)', 'Inverted Row',
+    'Inverted Row with Straps', 'Kipping Muscle Up', 'Knee/Hip Raise On Parallel Bars', 'London Bridges', 'Mixed Grip Chin',
+    'Muscle Up', 'One Arm Chin-Up', 'Parallel Bar Dip', 'Platform Hamstring Slides', 'Prone Manual Hamstring', 'Ring Dips',
+    'Rocky Pull-Ups/Pulldowns', 'Rope Climb', 'Scapular Pull-Up', 'Side To Side Chins', 'Single-Leg High Box Squat',
+    'Suspended Fallout', 'Suspended Push-Up', 'Suspended Reverse Crunch', 'Suspended Row', 'Suspended Split Squat',
+    'Ball Leg Curl', 'Exercise Ball Crunch', 'Exercise Ball Pull-In', 'Physioball Hip Bridge', 'Push-Ups With Feet On An Exercise Ball',
+}
+# Done for time, not reps.
+TIMED_ONLY = {'Balance Board', 'Battling Ropes'}
+# Weighted versions of bodyweight moves: the weight box is the weight you add.
+WEIGHTED = {'Weighted Pull Ups', 'Weighted Bench Dip'}

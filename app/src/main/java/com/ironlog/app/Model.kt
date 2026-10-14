@@ -6,7 +6,7 @@ import org.json.JSONObject
 /** How an exercise is logged. */
 enum class ExType(val label: String) {
     WEIGHT("Weight & reps"),
-    BODYWEIGHT("Bodyweight reps"),
+    BODYWEIGHT("Bodyweight (reps only)"),
     TIMED("Timed hold"),
     CARDIO("Cardio (distance & time)"),
 }

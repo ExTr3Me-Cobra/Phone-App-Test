@@ -271,7 +271,11 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
         // Refreshes the boxes when numbers are filled in for you (not while you type).
         val vk = "$k:${Workouts.refresh}:${s.done}"
         when (ex.type) {
-            ExType.WEIGHT, ExType.BODYWEIGHT -> {
+            ExType.BODYWEIGHT -> NumField(s.reps?.toString() ?: "", prev?.reps?.toString() ?: if (s.failure) "max" else "0", "$vk:r",
+                Modifier.weight(cols[2].second).padding(end = 6.dp), KeyboardType.Number, outlined = true) { v ->
+                Workouts.updateSet(i, n) { it.copy(reps = v.toIntOrNull(), weight = null) }
+            }
+            ExType.WEIGHT -> {
                 NumField(Units.weight(s.weight).takeIf { s.weight != null } ?: "", prev?.weight?.let { Units.weight(it) } ?: "0", "$vk:w",
                     Modifier.weight(cols[2].second).padding(end = 6.dp), outlined = true) { v ->
                     Workouts.updateSet(i, n) { it.copy(weight = v.toDoubleOrNull()?.let(Units::fromShown)) }
