@@ -123,7 +123,8 @@ fun SettingsScreen() {
                 message = withContext(Dispatchers.IO) {
                     runCatching {
                         val n = context.contentResolver.openInputStream(uri)!!.use { Store.readBackup(it) }
-                        "Backup restored" + if (n > 0) " with $n picture${if (n == 1) "" else "s"}." else "."
+                        Store.lastImported?.let { "Imported $it workout${if (it == 1) "" else "s"} (any already here were skipped)." }
+                            ?: ("Backup restored" + if (n > 0) " with $n picture${if (n == 1) "" else "s"}." else ".")
                     }.getOrElse { "That file isn't a Loadout backup." }
                 }
             }

@@ -157,12 +157,20 @@ object Json {
         }))
     fun workout(o: JSONObject) = Workout(
         o.getString("id"), if (o.has("routine")) o.getString("routine") else null, o.getString("name"),
-        o.getLong("start"), if (o.has("end")) o.getLong("end") else null,
+        time(o, "start")!!, time(o, "end"),
         o.getJSONArray("items").objs().map { i ->
             WorkoutItem(i.getString("ex"), i.getJSONArray("sets").objs().map(::doneSet), i.optInt("rest", 90), i.optString("note"))
         },
         o.optDoubleOrNull("bw"),
     )
+
+    /** A time: milliseconds, or (in imports) a local date-time like "2026-10-12T20:12" read in the phone's time zone. */
+    private fun time(o: JSONObject, k: String): Long? {
+        if (!o.has(k) || o.isNull(k)) return null
+        val v = o.get(k)
+        return if (v is Number) v.toLong()
+        else java.time.LocalDateTime.parse(v.toString()).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
 
     fun profile(p: Profile) = JSONObject().putOpt2("bw", p.bodyweight).putOpt2("h", p.heightIn).putOpt2("age", p.age)
         .put("male", p.male).put("kg", p.kg).put("key", p.apiKey).put("model", p.imageModel)

@@ -217,8 +217,24 @@ object Store {
         return pics
     }
 
+    /** Workouts added by the last import (null after a normal restore). */
+    var lastImported: Int? = null
+        private set
+
     fun restore(text: String) {
         val o = JSONObject(text)
+        lastImported = null
+        // An import (e.g. history from another app) adds workouts and exercises without replacing anything.
+        if (o.optBoolean("merge")) {
+            o.optJSONArray("custom")?.objs()?.forEach { c ->
+                if (_exercises.value[c.getString("i")] == null) saveCustomExercise(Exercise.fromJson(c, true))
+            }
+            val have = _workouts.value.map { it.id }.toSet()
+            val add = o.optJSONArray("workouts")?.objs()?.map(Json::workout)?.filter { it.id !in have } ?: emptyList()
+            setWorkouts((_workouts.value + add).sortedByDescending { w -> w.start })
+            lastImported = add.size
+            return
+        }
         val key = _profile.value.apiKey
         o.optJSONArray("custom")?.objs()?.forEach { saveCustomExercise(Exercise.fromJson(it, true)) }
         o.optJSONArray("routines")?.let { setRoutines(it.objs().map(Json::routine)) }
