@@ -75,12 +75,20 @@ fun RankBadge(t: Tier, size: Dp, modifier: Modifier = Modifier) {
     if (img != null) Image(img, t.label, modifier.size(size)) else Box(modifier.size(size))
 }
 
-private val StarColor = Color(0xFFC9A94E)
+val StarGold = Color(0xFFC9A94E)
+val StarEstimate = Color(0xFF7FA3C6)
 
-/** An exercise name, with a small ★ when it counts toward your rank. */
-fun starredName(e: Exercise?, missing: String = "Missing exercise"): AnnotatedString = buildAnnotatedString {
-    append(e?.name ?: missing)
-    if (e != null && Standards.starred(e.id, Store.profile.value)) withStyle(SpanStyle(color = StarColor, fontSize = 0.7.em)) { append("  ★") }
+/** An exercise name with a small ★: gold = ranked accurately, silver-blue = ranked as an estimate. */
+@Composable
+fun starredName(e: Exercise?, missing: String = "Missing exercise"): AnnotatedString {
+    val p by Store.profile.collectAsState()
+    val star = e?.let { Standards.star(it.id, p) } ?: Standards.Star.NONE
+    return buildAnnotatedString {
+        append(e?.name ?: missing)
+        if (star != Standards.Star.NONE) withStyle(
+            SpanStyle(color = if (star == Standards.Star.EXACT) StarGold else StarEstimate, fontSize = 0.7.em),
+        ) { append("  ★") }
+    }
 }
 
 fun rankText(pct: Double) = "${Tier.of(pct).label} (${topLabel(pct)})"

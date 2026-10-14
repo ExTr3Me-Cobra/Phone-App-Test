@@ -24,6 +24,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -201,6 +204,16 @@ fun SettingsScreen() {
                     }
                 }
             }
+
+            Text(
+                buildAnnotatedString {
+                    withStyle(SpanStyle(color = StarGold)) { append("★") }
+                    append(" ranked from data that fits your body weight, age and sex.   ")
+                    withStyle(SpanStyle(color = StarEstimate)) { append("★") }
+                    append(" ranked as an estimate (All on only).")
+                },
+                color = Sub, fontSize = 13.sp,
+            )
 
             Spacer(8)
             Text("AI exercise pictures (OpenAI)", fontSize = 18.sp, fontWeight = FontWeight.Bold)

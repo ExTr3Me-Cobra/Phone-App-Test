@@ -82,8 +82,24 @@ object Standards {
         return m == Mode.ALL || f.exact
     }
 
-    /** Show the ★? (Before your body weight is set, every rankable exercise shows it.) */
-    fun starred(id: String, p: Profile) = mode(p) != Mode.OFF && covers(id) && (p.bodyweight == null || covers(id, p))
+    enum class Star { NONE, EXACT, ESTIMATE }
+
+    /**
+     * The ★ after an exercise's name: gold when it's ranked from data that fits you closely,
+     * silver-blue when it's only ranked as an estimate (All on mode), none when it isn't ranked.
+     * Before your body weight is set, every rankable exercise shows gold.
+     */
+    fun star(id: String, p: Profile): Star {
+        val m = mode(p)
+        if (m == Mode.OFF || !covers(id)) return Star.NONE
+        if (p.bodyweight == null) return Star.EXACT
+        val f = fit(id, p) ?: return Star.NONE
+        return when {
+            f.exact -> Star.EXACT
+            m == Mode.ALL -> Star.ESTIMATE
+            else -> Star.NONE
+        }
+    }
 
     private val PCT = doubleArrayOf(5.0, 20.0, 50.0, 80.0, 95.0)
 
