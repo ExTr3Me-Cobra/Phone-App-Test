@@ -181,6 +181,10 @@ fun Exercise.weightHint(): String {
     val oneSide = Regex("one[- ]arm|single[- ]arm|one[- ]hand|single[- ]hand|alternat|concentration|one[- ]leg|single[- ]leg").containsMatchIn(n)
     val held2Hands = Regex("pullover|goblet|halo|pirate ship|plie dumbbell squat|seated triceps press|single dumbbell|standing dumbbell triceps extension|" +
         "two-arm dumbbell triceps extension|kettlebell overhead triceps|vertical swing|kettlebell swing|plate raise|plate twist|plate curl").containsMatchIn(n)
+    // Leg exercises talk about legs, everything else about arms.
+    val legs = primary.firstOrNull() in setOf("quadriceps", "hamstrings", "glutes", "calves", "adductors", "abductors", "shins", "hip flexors")
+    val limb = if (legs) "leg" else "arm"
+    val limbs = if (legs) "both legs together" else "both arms together"
     return when {
         type == ExType.BODYWEIGHT -> "No weight to log – reps only (you're lifting your body weight)."
         type == ExType.TIMED -> "No weight to log – just the time."
@@ -189,12 +193,13 @@ fun Exercise.weightHint(): String {
             "Log only the extra weight you add (belt, vest or dumbbell) – not your body weight."
         equipment == "Barbell" || equipment == "EZ Bar" -> when {
             n.contains("smith") -> "Log the total plates on both sides (Smith bars vary; add the bar's weight if it's marked)."
-            oneSide -> "Log the total on the bar you're holding (bar + plates), even though you work one side at a time."
+            oneSide -> "Log the total on the bar (bar + plates), even though you work one $limb at a time."
             else -> "Log the total weight: the bar plus all plates on both sides (an Olympic bar is 45 lb / 20 kg; EZ bars are often 15–25 lb)."
         }
         equipment == "Dumbbell" -> when {
             held2Hands -> "Log the weight of the one dumbbell you hold with both hands."
-            oneSide -> "Log the weight of the one dumbbell in your working hand."
+            oneSide -> if (legs) "Log the weight of ONE dumbbell (the one you hold), even though you work one leg at a time."
+                else "Log the weight of the one dumbbell in your working hand."
             else -> "Log the weight of ONE dumbbell, not both added together (two 30 lb dumbbells → 30)."
         }
         equipment == "Kettlebell" -> when {
@@ -203,18 +208,18 @@ fun Exercise.weightHint(): String {
             else -> "Log the weight of the kettlebell."
         }
         equipment == "Cable" -> when {
-            oneSide -> "Log the stack weight on the one handle you're using (one arm)."
+            oneSide -> "Log the stack weight on the one ${if (legs) "ankle strap or handle" else "handle"} you're using (one $limb)."
             Regex("crossover|cable fl|cross over|iron cross").containsMatchIn(n) -> "Log the weight on ONE stack (each side's stack), not both added together."
             else -> "Log the stack weight (both hands on one handle or bar – the number the pin is in)."
         }
         equipment == "Machine" -> when {
-            oneSide -> "Log the weight for the one arm or leg you're working."
+            oneSide -> "Log the weight for the one $limb you're working."
             Regex("leverage|leg press|hack squat|t-bar|sled|plate").containsMatchIn(n) ->
-                "Log the total plates loaded on both sides (not counting the machine's own weight), both arms together."
-            else -> "Log the stack weight (both arms together – the number the pin is in)."
+                "Log the total plates loaded on both sides (not counting the machine's own weight), $limbs."
+            else -> "Log the stack weight ($limbs – the number the pin is in)."
         }
         equipment == "Bands" -> "Log the band's resistance if it's marked, otherwise leave the weight blank."
         equipment == "Medicine Ball" || equipment == "Exercise Ball" -> "Log the weight of the ball."
-        else -> "Log the total weight you move (both arms together)."
+        else -> "Log the total weight you move ($limbs)."
     }
 }
