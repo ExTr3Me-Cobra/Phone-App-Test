@@ -196,6 +196,7 @@ fun ExerciseDetailScreen(id: String) {
     var status by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
+    var askAi by remember { mutableStateOf(false) }
     val hasImage = remember(version) { Store.hasImage(e.id) }
 
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
@@ -241,15 +242,36 @@ fun ExerciseDetailScreen(id: String) {
                     }
                 }
                 GreyButton(if (busy) "Generating…" else "✨ AI picture", Modifier.weight(1f), Blue) {
-                    if (busy) return@GreyButton
-                    busy = true
-                    status = "Asking OpenAI for a picture – this takes up to a minute…"
-                    scope.launch {
-                        val r = Pictures.generate(e, Store.profile.value)
-                        busy = false
-                        status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
-                    }
+                    if (!busy) askAi = true
                 }
+            }
+            if (askAi) {
+                val p = Store.profile.value
+                AlertDialog(
+                    onDismissRequest = { askAi = false },
+                    title = { Text("Make an AI picture?") },
+                    text = {
+                        Text(
+                            if (p.apiKey.isBlank()) "First add your OpenAI API key in Profile → Settings."
+                            else "One picture of \"${e.name}\" at ${p.imageQuality} quality costs about $" +
+                                "%.3f".format(Pictures.price(p.imageQuality)) + ", taken from your OpenAI API credit." +
+                                if (hasImage) "\n\nIt replaces this exercise's current picture." else "",
+                        )
+                    },
+                    confirmButton = {
+                        if (p.apiKey.isNotBlank()) TextButton(onClick = {
+                            askAi = false
+                            busy = true
+                            status = "Asking OpenAI for a picture – this takes up to a minute…"
+                            scope.launch {
+                                val r = Pictures.generate(e, Store.profile.value)
+                                busy = false
+                                status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
+                            }
+                        }) { Text("Yes, make it") }
+                    },
+                    dismissButton = { TextButton(onClick = { askAi = false }) { Text("Cancel") } },
+                )
             }
             if (busy) CircularProgressIndicator(Modifier.padding(horizontal = 16.dp))
             status?.let { Text(it, color = Sub, modifier = Modifier.padding(horizontal = 16.dp)) }
