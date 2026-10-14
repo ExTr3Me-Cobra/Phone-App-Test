@@ -332,6 +332,21 @@ fun SettingsScreen() {
 
                 }
                 GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false)) }
+                Spacer(8)
+                Text("Wipe all Loadout data", fontWeight = FontWeight.Bold)
+                Text("Deletes everything on this phone – workouts, routines, your exercises and pictures, profile, settings and the API key – " +
+                    "and empties the Google backup at its next run. For testing the first-run experience.", color = Sub, fontSize = 13.sp)
+                var confirmWipe by remember { mutableStateOf(false) }
+                BigButton("Wipe all data", color = Red) { confirmWipe = true }
+                if (confirmWipe) androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { confirmWipe = false },
+                    title = { Text("Wipe everything?") },
+                    text = { Text("All your Loadout data on this phone will be permanently deleted, and your Google backup emptied. This can't be undone. " +
+                        "Save a backup first if you want to keep anything.") },
+                    confirmButton = { androidx.compose.material3.TextButton(onClick = { confirmWipe = false; DevWipe.wipe(context) }) {
+                        Text("Wipe everything", color = Red) } },
+                    dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmWipe = false }) { Text("Cancel") } },
+                )
             }
             Spacer(30)
         }

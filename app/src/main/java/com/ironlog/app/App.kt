@@ -187,6 +187,7 @@ private fun Root() {
     }
     Onboarding()
     RankUpOverlay()
+    WipedScreen()
 }
 
 @Composable
