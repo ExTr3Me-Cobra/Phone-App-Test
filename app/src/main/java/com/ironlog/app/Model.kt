@@ -34,7 +34,7 @@ data class Exercise(
 ) {
     /** Individual muscles worked, 0..1. Older saved exercises only have groups, so those are split the usual way. */
     val muscles: Map<String, Float> by lazy {
-        detail.ifEmpty { Muscles.expand(secondary.associateWith { secondaryWeight(it) } + primary.associateWith { 1f }) }
+        Muscles.migrate(detail).ifEmpty { Muscles.expand(secondary.associateWith { secondaryWeight(it) } + primary.associateWith { 1f }) }
     }
 
     /** Secondary muscle -> weight (0.3 when not known). */

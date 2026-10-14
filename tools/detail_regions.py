@@ -75,8 +75,10 @@ def build():
     add(F, 'forearms (wrist flexors)', cut(fo, rightof((152, 352), (130, 455))))
     add(F, 'forearms (wrist flexors)', cut(fo, leftof((152, 352), (130, 455)), below(425)))
     add(F, 'grip (finger flexors)', f['grip'][0])
-    add(F, 'abdominals (rectus abdominis)', f['abdominals'][0])
-    add(F, 'abdominals (obliques)', f['abdominals'][1])
+    ab = f['abdominals'][0]
+    add(F, 'abs (upper)', cut(ab, above(397)))  # navel / lowest tendinous line
+    add(F, 'abs (lower)', cut(ab, below(397)))
+    add(F, 'obliques', f['abdominals'][1])
     add(F, 'serratus (serratus anterior)', f['serratus'][0])
     q = f['quadriceps'][0]
     L1 = ((205, 455), (213, 645))

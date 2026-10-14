@@ -40,6 +40,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -73,11 +81,17 @@ sealed interface Route {
 
 object Nav {
     val stack = mutableStateListOf<Route>(Route.Tabs(0))
+    /** A unique key per screen in [stack], so each screen keeps its state (like a search) while you're deeper in. */
+    private val keys = mutableListOf(0L)
+    private var next = 1L
+    /** Keys of closed screens, whose saved state can be thrown away. */
+    val closed = mutableListOf<Long>()
     val top get() = stack.last()
-    fun go(r: Route) { stack += r }
-    fun back() { if (stack.size > 1) stack.removeAt(stack.lastIndex) }
-    fun home(tab: Int) { stack.clear(); stack += Route.Tabs(tab) }
-    fun replace(r: Route) { if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex); stack += r }
+    val topKey get() = keys.last()
+    fun go(r: Route) { keys += next++; stack += r }
+    fun back() { if (stack.size > 1) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) } }
+    fun home(tab: Int) { closed += keys; keys.clear(); keys += next++; stack.clear(); stack += Route.Tabs(tab) }
+    fun replace(r: Route) { if (stack.isNotEmpty()) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) }; keys += next++; stack += r }
 }
 
 class MainActivity : ComponentActivity() {
@@ -115,8 +129,26 @@ class MainActivity : ComponentActivity() {
 private fun Root() {
     BackHandler(enabled = Nav.stack.size > 1) { Nav.back() }
     val route = Nav.top
-    Column(Modifier.fillMaxSize().background(Bg)) {
+    val key = Nav.topKey
+    val saved = rememberSaveableStateHolder()
+    LaunchedEffect(key) { Nav.closed.forEach { saved.removeState(it) }; Nav.closed.clear() }
+    // Tapping outside a text box or scrolling with your finger puts the keyboard away.
+    val focus = LocalFocusManager.current
+    val hideOnScroll = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput && available != Offset.Zero) focus.clearFocus()
+                return Offset.Zero
+            }
+        }
+    }
+    Column(
+        Modifier.fillMaxSize().background(Bg)
+            .pointerInput(Unit) { detectTapGestures(onTap = { focus.clearFocus() }) }
+            .nestedScroll(hideOnScroll),
+    ) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
+          saved.SaveableStateProvider(key) {
             when (route) {
                 is Route.Tabs -> when (route.tab) {
                     0 -> HomeScreen()
@@ -134,6 +166,7 @@ private fun Root() {
                 Route.Settings -> SettingsScreen()
                 Route.Library -> PickerScreen(null)
             }
+          }
         }
         val active by Store.active.collectAsState()
         if (active != null && route != Route.Active) ResumeBar()

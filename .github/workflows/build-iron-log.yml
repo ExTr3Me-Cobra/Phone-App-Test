@@ -1,4 +1,4 @@
-name: Build Iron Log APK
+name: Build Loadout APK
 
 on:
   push:
@@ -47,21 +47,21 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --stacktrace -PsignKeystore=$PWD/signing/ironlog.keystore
-          cp app/build/outputs/apk/release/app-release.apk IronLog.apk
+          cp app/build/outputs/apk/release/app-release.apk Loadout.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: IronLog-apk
-          path: IronLog.apk
+          name: Loadout-apk
+          path: Loadout.apk
 
       - name: Publish download on the Releases page
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: iron-log-${{ github.run_number }}
+          tag_name: loadout-${{ github.run_number }}
           target_commitish: ${{ github.sha }}
-          name: Iron Log (build ${{ github.run_number }})
+          name: Loadout (build ${{ github.run_number }})
           body: |
-            On your phone, tap **IronLog.apk** below to download it, then open it to install.
+            On your phone, tap **Loadout.apk** below to download it, then open it to install.
             See the README on the claude/iron-log-app branch for setup steps.
-          files: IronLog.apk
+          files: Loadout.apk
           make_latest: false

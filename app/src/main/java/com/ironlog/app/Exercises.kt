@@ -42,6 +42,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -68,11 +71,14 @@ val EQUIPMENT = listOf("Barbell", "Dumbbell", "Cable", "Machine", "Kettlebell", 
 @Composable
 fun PickerScreen(req: Route.Picker?) {
     val all by Store.exercises.collectAsState()
-    var query by remember { mutableStateOf("") }
-    var equipment by remember { mutableStateOf<String?>(null) }
-    var muscle by remember { mutableStateOf<String?>(null) }
+    // Saveable, so the search is still there when you come back from an exercise.
+    var query by rememberSaveable { mutableStateOf("") }
+    var equipment by rememberSaveable { mutableStateOf<String?>(null) }
+    var muscle by rememberSaveable { mutableStateOf<String?>(null) }
     var dialog by remember { mutableStateOf(0) }
-    val selected = remember { mutableStateListOf<String>() }
+    val selected = rememberSaveable(saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() })) {
+        mutableStateListOf<String>()
+    }
     val sorted = remember(all) { all.values.filter { !it.hidden }.sortedBy { it.name.lowercase() } }
     val words = query.lowercase().split(" ").filter { it.isNotBlank() }
     val filtered = sorted.filter { e ->

@@ -106,7 +106,7 @@ fun SettingsScreen() {
         if (uri != null) message = runCatching {
             Store.restore(context.contentResolver.openInputStream(uri)!!.bufferedReader().readText())
             "Backup restored."
-        }.getOrElse { "That file isn't an Iron Log backup." }
+        }.getOrElse { "That file isn't a Loadout backup." }
     }
 
     var packMsg by remember { mutableStateOf<String?>(null) }

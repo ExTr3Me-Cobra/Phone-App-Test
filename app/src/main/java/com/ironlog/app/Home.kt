@@ -49,7 +49,7 @@ fun HomeScreen() {
                 }
                 if (workouts.isEmpty()) {
                     Column(Modifier.padding(16.dp)) {
-                        Text("Welcome to Iron Log 💪", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text("Welcome to Loadout 💪", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                         Spacer(6)
                         Text("Build a routine on the Workout tab, start it, and log your sets. Your workouts show up here.", color = Sub)
                         Spacer(12)

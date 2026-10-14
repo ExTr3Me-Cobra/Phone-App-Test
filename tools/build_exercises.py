@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from extra_exercises import EXTRA
 from cleanup import REMOVE, RENAME
 from weights import RULES, DEFAULT, DEFAULT_REFS, FALLBACK, OVERRIDES, OVERRIDE_REFS
-from detail_weights import GROUPS, HEADS, DEFAULT_HEADS, MIDDLE_BACK_EXTRA, ADD, REFS
+from detail_weights import GROUPS, HEADS, DEFAULT_HEADS, MIDDLE_BACK_EXTRA, ADD, REFS, ABS_SPLIT, RA
 
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json')
@@ -163,6 +163,11 @@ for e in out:
         if v > detail.get(h, 0): detail[h] = v
     for g, gw in groups:
         dist, r = heads(e, g); refs.update(r)
+        if RA in dist:
+            name = e['n'].lower()
+            split, r2 = next((sp, rr) for rx, sp, rr in ABS_SPLIT if re.search(rx, name))
+            dist = {k: v for k, v in dist.items() if k != RA} | {h: dist[RA] * v for h, v in split.items()}
+            refs.update(r2)
         for h, share in dist.items(): put(h, gw * share)
         if g == 'middle back':
             for h, share in MIDDLE_BACK_EXTRA[0].items(): put(h, gw * share)
@@ -202,7 +207,7 @@ print('secondary new groups:', {g: sum(1 for e in out if g in e['s']) for g in (
 import statistics
 ws = [w for e in out for w in e['w']]
 print('secondary weights: mean %.2f, min %.2f, max %.2f, count %d' % (statistics.mean(ws), min(ws), max(ws), len(ws)))
-for n in ['Barbell Bench Press - Medium Grip', 'Incline Dumbbell Curl', 'Hanging Leg Raise', 'Toe Raise', 'Seated Calf Raise', 'Lying Leg Curls', 'Side Lateral Raise', 'Push-Up Plus', 'Barbell Deadlift', 'Pullups', 'Barbell Squat', 'Dumbbell Bicep Curl', 'Standing Military Press', 'Bent Over Barbell Row', 'Pushups']:
+for n in ['Barbell Bench Press - Medium Grip', 'Incline Dumbbell Curl', 'Hanging Leg Raise', 'Crunches', 'Toe Raise', 'Seated Calf Raise', 'Lying Leg Curls', 'Side Lateral Raise', 'Push-Up Plus', 'Barbell Deadlift', 'Pullups', 'Barbell Squat', 'Dumbbell Bicep Curl', 'Standing Military Press', 'Bent Over Barbell Row', 'Pushups']:
     e = next(x for x in out if x['n'] == n)
     print(n, 'P:', e['p'], 'S:', dict(zip(e['s'], e['w'])))
     print('   ', sorted(e['m'].items(), key=lambda kv: -kv[1]), e['r'])

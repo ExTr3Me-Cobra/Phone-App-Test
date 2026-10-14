@@ -82,6 +82,19 @@ object Muscles {{
         if (i < 0 || w == "&" || w == "TFL") w else w.substring(0, i) + w[i].uppercase() + w.substring(i + 1)
     }}
 
+    /** Muscle names saved by older versions -> current ones (unknown names are dropped). */
+    fun migrate(detail: Map<String, Float>): Map<String, Float> {{
+        if (detail.keys.all {{ it in groupOf }}) return detail
+        val out = HashMap<String, Float>()
+        fun put(k: String, v: Float) {{ out[k] = maxOf(out[k] ?: 0f, v) }}
+        for ((k, v) in detail) when (k) {{
+            "abdominals (rectus abdominis)" -> {{ put("abs (upper)", v); put("abs (lower)", v * 0.9f) }}
+            "abdominals (obliques)" -> put("obliques", v)
+            else -> if (k in groupOf) put(k, v)
+        }}
+        return out
+    }}
+
     /** Group weights (old style: primary groups 1, secondary groups by weight) -> individual muscles. */
     fun expand(groupWeights: Map<String, Float>): Map<String, Float> {{
         val out = HashMap<String, Float>()

@@ -70,7 +70,7 @@ object Rest {
         runCatching { nm.deleteNotificationChannel(CHANNEL) }
         nm.createNotificationChannel(
             NotificationChannel(ALERT_CHANNEL, "Rest timer", NotificationManager.IMPORTANCE_HIGH).apply {
-                description = "Tells you when your rest is over (sound and vibration are set in Iron Log)"
+                description = "Tells you when your rest is over (sound and vibration are set in Loadout)"
                 setSound(null, null)
                 enableVibration(false)
             },

@@ -59,6 +59,8 @@ REFS = {
     'Reinold 2004': 'Reinold MM, Wilk KE, Fleisig GS, et al. Electromyographic analysis of the rotator cuff and deltoid musculature during common shoulder external rotation exercises. J Orthop Sports Phys Ther. 2004;34(7):385-394.',
     'Reinold 2009': 'Reinold MM, Escamilla RF, Wilk KE. Current concepts in the scientific and clinical rationale behind exercises for glenohumeral and scapulothoracic musculature. J Orthop Sports Phys Ther. 2009;39(2):105-117.',
     'Rodriguez-Ridao 2020': 'Rodriguez-Ridao D, Antequera-Vique JA, Martin-Fuentes I, Muyor JM. Effect of five bench inclinations on the electromyographic activity of the pectoralis major, anterior deltoid, and triceps brachii during the bench press exercise. Int J Environ Res Public Health. 2020;17(19):7339.',
+    'Sarti 1996': 'Sarti MA, Monfort M, Fuster MA, Villaplana LA. Muscle activity in upper and lower rectus abdominus during abdominal exercises. Arch Phys Med Rehabil. 1996;77(12):1293-1297.',
+    'Lehman 2001': 'Lehman GJ, McGill SM. Quantification of the differences in electromyographic activity magnitude between the upper and lower portions of the rectus abdominis muscle during selected trunk exercises. Phys Ther. 2001;81(5):1096-1101.',
     'Saeterbakken 2013': 'Saeterbakken AH, Fimland MS. Effects of body position and loading modality on muscle activity and strength in shoulder presses. J Strength Cond Res. 2013;27(7):1824-1831.',
     'Selkowitz 2013': 'Selkowitz DM, Beneck GJ, Powers CM. Which exercises target the gluteal muscles while minimizing activation of the tensor fascia lata? J Orthop Sports Phys Ther. 2013;43(2):54-64.',
     'Serner 2014': 'Serner A, Jakobsen MD, Andersen LL, et al. EMG evaluation of hip adduction exercises for soccer players: implications for exercise selection in prevention and treatment of groin injuries. Br J Sports Med. 2014;48(14):1108-1114.',
@@ -75,7 +77,7 @@ GROUPS = {
     'triceps': ['triceps (long head)', 'triceps (lateral head)', 'triceps (medial head)'],
     'forearms': ['forearms (brachioradialis)', 'forearms (wrist flexors)', 'forearms (wrist extensors)'],
     'grip': ['grip (finger flexors)'],
-    'abdominals': ['abdominals (rectus abdominis)', 'abdominals (obliques)'],
+    'abdominals': ['abs (upper)', 'abs (lower)', 'obliques'],
     'serratus': ['serratus (serratus anterior)'],
     'hip flexors': ['hip flexors (iliopsoas)'],
     'lats': ['lats', 'teres major'],
@@ -100,7 +102,9 @@ FD, SD, RD = 'shoulders (front delt)', 'shoulders (side delt)', 'shoulders (rear
 BL, BS, BR = 'biceps (long head)', 'biceps (short head)', 'brachialis'
 TLO, TLA, TME = 'triceps (long head)', 'triceps (lateral head)', 'triceps (medial head)'
 FBR, FFL, FEX = 'forearms (brachioradialis)', 'forearms (wrist flexors)', 'forearms (wrist extensors)'
-RA, OB = 'abdominals (rectus abdominis)', 'abdominals (obliques)'
+# RA stands for the whole rectus abdominis in the rules; ABS_SPLIT shares it between upper and lower abs.
+RA, OB = 'rectus abdominis', 'obliques'
+UA, LA = 'abs (upper)', 'abs (lower)'
 LAT, TMJ = 'lats', 'teres major'
 RHO = 'middle back (rhomboids)'
 TU, TM, TL = 'traps (upper)', 'traps (middle)', 'traps (lower)'
@@ -216,7 +220,7 @@ DEFAULT_HEADS = {
     'triceps': ({TLO: .8, TLA: 1, TME: 1}, ['Kholinne 2018']),
     'forearms': ({FBR: .55, FFL: 1, FEX: .6}, ['Mogk 2003']),
     'grip': ({'grip (finger flexors)': 1}, []),
-    'abdominals': ({RA: 1, OB: .7}, ['Escamilla 2006']),
+    'abdominals': ({UA: 1, LA: .9, OB: .7}, ['Escamilla 2006', 'Lehman 2001']),
     'serratus': ({'serratus (serratus anterior)': 1}, []),
     'hip flexors': ({IL: 1}, []),
     'lats': ({LAT: 1, TMJ: .7}, ['Broome 1971']),
@@ -233,6 +237,16 @@ DEFAULT_HEADS = {
     'calves': ({GAS: 1, SOL: .8}, ['Hebert-Losier 2012']),
     'shins': ({TIB: 1}, []),
 }
+
+# Upper vs lower rectus abdominis. It is one muscle, so the difference is modest (Lehman 2001 found
+# little difference for most exercises); curling the trunk favours the upper part, and lifting the
+# legs / tilting the pelvis back favours the lower part (Sarti 1996).
+ABS_SPLIT = [
+    (r'reverse crunch|leg raise|knee raise|hip raise|butt-ups|toes to bar|flutter|scissor|leg tuck|knee tuck|pull-in|hanging|l-sit|dead bug|mountain climber',
+     {UA: .85, LA: 1}, ['Sarti 1996', 'Lehman 2001']),
+    (r'crunch|sit-?up|curl-?up|jackknife|v-up|cocoons|roll-?up', {UA: 1, LA: .8}, ['Sarti 1996', 'Escamilla 2006']),
+    (r'.', {UA: 1, LA: .9}, ['Lehman 2001', 'Escamilla 2006']),
+]
 
 # Middle back in the source data means the muscles between the shoulder blades: rhomboids plus the
 # middle and lower trapezius, which do the same job (scapular retraction) in rows (Ekstrom 2003).

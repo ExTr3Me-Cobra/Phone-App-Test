@@ -10,7 +10,7 @@ object Muscles {
         "triceps" to listOf("triceps (long head)", "triceps (lateral head)", "triceps (medial head)"),
         "forearms" to listOf("forearms (brachioradialis)", "forearms (wrist flexors)", "forearms (wrist extensors)"),
         "grip" to listOf("grip (finger flexors)"),
-        "abdominals" to listOf("abdominals (rectus abdominis)", "abdominals (obliques)"),
+        "abdominals" to listOf("abs (upper)", "abs (lower)", "obliques"),
         "serratus" to listOf("serratus (serratus anterior)"),
         "hip flexors" to listOf("hip flexors (iliopsoas)"),
         "lats" to listOf("lats", "teres major"),
@@ -36,7 +36,7 @@ object Muscles {
         "triceps" to mapOf("triceps (long head)" to 0.8f, "triceps (lateral head)" to 1f, "triceps (medial head)" to 1f),
         "forearms" to mapOf("forearms (brachioradialis)" to 0.6f, "forearms (wrist flexors)" to 1f, "forearms (wrist extensors)" to 0.6f),
         "grip" to mapOf("grip (finger flexors)" to 1f),
-        "abdominals" to mapOf("abdominals (rectus abdominis)" to 1f, "abdominals (obliques)" to 0.7f),
+        "abdominals" to mapOf("abs (upper)" to 1f, "abs (lower)" to 0.9f, "obliques" to 0.7f),
         "serratus" to mapOf("serratus (serratus anterior)" to 1f),
         "hip flexors" to mapOf("hip flexors (iliopsoas)" to 1f),
         "lats" to mapOf("lats" to 1f, "teres major" to 0.7f),
@@ -87,6 +87,7 @@ object Muscles {
         "Kleiber 2015" to "Kleiber T, Kunz L, Disselhorst-Klug C. Muscular coordination of biceps brachii and brachioradialis in elbow flexion with respect to hand position. Front Physiol. 2015;6:215.",
         "Kubo 2019" to "Kubo K, Ikebukuro T, Yata H. Effects of squat training with different depths on lower limb muscle volumes. Eur J Appl Physiol. 2019;119(9):1933-1942.",
         "Lauver 2016" to "Lauver JD, Cayot TE, Scheuermann BW. Influence of bench angle on upper extremity muscular activation during bench press exercise. Eur J Sport Sci. 2016;16(3):309-316.",
+        "Lehman 2001" to "Lehman GJ, McGill SM. Quantification of the differences in electromyographic activity magnitude between the upper and lower portions of the rectus abdominis muscle during selected trunk exercises. Phys Ther. 2001;81(5):1096-1101.",
         "Ludewig 2004" to "Ludewig PM, Hoff MS, Osowski EE, Meschke SA, Rundquist PJ. Relative balance of serratus anterior and upper trapezius muscle activity during push-up exercises. Am J Sports Med. 2004;32(2):484-493.",
         "Lusk 2010" to "Lusk SJ, Hale BD, Russell DM. Grip width and forearm orientation effects on muscle activity during the lat pull-down. J Strength Cond Res. 2010;24(7):1895-1900.",
         "Maeo 2021" to "Maeo S, Huang M, Wu Y, et al. Greater hamstrings muscle hypertrophy but similar damage protection after training at long versus short muscle lengths. Med Sci Sports Exerc. 2021;53(4):825-837.",
@@ -103,6 +104,7 @@ object Muscles {
         "Reinold 2009" to "Reinold MM, Escamilla RF, Wilk KE. Current concepts in the scientific and clinical rationale behind exercises for glenohumeral and scapulothoracic musculature. J Orthop Sports Phys Ther. 2009;39(2):105-117.",
         "Rodriguez-Ridao 2020" to "Rodriguez-Ridao D, Antequera-Vique JA, Martin-Fuentes I, Muyor JM. Effect of five bench inclinations on the electromyographic activity of the pectoralis major, anterior deltoid, and triceps brachii during the bench press exercise. Int J Environ Res Public Health. 2020;17(19):7339.",
         "Saeterbakken 2013" to "Saeterbakken AH, Fimland MS. Effects of body position and loading modality on muscle activity and strength in shoulder presses. J Strength Cond Res. 2013;27(7):1824-1831.",
+        "Sarti 1996" to "Sarti MA, Monfort M, Fuster MA, Villaplana LA. Muscle activity in upper and lower rectus abdominus during abdominal exercises. Arch Phys Med Rehabil. 1996;77(12):1293-1297.",
         "Selkowitz 2013" to "Selkowitz DM, Beneck GJ, Powers CM. Which exercises target the gluteal muscles while minimizing activation of the tensor fascia lata? J Orthop Sports Phys Ther. 2013;43(2):54-64.",
         "Serner 2014" to "Serner A, Jakobsen MD, Andersen LL, et al. EMG evaluation of hip adduction exercises for soccer players: implications for exercise selection in prevention and treatment of groin injuries. Br J Sports Med. 2014;48(14):1108-1114.",
         "Stastny 2017" to "Stastny P, Golas A, Blazek D, et al. A systematic review of surface electromyography analyses of the bench press movement task. PLoS One. 2017;12(2):e0171632.",
@@ -121,6 +123,19 @@ object Muscles {
     fun label(m: String): String = m.split(" ").joinToString(" ") { w ->
         val i = w.indexOfFirst { it.isLetter() }
         if (i < 0 || w == "&" || w == "TFL") w else w.substring(0, i) + w[i].uppercase() + w.substring(i + 1)
+    }
+
+    /** Muscle names saved by older versions -> current ones (unknown names are dropped). */
+    fun migrate(detail: Map<String, Float>): Map<String, Float> {
+        if (detail.keys.all { it in groupOf }) return detail
+        val out = HashMap<String, Float>()
+        fun put(k: String, v: Float) { out[k] = maxOf(out[k] ?: 0f, v) }
+        for ((k, v) in detail) when (k) {
+            "abdominals (rectus abdominis)" -> { put("abs (upper)", v); put("abs (lower)", v * 0.9f) }
+            "abdominals (obliques)" -> put("obliques", v)
+            else -> if (k in groupOf) put(k, v)
+        }
+        return out
     }
 
     /** Group weights (old style: primary groups 1, secondary groups by weight) -> individual muscles. */

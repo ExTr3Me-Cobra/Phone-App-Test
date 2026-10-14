@@ -157,7 +157,7 @@ object Store {
 
     // ----- backup -----
     fun backup(): String = JSONObject()
-        .put("app", "Iron Log").put("version", 1)
+        .put("app", "Loadout").put("version", 1)
         .put("routines", JSONArray(_routines.value.map(Json::routine)))
         .put("workouts", JSONArray(_workouts.value.map(Json::workout)))
         .put("custom", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }))
