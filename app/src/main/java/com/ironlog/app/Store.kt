@@ -12,6 +12,7 @@ import com.ironlog.app.Json.objs
 /** Everything the app remembers, saved as small JSON files. */
 object Store {
     private lateinit var dir: File
+    private lateinit var safeDir: File
     private var loaded = false
     private var assets: android.content.res.AssetManager? = null
     /** Pictures built into the app (assets/pictures/<name>.jpg). */
@@ -39,6 +40,7 @@ object Store {
         if (loaded) return
         loaded = true
         dir = c.filesDir
+        safeDir = c.noBackupFilesDir
         assets = c.assets
         bundled = runCatching { c.assets.list("pictures")?.toSet() }.getOrNull() ?: emptySet()
         val builtIn = runCatching {
@@ -52,7 +54,12 @@ object Store {
         _routines.value = read("routines.json")?.let { JSONArray(it).objs().map(Json::routine) } ?: emptyList()
         _workouts.value = read("workouts.json")?.let { JSONArray(it).objs().map(Json::workout) }?.sortedByDescending { it.start } ?: emptyList()
         _active.value = read("active.json")?.let { runCatching { Json.workout(JSONObject(it)) }.getOrNull() }
-        _profile.value = read("profile.json")?.let { runCatching { Json.profile(JSONObject(it)) }.getOrNull() } ?: Profile()
+        val p = read("profile.json")?.let { runCatching { Json.profile(JSONObject(it)) }.getOrNull() } ?: Profile()
+        val keyFile = File(safeDir, "api_key.txt")
+        val savedKey = runCatching { keyFile.takeIf { it.exists() }?.readText() }.getOrNull()
+        _profile.value = p.copy(apiKey = savedKey ?: p.apiKey)
+        // Older versions kept the key inside profile.json; move it to the never-backed-up folder.
+        if (savedKey == null && p.apiKey.isNotEmpty()) setProfile(_profile.value)
     }
 
     /** Small app files (e.g. remembered import choices). */
@@ -151,8 +158,12 @@ object Store {
 
     // ----- profile -----
     fun setProfile(p: Profile) {
+        val old = _profile.value
         _profile.value = p
         write("profile.json", Json.profile(p).toString())
+        // The OpenAI key lives in a folder Android never backs up or transfers, so it stays on this phone.
+        val keyFile = File(safeDir, "api_key.txt")
+        if (p.apiKey != old.apiKey || !keyFile.exists()) runCatching { if (p.apiKey.isEmpty()) keyFile.delete() else keyFile.writeText(p.apiKey) }
     }
 
     /** Exercises used most recently first. */
@@ -255,6 +266,6 @@ object Store {
         o.optJSONArray("custom")?.objs()?.forEach { saveCustomExercise(Exercise.fromJson(it, true)) }
         o.optJSONArray("routines")?.let { setRoutines(it.objs().map(Json::routine)) }
         o.optJSONArray("workouts")?.let { setWorkouts(it.objs().map(Json::workout).sortedByDescending { w -> w.start }) }
-        o.optJSONObject("profile")?.let { setProfile(Json.profile(it).copy(apiKey = key, onboarded = true)) }
+        o.optJSONObject("profile")?.let { setProfile(Json.profile(it).copy(apiKey = key, onboarded = true, cloud = _profile.value.cloud)) }
     }
 }

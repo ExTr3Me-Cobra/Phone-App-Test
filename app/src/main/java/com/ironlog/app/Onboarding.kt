@@ -49,7 +49,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private const val PAGES = 5
+private const val PAGES = 6
 
 /**
  * First-run welcome. Covers the whole app until you've entered your body weight, age and sex
@@ -92,14 +92,20 @@ fun Onboarding() {
                 when (page) {
                     0 -> WelcomePage()
                     1 -> AboutYouPage(p)
-                    2 -> RanksPage()
-                    3 -> PercentPage()
+                    2 -> YourDataPage(p)
+                    3 -> RanksPage()
+                    4 -> PercentPage()
                     else -> ReadyPage()
                 }
             }
-            val ok = page != 1 || biometricsMissing(p) == null
+            val missing = when (page) {
+                1 -> biometricsMissing(p)
+                2 -> if (p.cloud.isEmpty()) "Choose where to keep your data to continue." else null
+                else -> null
+            }
+            val ok = missing == null
             Column(Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (page == 1) biometricsMissing(p)?.let { Text(it, color = Sub, fontSize = 13.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) }
+                missing?.let { Text(it, color = Sub, fontSize = 13.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (page > 0) GreyButton("Back", Modifier.weight(1f)) { page-- }
                     BigButton(
@@ -199,6 +205,14 @@ private fun AboutYouPage(p: Profile) {
 }
 
 @Composable
+private fun YourDataPage(p: Profile) {
+    Title("Your data")
+    Body("Your workouts, routines and settings are saved on this phone. Pick whether they should also be backed up " +
+        "to your Google account, so a new phone or a reinstall gets everything back.")
+    DataChoice(p)
+}
+
+@Composable
 private fun RanksPage() {
     Title("Ranks")
     Body("Every exercise with reliable strength data gets a rank. There are 20 ranks, each one 5% of lifters wide:")
@@ -271,4 +285,54 @@ private fun ReadyPage() {
     }
     Body("Tap any exercise to see its muscle heatmap, what weight to log, and your rank.")
     Body("Coming from Hevy? Settings → Restore / Import accepts your Hevy CSV export.")
+}
+
+/** "Keep on this phone" / "Back up to my Google account" – used in the welcome and in Settings. */
+@Composable
+fun DataChoice(p: Profile) {
+    val c = androidx.compose.ui.platform.LocalContext.current
+    @Composable
+    fun Option(value: String, icon: String, title: String, text: String) {
+        val on = p.cloud == value
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(if (on) Blue.copy(alpha = 0.18f) else Card)
+                .clickable {
+                    Store.setProfile(Store.profile.value.copy(cloud = value))
+                    if (value == "google") runCatching { android.app.backup.BackupManager(c).dataChanged() }
+                }
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(icon, fontSize = 26.sp)
+            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(text, color = Sub, fontSize = 13.sp, lineHeight = 18.sp)
+            }
+            Box(Modifier.size(22.dp).clip(CircleShape).background(if (on) Blue else Card2), contentAlignment = Alignment.Center) {
+                if (on) Text("✓", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Option("local", "📱", "Keep my information on this device",
+            "Nothing leaves your phone. Use Settings → Save backup if you ever want a copy.")
+        Option("google", "☁️", "Back up to my Google account",
+            "Uses the Google account on this phone. Backs up about once a day while charging on Wi-Fi, and restores automatically when you install Loadout again.")
+        if (p.cloud == "google") {
+            Column(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Card).padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("Link your Google account", fontWeight = FontWeight.Bold)
+                Text("Android does this backup for all your apps, so it needs your phone's backup switched on: " +
+                    "Settings → Accounts and backup → Back up data (Google Drive), with a Google account chosen.",
+                    color = Sub, fontSize = 13.sp, lineHeight = 18.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    GreyButton("Backup settings", Modifier.weight(1f)) { CloudBackup.openSettings(c) }
+                    GreyButton("Add account", Modifier.weight(1f)) { CloudBackup.addGoogleAccount(c) }
+                }
+                Text("Your OpenAI key is never included – it stays on this phone only.", color = Sub, fontSize = 12.sp)
+            }
+        }
+    }
 }

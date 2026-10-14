@@ -241,6 +241,10 @@ fun SettingsScreen() {
             )
 
             Spacer(8)
+            Text("Where your data is kept", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            DataChoice(p)
+
+            Spacer(8)
             Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back. Restore / Import also takes a workout export (.csv) from Hevy and adds that history.", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
