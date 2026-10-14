@@ -241,6 +241,51 @@ object Ranks {
     private val shownTier = HashMap<String, Int>()
     private var shownOverall = -1
 
+    /** This workout's rank tier for an exercise from its ticked sets (-1 = none yet). */
+    private fun sessionTier(w: Workout, id: String, p: Profile): Int {
+        val sets = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
+        val pct = Standards.percentile(id, Standards.bestValue(id, sets), p) ?: return -1
+        return Tier.of(pct).ordinal
+    }
+
+    /** Overall tier counting this workout's ticked sets where they beat your previous numbers. */
+    private fun sessionOverall(w: Workout, p: Profile, before: Map<String, Ranked>): Double? {
+        val now = HashMap(before.mapValues { it.value.percentile })
+        for (id in w.items.map { it.exerciseId }.distinct()) {
+            if (!Standards.covers(id, p)) continue
+            val s = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
+            val v = Standards.percentile(id, Standards.bestValue(id, s), p) ?: continue
+            now[id] = maxOf(now[id] ?: 0.0, v)
+        }
+        return overall(now.values)
+    }
+
+    /**
+     * Call after a set is un-ticked: a rank that set earned is taken back (ticking it again earns it,
+     * and its celebration, again).
+     */
+    fun onSetUndone(c: android.content.Context, w: Workout, exerciseId: String) {
+        if (forWorkout != w.id) return
+        val p = Store.profile.value
+        val shown = shownTier[exerciseId] ?: return
+        val before = all(Store.workouts.value.filter { it.id != w.id }, p)
+        val now = maxOf(sessionTier(w, exerciseId, p), before[exerciseId]?.tier?.ordinal ?: -1)
+        if (now < shown) {
+            if (now >= 0) shownTier[exerciseId] = now else shownTier.remove(exerciseId)
+            Store.exercise(exerciseId)?.let { ex -> celebrations.removeAll { it.title == ex.name && it.tier.ordinal > now } }
+            Store.exercise(exerciseId)?.let { ex ->
+                android.widget.Toast.makeText(c, "${ex.name}: back to " + (if (now >= 0) Tier.entries[now].label else "unranked"),
+                    android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        val o = sessionOverall(w, p, before)
+        val oNow = o?.let { Tier.of(it).ordinal } ?: -1
+        if (oNow < shownOverall) {
+            shownOverall = oNow
+            celebrations.removeAll { it.title == "Overall rank" && it.tier.ordinal > oNow }
+        }
+    }
+
     /** Call after a set is ticked off: queues a celebration if it raised a rank. */
     fun onSetDone(w: Workout, exerciseId: String) {
         if (forWorkout != w.id) { forWorkout = w.id; shownTier.clear(); shownOverall = -1 }

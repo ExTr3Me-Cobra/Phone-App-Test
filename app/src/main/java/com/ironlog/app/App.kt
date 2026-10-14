@@ -249,7 +249,8 @@ fun BigButton(text: String, color: Color = Blue, modifier: Modifier = Modifier.f
     Button(
         onClick = onClick, modifier = modifier.height(50.dp), shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White),
-    ) { Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold) }
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
+    ) { Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false) }
 }
 
 @Composable
@@ -257,7 +258,8 @@ fun GreyButton(text: String, modifier: Modifier = Modifier.fillMaxWidth(), textC
     Button(
         onClick = onClick, modifier = modifier.height(46.dp), shape = RoundedCornerShape(10.dp),
         colors = ButtonDefaults.buttonColors(containerColor = Card2, contentColor = textColor),
-    ) { Text(text, fontSize = 15.sp, fontWeight = FontWeight.Medium) }
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
+    ) { Text(text, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false) }
 }
 
 @Composable
@@ -304,7 +306,7 @@ fun HSpacer(w: Int) = androidx.compose.foundation.layout.Spacer(Modifier.width(w
 fun columnsFor(t: ExType, withPrevious: Boolean): List<Pair<String, Float>> {
     val prev = if (withPrevious) listOf("PREVIOUS" to 2.2f) else emptyList()
     return listOf("SET" to 0.9f) + prev + when (t) {
-        ExType.WEIGHT -> listOf("⇹ " + Units.w.uppercase() to 1.4f, "REPS" to 1.2f)
+        ExType.WEIGHT -> listOf(Units.w.uppercase() to 1.4f, "REPS" to 1.2f)
         ExType.BODYWEIGHT -> listOf("REPS" to 2.6f)
         ExType.TIMED -> listOf("TIME" to 2.6f)
         ExType.CARDIO -> listOf(Units.dist.uppercase() to 1.4f, "TIME" to 1.2f)

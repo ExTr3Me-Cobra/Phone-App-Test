@@ -133,7 +133,11 @@ fun ActiveWorkoutScreen() {
         Row(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("⌄", fontSize = 28.sp, modifier = Modifier.clickable { Nav.back() }.padding(horizontal = 8.dp))
             Text(Units.clock(now - w.start), color = Blue, fontSize = 24.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-            Text("⏱", fontSize = 26.sp, modifier = Modifier.clickable { manualRest = true }.padding(horizontal = 14.dp))
+            Text("⏱", fontSize = 26.sp, modifier = Modifier.clickable { manualRest = true }.padding(horizontal = 10.dp))
+            Text("Discard", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Red).clickable { confirmDiscard = true }
+                    .padding(horizontal = 14.dp, vertical = 9.dp))
+            HSpacer(8)
             Text("Finish", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp,
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Blue).clickable { confirmEnd = true }
                     .padding(horizontal = 18.dp, vertical = 9.dp))
@@ -326,6 +330,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                             if (rest > 0) Rest.start(context, rest) else Rest.stop(context)
                         } else {
                             Workouts.updateSet(i, n) { it.copy(done = false) }
+                            Store.active.value?.let { Ranks.onSetUndone(context, it, ex.id) }
                         }
                     },
                     onLongClick = { del = true },
