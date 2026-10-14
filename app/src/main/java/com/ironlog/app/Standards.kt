@@ -40,6 +40,12 @@ object Standards {
         val lo = rows.first().first; val hi = rows.last().first
         if (bw < lo || bw > hi) problems += "Your body weight (${Units.weightU(bw)}) is outside the published rows " +
             "(${Units.weightU(lo)}–${Units.weightU(hi)}), so the standard is stretched beyond the data."
+        else {
+            // Inside the range: the two rows either side must be close enough to blend reliably.
+            val below = rows.last { it.first <= bw }.first; val above = rows.first { it.first >= bw }.first
+            if (above - below > 50) problems += "The nearest published rows (${Units.weightU(below)} and ${Units.weightU(above)}) " +
+                "are far apart, so your exact body weight is blended across a wide gap."
+        }
         when {
             p.age == null -> problems += "Your age isn't set, so no age adjustment is made."
             p.age < 25 || p.age > 40 -> problems += "The adjustment for age ${p.age} is estimated: Strength Level's age data is from the bench press and is applied to every lift."
