@@ -92,7 +92,10 @@ fun Onboarding() {
                 when (page) {
                     0 -> WelcomePage()
                     1 -> AboutYouPage(p)
-                    2 -> YourDataPage(p)
+                    2 -> YourDataPage(p) {
+                        Store.setProfile(Store.profile.value.copy(cloud = "local"))
+                        page++
+                    }
                     3 -> RanksPage()
                     4 -> PercentPage()
                     else -> ReadyPage()
@@ -100,7 +103,7 @@ fun Onboarding() {
             }
             val missing = when (page) {
                 1 -> biometricsMissing(p)
-                2 -> if (p.cloud.isEmpty()) "Choose where to keep your data to continue." else null
+                2 -> if (p.cloud.isEmpty()) "Choose an option, or tap Skip for now to keep it on this phone." else null
                 else -> null
             }
             val ok = missing == null
@@ -205,11 +208,19 @@ private fun AboutYouPage(p: Profile) {
 }
 
 @Composable
-private fun YourDataPage(p: Profile) {
+private fun YourDataPage(p: Profile, skip: () -> Unit) {
     Title("Your data")
     Body("Your workouts, routines and settings are saved on this phone. Pick whether they should also be backed up " +
         "to your Google account, so a new phone or a reinstall gets everything back.")
+    InfoCard {
+        Text("📱  If you skip, Loadout keeps everything on this phone only (local storage).", fontSize = 14.sp)
+        Text("⚙️  You can change this any time in Settings → Where your data is kept.", fontSize = 14.sp)
+    }
     DataChoice(p)
+    Text(
+        "Skip for now", color = Blue, fontSize = 16.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable(onClick = skip).padding(12.dp),
+    )
 }
 
 @Composable
