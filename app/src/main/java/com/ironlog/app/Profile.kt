@@ -233,12 +233,12 @@ fun SettingsScreen() {
             Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back.", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.zip") }
-                GreyButton("Restore / Import", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "text/csv", "text/comma-separated-values", "*/*")) }
+                GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "*/*")) }
             }
             Spacer(4)
             Text("Import from the Hevy app", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text("Restore / Import also takes your workout history from the Hevy app. In Hevy: Profile → Settings → Export & Import Data → " +
-                "Export Workouts, then pick that .csv file here. You'll match any exercises Loadout doesn't recognise and can turn your " +
+            Text("Bring in your workout history from the Hevy app. In Hevy: Profile → Settings → Export & Import Data → " +
+                "Export Workouts, then pick that .csv file here. You'll match each Hevy exercise to a Loadout exercise and can turn your " +
                 "Hevy workouts into Loadout routines.", color = Sub, fontSize = 13.sp)
             GreyButton("Import Hevy App data (.csv)") { import.launch(arrayOf("text/csv", "text/comma-separated-values", "text/plain", "*/*")) }
             message?.let { Text(it, color = Blue) }

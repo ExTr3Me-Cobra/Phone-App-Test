@@ -42,11 +42,14 @@ fun HevyMatchScreen() {
     var asking by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf<String?>(null) }
+    var warn by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val haveRoutines = Store.routines.collectAsState().value.map { it.id }.toSet()
 
     Column(Modifier.fillMaxSize()) {
+        val left = plan.unmatched.count { it.hevy !in choices }
         TopBar("Import from Hevy", action = if (busy) null else "Import") {
+            if (left > 0) { warn = "Match every exercise first – $left still to go."; return@TopBar }
             busy = true
             scope.launch {
                 done = withContext(Dispatchers.IO) {
@@ -66,13 +69,20 @@ fun HevyMatchScreen() {
                 item {
                     Text("Match exercises", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(
-                        "These Hevy exercises have no direct match in Loadout. Tap one to choose which Loadout exercise its sets go to, " +
-                            "or add it as a new custom exercise (no picture or directions until you add them on its page). Your choices are remembered for next time.",
-                        color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                        "Tap each Hevy exercise and choose the Loadout exercise its sets go to, or add it as a new custom exercise " +
+                            "(no picture or directions until you add them). Your choices are remembered for next time.",
+                        color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                    )
+                    Text(
+                        if (left == 0) "✓ All ${plan.unmatched.size} matched" else "${plan.unmatched.size - left} of ${plan.unmatched.size} matched",
+                        color = if (left == 0) androidx.compose.ui.graphics.Color(0xFF34C759) else Blue,
+                        fontWeight = FontWeight.Medium, modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
                 items(plan.unmatched, key = { "u_" + it.hevy }) { u ->
-                    val target = choices[u.hevy].orEmpty().takeIf { it.isNotEmpty() }?.let { Store.exercise(it) }
+                    val choice = choices[u.hevy]
+                    val target = choice?.takeIf { it.isNotEmpty() }?.let { Store.exercise(it) }
+                    val guess = u.guess?.let { Store.exercise(it) }
                     Row(
                         Modifier.padding(vertical = 5.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
                             .clickable { asking = u.hevy }.padding(12.dp),
@@ -81,10 +91,12 @@ fun HevyMatchScreen() {
                         Column(Modifier.weight(1f)) {
                             Text(u.hevy, fontWeight = FontWeight.Medium)
                             Text("${u.sets} set${if (u.sets == 1) "" else "s"} from Hevy", color = Sub, fontSize = 12.sp)
-                            Text(
-                                "→ " + (target?.name ?: "New custom exercise \"${u.hevy}\""),
-                                color = if (target != null) Blue else Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp),
-                            )
+                            when {
+                                target != null -> Text("→ " + target.name, color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+                                choice == "" -> Text("→ New custom exercise", color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+                                else -> Text("Not matched yet" + (guess?.let { " · maybe ${it.name}?" } ?: ""),
+                                    color = androidx.compose.ui.graphics.Color(0xFFFF9F0A), fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+                            }
                         }
                         if (target != null) ExerciseThumb(target, 44.dp)
                         Text("›", color = Sub, fontSize = 24.sp, modifier = Modifier.padding(start = 8.dp))
@@ -138,17 +150,30 @@ fun HevyMatchScreen() {
         }
     }
     asking?.let { hevy ->
+        val guess = plan.unmatched.firstOrNull { it.hevy == hevy }?.guess?.let { Store.exercise(it) }
         AlertDialog(
             onDismissRequest = { asking = null },
             title = { Text(hevy) },
-            text = { Text("Where should these sets go?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    asking = null
-                    Nav.go(Route.Picker("Match \"$hevy\"", false) { ids -> ids.firstOrNull()?.let { choices[hevy] = it } })
-                }) { Text("Pick a Loadout exercise") }
+            text = {
+                Column {
+                    Text("Where should these sets go?", modifier = Modifier.padding(bottom = 8.dp))
+                    if (guess != null) TextButton(onClick = { choices[hevy] = guess.id; asking = null }) { Text("Use \"${guess.name}\"") }
+                    TextButton(onClick = {
+                        asking = null
+                        Nav.go(Route.Picker("Match \"$hevy\"", false) { ids -> ids.firstOrNull()?.let { choices[hevy] = it } })
+                    }) { Text("Pick a Loadout exercise") }
+                    TextButton(onClick = { choices[hevy] = ""; asking = null }) { Text("New custom exercise") }
+                }
             },
-            dismissButton = { TextButton(onClick = { choices[hevy] = ""; asking = null }) { Text("New custom exercise") } },
+            confirmButton = { TextButton(onClick = { asking = null }) { Text("Cancel") } },
+        )
+    }
+    warn?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { warn = null },
+            title = { Text("Not finished") },
+            text = { Text(msg) },
+            confirmButton = { TextButton(onClick = { warn = null }) { Text("OK") } },
         )
     }
     done?.let { msg ->

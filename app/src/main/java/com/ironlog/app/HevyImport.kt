@@ -70,8 +70,11 @@ object HevyImport {
     private fun directId(hevy: String, byName: Map<String, Exercise>): String? =
         MAP[hevy]?.let { byName[it.lowercase()]?.id } ?: byName[hevy.lowercase()]?.id
 
-    /** One Hevy exercise that needs a choice. [suggested]: a Loadout exercise id, or "" for a custom one. */
-    class Unmatched(val hevy: String, val sets: Int, val suggested: String)
+    /**
+     * One Hevy exercise to match. [saved]: your choice from a previous import (an exercise id, or "" for
+     * a custom one), [guess]: a Loadout exercise with the same or a similar name, only shown as a hint.
+     */
+    class Unmatched(val hevy: String, val sets: Int, val saved: String?, val guess: String?)
 
     /** A workout name from Hevy that can become a routine: done [times] times, last on [last] with [exercises] exercises. */
     class RoutineOption(val name: String, val times: Int, val last: String, val exercises: Int)
@@ -95,12 +98,13 @@ object HevyImport {
         val byName = library()
         val saved = savedChoices()
         val counts = rows.drop(1).mapNotNull { it.getOrNull(cEx)?.takeIf { n -> n.isNotBlank() } }.groupingBy { it }.eachCount()
-        val unmatched = counts.keys.filter { directId(it, byName) == null }.sorted().map { n ->
+        // Every exercise gets matched by you; only choices you made before are filled in.
+        val unmatched = counts.keys.sorted().map { n ->
             val savedId = saved[n]?.takeIf { it == "" || Store.exercise(it) != null }
-            Unmatched(n, counts.getValue(n), savedId ?: "")
+            Unmatched(n, counts.getValue(n), savedId, directId(n, byName))
         }
         choices.clear()
-        unmatched.forEach { choices[it.hevy] = it.suggested }
+        unmatched.forEach { u -> u.saved?.let { choices[u.hevy] = it } }
 
         // Workout names -> possible routines (built from the most recent session with that name).
         val cTitle = rows[0].indexOf("title"); val cStart = rows[0].indexOf("start_time")
@@ -141,7 +145,6 @@ object HevyImport {
         val byName = library()
         val custom = HashMap<String, Exercise>()
         fun exerciseFor(hevy: String, row: List<String>): String {
-            directId(hevy, byName)?.let { return it }
             choices[hevy]?.takeIf { it.isNotEmpty() && Store.exercise(it) != null }?.let { return it }
             val id = "custom_hevy_" + hevy.replace(Regex("[^A-Za-z0-9]+"), "_").trim('_')
             Store.exercise(id)?.let { return it.id }
