@@ -22,7 +22,7 @@ object Standards {
         val exact get() = problems.isEmpty()
     }
 
-    /** Women's levels as a share of men's (at 140 vs 180 lb), averaged over push-ups and dips: used for women's pull-ups/chin-ups. */
+    /** Women's levels as a share of men's (at 140 vs 180 lb), averaged over push-ups and dips: used when one sex has no data. */
     private val WOMEN_REPS = doubleArrayOf(0.3, 0.23, 0.46, 0.55, 0.62)
 
     /** The rows to use for you, and anything that makes your percentile less exact. Null without a standard or body weight. */
@@ -30,7 +30,12 @@ object Standards {
         val s = table[id] ?: return null
         val bw = p.bodyweight ?: return null
         val own = if (p.male) s.male else s.female
-        val rows = own ?: s.male?.map { (w, lv) -> w * 140 / 180 to DoubleArray(5) { lv[it] * WOMEN_REPS[it] } } ?: return null
+        // Your own sex's table first; the other sex's (scaled) only when there's none at all for yours.
+        val rows = own ?: if (p.male) {
+            s.female?.map { (w, lv) -> w * 180 / 140 to DoubleArray(5) { lv[it] / WOMEN_REPS[it] } }
+        } else {
+            s.male?.map { (w, lv) -> w * 140 / 180 to DoubleArray(5) { lv[it] * WOMEN_REPS[it] } }
+        } ?: return null
         val problems = mutableListOf<String>()
         val lo = rows.first().first; val hi = rows.last().first
         if (bw < lo || bw > hi) problems += "Your body weight (${Units.weightU(bw)}) is outside the published rows " +
@@ -39,7 +44,8 @@ object Standards {
             p.age == null -> problems += "Your age isn't set, so no age adjustment is made."
             p.age < 25 || p.age > 40 -> problems += "The adjustment for age ${p.age} is estimated: Strength Level's age data is from the bench press and is applied to every lift."
         }
-        if (own == null) problems += "No published data for women on this exercise: estimated from men's data, scaled by the women-to-men ratio on push-ups and dips."
+        if (own == null) problems += if (p.male) "No published data for men on this exercise: estimated from women's data, scaled by the men-to-women ratio on push-ups and dips."
+            else "No published data for women on this exercise: estimated from men's data, scaled by the women-to-men ratio on push-ups and dips."
         val sex = if (p.male) "men" else "women"
         val near = rows.map { it.first }.let { ws ->
             val below = ws.lastOrNull { it <= bw }; val above = ws.firstOrNull { it >= bw }
@@ -55,7 +61,7 @@ object Standards {
             else -> "age ${p.age} (standards × ${"%.2f".format(ageFactor(p.age))})"
         }
         val compared = "Compared with $sex who lift, at your body weight of ${Units.weightU(bw)} ($near), $age. " +
-            "Source: Strength Level \"${s.lift}\"" + (if (own == null) ", men's table scaled for women." else ".") + (s.note?.let { " $it" } ?: "")
+            "Source: Strength Level \"${s.lift}\"" + (if (own == null) (if (p.male) ", women's table scaled for men." else ", men's table scaled for women.") else ".") + (s.note?.let { " $it" } ?: "")
         return Fit(rows, own == null, problems, compared)
     }
 
