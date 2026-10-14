@@ -40,7 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -144,7 +147,14 @@ private fun Root() {
     }
     Column(
         Modifier.fillMaxSize().background(Bg)
-            .pointerInput(Unit) { detectTapGestures(onTap = { focus.clearFocus() }) }
+            // Watches every tap before buttons and rows handle it, so tapping an exercise or a button closes the keyboard too.
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    val up = waitForUpOrCancellation(PointerEventPass.Initial)
+                    if (up != null && !TextBoxes.contains(up.position)) focus.clearFocus()
+                }
+            }
             .nestedScroll(hideOnScroll),
     ) {
         Box(Modifier.weight(1f).fillMaxWidth()) {

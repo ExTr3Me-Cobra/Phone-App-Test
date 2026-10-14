@@ -181,7 +181,7 @@ fun ActiveWorkoutScreen() {
                 }
                 // Notes (kept with the routine, so they're there next time).
                 var note by remember(w.id, i) { mutableStateOf(item.note) }
-                Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp)) {
+                Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp).typing()) {
                     if (note.isEmpty()) Text("Add notes here...", color = Sub, fontSize = 17.sp)
                     androidx.compose.foundation.text.BasicTextField(
                         note, { t ->

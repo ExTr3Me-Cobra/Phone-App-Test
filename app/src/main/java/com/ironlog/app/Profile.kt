@@ -51,20 +51,20 @@ fun ProfileScreen() {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 var bw by remember { mutableStateOf(p.bodyweight?.let { Units.weight(it) } ?: "") }
                 OutlinedTextField(bw, { t -> bw = t; set(p.copy(bodyweight = t.toDoubleOrNull()?.let(Units::fromShown))) },
-                    Modifier.weight(1f), label = { Text("Body weight (${Units.w})") }, singleLine = true,
+                    Modifier.weight(1f).typing(), label = { Text("Body weight (${Units.w})") }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                 var age by remember { mutableStateOf(p.age?.toString() ?: "") }
                 OutlinedTextField(age, { t -> age = t; set(p.copy(age = t.toIntOrNull())) },
-                    Modifier.weight(1f), label = { Text("Age") }, singleLine = true,
+                    Modifier.weight(1f).typing(), label = { Text("Age") }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 var ft by remember { mutableStateOf(p.heightIn?.let { (it / 12).toString() } ?: "") }
                 var inch by remember { mutableStateOf(p.heightIn?.let { (it % 12).toString() } ?: "") }
                 fun saveH() { val f = ft.toIntOrNull(); val i = inch.toIntOrNull() ?: 0; set(p.copy(heightIn = f?.let { it * 12 + i })) }
-                OutlinedTextField(ft, { ft = it; saveH() }, Modifier.weight(1f), label = { Text("Height ft") }, singleLine = true,
+                OutlinedTextField(ft, { ft = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("Height ft") }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                OutlinedTextField(inch, { inch = it; saveH() }, Modifier.weight(1f), label = { Text("in") }, singleLine = true,
+                OutlinedTextField(inch, { inch = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("in") }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -190,10 +190,10 @@ fun SettingsScreen() {
                 color = Sub, fontSize = 13.sp,
             )
             var key by remember { mutableStateOf(p.apiKey) }
-            OutlinedTextField(key, { key = it.trim(); set(p.copy(apiKey = key)) }, Modifier.fillMaxWidth(),
+            OutlinedTextField(key, { key = it.trim(); set(p.copy(apiKey = key)) }, Modifier.fillMaxWidth().typing(),
                 label = { Text("OpenAI API key") }, singleLine = true, visualTransformation = PasswordVisualTransformation())
             var model by remember { mutableStateOf(p.imageModel) }
-            OutlinedTextField(model, { model = it.trim(); set(p.copy(imageModel = model.ifBlank { "gpt-image-1" })) }, Modifier.fillMaxWidth(),
+            OutlinedTextField(model, { model = it.trim(); set(p.copy(imageModel = model.ifBlank { "gpt-image-1" })) }, Modifier.fillMaxWidth().typing(),
                 label = { Text("Image model") }, singleLine = true)
             Text("Quality", color = Sub)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

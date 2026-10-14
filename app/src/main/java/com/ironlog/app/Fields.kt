@@ -17,6 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -25,6 +28,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+/**
+ * Where the text boxes on screen are, so a tap anywhere else can put the keyboard away
+ * (see Root in App.kt). Add [typing] to every text box.
+ */
+object TextBoxes {
+    val rects = HashMap<Any, androidx.compose.ui.geometry.Rect>()
+    fun contains(p: androidx.compose.ui.geometry.Offset) = rects.values.any { it.contains(p) }
+}
+
+fun Modifier.typing(): Modifier = composed {
+    val id = remember { Any() }
+    androidx.compose.runtime.DisposableEffect(id) { onDispose { TextBoxes.rects.remove(id) } }
+    onGloballyPositioned { TextBoxes.rects[id] = it.boundsInRoot() }
+}
 
 /**
  * A small number box for set tables. Keeps what you type while you type it, and reports the
@@ -44,7 +62,7 @@ fun NumField(
     var text by remember(key) { mutableStateOf(initial) }
     val shape = RoundedCornerShape(if (outlined) 10.dp else 6.dp)
     Box(
-        modifier.clip(shape).background(background)
+        modifier.typing().clip(shape).background(background)
             .then(if (outlined) Modifier.border(1.dp, Color(0xFF3A3A3C), shape) else Modifier)
             .padding(horizontal = 6.dp, vertical = if (outlined) 12.dp else 4.dp),
         contentAlignment = if (outlined) Alignment.Center else Alignment.CenterStart,

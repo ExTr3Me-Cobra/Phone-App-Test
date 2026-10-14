@@ -108,9 +108,9 @@ fun PickerScreen(req: Route.Picker?) {
         ) {
             Text("🔍", fontSize = 16.sp)
             HSpacer(10)
-            Box(Modifier.weight(1f)) {
+            Box(Modifier.weight(1f).typing()) {
                 if (query.isEmpty()) Text("Search exercise", color = Sub, fontSize = 17.sp)
-                BasicTextField(query, { query = it }, singleLine = true, textStyle = TextStyle(color = Color.White, fontSize = 17.sp), cursorBrush = SolidColor(Blue))
+                BasicTextField(query, { query = it }, Modifier.fillMaxWidth(), singleLine = true, textStyle = TextStyle(color = Color.White, fontSize = 17.sp), cursorBrush = SolidColor(Blue))
             }
             if (query.isNotEmpty()) Text("✕", color = Sub, modifier = Modifier.clickable { query = "" }.padding(start = 8.dp))
         }
@@ -412,7 +412,7 @@ fun EditExerciseScreen(id: String?) {
             }
         }
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text("Name") }, singleLine = true)
+            OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth().typing(), label = { Text("Name") }, singleLine = true)
             error?.let { Text(it, color = Red) }
 
             // Live preview: changes as you move the sliders.
@@ -440,7 +440,7 @@ fun EditExerciseScreen(id: String?) {
             GreyButton("+ Add a muscle", textColor = Blue) { adding = true }
 
             Text("Directions (one step per line)", fontWeight = FontWeight.Bold)
-            OutlinedTextField(directions, { directions = it }, Modifier.fillMaxWidth().heightIn(min = 120.dp))
+            OutlinedTextField(directions, { directions = it }, Modifier.fillMaxWidth().typing().heightIn(min = 120.dp))
 
             Text("Equipment", color = Sub)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

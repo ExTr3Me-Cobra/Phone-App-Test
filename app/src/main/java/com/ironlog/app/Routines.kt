@@ -216,7 +216,7 @@ fun RoutineEditScreen(id: String?) {
             item {
                 OutlinedTextField(
                     draft.name, { n -> update { it.copy(name = n) } },
-                    Modifier.fillMaxWidth().padding(16.dp), label = { Text("Routine name") }, singleLine = true,
+                    Modifier.fillMaxWidth().padding(16.dp).typing(), label = { Text("Routine name") }, singleLine = true,
                 )
                 error?.let { Text(it, color = Red, modifier = Modifier.padding(horizontal = 16.dp)) }
             }
@@ -251,7 +251,7 @@ fun RoutineEditScreen(id: String?) {
                 }
                 OutlinedTextField(
                     item.note, { t -> updateItem(i) { it.copy(note = t) } },
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp), placeholder = { Text("Add notes here...") },
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp).typing(), placeholder = { Text("Add notes here...") },
                 )
                 RestLine(item.restSec) { restFor = i }
                 if (ex != null) {
