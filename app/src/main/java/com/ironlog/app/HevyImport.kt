@@ -55,7 +55,10 @@ object HevyImport {
 
     // ---- Your choices for exercises without a direct match, remembered for the next import ----
 
-    /** Hevy exercise -> Loadout exercise id, or "" for a new custom exercise. */
+    /** Choice meaning "don't import this exercise". */
+    const val SKIP = "-"
+
+    /** Hevy exercise -> Loadout exercise id, "" for a new custom exercise, or [SKIP]. */
     fun savedChoices(): Map<String, String> = runCatching {
         val o = JSONObject(Store.readFile("hevy_map.json") ?: "{}")
         o.keys().asSequence().associateWith { o.getString(it) }
@@ -100,7 +103,7 @@ object HevyImport {
         val counts = rows.drop(1).mapNotNull { it.getOrNull(cEx)?.takeIf { n -> n.isNotBlank() } }.groupingBy { it }.eachCount()
         // Every exercise gets matched by you; only choices you made before are filled in.
         val unmatched = counts.keys.sorted().map { n ->
-            val savedId = saved[n]?.takeIf { it == "" || Store.exercise(it) != null }
+            val savedId = saved[n]?.takeIf { it == "" || it == SKIP || Store.exercise(it) != null }
             Unmatched(n, counts.getValue(n), savedId, directId(n, byName))
         }
         choices.clear()
@@ -173,6 +176,7 @@ object HevyImport {
         for (r in rows.drop(1)) {
             if (r.size <= cEx || r[cEx].isBlank()) continue
             val start = localTime(r[cStart]) ?: continue
+            if (choices[r[cEx]] == SKIP) continue // you chose not to import this exercise
             val w = workouts.getOrPut(r[cTitle] + "|" + r[cStart]) {
                 W("hevy_" + start.filter { it.isDigit() }, r[cTitle].ifBlank { "Workout" }, start, localTime(r.getOrNull(cEnd).orEmpty()))
             }

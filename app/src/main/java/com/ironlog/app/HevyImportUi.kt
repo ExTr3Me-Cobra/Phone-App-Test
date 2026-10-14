@@ -70,36 +70,40 @@ fun HevyMatchScreen() {
                     Text("Match exercises", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(
                         "Tap each Hevy exercise and choose the Loadout exercise its sets go to, or add it as a new custom exercise " +
-                            "(no picture or directions until you add them). Your choices are remembered for next time.",
+                            "(no picture or directions until you add them). Untick an exercise to leave it out. Your choices are remembered for next time.",
                         color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                     )
+                    val skipped = plan.unmatched.count { choices[it.hevy] == HevyImport.SKIP }
                     Text(
-                        if (left == 0) "✓ All ${plan.unmatched.size} matched" else "${plan.unmatched.size - left} of ${plan.unmatched.size} matched",
+                        (if (left == 0) "✓ All ${plan.unmatched.size} done" else "${plan.unmatched.size - left} of ${plan.unmatched.size} done") +
+                            if (skipped > 0) " · $skipped not imported" else "",
                         color = if (left == 0) androidx.compose.ui.graphics.Color(0xFF34C759) else Blue,
                         fontWeight = FontWeight.Medium, modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
                 items(plan.unmatched, key = { "u_" + it.hevy }) { u ->
                     val choice = choices[u.hevy]
+                    val included = choice != HevyImport.SKIP
                     val target = choice?.takeIf { it.isNotEmpty() }?.let { Store.exercise(it) }
                     val guess = u.guess?.let { Store.exercise(it) }
                     Row(
                         Modifier.padding(vertical = 5.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
-                            .clickable { asking = u.hevy }.padding(12.dp),
+                            .clickable(enabled = included) { asking = u.hevy }.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f)) {
                             Text(u.hevy, fontWeight = FontWeight.Medium)
                             Text("${u.sets} set${if (u.sets == 1) "" else "s"} from Hevy", color = Sub, fontSize = 12.sp)
                             when {
+                                !included -> Text("Won't be imported", color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                                 target != null -> Text("→ " + target.name, color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                                 choice == "" -> Text("→ New custom exercise", color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                                 else -> Text("Not matched yet" + (guess?.let { " · maybe ${it.name}?" } ?: ""),
                                     color = androidx.compose.ui.graphics.Color(0xFFFF9F0A), fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                             }
                         }
-                        if (target != null) ExerciseThumb(target, 44.dp)
-                        Text("›", color = Sub, fontSize = 24.sp, modifier = Modifier.padding(start = 8.dp))
+                        if (target != null && included) ExerciseThumb(target, 44.dp)
+                        androidx.compose.material3.Checkbox(included, { on -> if (on) choices.remove(u.hevy) else choices[u.hevy] = HevyImport.SKIP })
                     }
                 }
                 item { Spacer(16) }
