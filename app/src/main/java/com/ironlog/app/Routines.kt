@@ -212,7 +212,8 @@ fun RoutineEditScreen(id: String?) {
                 else -> { Store.saveRoutine(r); Drafts.routine = null; Nav.back() }
             }
         }
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 40.dp)) {
+        // Lots of room at the bottom so the last sets can scroll up above the keyboard.
+        LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 400.dp)) {
             item {
                 OutlinedTextField(
                     draft.name, { n -> update { it.copy(name = n) } },

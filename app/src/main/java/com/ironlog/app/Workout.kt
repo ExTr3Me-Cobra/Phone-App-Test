@@ -157,7 +157,8 @@ fun ActiveWorkoutScreen() {
         }
         androidx.compose.material3.HorizontalDivider(color = Card2)
         if (manualRest) RestPicker(0, { manualRest = false }) { sec -> manualRest = false; if (sec > 0) Rest.start(context, sec) else Rest.stop(context) }
-        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 24.dp)) {
+        // Lots of room at the bottom so the last sets can scroll up above the keyboard.
+        LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 400.dp)) {
             items(w.items.size) { i ->
                 val item = w.items[i]
                 val ex = Store.exercise(item.exerciseId)

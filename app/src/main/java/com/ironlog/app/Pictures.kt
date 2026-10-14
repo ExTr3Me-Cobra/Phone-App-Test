@@ -13,6 +13,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -369,16 +372,22 @@ fun ExerciseThumb(e: Exercise?, size: Dp = 56.dp) {
     }
 }
 
-/** Large picture for the exercise page. */
+/** Exercise page: your picture (if there is one) shown large, and always the muscle heatmap. */
 @Composable
 fun ExercisePicture(e: Exercise, modifier: Modifier) {
     val version by Store.imageVersion.collectAsState()
     var img by remember(e.id, version) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(e.id, version) { img = withContext(Dispatchers.IO) { Pictures.load(e.id, version) } }
-    Box(modifier.background(if (img != null) Color.White else Color.Black), contentAlignment = Alignment.Center) {
-        val bmp = img
-        if (bmp != null) Image(bmp, e.name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
-        else BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize())
+    androidx.compose.foundation.layout.Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        img?.let { bmp ->
+            Image(
+                bmp, e.name,
+                Modifier.padding(top = 16.dp).fillMaxWidth(0.85f).aspectRatio(1f)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp)).background(Color.White),
+                contentScale = ContentScale.Fit,
+            )
+        }
+        BodyMapView(BodyMap.levelsFor(e), Modifier.padding(top = if (img != null) 12.dp else 0.dp).fillMaxWidth().height(320.dp).background(Color.Black))
     }
 }
 

@@ -228,7 +228,7 @@ fun ExerciseDetailScreen(id: String) {
             deleting = false; Store.deleteCustomExercise(e.id); Nav.back()
         }, { deleting = false }, "Delete")
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            ExercisePicture(e, Modifier.fillMaxWidth().height(320.dp))
+            ExercisePicture(e, Modifier.fillMaxWidth())
             Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Box(Modifier.weight(1f)) {
                     GreyButton("📷 Your picture") { menu = true }
