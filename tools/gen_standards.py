@@ -136,6 +136,11 @@ APPROX = {'Hip Abduction': 'Strength Level shows two different versions of this 
           'Handstand Push Ups': 'The women\'s table was guessed and some men\'s values were not per row.',
           'Barbell Glute Bridge': 'Rows were pieced together from separate snippets.'}
 from derived_standards import DERIVED
+# Single exercises that only rank as estimates although the lift's data is fine.
+APPROX_EXERCISE = {
+    'Leverage Chest Press': 'Plate-loaded machine: loads differ from the pin-stack chest press the standard comes from.',
+    'Leverage Shoulder Press': 'Plate-loaded machine: loads differ from the pin-stack shoulder press the standard comes from.',
+}
 # Single rows found to be copies of another exercise's row.
 DROP_ROWS = {('Preacher Curl', 'male', 110.0): 'identical to the barbell curl row'}
 
@@ -234,7 +239,7 @@ for lift, exs in MAP.items():
             t = tables.get(sex)
             return [[bw] + v for bw, v in t.items()] if t else None
         entries.append({'i': db[name]['i'], 'lift': lift, 'm': rows_of('male'), 'f': rows_of('female'),
-                        'r': reps, 'd': lift in DUMBBELL, 'note': note, 'k': 1.0, 'a': APPROX.get(lift)})
+                        'r': reps, 'd': lift in DUMBBELL, 'note': note, 'k': 1.0, 'a': APPROX.get(lift) or APPROX_EXERCISE.get(name)})
         used += 1
     tables_by_lift[lift] = (tables, reps)
 

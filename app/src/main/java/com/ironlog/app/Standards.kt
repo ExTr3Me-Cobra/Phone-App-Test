@@ -273,10 +273,6 @@ object Ranks {
         if (now < shown) {
             if (now >= 0) shownTier[exerciseId] = now else shownTier.remove(exerciseId)
             Store.exercise(exerciseId)?.let { ex -> celebrations.removeAll { it.title == ex.name && it.tier.ordinal > now } }
-            Store.exercise(exerciseId)?.let { ex ->
-                android.widget.Toast.makeText(c, "${ex.name}: back to " + (if (now >= 0) Tier.entries[now].label else "unranked"),
-                    android.widget.Toast.LENGTH_SHORT).show()
-            }
         }
         val o = sessionOverall(w, p, before)
         val oNow = o?.let { Tier.of(it).ordinal } ?: -1
