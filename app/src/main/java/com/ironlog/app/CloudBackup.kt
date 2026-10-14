@@ -62,8 +62,5 @@ class CloudBackup : BackupAgent() {
 
         fun resetStatus() { runCatching { File(Store.noBackupDir(), "last_backup.txt").delete() } }
 
-        /** Whether the phone's own backup switch is on, if Android lets us see it (null = can't tell). */
-        fun phoneBackupOn(c: Context): Boolean? =
-            runCatching { Settings.Secure.getInt(c.contentResolver, "backup_enabled") == 1 }.getOrNull()
     }
 }

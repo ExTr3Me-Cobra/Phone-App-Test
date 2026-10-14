@@ -210,7 +210,7 @@ private fun YourDataPage(p: Profile, skip: () -> Unit) {
 @Composable
 private fun BackupCheckPage() {
     Title("Make sure your data is backing up")
-    Body("Google backup has to be switched on in your phone's settings.")
+    Body("Make sure \"Back up data\" is on in your phone's backup settings.")
     BackupStatus()
 }
 
@@ -290,16 +290,13 @@ fun BackupStatus() {
     // Re-check every few seconds (e.g. after coming back from the phone's settings).
     LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(3000); tick++ } }
     val last = remember(tick) { CloudBackup.lastBackup(c) }
-    val enabled = remember(tick) { CloudBackup.phoneBackupOn(c) }
     val green = Color(0xFF34C759)
-    val orange = Color(0xFFFF9F0A)
     Column(
         Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Card).padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             val (icon, color) = when {
-                enabled == false -> "!" to orange
                 last != null -> "✓" to green
                 else -> "…" to Card2
             }
@@ -308,10 +305,6 @@ fun BackupStatus() {
             }
             Column(Modifier.padding(start = 12.dp)) {
                 when {
-                    enabled == false -> {
-                        Text("Backup is off on this phone", fontWeight = FontWeight.Bold, color = orange)
-                        Text("Turn on Back up data in your phone's settings.", color = Sub, fontSize = 13.sp)
-                    }
                     last != null -> {
                         Text("Backup is working", fontWeight = FontWeight.Bold, color = green)
                         Text("Last backed up " + java.text.SimpleDateFormat("MMM d, h:mm a", java.util.Locale.getDefault()).format(java.util.Date(last)),
@@ -319,12 +312,13 @@ fun BackupStatus() {
                     }
                     else -> {
                         Text("Waiting for the first backup", fontWeight = FontWeight.Bold)
-                        Text("Usually within a day, while charging on Wi-Fi. A green tick shows here once it's done.", color = Sub, fontSize = 13.sp)
+                        Text("A green tick shows here once Loadout has been backed up.", color = Sub, fontSize = 13.sp)
                     }
                 }
             }
         }
-        Text("Check: Settings → Accounts and backup → Back up data is on.", color = Sub, fontSize = 13.sp)
+        Text("Your phone backs up on its own when idle. To do it now, open backup settings and tap Back up now, then come back here.",
+            color = Sub, fontSize = 13.sp, lineHeight = 18.sp)
         GreyButton("Open backup settings") { CloudBackup.openSettings(c) }
     }
 }
