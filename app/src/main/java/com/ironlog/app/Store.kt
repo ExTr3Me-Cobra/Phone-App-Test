@@ -190,9 +190,12 @@ object Store {
 
     /** Restores a backup zip (or an older .json backup). Returns how many pictures were restored. */
     fun readBackup(input: java.io.InputStream): Int {
+        lastHevy = false
         val bytes = input.readBytes()
         if (bytes.size < 2 || bytes[0] != 'P'.code.toByte() || bytes[1] != 'K'.code.toByte()) {
-            restore(String(bytes)); return 0
+            val text = String(bytes)
+            if (HevyImport.looksLikeHevy(text)) { lastHevy = true; HevyImport.import(text); return 0 }
+            restore(text); return 0
         }
         var json: String? = null
         var pics = 0
@@ -216,6 +219,9 @@ object Store {
         imageChanged()
         return pics
     }
+
+    /** The last restore was a Hevy CSV. */
+    var lastHevy = false
 
     /** Workouts added by the last import (null after a normal restore). */
     var lastImported: Int? = null

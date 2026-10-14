@@ -123,7 +123,9 @@ fun SettingsScreen() {
                 message = withContext(Dispatchers.IO) {
                     runCatching {
                         val n = context.contentResolver.openInputStream(uri)!!.use { Store.readBackup(it) }
-                        Store.lastImported?.let { "Imported $it workout${if (it == 1) "" else "s"} (any already here were skipped)." }
+                        Store.lastImported?.let {
+                            "Imported $it workout${if (it == 1) "" else "s"}" + (if (Store.lastHevy) " from Hevy" else "") + " (any already here were skipped)."
+                        }
                             ?: ("Backup restored" + if (n > 0) " with $n picture${if (n == 1) "" else "s"}." else ".")
                     }.getOrElse { "That file isn't a Loadout backup." }
                 }
@@ -236,10 +238,10 @@ fun SettingsScreen() {
 
             Spacer(8)
             Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back.", color = Sub, fontSize = 13.sp)
+            Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back. Restore / Import also takes a workout export (.csv) from Hevy and adds that history.", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.zip") }
-                GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "*/*")) }
+                GreyButton("Restore / Import", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "text/csv", "text/comma-separated-values", "*/*")) }
             }
             message?.let { Text(it, color = Blue) }
             val build = remember {
