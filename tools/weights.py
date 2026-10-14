@@ -33,6 +33,11 @@ RULES = [
     (r'pull-?ups?|chin-?ups?|muscle up|towel pull', None,
      {'biceps': .55, 'middle back': .5, 'traps': .45, 'forearms': .3, 'grip': .4, 'shoulders': .25, 'abdominals': .2},
      ['Youdas 2010', 'Lusk 2010']),
+    # Neutral (palms-in) grip shifts elbow flexion work toward brachialis / brachioradialis.
+    (r'neutral.*pulldown', None, {'biceps': .45, 'middle back': .45, 'traps': .35, 'forearms': .35, 'grip': .25, 'shoulders': .25},
+     ['Lusk 2010', 'Andersen 2014', 'Kleiber 2015', 'Boland 2008']),
+    (r'medium-grip lat pulldown', None, {'biceps': .45, 'middle back': .45, 'traps': .35, 'forearms': .25, 'grip': .25, 'shoulders': .25},
+     ['Lusk 2010', 'Andersen 2014', 'Youdas 2010']),
     (r'pulldown', None, {'biceps': .45, 'middle back': .45, 'traps': .35, 'forearms': .25, 'grip': .25, 'shoulders': .25},
      ['Lusk 2010', 'Youdas 2010']),
     (r'(?<!upright )row\b|rows\b', None,

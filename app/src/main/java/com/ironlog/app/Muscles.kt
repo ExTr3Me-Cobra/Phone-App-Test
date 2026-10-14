@@ -56,6 +56,7 @@ object Muscles {
 
     /** The studies the percentages come from. */
     val refs: Map<String, String> = mapOf(
+        "Andersen 2014" to "Andersen V, Fimland MS, Wiik E, Skoglund A, Saeterbakken AH. Effects of grip width on muscle strength and activation in the lat pull-down. J Strength Cond Res. 2014;28(4):1135-1142.",
         "Andersson 1997" to "Andersson EA, Nilsson J, Ma Z, Thorstensson A. Abdominal and hip flexor muscle activation during various training exercises. Eur J Appl Physiol. 1997;75:115-123.",
         "Barnett 1995" to "Barnett C, Kippers V, Turner P. Effects of variations of the bench press exercise on the EMG activity of five shoulder muscles. J Strength Cond Res. 1995;9(4):222-227.",
         "Boland 2008" to "Boland MR, Spigelman T, Uhl TL. The function of brachioradialis. J Hand Surg Am. 2008;33(10):1853-1859.",

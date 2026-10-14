@@ -13,6 +13,7 @@ Each rule lists its sources (REFS keys); the app shows them on the exercise page
 """
 
 REFS = {
+    'Andersen 2014': 'Andersen V, Fimland MS, Wiik E, Skoglund A, Saeterbakken AH. Effects of grip width on muscle strength and activation in the lat pull-down. J Strength Cond Res. 2014;28(4):1135-1142.',
     'Andersson 1997': 'Andersson EA, Nilsson J, Ma Z, Thorstensson A. Abdominal and hip flexor muscle activation during various training exercises. Eur J Appl Physiol. 1997;75:115-123.',
     'Barnett 1995': 'Barnett C, Kippers V, Turner P. Effects of variations of the bench press exercise on the EMG activity of five shoulder muscles. J Strength Cond Res. 1995;9(4):222-227.',
     'Boland 2008': 'Boland MR, Spigelman T, Uhl TL. The function of brachioradialis. J Hand Surg Am. 2008;33(10):1853-1859.',
@@ -148,6 +149,7 @@ HEADS = [
      ['Kleiber 2015', 'Boland 2008']),
     (r'incline.*curl|drag curl|bayesian|behind.?the.?back curl', 'biceps', {BL: 1, BS: .8, BR: .75}, ['Oliveira 2009']),
     (r'preacher|spider|concentration|scott', 'biceps', {BL: .75, BS: 1, BR: .85}, ['Oliveira 2009']),
+    (r'neutral', 'biceps', {BL: .75, BS: .6, BR: 1}, ['Kleiber 2015', 'Boland 2008']),
     (r'chin-?ups?|pull-?ups?|row|pulldown', 'biceps', {BL: .85, BS: .85, BR: 1}, ['Youdas 2010', 'Lusk 2010']),
     (r'curl', 'biceps', {BL: 1, BS: .95, BR: .8}, ['Oliveira 2009', 'Kleiber 2015']),
     # ---- Triceps: overhead = long head stretched; pressing (arm in front) relies on lateral and medial heads.
@@ -162,6 +164,7 @@ HEADS = [
     (r'reverse wrist|wrist extension|wrist roller', 'forearms', {FBR: .2, FFL: .5, FEX: 1}, ['Neumann 2017']),
     (r'wrist curl|wrist flexion|finger curl', 'forearms', {FBR: .1, FFL: 1, FEX: .25}, ['Neumann 2017']),
     (r'pronation|supination|wrist rotation', 'forearms', {FBR: .7, FFL: .7, FEX: .7}, ['Neumann 2017']),
+    (r'neutral', 'forearms', {FBR: 1, FFL: .6, FEX: .4}, ['Boland 2008', 'Mogk 2003']),
     (r'curl', 'forearms', {FBR: 1, FFL: .5, FEX: .3}, ['Boland 2008', 'Kleiber 2015']),
     # ---- Abdominals: rotation / side bending / anti-rotation favour the obliques.
     (r'twist|side bend|oblique|judo flip|heel touch|wood ?chop|cable lift|pallof|side plank|suitcase|windmill|russian|landmine 180|rotation',

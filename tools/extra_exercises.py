@@ -77,6 +77,17 @@ EXTRA = [
  ("Suitcase Carry", "Dumbbell", T, ["grip", "abdominals"], ["forearms", "traps", "glutes"], "strength",
   ["Hold one heavy dumbbell at your side.", "Walk without leaning toward the weight, then switch hands."]),
 
+ # ---------- Back ----------
+ ("Medium-Grip Lat Pulldown", "Cable", W, ["lats"], [], "strength",
+  ["Sit at a lat pulldown machine with a straight bar on the top pulley and tuck your thighs under the pads.",
+   "Grip the bar palms forward, hands a little wider than your shoulders (forearms about vertical at the bottom).",
+   "Lean back slightly, chest up. Pull the bar down to your upper chest by driving your elbows down and back.",
+   "Squeeze your shoulder blades together at the bottom, then let the bar rise slowly until your arms are straight."]),
+ ("Medium-Grip Neutral Lat Pulldown", "Cable", W, ["lats"], [], "strength",
+  ["Attach a neutral-grip (parallel handle) bar with handles about shoulder-width apart to the top pulley; sit with thighs under the pads.",
+   "Hold the handles palms facing each other.",
+   "Lean back slightly, chest up. Pull the handles down to your upper chest, elbows driving down and slightly in front of you.",
+   "Pause, then let the handles rise slowly until your arms are straight."]),
  # ---------- Physical therapy / rehab ----------
  ("Clamshell", "Bodyweight", B, ["abductors", "glutes"], [], "rehab",
   ["Lie on your side with hips and knees bent, feet together.", "Keeping the feet together, lift the top knee without rolling the hips back.", "Lower slowly. Add a band above the knees to make it harder."]),
