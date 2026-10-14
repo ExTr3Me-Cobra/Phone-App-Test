@@ -1,5 +1,9 @@
 package com.ironlog.app
 
+import kotlinx.coroutines.Dispatchers
+
+import kotlinx.coroutines.withContext
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -99,17 +103,31 @@ fun SettingsScreen() {
     fun set(np: Profile) = Store.setProfile(np)
     var message by remember { mutableStateOf<String?>(null) }
 
-    val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
-        if (uri != null) message = runCatching {
-            context.contentResolver.openOutputStream(uri)!!.use { it.write(Store.backup().toByteArray()) }
-            "Backup saved."
-        }.getOrElse { "Couldn't save the backup." }
+    val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) {
+            message = "Saving backup…"
+            scope.launch {
+                message = withContext(Dispatchers.IO) {
+                    runCatching {
+                        val n = context.contentResolver.openOutputStream(uri)!!.use { Store.writeBackup(it) }
+                        "Backup saved (with $n of your picture${if (n == 1) "" else "s"})."
+                    }.getOrElse { "Couldn't save the backup." }
+                }
+            }
+        }
     }
     val import = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) message = runCatching {
-            Store.restore(context.contentResolver.openInputStream(uri)!!.bufferedReader().readText())
-            "Backup restored."
-        }.getOrElse { "That file isn't a Loadout backup." }
+        if (uri != null) {
+            message = "Restoring…"
+            scope.launch {
+                message = withContext(Dispatchers.IO) {
+                    runCatching {
+                        val n = context.contentResolver.openInputStream(uri)!!.use { Store.readBackup(it) }
+                        "Backup restored" + if (n > 0) " with $n picture${if (n == 1) "" else "s"}." else "."
+                    }.getOrElse { "That file isn't a Loadout backup." }
+                }
+            }
+        }
     }
 
     var packMsg by remember { mutableStateOf<String?>(null) }
@@ -217,10 +235,10 @@ fun SettingsScreen() {
 
             Spacer(8)
             Text("Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("Saves your routines, workouts, your own exercises and profile to a file (pictures aren't included).", color = Sub, fontSize = 13.sp)
+            Text("Saves your routines, workouts, your own exercises, profile and every picture you've added to one .zip file. Restore it on any phone to get everything back.", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.json") }
-                GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/json", "*/*")) }
+                GreyButton("Save backup", Modifier.weight(1f)) { export.launch("loadout-backup.zip") }
+                GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "*/*")) }
             }
             message?.let { Text(it, color = Blue) }
             val build = remember {

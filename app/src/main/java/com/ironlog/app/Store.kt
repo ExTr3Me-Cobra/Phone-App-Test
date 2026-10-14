@@ -164,6 +164,59 @@ object Store {
         .put("profile", Json.profile(_profile.value.copy(apiKey = "")))
         .toString()
 
+    /**
+     * Full backup as a zip: backup.json (routines, workouts, your exercises, profile without the API key)
+     * plus every picture you added or made (pictures/<exercise>.jpg). Built-in pictures aren't needed.
+     * Returns how many pictures went in.
+     */
+    fun writeBackup(out: java.io.OutputStream): Int {
+        // Skip copies of built-in pictures (e.g. from an imported picture pack): the app already has those.
+        fun sameAsBuiltIn(f: File) = f.name in bundled && runCatching {
+            assets?.open("pictures/" + f.name)?.use { it.readBytes() }?.contentEquals(f.readBytes()) == true
+        }.getOrDefault(false)
+        val pics = imagesDir().listFiles { f -> f.name.endsWith(".jpg") }?.filterNot(::sameAsBuiltIn)?.sortedBy { it.name } ?: emptyList()
+        java.util.zip.ZipOutputStream(out).use { zip ->
+            zip.putNextEntry(java.util.zip.ZipEntry("backup.json"))
+            zip.write(backup().toByteArray())
+            zip.closeEntry()
+            for (f in pics) {
+                zip.putNextEntry(java.util.zip.ZipEntry("pictures/" + f.name))
+                f.inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+            }
+        }
+        return pics.size
+    }
+
+    /** Restores a backup zip (or an older .json backup). Returns how many pictures were restored. */
+    fun readBackup(input: java.io.InputStream): Int {
+        val bytes = input.readBytes()
+        if (bytes.size < 2 || bytes[0] != 'P'.code.toByte() || bytes[1] != 'K'.code.toByte()) {
+            restore(String(bytes)); return 0
+        }
+        var json: String? = null
+        var pics = 0
+        java.util.zip.ZipInputStream(bytes.inputStream()).use { zip ->
+            while (true) {
+                val e = zip.nextEntry ?: break
+                val name = File(e.name).name
+                when {
+                    e.isDirectory -> {}
+                    e.name == "backup.json" -> json = zip.readBytes().toString(Charsets.UTF_8)
+                    // Only plain picture names: never writes outside the pictures folder.
+                    e.name.startsWith("pictures/") && name.matches(Regex("[A-Za-z0-9_-]+\\.jpg")) -> {
+                        File(imagesDir(), name).outputStream().use { zip.copyTo(it) }
+                        pics++
+                    }
+                }
+                zip.closeEntry()
+            }
+        }
+        restore(json ?: error("No backup.json in the zip"))
+        imageChanged()
+        return pics
+    }
+
     fun restore(text: String) {
         val o = JSONObject(text)
         val key = _profile.value.apiKey
