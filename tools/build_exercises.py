@@ -9,13 +9,15 @@ import json, re, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from extra_exercises import EXTRA
 from cleanup import REMOVE, RENAME
-from weights import RULES, DEFAULT, FALLBACK, OVERRIDES
+from weights import RULES, DEFAULT, DEFAULT_REFS, FALLBACK, OVERRIDES, OVERRIDE_REFS
+from detail_weights import GROUPS, HEADS, DEFAULT_HEADS, MIDDLE_BACK_EXTRA, ADD, REFS
 
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json')
 MUSCLES = {'abdominals', 'abductors', 'adductors', 'biceps', 'calves', 'chest', 'forearms', 'glutes', 'hamstrings',
            'lats', 'lower back', 'middle back', 'neck', 'quadriceps', 'shoulders', 'traps', 'triceps',
-           'rotator cuff', 'serratus', 'grip'}
+           'rotator cuff', 'serratus', 'grip', 'hip flexors', 'shins'}
+assert MUSCLES == set(GROUPS), MUSCLES ^ set(GROUPS)
 EQ = {'barbell': 'Barbell', 'dumbbell': 'Dumbbell', 'cable': 'Cable', 'machine': 'Machine', 'kettlebells': 'Kettlebell',
       'body only': 'Bodyweight', None: 'Other', 'other': 'Other', 'bands': 'Bands', 'medicine ball': 'Medicine Ball',
       'exercise ball': 'Exercise Ball', 'foam roll': 'Foam Roll', 'e-z curl bar': 'EZ Bar'}
@@ -118,16 +120,70 @@ for (name, eq, t, p, s, cat, h) in EXTRA:
     eid = 'x_' + re.sub(r'[^A-Za-z0-9]+', '_', name).strip('_')
     out.append(fix({'i': eid, 'n': name, 'e': eq, 't': t, 'p': p, 's': s, 'c': cat, 'h': h}))
     added += 1
-def weight(e, m):
-    if m in OVERRIDES.get(e['n'], {}): return OVERRIDES[e['n']][m]
+def first_rule(e):
+    """The first group-weight rule that fits this exercise: its muscles all count as helpers."""
     name = e['n'].lower()
-    for rx, need, ws in RULES:
+    for rx, need, ws, refs in RULES:
+        if re.search(rx, name) and (need is None or need in e['p']):
+            return ws
+    return {}
+
+
+def weight(e, m):
+    """Group weight for a secondary muscle, and the studies it comes from."""
+    if m in OVERRIDES.get(e['n'], {}): return OVERRIDES[e['n']][m], OVERRIDE_REFS[e['n']]
+    name = e['n'].lower()
+    for rx, need, ws, refs in RULES:
         if m in ws and re.search(rx, name) and (need is None or need in e['p']):
-            return ws[m]
-    return DEFAULT.get(m, FALLBACK)
+            return ws[m], refs
+    return DEFAULT.get(m, FALLBACK), DEFAULT_REFS
+
+
+def heads(e, g):
+    name = e['n'].lower()
+    for rx, grp, dist, refs in HEADS:
+        if grp == g and re.search(rx, name):
+            return dist, refs
+    return DEFAULT_HEADS[g]
+
+
+def r05(v): return round(round(v * 20) / 20, 2)
+
 
 for e in out:
-    e['w'] = [weight(e, m) for m in e['s']]
+    if e['c'] != 'stretching' and e['n'] not in OVERRIDES:
+        e['s'] += [m for m in first_rule(e) if m not in e['p'] and m not in e['s']]
+    refs = set()
+    groups = [(g, 1.0) for g in e['p']]
+    for m in e['s']:
+        w, r = weight(e, m)
+        groups.append((m, w)); refs.update(r)
+    detail = {}
+    def put(h, v):
+        if v > detail.get(h, 0): detail[h] = v
+    for g, gw in groups:
+        dist, r = heads(e, g); refs.update(r)
+        for h, share in dist.items(): put(h, gw * share)
+        if g == 'middle back':
+            for h, share in MIDDLE_BACK_EXTRA[0].items(): put(h, gw * share)
+            refs.update(MIDDLE_BACK_EXTRA[1])
+    if e['c'] != 'stretching':
+        name = e['n'].lower()
+        for rx, need, add, r in ADD:
+            if re.search(rx, name) and (need is None or need in e['p']):
+                for h, v in add.items(): put(h, v)
+                refs.update(r)
+    detail = {h: r05(v) for h, v in detail.items() if r05(v) >= .05}
+    e['m'] = detail
+    # Secondary groups and their weights follow from the detailed muscles (busiest head of each group).
+    gw = {}
+    for h, v in detail.items():
+        g = next(g for g, hs in GROUPS.items() if h in hs)
+        if g not in e['p']: gw[g] = max(gw.get(g, 0), v)
+    e['s'] = sorted(gw, key=lambda g: -gw[g])
+    e['w'] = [gw[g] for g in e['s']]
+    e['r'] = sorted(refs)
+    assert all(k in REFS for k in refs), set(refs) - set(REFS)
 
 names_now = {e['n'] for e in out}
 missing = (REMOVE | set(RENAME)) - names_now
@@ -146,6 +202,7 @@ print('secondary new groups:', {g: sum(1 for e in out if g in e['s']) for g in (
 import statistics
 ws = [w for e in out for w in e['w']]
 print('secondary weights: mean %.2f, min %.2f, max %.2f, count %d' % (statistics.mean(ws), min(ws), max(ws), len(ws)))
-for n in ['Barbell Bench Press - Medium Grip', 'Barbell Deadlift', 'Pullups', 'Barbell Squat', 'Dumbbell Bicep Curl', 'Standing Military Press', 'Bent Over Barbell Row', 'Pushups']:
+for n in ['Barbell Bench Press - Medium Grip', 'Incline Dumbbell Curl', 'Hanging Leg Raise', 'Toe Raise', 'Seated Calf Raise', 'Lying Leg Curls', 'Side Lateral Raise', 'Push-Up Plus', 'Barbell Deadlift', 'Pullups', 'Barbell Squat', 'Dumbbell Bicep Curl', 'Standing Military Press', 'Bent Over Barbell Row', 'Pushups']:
     e = next(x for x in out if x['n'] == n)
     print(n, 'P:', e['p'], 'S:', dict(zip(e['s'], e['w'])))
+    print('   ', sorted(e['m'].items(), key=lambda kv: -kv[1]), e['r'])

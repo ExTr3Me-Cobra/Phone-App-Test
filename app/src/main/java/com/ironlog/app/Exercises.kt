@@ -59,10 +59,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.roundToInt
 
-val MUSCLES = listOf(
-    "abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms", "glutes", "hamstrings",
-    "lats", "lower back", "middle back", "neck", "quadriceps", "rotator cuff", "serratus", "grip", "shoulders", "traps", "triceps",
-)
+val MUSCLES = Muscles.groups.keys.sorted()
 val EQUIPMENT = listOf("Barbell", "Dumbbell", "Cable", "Machine", "Kettlebell", "Bodyweight", "EZ Bar", "Bands", "Medicine Ball", "Exercise Ball", "Foam Roll", "Other")
 
 // ---------------- Exercise list / picker ----------------
@@ -81,7 +78,10 @@ fun PickerScreen(req: Route.Picker?) {
     val filtered = sorted.filter { e ->
         (equipment == null || e.equipment == equipment) &&
             (muscle == null || muscle in e.primary || muscle in e.secondary) &&
-            words.all { w -> e.name.lowercase().contains(w) || e.primary.any { it.contains(w) } || e.equipment.lowercase().contains(w) }
+            words.all { w ->
+                e.name.lowercase().contains(w) || e.primary.any { it.contains(w) } || e.equipment.lowercase().contains(w) ||
+                    e.muscles.any { it.value >= 0.7f && it.key.lowercase().contains(w) }
+            }
     }
     val browsing = words.isEmpty() && equipment == null && muscle == null
     val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] } else emptyList()
@@ -250,12 +250,8 @@ fun ExerciseDetailScreen(id: String) {
 
             Text(e.name, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
             Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
-            if (e.secondary.isNotEmpty()) Text(
-                "Secondary: " + e.secondary.sortedByDescending { e.secondaryWeight(it) }
-                    .joinToString { "${titleCase(it)} (${(e.secondaryWeight(it) * 100).toInt()}%)" },
-                color = Sub, modifier = Modifier.padding(horizontal = 16.dp),
-            )
             Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            MusclesCard(e)
 
             // Ranking
             if (Standards.covers(e.id)) {
@@ -305,6 +301,35 @@ fun ExerciseDetailScreen(id: String) {
     }
 }
 
+/** Every muscle the exercise works, with how hard compared with the main muscle, and the research behind it. */
+@Composable
+fun MusclesCard(e: Exercise) {
+    var sources by remember { mutableStateOf(false) }
+    Column(Modifier.padding(16.dp, 8.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp)) {
+        Text("Muscles worked", fontWeight = FontWeight.Bold)
+        e.muscles.entries.sortedByDescending { it.value }.forEach { (m, v) ->
+            Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(Muscles.label(m), Modifier.weight(1f), fontSize = 14.sp)
+                Box(Modifier.width(70.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
+                    Box(Modifier.fillMaxWidth(v.coerceIn(0f, 1f)).fillMaxHeight().background(Color(BodyMap.heat(v))))
+                }
+                Text("${(v * 100).roundToInt()}%", Modifier.width(48.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End, fontSize = 14.sp)
+            }
+        }
+        Text(
+            if (e.edited || e.custom) "Your numbers." else "Estimates from EMG and training studies of this kind of movement, compared with the main muscle (100%).",
+            color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp),
+        )
+        if (e.refs.isNotEmpty() && !e.edited && !e.custom) {
+            Text(if (sources) "Hide sources" else "Sources (${e.refs.size})", color = Blue, fontSize = 13.sp,
+                modifier = Modifier.padding(top = 6.dp).clickable { sources = !sources })
+            if (sources) e.refs.forEach { r ->
+                Text("• " + (Muscles.refs[r] ?: r), color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+            }
+        }
+    }
+}
+
 @Composable
 fun RankCard(e: Exercise, best: Double, profile: Profile) {
     Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
@@ -345,8 +370,10 @@ fun EditExerciseScreen(id: String?) {
     var directions by remember { mutableStateOf(existing?.instructions?.joinToString("\n") ?: "") }
     val rows = remember {
         mutableStateListOf<MuscleRow>().apply {
-            existing?.primary?.forEach { add(MuscleRow(it, true, 100)) }
-            existing?.secondary?.forEach { add(MuscleRow(it, false, (existing.secondaryWeight(it) * 100).roundToInt())) }
+            existing?.muscles?.entries?.sortedByDescending { it.value }?.forEach { (m, v) ->
+                val main = v >= 0.999f && Muscles.group(m) in existing.primary
+                add(MuscleRow(m, main, (v * 100).roundToInt().coerceIn(5, 100)))
+            }
         }
     }
     var adding by remember { mutableStateOf(false) }
@@ -359,12 +386,17 @@ fun EditExerciseScreen(id: String?) {
                 name.isBlank() -> error = "Give it a name."
                 rows.none { it.main } -> error = "Mark at least one muscle as Main."
                 else -> {
-                    val sec = rows.filter { !it.main }.sortedByDescending { it.pct }
+                    // Groups (for the list filters and the line under the name) follow from the muscles.
+                    val primary = rows.filter { it.main }.map { Muscles.group(it.muscle) }.distinct()
+                    val sec = levels.entries.filter { Muscles.group(it.key) !in primary }
+                        .groupBy { Muscles.group(it.key) }.mapValues { (_, v) -> v.maxOf { it.value } }
+                        .entries.sortedByDescending { it.value }
                     val e = (existing ?: Exercise("custom_" + Store.newId(), "", equipment, type, emptyList(), emptyList(), custom = true)).copy(
                         name = name.trim(), equipment = equipment, type = type,
-                        primary = rows.filter { it.main }.map { it.muscle },
-                        secondary = sec.map { it.muscle },
-                        secondaryWeights = sec.map { it.pct / 100f },
+                        primary = primary,
+                        secondary = sec.map { it.key },
+                        secondaryWeights = sec.map { it.value },
+                        detail = levels,
                         instructions = directions.lines().map { it.trim() }.filter { it.isNotEmpty() },
                     )
                     Store.saveExercise(e)
@@ -381,12 +413,13 @@ fun EditExerciseScreen(id: String?) {
             BodyMapView(levels, Modifier.fillMaxWidth().height(280.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black))
 
             Text("Muscles worked", fontWeight = FontWeight.Bold)
-            Text("Main muscles count 100%. For the others, set how hard they work compared with the main muscle.",
+            Text("Main muscles count 100%. For the others, set how hard they work compared with the main muscle. " +
+                "The main muscles' groups show under the exercise name and in the list filters.",
                 color = Sub, fontSize = 13.sp)
             rows.forEach { r ->
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(horizontal = 12.dp, vertical = 6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(titleCase(r.muscle), Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                        Text(Muscles.label(r.muscle), Modifier.weight(1f), fontWeight = FontWeight.Medium)
                         FilterChip(r.main, { r.main = !r.main; if (!r.main && r.pct >= 100) r.pct = 50 }, { Text("Main") })
                         HSpacer(8)
                         Text(if (r.main) "100%" else "${r.pct}%", modifier = Modifier.width(48.dp))
@@ -416,16 +449,20 @@ fun EditExerciseScreen(id: String?) {
         }
     }
     if (adding) {
-        val options = MUSCLES.filter { m -> rows.none { it.muscle == m } }
         AlertDialog(
             onDismissRequest = { adding = false },
             title = { Text("Add a muscle") },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
-                    options.forEach { m ->
-                        Text(titleCase(m), fontSize = 18.sp, modifier = Modifier.fillMaxWidth().clickable {
-                            rows.add(MuscleRow(m, rows.none { it.main }, if (rows.none { it.main }) 100 else 30)); adding = false
-                        }.padding(vertical = 10.dp))
+                    Muscles.groups.forEach { (g, ms) ->
+                        val options = ms.filter { m -> rows.none { it.muscle == m } }
+                        if (options.isEmpty()) return@forEach
+                        Text(titleCase(g), color = Sub, fontSize = 13.sp, modifier = Modifier.padding(top = 10.dp))
+                        options.forEach { m ->
+                            Text(Muscles.label(m), fontSize = 17.sp, modifier = Modifier.fillMaxWidth().clickable {
+                                rows.add(MuscleRow(m, rows.none { it.main }, if (rows.none { it.main }) 100 else 30)); adding = false
+                            }.padding(vertical = 8.dp))
+                        }
                     }
                 }
             },

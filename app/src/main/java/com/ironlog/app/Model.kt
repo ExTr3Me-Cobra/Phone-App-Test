@@ -27,7 +27,16 @@ data class Exercise(
     val secondaryWeights: List<Float> = emptyList(),
     /** A built-in exercise you've changed. */
     val edited: Boolean = false,
+    /** Individual muscles (e.g. "biceps (long head)") -> how hard each works, main = 1. */
+    val detail: Map<String, Float> = emptyMap(),
+    /** Studies the percentages are based on (keys of [Muscles.refs]). */
+    val refs: List<String> = emptyList(),
 ) {
+    /** Individual muscles worked, 0..1. Older saved exercises only have groups, so those are split the usual way. */
+    val muscles: Map<String, Float> by lazy {
+        detail.ifEmpty { Muscles.expand(secondary.associateWith { secondaryWeight(it) } + primary.associateWith { 1f }) }
+    }
+
     /** Secondary muscle -> weight (0.3 when not known). */
     fun secondaryWeight(m: String): Float {
         val i = secondary.indexOf(m)
@@ -39,6 +48,7 @@ data class Exercise(
     fun toJson(): JSONObject = JSONObject().put("i", id).put("n", name).put("e", equipment).put("t", type.name)
         .put("p", JSONArray(primary)).put("s", JSONArray(secondary)).put("c", category).put("h", JSONArray(instructions))
         .put("w", JSONArray(secondary.map { secondaryWeight(it).toDouble() })).put("x", if (hidden) 1 else 0)
+        .put("m", JSONObject().apply { detail.forEach { (k, v) -> put(k, v.toDouble()) } }).put("r", JSONArray(refs))
 
     companion object {
         fun fromJson(o: JSONObject, custom: Boolean) = Exercise(
@@ -48,6 +58,8 @@ data class Exercise(
             category = o.optString("c", "strength"), instructions = o.optJSONArray("h").strings(), custom = custom,
             hidden = o.optInt("x", 0) == 1,
             secondaryWeights = o.optJSONArray("w")?.let { a -> List(a.length()) { a.getDouble(it).toFloat() } } ?: emptyList(),
+            detail = o.optJSONObject("m")?.let { m -> m.keys().asSequence().associateWith { m.getDouble(it).toFloat() } } ?: emptyMap(),
+            refs = o.optJSONArray("r").strings(),
         )
     }
 }

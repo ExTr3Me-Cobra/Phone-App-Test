@@ -67,46 +67,30 @@ object BodyMap {
 
     private fun path(r: BodyMapData.Region, mirrorX: Float?): Path {
         val pts = r.pts
-        val n = pts.size / 2
-        fun x(i: Int): Float { val v = pts[2 * ((i % n + n) % n)]; return if (mirrorX != null) 2 * mirrorX - v else v }
-        fun y(i: Int): Float = pts[2 * ((i % n + n) % n) + 1]
+        fun x(i: Int): Float { val v = pts[2 * i]; return if (mirrorX != null) 2 * mirrorX - v else v }
         val p = Path()
-        p.moveTo(x(0), y(0))
-        for (i in 0 until n) {
-            p.cubicTo(
-                x(i) + (x(i + 1) - x(i - 1)) / 6f, y(i) + (y(i + 1) - y(i - 1)) / 6f,
-                x(i + 1) - (x(i + 2) - x(i)) / 6f, y(i + 1) - (y(i + 2) - y(i)) / 6f,
-                x(i + 1), y(i + 1),
-            )
-        }
+        p.moveTo(x(0), pts[1])
+        for (i in 1 until pts.size / 2) p.lineTo(x(i), pts[2 * i + 1])
         p.close()
         return p
     }
 
     private class Shape(val muscle: String, val path: Path, val front: Boolean)
 
-    private fun ring(r: BodyMapData.Ring, cx: Float): Path = Path().apply {
-        fillType = Path.FillType.EVEN_ODD
-        addOval(android.graphics.RectF(cx - r.rx, r.cy - r.ry, cx + r.rx, r.cy + r.ry), Path.Direction.CW)
-        val t = r.thick
-        addOval(android.graphics.RectF(cx - r.rx + t, r.cy - r.ry + t, cx + r.rx - t, r.cy + r.ry - t), Path.Direction.CW)
-    }
-
     private val shapes: List<Shape> by lazy {
         BodyMapData.regions.flatMap { r ->
             listOfNotNull(Shape(r.muscle, path(r, null), r.front), r.mirrorX?.let { Shape(r.muscle, path(r, it), r.front) })
-        } + BodyMapData.rings.flatMap { r ->
-            listOf(Shape(r.muscle, ring(r, r.cx), r.front), Shape(r.muscle, ring(r, 2 * r.mirrorX - r.cx), r.front))
         }
     }
 
-    private val LEGS = setOf("quadriceps", "hamstrings", "calves", "glutes", "adductors", "abductors")
+    private val LEGS = setOf("quadriceps", "hamstrings", "calves", "glutes", "adductors", "abductors", "shins", "hip flexors")
 
     /** The best crop for an exercise's small picture. */
-    fun thumbView(muscles: List<String>): View {
+    fun thumbView(e: Exercise): View {
+        val muscles = e.muscles.filterValues { it >= 0.6f }.keys
         val front = shapes.count { it.front && it.muscle in muscles }
         val back = shapes.count { !it.front && it.muscle in muscles }
-        val legs = muscles.firstOrNull() in LEGS
+        val legs = e.primary.firstOrNull() in LEGS
         return when {
             back > front -> if (legs) View.BACK_LOWER else View.BACK_UPPER
             else -> if (legs) View.FRONT_LOWER else View.FRONT_UPPER
@@ -170,8 +154,7 @@ object BodyMap {
         return out
     }
 
-    fun levelsFor(e: Exercise): Map<String, Float> =
-        e.secondary.associateWith { e.secondaryWeight(it) } + e.primary.associateWith { 1f }
+    fun levelsFor(e: Exercise): Map<String, Float> = e.muscles
 }
 
 /** The body picture with a heatmap, fitted into [modifier]'s space. */
@@ -230,17 +213,17 @@ object Pictures {
     }
 
     private fun muscleName(m: String) = when (m) {
-        "grip" -> "hand and finger (grip) muscles"
-        "serratus" -> "serratus anterior"
-        "rotator cuff" -> "rotator cuff (infraspinatus, teres minor)"
-        "abdominals" -> "abdominal muscles"
-        "middle back" -> "rhomboids and middle back"
+        "grip (finger flexors)" -> "finger flexors of the forearm (grip)"
+        "serratus (serratus anterior)" -> "serratus anterior"
         else -> m
     }
 
     fun prompt(e: Exercise): String {
-        fun list(m: List<String>) = m.joinToString(", ") { muscleName(it) }
-        val sec = if (e.secondary.isNotEmpty()) " Shade the ${list(e.secondary)} in light red." else ""
+        val ms = e.muscles.entries.sortedByDescending { it.value }
+        fun list(m: List<Map.Entry<String, Float>>) = m.joinToString(", ") { muscleName(it.key) }
+        val main = ms.filter { it.value >= 0.7f }.ifEmpty { ms.take(1) }
+        val helpers = ms.filter { it.value in 0.25f..0.7f && it !in main }
+        val sec = if (helpers.isNotEmpty()) " Shade the ${list(helpers)} in light red." else ""
         val eq = when (e.equipment) {
             "Bodyweight", "Other" -> ""
             else -> " Show the ${e.equipment.lowercase()} and any bench or machine in matte black and dark grey."
@@ -249,7 +232,7 @@ object Pictures {
             "A fit, muscular man with short dark hair, wearing only black athletic shorts, barefoot, " +
             "performing the exercise \"${e.name}\" with correct form, shown at the most recognisable point of the movement. " +
             "His body is rendered in light grey monochrome with clearly defined individual muscles and fine muscle-fibre detail, " +
-            "like a medical anatomy drawing. Highlight the ${list(e.primary)} in dark red.$sec$eq " +
+            "like a medical anatomy drawing. Highlight the ${list(main)} in dark red.$sec$eq " +
             "Square 1:1 image, full body visible, three-quarter view, centred, soft shadow, no text, no labels, no watermark."
     }
 
@@ -381,7 +364,7 @@ fun ExerciseThumb(e: Exercise?, size: Dp = 56.dp) {
         if (bmp != null) {
             Image(bmp, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         } else if (e != null) {
-            BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize(), BodyMap.thumbView(e.primary))
+            BodyMapView(BodyMap.levelsFor(e), Modifier.fillMaxSize(), BodyMap.thumbView(e))
         }
     }
 }

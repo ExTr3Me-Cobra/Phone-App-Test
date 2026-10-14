@@ -96,9 +96,8 @@ object Stats {
             val ex = Store.exercise(item.exerciseId) ?: continue
             val n = item.sets.count { it.done }
             if (n == 0) continue
-            ex.primary.forEach { load[it] = (load[it] ?: 0f) + n }
-            // Secondary muscles count by how hard they work in this exercise compared with the primary.
-            ex.secondary.forEach { load[it] = (load[it] ?: 0f) + n * ex.secondaryWeight(it) }
+            // Each muscle counts by how hard it works in this exercise compared with the main muscle.
+            ex.muscles.forEach { (m, v) -> load[m] = (load[m] ?: 0f) + n * v }
         }
         val max = load.values.maxOrNull() ?: return emptyMap()
         return load.mapValues { it.value / max }
