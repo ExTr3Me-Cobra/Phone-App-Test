@@ -100,7 +100,7 @@ fun Onboarding() {
                         page++
                     }
                     "backup" -> BackupCheckPage()
-                    "ranks" -> RanksPage()
+                    "ranks" -> RanksPage(p)
                     else -> ReadyPage()
                 }
             }
@@ -215,9 +215,9 @@ private fun BackupCheckPage() {
 }
 
 @Composable
-private fun RanksPage() {
+private fun RanksPage(p: Profile) {
     Title("Ranks")
-    Body("Each lift is ranked against people your size, sex and age – from Wood to Legend.")
+    Body("Exercises with reliable strength data get a rank against people your size, sex and age – from Wood to Legend.")
     InfoCard {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Bottom) {
             listOf(Tier.WOOD_1, Tier.BRONZE_2, Tier.SILVER_2, Tier.GOLD_2, Tier.PLATINUM_2, Tier.DIAMOND_2, Tier.OLYMPIAN, Tier.LEGEND)
@@ -233,8 +233,20 @@ private fun RanksPage() {
                 Text("Gold 2 (top 42%)", color = Color(Tier.GOLD_2.color), fontSize = 14.sp)
             }
         }
+        Text("Top 42% = stronger than 58% of them.", color = Sub, fontSize = 13.sp)
     }
-    Body("Top 42% = stronger than 58% of them. Hit a new best and you rank up on the spot.")
+    Text("A star after the name means it's ranked:", fontWeight = FontWeight.Medium)
+    Text(buildAnnotatedString {
+        withStyle(SpanStyle(color = StarGold, fontWeight = FontWeight.Bold)) { append("★ Gold") }
+        append(" – accurate: the data closely fits you.")
+    }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
+    Text(buildAnnotatedString {
+        withStyle(SpanStyle(color = StarEstimate, fontWeight = FontWeight.Bold)) { append("★ Blue") }
+        append(" – estimate: from a close variation, or data that doesn't fully fit you.")
+    }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
+    Text("Show ranks", fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
+    RankModeChoice(p)
+    Text("You can change this any time in Settings.", color = Sub, fontSize = 13.sp)
 }
 
 @Composable

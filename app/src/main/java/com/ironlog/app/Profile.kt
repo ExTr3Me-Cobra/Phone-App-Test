@@ -212,23 +212,7 @@ fun SettingsScreen() {
 
             Spacer(8)
             Text("Ranks", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            listOf(
-                Triple("off", "Off", "No ranks, badges, stars or rank-up pop-ups anywhere."),
-                Triple("accurate", "Accurate only", "Only exercises where the published data closely fits your exact body weight, age and sex are ranked."),
-                Triple("all", "All on", "Every ★ exercise is ranked. Where the data doesn't fit you exactly, it's an estimate – tap \"Who you're compared with\" on the exercise to see why."),
-            ).forEach { (key, label, desc) ->
-                Row(
-                    Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.rankMode == key) Blue.copy(alpha = 0.15f) else Card)
-                        .clickable { set(p.copy(rankMode = key)) }.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    androidx.compose.material3.RadioButton(p.rankMode == key, { set(p.copy(rankMode = key)) })
-                    Column(Modifier.weight(1f)) {
-                        Text(label, fontWeight = FontWeight.Medium)
-                        Text(desc, color = Sub, fontSize = 13.sp)
-                    }
-                }
-            }
+            RankModeChoice(p)
 
             Text(
                 buildAnnotatedString {
@@ -353,3 +337,28 @@ fun SettingsScreen() {
     }
 }
 
+
+/** Off / Accurate only / All on – in Settings and the welcome. */
+@Composable
+fun RankModeChoice(p: Profile) {
+    fun set(mode: String) = Store.setProfile(Store.profile.value.copy(rankMode = mode))
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            Triple("off", "Off", "No ranks, badges, stars or rank-up pop-ups anywhere."),
+            Triple("accurate", "Accurate only", "Only exercises where the data closely fits your body weight, age and sex are ranked (gold ★)."),
+            Triple("all", "All on", "Also ranks exercises as estimates where the data doesn't fit you exactly (blue ★)."),
+        ).forEach { (key, label, desc) ->
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.rankMode == key) Blue.copy(alpha = 0.15f) else Card)
+                    .clickable { set(key) }.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                androidx.compose.material3.RadioButton(p.rankMode == key, { set(key) })
+                Column(Modifier.weight(1f)) {
+                    Text(label, fontWeight = FontWeight.Medium)
+                    Text(desc, color = Sub, fontSize = 13.sp)
+                }
+            }
+        }
+    }
+}
