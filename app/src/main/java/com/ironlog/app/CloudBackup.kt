@@ -34,6 +34,8 @@ class CloudBackup : BackupAgent() {
             room -= f.length()
             fullBackupFile(f, data)
         }
+        // Remember when a Google backup last ran, for the green tick in Settings.
+        if (!toNewPhone) runCatching { File(noBackupFilesDir, "last_backup.txt").writeText(System.currentTimeMillis().toString()) }
     }
 
     // Loadout only uses full backups; these are required but unused.
@@ -54,12 +56,14 @@ class CloudBackup : BackupAgent() {
             }
         }
 
-        /** Lets you add a Google account to the phone if it doesn't have one. */
-        fun addGoogleAccount(c: Context) {
-            runCatching {
-                c.startActivity(Intent(Settings.ACTION_ADD_ACCOUNT).putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
-        }
+        /** When a Google backup last ran (since you chose Google backup), or null. */
+        fun lastBackup(c: Context): Long? =
+            runCatching { File(c.noBackupFilesDir, "last_backup.txt").readText().trim().toLong() }.getOrNull()
+
+        fun resetStatus() { runCatching { File(Store.noBackupDir(), "last_backup.txt").delete() } }
+
+        /** Whether the phone's own backup switch is on, if Android lets us see it (null = can't tell). */
+        fun phoneBackupOn(c: Context): Boolean? =
+            runCatching { Settings.Secure.getInt(c.contentResolver, "backup_enabled") == 1 }.getOrNull()
     }
 }

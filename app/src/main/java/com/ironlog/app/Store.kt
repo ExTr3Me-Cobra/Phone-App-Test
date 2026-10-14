@@ -13,6 +13,8 @@ import com.ironlog.app.Json.objs
 object Store {
     private lateinit var dir: File
     private lateinit var safeDir: File
+    /** Files Android never backs up (API key, backup status). */
+    fun noBackupDir(): File = safeDir
     private var loaded = false
     private var assets: android.content.res.AssetManager? = null
     /** Pictures built into the app (assets/pictures/<name>.jpg). */

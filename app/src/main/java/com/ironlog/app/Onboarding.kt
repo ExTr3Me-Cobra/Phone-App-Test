@@ -49,7 +49,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private const val PAGES = 6
 
 /**
  * First-run welcome. Covers the whole app until you've entered your body weight, age and sex
@@ -61,6 +60,10 @@ fun Onboarding() {
     val p by Store.profile.collectAsState()
     if (p.onboarded) return
     var page by rememberSaveable { mutableStateOf(0) }
+    // The backup check page only appears if you chose Google backup.
+    val pages = listOfNotNull("welcome", "you", "data", "backup".takeIf { p.cloud == "google" }, "ranks", "ready")
+    val pageCount = pages.size
+    if (page >= pageCount) page = pageCount - 1
     val focus = LocalFocusManager.current
     LaunchedEffect(page) { focus.clearFocus() }
     BackHandler { if (page > 0) page-- } // never closes it
@@ -80,7 +83,7 @@ fun Onboarding() {
     ) {
         Column(Modifier.fillMaxSize()) {
             Row(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalArrangement = Arrangement.Center) {
-                repeat(PAGES) { i ->
+                repeat(pageCount) { i ->
                     Box(Modifier.padding(4.dp).size(if (i == page) 10.dp else 8.dp).clip(CircleShape)
                         .background(if (i <= page) Blue else Card2))
                 }
@@ -89,21 +92,21 @@ fun Onboarding() {
                 Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 22.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                when (page) {
-                    0 -> WelcomePage()
-                    1 -> AboutYouPage(p)
-                    2 -> YourDataPage(p) {
+                when (pages[page]) {
+                    "welcome" -> WelcomePage()
+                    "you" -> AboutYouPage(p)
+                    "data" -> YourDataPage(p) {
                         Store.setProfile(Store.profile.value.copy(cloud = "local"))
                         page++
                     }
-                    3 -> RanksPage()
-                    4 -> PercentPage()
+                    "backup" -> BackupCheckPage()
+                    "ranks" -> RanksPage()
                     else -> ReadyPage()
                 }
             }
-            val missing = when (page) {
-                1 -> biometricsMissing(p)
-                2 -> if (p.cloud.isEmpty()) "Choose an option, or tap Skip for now to keep it on this phone." else null
+            val missing = when (pages[page]) {
+                "you" -> biometricsMissing(p)
+                "data" -> if (p.cloud.isEmpty()) "Choose one, or tap Skip for now." else null
                 else -> null
             }
             val ok = missing == null
@@ -112,11 +115,11 @@ fun Onboarding() {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (page > 0) GreyButton("Back", Modifier.weight(1f)) { page-- }
                     BigButton(
-                        when (page) { 0 -> "Get started"; PAGES - 1 -> "Start lifting"; else -> "Next" },
+                        when (page) { 0 -> "Get started"; pageCount - 1 -> "Start lifting"; else -> "Next" },
                         color = if (ok) Blue else Card2, modifier = Modifier.weight(2f),
                     ) {
                         if (!ok) return@BigButton
-                        if (page < PAGES - 1) page++ else Store.setProfile(Store.profile.value.copy(onboarded = true))
+                        if (page < pageCount - 1) page++ else Store.setProfile(Store.profile.value.copy(onboarded = true))
                     }
                 }
             }
@@ -151,38 +154,25 @@ private fun InfoCard(content: @Composable () -> Unit) = Column(
 
 @Composable
 private fun WelcomePage() {
-    Spacer(30)
-    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { RankBadge(Tier.LEGEND, 120.dp) }
+    Spacer(40)
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { RankBadge(Tier.LEGEND, 130.dp) }
     Text("Welcome to Loadout", fontSize = 30.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-    Body("Log your workouts, build routines, see which muscles you've trained – and find out how strong you really are " +
-        "compared with other people who lift.")
-    InfoCard {
-        Text("🏋️  Log every set, rep and weight", fontSize = 15.sp)
-        Text("🔥  Muscle heatmaps for every exercise", fontSize = 15.sp)
-        Text("🏅  Ranks from Wood to Legend", fontSize = 15.sp)
-        Text("📊  Percentile scores for your lifts", fontSize = 15.sp)
-    }
-    Body("First, a few details about you so your ranks are fair.")
+    Text("Log your lifts. See how you rank.", color = Sub, fontSize = 17.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }
 
 @Composable
 private fun AboutYouPage(p: Profile) {
     fun set(np: Profile) = Store.setProfile(np)
     Title("About you")
-    Body("Strength depends a lot on body weight, sex and age, so you're only ranked against lifters like you. " +
-        "You can change these any time on the Profile tab.")
+    Body("Used to rank you against lifters like you. You can change it later in Profile.")
 
-    Text("Units", fontWeight = FontWeight.Medium)
     var unitsTick by remember { mutableStateOf(0) } // refreshes the weight box when units change
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        FilterChip(!p.kg, { set(p.copy(kg = false)); unitsTick++ }, { Text("lbs") })
-        FilterChip(p.kg, { set(p.copy(kg = true)); unitsTick++ }, { Text("kg") })
-    }
-
-    Text("Sex", fontWeight = FontWeight.Medium)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         FilterChip(p.male, { set(p.copy(male = true)) }, { Text("Male") })
         FilterChip(!p.male, { set(p.copy(male = false)) }, { Text("Female") })
+        Box(Modifier.weight(1f))
+        FilterChip(!p.kg, { set(p.copy(kg = false)); unitsTick++ }, { Text("lbs") })
+        FilterChip(p.kg, { set(p.copy(kg = true)); unitsTick++ }, { Text("kg") })
     }
 
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -204,112 +194,70 @@ private fun AboutYouPage(p: Profile) {
         OutlinedTextField(inch, { inch = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("in") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
     }
-    Text("Height isn't used for ranking – the strength data is based on body weight, sex and age.", color = Sub, fontSize = 12.sp)
 }
 
 @Composable
 private fun YourDataPage(p: Profile, skip: () -> Unit) {
     Title("Your data")
-    Body("Your workouts, routines and settings are saved on this phone. Pick whether they should also be backed up " +
-        "to your Google account, so a new phone or a reinstall gets everything back.")
-    InfoCard {
-        Text("📱  If you skip, Loadout keeps everything on this phone only (local storage).", fontSize = 14.sp)
-        Text("⚙️  You can change this any time in Settings → Where your data is kept.", fontSize = 14.sp)
-    }
-    DataChoice(p)
+    Body("Loadout keeps everything on this phone unless you choose Google backup. You can change this any time in Settings.")
+    DataChoice(p, showStatus = false)
     Text(
-        "Skip for now", color = Blue, fontSize = 16.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center,
+        "Skip for now (keep it on this phone)", color = Blue, fontSize = 15.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).clickable(onClick = skip).padding(12.dp),
     )
 }
 
 @Composable
-private fun RanksPage() {
-    Title("Ranks")
-    Body("Every exercise with reliable strength data gets a rank. There are 20 ranks, each one 5% of lifters wide:")
-    InfoCard {
-        val groups = listOf(
-            "Wood" to Tier.WOOD_1, "Bronze" to Tier.BRONZE_1, "Silver" to Tier.SILVER_1,
-            "Gold" to Tier.GOLD_1, "Platinum" to Tier.PLATINUM_1, "Diamond" to Tier.DIAMOND_1,
-        )
-        groups.chunked(3).forEach { row ->
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                row.forEach { (name, first) ->
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Row { (0..2).forEach { RankBadge(Tier.entries[first.ordinal + it], 30.dp) } }
-                        Text(name, fontSize = 13.sp, color = Color(first.color))
-                    }
-                }
-            }
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            listOf(Tier.OLYMPIAN, Tier.LEGEND).forEach { t ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    RankBadge(t, 56.dp)
-                    Text("${t.label} · top ${t.topPct}%", fontSize = 13.sp, color = Color(t.color), fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-    }
-    Body("Each rank comes from your best set in the most recent session of that exercise. Your 1-rep max is estimated " +
-        "from weight and reps, so a heavy 5 counts as much as the single it equals.")
-    Body("Ranks go up the moment you tick a set – you'll get a celebration – and only go down if a later session is weaker. " +
-        "Skipping an exercise never lowers it.")
-    Body("Your overall rank and the home-screen muscle map are built from all your ranked exercises.")
+private fun BackupCheckPage() {
+    Title("Make sure your data is backing up")
+    Body("Google backup has to be switched on in your phone's settings.")
+    BackupStatus()
 }
 
 @Composable
-private fun PercentPage() {
-    Title("Percentile scores")
-    Body("Next to every rank is where you stand among lifters your size, sex and age, as a \"top %\". Top 42% means you're stronger than 58% of them.")
+private fun RanksPage() {
+    Title("Ranks")
+    Body("Each lift is ranked against people your size, sex and age – from Wood to Legend.")
     InfoCard {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RankBadge(Tier.GOLD_2, 48.dp)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Bottom) {
+            listOf(Tier.WOOD_1, Tier.BRONZE_2, Tier.SILVER_2, Tier.GOLD_2, Tier.PLATINUM_2, Tier.DIAMOND_2, Tier.OLYMPIAN, Tier.LEGEND)
+                .forEachIndexed { i, t -> RankBadge(t, (26 + i * 3).dp) }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+            RankBadge(Tier.GOLD_2, 44.dp)
             Column(Modifier.padding(start = 12.dp)) {
-                Text("Bench Press ★", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(buildAnnotatedString {
+                    append("Bench Press ")
+                    withStyle(SpanStyle(color = StarGold)) { append("★") }
+                }, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text("Gold 2 (top 42%)", color = Color(Tier.GOLD_2.color), fontSize = 14.sp)
             }
         }
-        Text("Stronger than 58% of comparable lifters. Your overall rank is the average across all your ranked exercises.", color = Sub, fontSize = 13.sp)
     }
-    Body("Ranked exercises have a star after their name:")
-    InfoCard {
-        Text(buildAnnotatedString {
-            withStyle(SpanStyle(color = StarGold)) { append("★  Gold") }
-            append(" – accurate: data for this exact exercise (or a near-identical one) that fits you.")
-        }, fontSize = 14.sp)
-        Text(buildAnnotatedString {
-            withStyle(SpanStyle(color = StarEstimate)) { append("★  Blue") }
-            append(" – estimate: worked out from a close variation, or from data that doesn't fully fit you.")
-        }, fontSize = 14.sp)
-    }
-    Body("By default only accurate ranks are shown. In Settings → Ranks you can show estimates too, or turn ranks off.")
+    Body("Top 42% = stronger than 58% of them. Hit a new best and you rank up on the spot.")
 }
 
 @Composable
 private fun ReadyPage() {
-    Title("You're set")
-    InfoCard {
-        Text("🏠  Home – your week or all-time stats, calendar, and rank map", fontSize = 15.sp)
-        Text("🏋️  Workout – start empty or from a routine", fontSize = 15.sp)
-        Text("👤  Profile – your details, exercises and settings", fontSize = 15.sp)
-    }
-    Body("Tap any exercise to see its muscle heatmap, what weight to log, and your rank.")
-    Body("Coming from Hevy? Settings → Restore / Import accepts your Hevy CSV export.")
+    Spacer(30)
+    Text("💪", fontSize = 64.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    Text("You're all set", fontSize = 28.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+    Text("Start a workout from the Workout tab.\nComing from Hevy? Import it in Settings.", color = Sub, fontSize = 15.sp,
+        lineHeight = 22.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
 }
 
 /** "Keep on this phone" / "Back up to my Google account" – used in the welcome and in Settings. */
 @Composable
-fun DataChoice(p: Profile) {
-    val c = androidx.compose.ui.platform.LocalContext.current
+fun DataChoice(p: Profile, showStatus: Boolean = true) {
     @Composable
     fun Option(value: String, icon: String, title: String, text: String) {
         val on = p.cloud == value
         Row(
             Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(if (on) Blue.copy(alpha = 0.18f) else Card)
                 .clickable {
+                    // Switching to Google starts the check over, so the green tick means a backup since then.
+                    if (value == "google" && p.cloud != "google") CloudBackup.resetStatus()
                     Store.setProfile(Store.profile.value.copy(cloud = value))
-                    if (value == "google") runCatching { android.app.backup.BackupManager(c).dataChanged() }
                 }
                 .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -325,25 +273,58 @@ fun DataChoice(p: Profile) {
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Option("local", "📱", "Keep my information on this device",
-            "Nothing leaves your phone. Use Settings → Save backup if you ever want a copy.")
-        Option("google", "☁️", "Back up to my Google account",
-            "Uses the Google account on this phone. Backs up about once a day while charging on Wi-Fi, and restores automatically when you install Loadout again.")
-        if (p.cloud == "google") {
-            Column(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Card).padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Text("Link your Google account", fontWeight = FontWeight.Bold)
-                Text("Android does this backup for all your apps, so it needs your phone's backup switched on: " +
-                    "Settings → Accounts and backup → Back up data (Google Drive), with a Google account chosen.",
-                    color = Sub, fontSize = 13.sp, lineHeight = 18.sp)
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    GreyButton("Backup settings", Modifier.weight(1f)) { CloudBackup.openSettings(c) }
-                    GreyButton("Add account", Modifier.weight(1f)) { CloudBackup.addGoogleAccount(c) }
+        Option("local", "📱", "Keep it on this phone", "Nothing leaves your phone.")
+        Option("google", "☁️", "Back up to my Google account", "Restores automatically on a new phone or if you reinstall.")
+        if (showStatus && p.cloud == "google") {
+            Text("Make sure your data is backing up", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 6.dp))
+            BackupStatus()
+        }
+    }
+}
+
+/** Is Google backup working? Green tick once a backup has run since you chose it. */
+@Composable
+fun BackupStatus() {
+    val c = androidx.compose.ui.platform.LocalContext.current
+    var tick by remember { mutableStateOf(0) }
+    // Re-check every few seconds (e.g. after coming back from the phone's settings).
+    LaunchedEffect(Unit) { while (true) { kotlinx.coroutines.delay(3000); tick++ } }
+    val last = remember(tick) { CloudBackup.lastBackup(c) }
+    val enabled = remember(tick) { CloudBackup.phoneBackupOn(c) }
+    val green = Color(0xFF34C759)
+    val orange = Color(0xFFFF9F0A)
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Card).padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            val (icon, color) = when {
+                enabled == false -> "!" to orange
+                last != null -> "✓" to green
+                else -> "…" to Card2
+            }
+            Box(Modifier.size(34.dp).clip(CircleShape).background(color), contentAlignment = Alignment.Center) {
+                Text(icon, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            Column(Modifier.padding(start = 12.dp)) {
+                when {
+                    enabled == false -> {
+                        Text("Backup is off on this phone", fontWeight = FontWeight.Bold, color = orange)
+                        Text("Turn on Back up data in your phone's settings.", color = Sub, fontSize = 13.sp)
+                    }
+                    last != null -> {
+                        Text("Backup is working", fontWeight = FontWeight.Bold, color = green)
+                        Text("Last backed up " + java.text.SimpleDateFormat("MMM d, h:mm a", java.util.Locale.getDefault()).format(java.util.Date(last)),
+                            color = Sub, fontSize = 13.sp)
+                    }
+                    else -> {
+                        Text("Waiting for the first backup", fontWeight = FontWeight.Bold)
+                        Text("Usually within a day, while charging on Wi-Fi. A green tick shows here once it's done.", color = Sub, fontSize = 13.sp)
+                    }
                 }
-                Text("Your OpenAI key is never included – it stays on this phone only.", color = Sub, fontSize = 12.sp)
             }
         }
+        Text("Check: Settings → Accounts and backup → Back up data is on.", color = Sub, fontSize = 13.sp)
+        GreyButton("Open backup settings") { CloudBackup.openSettings(c) }
     }
 }
