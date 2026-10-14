@@ -58,7 +58,7 @@ MAP = {
     'Seated Calf Raise': [('Seated Calf Raise', None)],
     'Cable Fly': [('Cable Crossover', None)],
 }
-def kt(v): return ('%.1f' % v).rstrip('0').rstrip('.') + ''
+def kt(v): return '%.1f' % v
 rows, used, skipped = [], 0, []
 for std, exs in MAP.items():
     s = data[std]
