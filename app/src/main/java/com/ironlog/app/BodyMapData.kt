@@ -29,7 +29,9 @@ object BodyMapData {
         Region("neck", floatArrayOf(272f, 182f, 298f, 182f, 300f, 214f, 285f, 222f, 270f, 214f), null, true),
         Region("traps", floatArrayOf(800f, 182f, 785f, 185f, 770f, 200f, 745f, 212f, 725f, 222f, 745f, 232f, 760f, 240f, 775f, 270f, 790f, 320f, 800f, 345f), 800f, false),
         Region("shoulders", floatArrayOf(720f, 222f, 700f, 215f, 678f, 222f, 660f, 245f, 652f, 275f, 660f, 300f, 680f, 300f, 700f, 280f, 715f, 255f), 800f, false),
-        Region("rotator cuff", floatArrayOf(720f, 242f, 760f, 240f, 770f, 250f, 765f, 295f, 735f, 300f, 720f, 290f), 800f, false),
+        Region("rotator cuff", floatArrayOf(718f, 228f, 745f, 224f, 770f, 232f, 772f, 242f, 745f, 240f, 720f, 240f), 800f, false),
+        Region("rotator cuff", floatArrayOf(720f, 244f, 760f, 242f, 770f, 252f, 766f, 296f, 737f, 302f, 721f, 292f), 800f, false),
+        Region("rotator cuff", floatArrayOf(702f, 262f, 719f, 262f, 722f, 296f, 708f, 300f, 700f, 284f), 800f, false),
         Region("middle back", floatArrayOf(770f, 240f, 790f, 245f, 797f, 300f, 793f, 330f, 780f, 320f, 770f, 290f), 800f, false),
         Region("lats", floatArrayOf(722f, 302f, 760f, 302f, 780f, 322f, 790f, 360f, 788f, 400f, 770f, 420f, 750f, 430f, 735f, 410f, 725f, 370f, 718f, 330f), 800f, false),
         Region("lower back", floatArrayOf(790f, 335f, 800f, 332f, 800f, 445f, 785f, 445f, 775f, 420f, 780f, 370f), 800f, false),
@@ -43,11 +45,8 @@ object BodyMapData {
         Region("calves", floatArrayOf(705f, 665f, 745f, 665f, 758f, 690f, 755f, 740f, 740f, 770f, 720f, 775f, 700f, 760f, 692f, 720f, 695f, 690f), 800f, false),
         Region("neck", floatArrayOf(786f, 160f, 814f, 160f, 816f, 190f, 800f, 196f, 784f, 190f), null, false),
     )
-    /** Muscles drawn as a ring round a joint: centre x, y, radius x, y, ring thickness (mirrored). */
-    val rings: List<Ring> = listOf(
-        Ring("rotator cuff", 190f, 240f, 24f, 30f, 9f, 285f, true),
-        Ring("rotator cuff", 688f, 242f, 24f, 30f, 9f, 800f, false),
-    )
+    /** Muscles drawn as a ring round a joint (none at the moment). */
+    val rings: List<Ring> = emptyList()
     class Region(val muscle: String, val pts: FloatArray, val mirrorX: Float?, val front: Boolean)
     class Ring(val muscle: String, val cx: Float, val cy: Float, val rx: Float, val ry: Float, val thick: Float, val mirrorX: Float, val front: Boolean)
 }
