@@ -81,7 +81,7 @@ open(out, 'w').write('''package com.ironlog.app
  * Strength standards from Strength Level (strengthlevel.com, built from lifts logged by its users),
  * one-rep max in lb (or reps for bodyweight moves) for Beginner / Novice / Intermediate / Advanced / Elite
  * = stronger than 5 / 20 / 50 / 80 / 95% of lifters, at several body weights.
- * Made by tools/gen_standards.py from tools/standards/*.json – edit those and re-run.
+ * Made by tools/gen_standards.py from the JSON files in tools/standards – edit those and re-run.
  */
 object StandardsData {
     class Std(
