@@ -27,6 +27,7 @@ object BodyMapData {
         Region("calves", floatArrayOf(232f, 680f, 244f, 700f, 244f, 750f, 236f, 780f, 226f, 770f, 224f, 720f), 285f, true),
         Region("calves", floatArrayOf(190f, 690f, 198f, 700f, 200f, 760f, 192f, 800f, 184f, 790f, 180f, 740f), 285f, true),
         Region("neck", floatArrayOf(272f, 182f, 298f, 182f, 300f, 214f, 285f, 222f, 270f, 214f), null, true),
+        Region("rotator cuff", floatArrayOf(203f, 276f, 214f, 282f, 220f, 296f, 214f, 306f, 204f, 300f, 200f, 288f), 285f, true),
         Region("traps", floatArrayOf(800f, 182f, 785f, 185f, 770f, 200f, 745f, 212f, 725f, 222f, 745f, 232f, 760f, 240f, 775f, 270f, 790f, 320f, 800f, 345f), 800f, false),
         Region("shoulders", floatArrayOf(720f, 222f, 700f, 215f, 678f, 222f, 660f, 245f, 652f, 275f, 660f, 300f, 680f, 300f, 700f, 280f, 715f, 255f), 800f, false),
         Region("rotator cuff", floatArrayOf(718f, 228f, 745f, 224f, 770f, 232f, 772f, 242f, 745f, 240f, 720f, 240f), 800f, false),
