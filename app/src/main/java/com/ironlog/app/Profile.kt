@@ -123,6 +123,10 @@ fun SettingsScreen() {
                 message = withContext(Dispatchers.IO) {
                     runCatching {
                         val n = context.contentResolver.openInputStream(uri)!!.use { Store.readBackup(it) }
+                        if (n == -1) {
+                            withContext(Dispatchers.Main) { Nav.go(Route.HevyMatch) }
+                            return@runCatching "Choose matches for the exercises from Hevy…"
+                        }
                         Store.lastImported?.let {
                             "Imported $it workout${if (it == 1) "" else "s"}" + (if (Store.lastHevy) " from Hevy" else "") + " (any already here were skipped)."
                         }

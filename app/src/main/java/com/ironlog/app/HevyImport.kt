@@ -53,8 +53,54 @@ object HevyImport {
         return "exercise_title" in head && "start_time" in head
     }
 
-    /** Returns how many workouts were added. */
-    fun import(text: String): Int {
+    // ---- Your choices for exercises without a direct match, remembered for the next import ----
+
+    /** Hevy exercise -> Loadout exercise id, or "" for a new custom exercise. */
+    fun savedChoices(): Map<String, String> = runCatching {
+        val o = JSONObject(Store.readFile("hevy_map.json") ?: "{}")
+        o.keys().asSequence().associateWith { o.getString(it) }
+    }.getOrDefault(emptyMap())
+
+    private fun saveChoices(m: Map<String, String>) =
+        Store.writeFile("hevy_map.json", JSONObject((savedChoices() + m) as Map<*, *>).toString())
+
+    private fun library() = Store.exercises.value.values.filter { !it.hidden }.associateBy { it.name.lowercase() }
+
+    /** A direct match in the library, if there is one. */
+    private fun directId(hevy: String, byName: Map<String, Exercise>): String? =
+        MAP[hevy]?.let { byName[it.lowercase()]?.id } ?: byName[hevy.lowercase()]?.id
+
+    /** One Hevy exercise that needs a choice. [suggested]: a Loadout exercise id, or "" for a custom one. */
+    class Unmatched(val hevy: String, val sets: Int, val suggested: String)
+
+    class Plan(val text: String, val unmatched: List<Unmatched>)
+
+    /** The file waiting on the matching screen. */
+    var pending: Plan? = null
+
+    /** Choices on the matching screen (kept here so they survive opening the exercise picker). */
+    val choices = androidx.compose.runtime.mutableStateMapOf<String, String>()
+
+    /** Reads the file and lists the exercises with no direct match. */
+    fun prepare(text: String): Plan {
+        val rows = parseCsv(text.trimStart('﻿'))
+        if (rows.size < 2) error("Empty file")
+        val cEx = rows[0].indexOf("exercise_title").also { if (it < 0) error("Missing column exercise_title") }
+        val byName = library()
+        val saved = savedChoices()
+        val counts = rows.drop(1).mapNotNull { it.getOrNull(cEx)?.takeIf { n -> n.isNotBlank() } }.groupingBy { it }.eachCount()
+        val unmatched = counts.keys.filter { directId(it, byName) == null }.sorted().map { n ->
+            val savedId = saved[n]?.takeIf { it == "" || Store.exercise(it) != null }
+            Unmatched(n, counts.getValue(n), savedId ?: "")
+        }
+        choices.clear()
+        unmatched.forEach { choices[it.hevy] = it.suggested }
+        return Plan(text, unmatched)
+    }
+
+    /** Imports with your [choices] (Hevy name -> exercise id, "" = custom). Returns how many workouts were added. */
+    fun import(text: String, choices: Map<String, String> = emptyMap()): Int {
+        if (choices.isNotEmpty()) saveChoices(choices)
         val rows = parseCsv(text.trimStart('﻿'))
         if (rows.size < 2) error("Empty file")
         val head = rows[0]
@@ -65,11 +111,11 @@ object HevyImport {
         val cR = head.indexOf("reps"); val cD = head.indexOf("distance_miles").takeIf { it >= 0 }
         val cKm = head.indexOf("distance_km").takeIf { it >= 0 }; val cT = head.indexOf("duration_seconds")
 
-        val byName = Store.exercises.value.values.filter { !it.hidden }.associateBy { it.name.lowercase() }
+        val byName = library()
         val custom = HashMap<String, Exercise>()
         fun exerciseFor(hevy: String, row: List<String>): String {
-            MAP[hevy]?.let { n -> byName[n.lowercase()]?.let { return it.id } }
-            byName[hevy.lowercase()]?.let { return it.id }
+            directId(hevy, byName)?.let { return it }
+            choices[hevy]?.takeIf { it.isNotEmpty() && Store.exercise(it) != null }?.let { return it }
             val id = "custom_hevy_" + hevy.replace(Regex("[^A-Za-z0-9]+"), "_").trim('_')
             Store.exercise(id)?.let { return it.id }
             custom[id]?.let { return id }

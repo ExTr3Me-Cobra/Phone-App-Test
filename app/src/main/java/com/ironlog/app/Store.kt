@@ -55,6 +55,10 @@ object Store {
         _profile.value = read("profile.json")?.let { runCatching { Json.profile(JSONObject(it)) }.getOrNull() } ?: Profile()
     }
 
+    /** Small app files (e.g. remembered import choices). */
+    fun readFile(name: String) = read(name)
+    fun writeFile(name: String, text: String) = write(name, text)
+
     private fun read(name: String): String? = runCatching { File(dir, name).takeIf { it.exists() }?.readText() }.getOrNull()
     private fun write(name: String, text: String) {
         runCatching {
@@ -194,7 +198,13 @@ object Store {
         val bytes = input.readBytes()
         if (bytes.size < 2 || bytes[0] != 'P'.code.toByte() || bytes[1] != 'K'.code.toByte()) {
             val text = String(bytes)
-            if (HevyImport.looksLikeHevy(text)) { lastHevy = true; HevyImport.import(text); return 0 }
+            if (HevyImport.looksLikeHevy(text)) {
+                lastHevy = true
+                val plan = HevyImport.prepare(text)
+                // Exercises without a direct match: let the matching screen ask first.
+                if (plan.unmatched.isNotEmpty()) { HevyImport.pending = plan; lastImported = null; return -1 }
+                HevyImport.import(text); return 0
+            }
             restore(text); return 0
         }
         var json: String? = null

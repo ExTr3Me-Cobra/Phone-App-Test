@@ -80,6 +80,7 @@ sealed interface Route {
     data class WorkoutDetail(val id: String) : Route
     data object Settings : Route
     data object Library : Route
+    data object HevyMatch : Route
 }
 
 object Nav {
@@ -176,6 +177,7 @@ private fun Root() {
                 is Route.WorkoutDetail -> WorkoutDetailScreen(route.id)
                 Route.Settings -> SettingsScreen()
                 Route.Library -> PickerScreen(null)
+                Route.HevyMatch -> HevyMatchScreen()
             }
           }
         }
