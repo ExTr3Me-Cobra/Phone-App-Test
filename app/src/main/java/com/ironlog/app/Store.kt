@@ -255,6 +255,6 @@ object Store {
         o.optJSONArray("custom")?.objs()?.forEach { saveCustomExercise(Exercise.fromJson(it, true)) }
         o.optJSONArray("routines")?.let { setRoutines(it.objs().map(Json::routine)) }
         o.optJSONArray("workouts")?.let { setWorkouts(it.objs().map(Json::workout).sortedByDescending { w -> w.start }) }
-        o.optJSONObject("profile")?.let { setProfile(Json.profile(it).copy(apiKey = key)) }
+        o.optJSONObject("profile")?.let { setProfile(Json.profile(it).copy(apiKey = key, onboarded = true)) }
     }
 }

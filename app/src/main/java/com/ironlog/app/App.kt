@@ -185,6 +185,7 @@ private fun Root() {
         if (active != null && route != Route.Active) ResumeBar()
         if (route is Route.Tabs) BottomBar(route.tab)
     }
+    Onboarding()
     RankUpOverlay()
 }
 
