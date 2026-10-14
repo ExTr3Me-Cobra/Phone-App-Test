@@ -14,6 +14,10 @@ object StandardsData {
         val id: String, val lift: String,
         val male: List<Pair<Double, DoubleArray>>?, val female: List<Pair<Double, DoubleArray>>?,
         val reps: Boolean, val perDumbbell: Boolean, val note: String?,
+        /** Multiplies the levels: for an exercise ranked from a similar lift's standard. */
+        val factor: Double = 1.0,
+        /** Why this is only an estimate (null = data that fits closely). */
+        val approx: String? = null,
     )
 
     @Volatile var all: List<Std> = emptyList()
@@ -32,8 +36,9 @@ object StandardsData {
                         row.getDouble(0) to DoubleArray(5) { row.getDouble(it + 1) }
                     }
                 }
+                fun str(k: String) = if (!o.has(k) || o.isNull(k)) null else o.getString(k)
                 Std(o.getString("i"), o.getString("lift"), rows("m"), rows("f"), o.getBoolean("r"), o.getBoolean("d"),
-                    if (o.isNull("note")) null else o.getString("note"))
+                    str("note"), o.optDouble("k", 1.0), str("a"))
             }
         }.getOrDefault(emptyList())
     }

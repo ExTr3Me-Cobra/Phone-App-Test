@@ -126,6 +126,8 @@ data class Profile(
     val devUnlocked: Boolean = false,
     /** Developer: show the AI picture tools and picture packs. */
     val devAi: Boolean = false,
+    /** Home stats show all time instead of this week. */
+    val homeAllTime: Boolean = false,
 )
 
 // ---------- JSON ----------
@@ -176,14 +178,14 @@ object Json {
         .put("male", p.male).put("kg", p.kg).put("key", p.apiKey).put("model", p.imageModel)
         .put("quality", p.imageQuality).put("rest", p.defaultRest)
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
-        .put("dev", p.devUnlocked).put("devAi", p.devAi)
+        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("homeAll", p.homeAllTime)
     fun profile(o: JSONObject) = Profile(
         o.optDoubleOrNull("bw"), o.optIntOrNull("h"), o.optIntOrNull("age"), o.optBoolean("male", true),
         o.optBoolean("kg"), o.optString("key"), o.optString("model", "gpt-image-1").ifBlank { "gpt-image-1" },
         o.optString("quality", "medium"), o.optInt("rest", 90),
         o.optString("restSound", ""), o.optBoolean("restVibrate", true),
         o.optString("rankMode", "accurate").ifBlank { "accurate" },
-        o.optBoolean("dev"), o.optBoolean("devAi"),
+        o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"),
     )
 
     fun JSONArray.objs(): List<JSONObject> = List(length()) { getJSONObject(it) }

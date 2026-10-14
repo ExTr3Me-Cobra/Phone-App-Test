@@ -1,5 +1,14 @@
 package com.ironlog.app
 
+import androidx.compose.ui.text.style.TextAlign
+
+
+import androidx.compose.foundation.layout.aspectRatio
+
+import androidx.compose.foundation.shape.CircleShape
+
+import androidx.compose.foundation.border
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -41,12 +50,32 @@ fun HomeScreen() {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
             item { HomeRankCard() }
             item {
+                val profile by Store.profile.collectAsState()
+                val all = profile.homeAllTime
                 val weekAgo = System.currentTimeMillis() - 7L * 24 * 3600 * 1000
-                val week = workouts.filter { it.start >= weekAgo }
-                Row(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
-                    StatBox("This week", "${week.size} workout${if (week.size == 1) "" else "s"}", Modifier.weight(1f))
-                    StatBox("Time", Units.duration(week.sumOf { (it.end ?: it.start) - it.start }), Modifier.weight(1f))
-                    StatBox("Volume", "${Units.weight(week.sumOf { Stats.volume(it) })} ${Units.w}", Modifier.weight(1f))
+                val shown = if (all) workouts else workouts.filter { it.start >= weekAgo }
+                var calendar by remember { mutableStateOf(false) }
+                Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Tap to switch between this week and all time (remembered).
+                        Row(Modifier.clip(RoundedCornerShape(16.dp)).background(Card2)) {
+                            listOf(false to "This week", true to "All time").forEach { (v, label) ->
+                                Text(label, fontSize = 13.sp, color = if (all == v) Color.White else Sub,
+                                    modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(if (all == v) Blue else Color.Transparent)
+                                        .clickable { Store.setProfile(profile.copy(homeAllTime = v)) }.padding(horizontal = 12.dp, vertical = 6.dp))
+                            }
+                        }
+                        androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
+                        Text(if (calendar) "📅 ▴" else "📅 ▾", fontSize = 16.sp,
+                            modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { calendar = !calendar }.padding(6.dp))
+                    }
+                    androidx.compose.foundation.layout.Spacer(Modifier.height(10.dp))
+                    Row {
+                        StatBox("Workouts", "${shown.size}", Modifier.weight(1f))
+                        StatBox("Time", Units.duration(shown.sumOf { (it.end ?: it.start) - it.start }), Modifier.weight(1f))
+                        StatBox("Volume", "${Units.weight(shown.sumOf { Stats.volume(it) })} ${Units.w}", Modifier.weight(1f))
+                    }
+                    if (calendar) WorkoutCalendar(workouts)
                 }
                 if (workouts.isEmpty()) {
                     Column(Modifier.padding(16.dp)) {
@@ -148,4 +177,59 @@ fun WorkoutDetailScreen(id: String) {
     if (deleting) ConfirmText("Delete this workout from your history?", {
         deleting = false; Store.deleteWorkout(w.id); Nav.back()
     }, { deleting = false }, "Delete")
+}
+
+
+/** A month calendar; days with a logged workout are highlighted blue. */
+@Composable
+fun WorkoutCalendar(workouts: List<Workout>) {
+    val zone = java.time.ZoneId.systemDefault()
+    val days = remember(workouts) {
+        workouts.map { java.time.Instant.ofEpochMilli(it.start).atZone(zone).toLocalDate() }.toSet()
+    }
+    var month by remember { mutableStateOf(java.time.YearMonth.now()) }
+    val today = java.time.LocalDate.now()
+    Column(Modifier.padding(top = 12.dp).fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("‹", fontSize = 26.sp, modifier = Modifier.clickable { month = month.minusMonths(1) }.padding(horizontal = 12.dp))
+            Text(
+                month.month.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.getDefault()) + " " + month.year,
+                fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
+            )
+            Text("›", fontSize = 26.sp, modifier = Modifier.clickable { month = month.plusMonths(1) }.padding(horizontal = 12.dp))
+        }
+        Row(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+            listOf("S", "M", "T", "W", "T", "F", "S").forEach {
+                Text(it, color = Sub, fontSize = 12.sp, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
+            }
+        }
+        val first = month.atDay(1)
+        val blanks = first.dayOfWeek.value % 7 // Sunday first
+        val cells = blanks + month.lengthOfMonth()
+        for (week in 0 until (cells + 6) / 7) {
+            Row(Modifier.fillMaxWidth()) {
+                for (d in 0 until 7) {
+                    val n = week * 7 + d - blanks + 1
+                    Box(Modifier.weight(1f).aspectRatio(1f).padding(2.dp), contentAlignment = Alignment.Center) {
+                        if (n in 1..month.lengthOfMonth()) {
+                            val date = month.atDay(n)
+                            val logged = date in days
+                            Box(
+                                Modifier.fillMaxSize().clip(CircleShape)
+                                    .background(if (logged) Blue else Color.Transparent)
+                                    .then(if (date == today && !logged) Modifier.border(1.dp, Blue, CircleShape) else Modifier),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("$n", fontSize = 14.sp, color = if (logged) Color.White else Color.Unspecified,
+                                    fontWeight = if (logged) FontWeight.Bold else FontWeight.Normal)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val count = days.count { java.time.YearMonth.from(it) == month }
+        Text("$count workout day${if (count == 1) "" else "s"} this month", color = Sub, fontSize = 12.sp,
+            modifier = Modifier.padding(top = 4.dp).align(Alignment.CenterHorizontally))
+    }
 }

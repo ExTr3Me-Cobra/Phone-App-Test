@@ -50,6 +50,7 @@ object Standards {
             p.age == null -> problems += "Your age isn't set, so no age adjustment is made."
             p.age < 25 || p.age > 40 -> problems += "The adjustment for age ${p.age} is estimated: Strength Level's age data is from the bench press and is applied to every lift."
         }
+        s.approx?.let { problems += it }
         if (own == null) problems += if (p.male) "No published data for men on this exercise: estimated from women's data, scaled by the men-to-women ratio on push-ups and dips."
             else "No published data for women on this exercise: estimated from men's data, scaled by the women-to-men ratio on push-ups and dips."
         val sex = if (p.male) "men" else "women"
@@ -141,7 +142,7 @@ object Standards {
         val rows = fit(id, p)?.rows ?: return null
         val bw = p.bodyweight ?: return null
         val f = ageFactor(p.age)
-        val lv = levelsAt(rows, bw).map { it * f }
+        val lv = levelsAt(rows, bw).map { it * f * (table[id]?.factor ?: 1.0) }
         return when {
             value <= lv[0] -> PCT[0] * value / lv[0]
             value >= lv[4] -> 95 + 4.9 * (1 - exp(-(value - lv[4]) / (lv[4] - lv[3]).coerceAtLeast(1.0)))

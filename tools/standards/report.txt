@@ -1,12 +1,13 @@
 Preacher Curl male 110: identical to the barbell curl row – dropped
 Smith Machine Incline Bench Press: no data – not ranked
-Hip Abduction: left out (two conflicting versions of the Strength Level page)
-Hack Squat: left out (two conflicting versions of the Strength Level page)
+Hip Abduction: estimate only (Strength Level shows two different versions of this page.)
+Hack Squat: estimate only (Strength Level shows two different versions of this page.)
 Wrist Curl female 100: off-trend [0.0, 10.0, 34.0, 73.0, 124.0] – dropped
 Wrist Curl female 110: off-trend [1.0, 12.0, 39.0, 80.0, 133.0] – dropped
 Reverse Dumbbell Fly male 120: off-trend [3.0, 11.0, 26.0, 47.0, 72.0] – dropped
 Dumbbell Romanian Deadlift: left out (unclear if per dumbbell or both)
-Barbell Glute Bridge: left out (rows pieced together column by column)
-Sit Ups: left out (sparse rows, sex of tables guessed)
-Inverted Row: left out (only one partial snippet (210 lb and up))
-Handstand Push Ups: left out (female table guessed, male novice values not per row)
+Barbell Glute Bridge: estimate only (Rows were pieced together from separate snippets.)
+Sit Ups: estimate only (Sparse rows; which table is men's or women's was guessed.)
+Inverted Row: estimate only (Only heavier body weights were found (210 lb and up).)
+Handstand Push Ups: estimate only (The women's table was guessed and some men's values were not per row.)
+Cable Seated Lateral Raise: base lift Cable Lateral Raise has no data

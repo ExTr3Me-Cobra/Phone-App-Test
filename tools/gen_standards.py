@@ -15,6 +15,7 @@ Run: python3 tools/gen_standards.py
 """
 import json, os, glob, math
 HERE = os.path.dirname(__file__)
+import sys; sys.path.insert(0, HERE)
 ASSET = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'standards.json')
 db = {e['n']: e for e in json.load(open(os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json'))) if not e.get('x')}
 
@@ -125,12 +126,16 @@ DUMBBELL = {'Dumbbell Bench Press', 'Dumbbell Row', 'Dumbbell Fly', 'Dumbbell La
 
 report = []
 
-# Left out on purpose: Strength Level shows two different versions of these pages.
-EXCLUDE = {'Hip Abduction': 'two conflicting versions of the Strength Level page', 'Hack Squat': 'two conflicting versions of the Strength Level page',
-           'Kettlebell Swing': 'no matching exercise',
-           'Inverted Row': 'only one partial snippet (210 lb and up)', 'Sit Ups': 'sparse rows, sex of tables guessed',
-           'Handstand Push Ups': 'female table guessed, male novice values not per row',
-           'Barbell Glute Bridge': 'rows pieced together column by column', 'Dumbbell Romanian Deadlift': 'unclear if per dumbbell or both'}
+# Left out entirely.
+EXCLUDE = {'Kettlebell Swing': 'no matching exercise', 'Dumbbell Romanian Deadlift': 'unclear if per dumbbell or both'}
+# Usable but less certain data: these rank only as estimates (silver-blue ★, All on mode).
+APPROX = {'Hip Abduction': 'Strength Level shows two different versions of this page.',
+          'Hack Squat': 'Strength Level shows two different versions of this page.',
+          'Inverted Row': 'Only heavier body weights were found (210 lb and up).',
+          'Sit Ups': 'Sparse rows; which table is men\'s or women\'s was guessed.',
+          'Handstand Push Ups': 'The women\'s table was guessed and some men\'s values were not per row.',
+          'Barbell Glute Bridge': 'Rows were pieced together from separate snippets.'}
+from derived_standards import DERIVED
 # Single rows found to be copies of another exercise's row.
 DROP_ROWS = {('Preacher Curl', 'male', 110.0): 'identical to the barbell curl row'}
 
@@ -206,9 +211,11 @@ def trend_check(lift, sex, rows, reps):
 
 data = load()
 entries, used, lifts_used, coverage = [], 0, 0, {}
+tables_by_lift = {}
 for lift, exs in MAP.items():
     if lift not in data: report.append(f'{lift}: no data – not ranked'); continue
     if lift in EXCLUDE: report.append(f'{lift}: left out ({EXCLUDE[lift]})'); continue
+    if lift in APPROX: report.append(f'{lift}: estimate only ({APPROX[lift]})')
     d = data[lift]; reps = d['unit'] == 'reps'
     tables = {}
     for sex in ('male', 'female'):
@@ -227,9 +234,27 @@ for lift, exs in MAP.items():
             t = tables.get(sex)
             return [[bw] + v for bw, v in t.items()] if t else None
         entries.append({'i': db[name]['i'], 'lift': lift, 'm': rows_of('male'), 'f': rows_of('female'),
-                        'r': reps, 'd': lift in DUMBBELL, 'note': note})
+                        'r': reps, 'd': lift in DUMBBELL, 'note': note, 'k': 1.0, 'a': APPROX.get(lift)})
         used += 1
+    tables_by_lift[lift] = (tables, reps)
 
+# Similar exercises ranked from a lift's standard × a factor.
+have = {e['i'] for e in entries}
+derived = 0
+for name, lift, k, same in DERIVED:
+    e = db.get(name)
+    if e is None or e['i'] in have: continue
+    if lift not in tables_by_lift: report.append(f'{name}: base lift {lift} has no data'); continue
+    tables, reps = tables_by_lift[lift]
+    if reps != (e['t'] == 'BODYWEIGHT'): report.append(f'{name}: logged differently from {lift} – skipped'); continue
+    rows = lambda sex: [[bw] + v for bw, v in tables[sex].items()] if sex in tables else None
+    how = 'the same' if abs(k - 1) < 0.04 else f'{k:g}×'
+    note = f'Ranked with the Strength Level "{lift}" standard ({how}' + (' per dumbbell' if e['e'] == 'Dumbbell' and k < 0.6 else '') + ').'
+    entries.append({'i': e['i'], 'lift': lift, 'm': rows('male'), 'f': rows('female'), 'r': reps,
+                    'd': e['e'] == 'Dumbbell' and lift not in ('Goblet Squat', 'Dumbbell Tricep Extension'), 'note': note, 'k': k,
+                    'a': None if same and not APPROX.get(lift) else (APPROX.get(lift) or 'A similar exercise\'s standard, scaled – an estimate.')})
+    have.add(e['i']); derived += 1
+print('derived:', derived)
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')
