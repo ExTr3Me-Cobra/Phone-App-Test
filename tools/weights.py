@@ -55,3 +55,8 @@ RULES = [
 DEFAULT = {'grip': .2, 'forearms': .2, 'calves': .15, 'abdominals': .2, 'lower back': .25, 'neck': .2, 'traps': .3,
            'serratus': .2, 'rotator cuff': .25}
 FALLBACK = .3
+
+# Exact weights for particular exercises (checked before the rules).
+OVERRIDES = {
+    "Push-Up Plus": {"abdominals": .45, "shoulders": .35, "chest": .2},
+}

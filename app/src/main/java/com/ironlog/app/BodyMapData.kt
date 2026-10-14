@@ -43,5 +43,11 @@ object BodyMapData {
         Region("calves", floatArrayOf(705f, 665f, 745f, 665f, 758f, 690f, 755f, 740f, 740f, 770f, 720f, 775f, 700f, 760f, 692f, 720f, 695f, 690f), 800f, false),
         Region("neck", floatArrayOf(786f, 160f, 814f, 160f, 816f, 190f, 800f, 196f, 784f, 190f), null, false),
     )
+    /** Muscles drawn as a ring round a joint: centre x, y, radius x, y, ring thickness (mirrored). */
+    val rings: List<Ring> = listOf(
+        Ring("rotator cuff", 190f, 240f, 24f, 30f, 9f, 285f, true),
+        Ring("rotator cuff", 688f, 242f, 24f, 30f, 9f, 800f, false),
+    )
     class Region(val muscle: String, val pts: FloatArray, val mirrorX: Float?, val front: Boolean)
+    class Ring(val muscle: String, val cx: Float, val cy: Float, val rx: Float, val ry: Float, val thick: Float, val mirrorX: Float, val front: Boolean)
 }

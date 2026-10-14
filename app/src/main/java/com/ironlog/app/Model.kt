@@ -25,6 +25,8 @@ data class Exercise(
     val hidden: Boolean = false,
     /** How hard each secondary muscle works compared with the primary (0..1). */
     val secondaryWeights: List<Float> = emptyList(),
+    /** A built-in exercise you've changed. */
+    val edited: Boolean = false,
 ) {
     /** Secondary muscle -> weight (0.3 when not known). */
     fun secondaryWeight(m: String): Float {
@@ -36,6 +38,7 @@ data class Exercise(
 
     fun toJson(): JSONObject = JSONObject().put("i", id).put("n", name).put("e", equipment).put("t", type.name)
         .put("p", JSONArray(primary)).put("s", JSONArray(secondary)).put("c", category).put("h", JSONArray(instructions))
+        .put("w", JSONArray(secondary.map { secondaryWeight(it).toDouble() })).put("x", if (hidden) 1 else 0)
 
     companion object {
         fun fromJson(o: JSONObject, custom: Boolean) = Exercise(

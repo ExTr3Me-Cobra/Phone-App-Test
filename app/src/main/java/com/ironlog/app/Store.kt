@@ -45,7 +45,10 @@ object Store {
             JSONArray(c.assets.open("exercises.json").bufferedReader().readText()).objs().map { Exercise.fromJson(it, false) }
         }.getOrDefault(emptyList())
         val custom = read("custom.json")?.let { JSONArray(it).objs().map { o -> Exercise.fromJson(o, true) } } ?: emptyList()
-        _exercises.value = (builtIn + custom).associateBy { it.id }
+        original = builtIn.associateBy { it.id }
+        overrides = read("overrides.json")?.let { JSONArray(it).objs().map { o -> Exercise.fromJson(o, false).copy(edited = true) } }
+            ?.associateBy { it.id } ?: emptyMap()
+        _exercises.value = (builtIn.map { overrides[it.id] ?: it } + custom).associateBy { it.id }
         _routines.value = read("routines.json")?.let { JSONArray(it).objs().map(Json::routine) } ?: emptyList()
         _workouts.value = read("workouts.json")?.let { JSONArray(it).objs().map(Json::workout) }?.sortedByDescending { it.start } ?: emptyList()
         _active.value = read("active.json")?.let { runCatching { Json.workout(JSONObject(it)) }.getOrNull() }
@@ -62,6 +65,27 @@ object Store {
     }
 
     fun exercise(id: String): Exercise? = _exercises.value[id]
+
+    /** Built-in exercises as they came, and your changes to them. */
+    private var original: Map<String, Exercise> = emptyMap()
+    private var overrides: Map<String, Exercise> = emptyMap()
+
+    /** Saves a changed exercise (your own, or your version of a built-in one). */
+    fun saveExercise(e: Exercise) {
+        if (e.custom) return saveCustomExercise(e)
+        val changed = e.copy(edited = true)
+        overrides = overrides + (e.id to changed)
+        write("overrides.json", JSONArray(overrides.values.map { it.toJson() }).toString())
+        _exercises.value = _exercises.value + (e.id to changed)
+    }
+
+    /** Puts a built-in exercise back the way it came. */
+    fun resetExercise(id: String) {
+        val o = original[id] ?: return
+        overrides = overrides - id
+        write("overrides.json", JSONArray(overrides.values.map { it.toJson() }).toString())
+        _exercises.value = _exercises.value + (id to o)
+    }
 
     // ----- exercises -----
     fun saveCustomExercise(e: Exercise) {

@@ -9,7 +9,7 @@ import json, re, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from extra_exercises import EXTRA
 from cleanup import REMOVE, RENAME
-from weights import RULES, DEFAULT, FALLBACK
+from weights import RULES, DEFAULT, FALLBACK, OVERRIDES
 
 HERE = os.path.dirname(__file__)
 OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json')
@@ -92,7 +92,7 @@ def fix(ex):
     if re.search(r"farmer|plate pinch|finger curl|gripper", name):
         p = ['grip' if m == 'forearms' else m for m in p]
         if 'forearms' not in p: s.append('forearms')
-    if ex['c'] != 'stretching':
+    if ex['c'] != 'stretching' and not ex['i'].startswith('x_'):
         for rx, need, add in PATTERNS:
             if re.search(rx, name) and (need is None or need in p):
                 s += add
@@ -119,6 +119,7 @@ for (name, eq, t, p, s, cat, h) in EXTRA:
     out.append(fix({'i': eid, 'n': name, 'e': eq, 't': t, 'p': p, 's': s, 'c': cat, 'h': h}))
     added += 1
 def weight(e, m):
+    if m in OVERRIDES.get(e['n'], {}): return OVERRIDES[e['n']][m]
     name = e['n'].lower()
     for rx, need, ws in RULES:
         if m in ws and re.search(rx, name) and (need is None or need in e['p']):

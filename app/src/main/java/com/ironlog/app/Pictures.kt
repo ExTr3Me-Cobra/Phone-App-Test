@@ -85,9 +85,18 @@ object BodyMap {
 
     private class Shape(val muscle: String, val path: Path, val front: Boolean)
 
+    private fun ring(r: BodyMapData.Ring, cx: Float): Path = Path().apply {
+        fillType = Path.FillType.EVEN_ODD
+        addOval(android.graphics.RectF(cx - r.rx, r.cy - r.ry, cx + r.rx, r.cy + r.ry), Path.Direction.CW)
+        val t = r.thick
+        addOval(android.graphics.RectF(cx - r.rx + t, r.cy - r.ry + t, cx + r.rx - t, r.cy + r.ry - t), Path.Direction.CW)
+    }
+
     private val shapes: List<Shape> by lazy {
         BodyMapData.regions.flatMap { r ->
             listOfNotNull(Shape(r.muscle, path(r, null), r.front), r.mirrorX?.let { Shape(r.muscle, path(r, it), r.front) })
+        } + BodyMapData.rings.flatMap { r ->
+            listOf(Shape(r.muscle, ring(r, r.cx), r.front), Shape(r.muscle, ring(r, 2 * r.mirrorX - r.cx), r.front))
         }
     }
 

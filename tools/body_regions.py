@@ -33,3 +33,6 @@ BACK = {
  'calves': [[(705,665),(745,665),(758,690),(755,740),(740,770),(720,775),(700,760),(692,720),(695,690)]],
  'neck': [[(786,160),(814,160),(816,190),(800,196),(784,190)]],
 }
+
+# Rotator cuff is also drawn as a ring round each shoulder joint (see BodyMapData.rings):
+# front (190,240) rx24 ry30 thick9 mirrored about 285; back (688,242) same, mirrored about 800.

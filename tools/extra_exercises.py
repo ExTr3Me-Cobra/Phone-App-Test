@@ -27,8 +27,11 @@ EXTRA = [
   ["Hold a kettlebell upside down by the handle at shoulder height, elbow under the wrist.", "Squeeze hard to keep it balanced and hold."]),
 
  # ---------- Serratus ----------
- ("Push-Up Plus", "Bodyweight", B, ["serratus"], ["chest", "triceps", "shoulders", "abdominals"], "strength",
-  ["Do a push-up.", "At the top, keep the arms straight and push the floor further away, spreading the shoulder blades apart.", "Lower the chest slightly by letting the shoulder blades come back together, then repeat."]),
+ ("Push-Up Plus", "Bodyweight", B, ["serratus"], ["abdominals", "shoulders", "chest"], "rehab",
+  ["Hold a plank on your forearms, elbows under your shoulders, body in a straight line.",
+   "Without bending your elbows or moving your hips, push the floor away so your upper back rounds up and your shoulder blades spread apart.",
+   "Slowly let your chest sink back down between your shoulder blades. That's one rep.",
+   "Keep your abs tight and your neck long throughout."]),
  ("Scapular Push-Up", "Bodyweight", B, ["serratus"], ["chest", "shoulders", "abdominals"], "strength",
   ["Start in a high plank with straight arms.", "Without bending the elbows, let the chest sink between the shoulder blades.", "Push the floor away to spread the shoulder blades as far as possible."]),
  ("Serratus Punch (Dumbbell, Lying)", "Dumbbell", W, ["serratus"], ["shoulders", "chest"], "strength",

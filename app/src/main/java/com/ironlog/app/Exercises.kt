@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.roundToInt
 
 val MUSCLES = listOf(
     "abdominals", "abductors", "adductors", "biceps", "calves", "chest", "forearms", "glutes", "hamstrings",
@@ -203,8 +205,22 @@ fun ExerciseDetailScreen(id: String) {
     val metrics = Stats.metricsFor(e.type)
     var metric by remember(id) { mutableStateOf(metrics.first()) }
 
+    var topMenu by remember { mutableStateOf(false) }
+    var deleting by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize()) {
-        TopBar("Exercise", action = if (e.custom) "Edit" else null) { Nav.go(Route.EditExercise(e.id)) }
+        Box {
+            TopBar("Exercise", action = "⋮") { topMenu = true }
+            Box(Modifier.align(Alignment.TopEnd).padding(top = 48.dp)) {
+                DropdownMenu(topMenu, { topMenu = false }) {
+                    DropdownMenuItem({ Text("Edit name, muscles & directions") }, { topMenu = false; Nav.go(Route.EditExercise(e.id)) })
+                    if (e.edited) DropdownMenuItem({ Text("Reset to original") }, { topMenu = false; Store.resetExercise(e.id) })
+                    if (e.custom) DropdownMenuItem({ Text("Delete exercise", color = Red) }, { topMenu = false; deleting = true })
+                }
+            }
+        }
+        if (deleting) ConfirmText("Delete \"${e.name}\"? Past workouts keep their numbers.", {
+            deleting = false; Store.deleteCustomExercise(e.id); Nav.back()
+        }, { deleting = false }, "Delete")
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             ExercisePicture(e, Modifier.fillMaxWidth().height(320.dp))
             Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -311,8 +327,14 @@ fun RankCard(e: Exercise, best: Double, profile: Profile) {
     }
 }
 
-// ---------------- Create / edit your own exercise ----------------
+// ---------------- Create / edit an exercise ----------------
 
+private class MuscleRow(val muscle: String, main: Boolean, pct: Int) {
+    var main by mutableStateOf(main)
+    var pct by mutableStateOf(pct)
+}
+
+/** Edit any exercise (built-in ones are saved as your version and can be reset), or create one. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EditExerciseScreen(id: String?) {
@@ -320,18 +342,32 @@ fun EditExerciseScreen(id: String?) {
     var name by remember { mutableStateOf(existing?.name ?: "") }
     var equipment by remember { mutableStateOf(existing?.equipment ?: "Barbell") }
     var type by remember { mutableStateOf(existing?.type ?: ExType.WEIGHT) }
-    val primary = remember { mutableStateListOf<String>().apply { addAll(existing?.primary ?: emptyList()) } }
-    val secondary = remember { mutableStateListOf<String>().apply { addAll(existing?.secondary ?: emptyList()) } }
+    var directions by remember { mutableStateOf(existing?.instructions?.joinToString("\n") ?: "") }
+    val rows = remember {
+        mutableStateListOf<MuscleRow>().apply {
+            existing?.primary?.forEach { add(MuscleRow(it, true, 100)) }
+            existing?.secondary?.forEach { add(MuscleRow(it, false, (existing.secondaryWeight(it) * 100).roundToInt())) }
+        }
+    }
+    var adding by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    var deleting by remember { mutableStateOf(false) }
+    val levels = rows.associate { it.muscle to if (it.main) 1f else it.pct / 100f }
+
     Column(Modifier.fillMaxSize()) {
         TopBar(if (existing == null) "Create Exercise" else "Edit Exercise", action = "Save") {
             when {
                 name.isBlank() -> error = "Give it a name."
-                primary.isEmpty() -> error = "Pick at least one main muscle."
+                rows.none { it.main } -> error = "Mark at least one muscle as Main."
                 else -> {
-                    val e = Exercise(existing?.id ?: "custom_" + Store.newId(), name.trim(), equipment, type, primary.toList(), secondary.toList(), custom = true)
-                    Store.saveCustomExercise(e)
+                    val sec = rows.filter { !it.main }.sortedByDescending { it.pct }
+                    val e = (existing ?: Exercise("custom_" + Store.newId(), "", equipment, type, emptyList(), emptyList(), custom = true)).copy(
+                        name = name.trim(), equipment = equipment, type = type,
+                        primary = rows.filter { it.main }.map { it.muscle },
+                        secondary = sec.map { it.muscle },
+                        secondaryWeights = sec.map { it.pct / 100f },
+                        instructions = directions.lines().map { it.trim() }.filter { it.isNotEmpty() },
+                    )
+                    Store.saveExercise(e)
                     Nav.back()
                     if (existing == null) Nav.go(Route.ExerciseDetail(e.id))
                 }
@@ -340,6 +376,33 @@ fun EditExerciseScreen(id: String?) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(name, { name = it }, Modifier.fillMaxWidth(), label = { Text("Name") }, singleLine = true)
             error?.let { Text(it, color = Red) }
+
+            // Live preview: changes as you move the sliders.
+            BodyMapView(levels, Modifier.fillMaxWidth().height(280.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black))
+
+            Text("Muscles worked", fontWeight = FontWeight.Bold)
+            Text("Main muscles count 100%. For the others, set how hard they work compared with the main muscle.",
+                color = Sub, fontSize = 13.sp)
+            rows.forEach { r ->
+                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(titleCase(r.muscle), Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                        FilterChip(r.main, { r.main = !r.main; if (!r.main && r.pct >= 100) r.pct = 50 }, { Text("Main") })
+                        HSpacer(8)
+                        Text(if (r.main) "100%" else "${r.pct}%", modifier = Modifier.width(48.dp))
+                        Text("✕", color = Sub, modifier = Modifier.clickable { rows.remove(r) }.padding(6.dp))
+                    }
+                    if (!r.main) androidx.compose.material3.Slider(
+                        value = r.pct.toFloat(), onValueChange = { r.pct = (it / 5).roundToInt() * 5 },
+                        valueRange = 5f..100f, steps = 18,
+                    )
+                }
+            }
+            GreyButton("+ Add a muscle", textColor = Blue) { adding = true }
+
+            Text("Directions (one step per line)", fontWeight = FontWeight.Bold)
+            OutlinedTextField(directions, { directions = it }, Modifier.fillMaxWidth().heightIn(min = 120.dp))
+
             Text("Equipment", color = Sub)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 EQUIPMENT.forEach { o -> FilterChip(equipment == o, { equipment = o }, { Text(o) }) }
@@ -348,22 +411,25 @@ fun EditExerciseScreen(id: String?) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 ExType.entries.forEach { t -> FilterChip(type == t, { type = t }, { Text(t.label) }) }
             }
-            Text("Main muscles (dark red)", color = Sub)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                MUSCLES.forEach { m -> FilterChip(m in primary, { if (m in primary) primary.remove(m) else { primary.add(m); secondary.remove(m) } }, { Text(titleCase(m)) }) }
-            }
-            Text("Other muscles worked (light red)", color = Sub)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                MUSCLES.forEach { m -> FilterChip(m in secondary, { if (m in secondary) secondary.remove(m) else { secondary.add(m); primary.remove(m) } }, { Text(titleCase(m)) }) }
-            }
-            BodyMapView(primary.associateWith { 1f } + secondary.associateWith { 0.4f }.filterKeys { it !in primary },
-                Modifier.fillMaxWidth().height(300.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black))
-            Text("Add a picture from the exercise's page after saving.", color = Sub, fontSize = 13.sp)
-            if (existing != null) GreyButton("Delete exercise", textColor = Red) { deleting = true }
+            if (existing?.edited == true) GreyButton("Reset to original", textColor = Red) { Store.resetExercise(existing.id); Nav.back() }
+            Spacer(30)
         }
     }
-    if (deleting && existing != null) ConfirmText(
-        "Delete \"${existing.name}\"? Past workouts keep their numbers but will show it as missing.",
-        { Store.deleteCustomExercise(existing.id); deleting = false; Nav.back(); Nav.back() }, { deleting = false }, "Delete",
-    )
+    if (adding) {
+        val options = MUSCLES.filter { m -> rows.none { it.muscle == m } }
+        AlertDialog(
+            onDismissRequest = { adding = false },
+            title = { Text("Add a muscle") },
+            text = {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    options.forEach { m ->
+                        Text(titleCase(m), fontSize = 18.sp, modifier = Modifier.fillMaxWidth().clickable {
+                            rows.add(MuscleRow(m, rows.none { it.main }, if (rows.none { it.main }) 100 else 30)); adding = false
+                        }.padding(vertical = 10.dp))
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { adding = false }) { Text("Close") } },
+        )
+    }
 }
