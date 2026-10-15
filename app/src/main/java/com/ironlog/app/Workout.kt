@@ -205,15 +205,21 @@ fun ActiveWorkoutScreen() {
                 if (ex != null) {
                     val prev = remember(workouts, ex.id) { Stats.previous(ex.id, workouts) }
                     val cols = columnsFor(ex.type, true)
-                    // 👑 on the ticked set that set a new best (moves to a later set that beats it): est. 1-rep max for
-                    // weight & reps; for other exercises, only when they're ranked (★), by the number they're ranked on.
+                    // 👑 on the ticked set that set a new best (moves to a later set that beats it). Ranked (★) exercises use
+                    // the number they're ranked on; others: est. 1-rep max, most reps, longest time, furthest distance,
+                    // or for weight & time the heaviest weight (longer time breaks a tie).
                     val profileNow = Store.profile.collectAsState().value
                     val ranked = Standards.covers(ex.id, profileNow)
                     fun setValue(s: DoneSet): Double = when {
                         !s.done || s.warmup -> 0.0
                         ranked -> Standards.bestValue(ex.id, listOf(s))
-                        ex.type == ExType.WEIGHT -> Stats.e1rm(s.weight, s.reps)
-                        else -> 0.0
+                        else -> when (ex.type) {
+                            ExType.WEIGHT -> Stats.e1rm(s.weight, s.reps)
+                            ExType.BODYWEIGHT -> (s.reps ?: 0).toDouble()
+                            ExType.TIMED -> (s.seconds ?: 0).toDouble()
+                            ExType.CARDIO -> s.distance ?: 0.0
+                            ExType.WEIGHT_TIME -> if ((s.seconds ?: 0) <= 0) 0.0 else (s.weight ?: 0.0) * 100_000 + (s.seconds ?: 0)
+                        }
                     }
                     val bestBefore = remember(workouts, ex.id, w.id, ranked) {
                         workouts.filter { it.id != w.id && it.end != null }.flatMap { o -> o.items.filter { it.exerciseId == ex.id }.flatMap { it.sets } }
