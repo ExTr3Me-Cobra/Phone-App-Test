@@ -139,6 +139,10 @@ data class Profile(
     val onboarded: Boolean = false,
     /** Where your data is kept: "" = not chosen yet, "local" = this phone only, "google" = also backed up to your Google account. */
     val cloud: String = "",
+    /** Ranks compare you with everyone your sex, size and age (lifters and non-lifters), not just people who lift. */
+    val compareAll: Boolean = false,
+    /** Home: the two exercises you picked to stand for a muscle group (default: your top two). */
+    val groupPicks: Map<String, List<String>> = emptyMap(),
 )
 
 // ---------- JSON ----------
@@ -190,14 +194,16 @@ object Json {
         .put("male", p.male).put("kg", p.kg).put("model", p.imageModel) // the API key is kept apart (never backed up)
         .put("quality", p.imageQuality).put("rest", p.defaultRest)
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
-        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("homeAll", p.homeAllTime).put("onb", p.onboarded).put("bk", p.cloud)
+        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("homeAll", p.homeAllTime).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll)
+        .put("gp", JSONObject(p.groupPicks.mapValues { JSONArray(it.value) } as Map<*, *>))
     fun profile(o: JSONObject) = Profile(
         o.optDoubleOrNull("bw"), o.optIntOrNull("h"), o.optIntOrNull("age"), o.optBoolean("male", true),
         o.optBoolean("kg"), o.optString("key"), o.optString("model", "gpt-image-1").ifBlank { "gpt-image-1" },
         o.optString("quality", "medium"), o.optInt("rest", 90),
         o.optString("restSound", ""), o.optBoolean("restVibrate", true),
         o.optString("rankMode", "accurate").ifBlank { "accurate" },
-        o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"), o.optBoolean("onb"), o.optString("bk"),
+        o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"), o.optBoolean("onb"), o.optString("bk"), o.optBoolean("cmp"),
+        o.optJSONObject("gp")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
     )
 
     fun JSONArray.objs(): List<JSONObject> = List(length()) { getJSONObject(it) }

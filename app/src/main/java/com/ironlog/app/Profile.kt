@@ -198,6 +198,23 @@ fun SettingsScreen() {
             Spacer(8)
             Text("Ranks", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             RankModeChoice(p)
+            Text("Compare with", fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
+            listOf(
+                Triple(false, "Lifters with my biometrics", "People who lift, your sex, body weight and age."),
+                Triple(true, "Everyone with my biometrics", "All people your sex, body weight and age – lifters and non-lifters. Non-lifters are estimated from research, so ranks are higher and approximate."),
+            ).forEach { (all, label, desc) ->
+                Row(
+                    Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.compareAll == all) Blue.copy(alpha = 0.15f) else Card)
+                        .clickable { set(p.copy(compareAll = all)) }.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    androidx.compose.material3.RadioButton(p.compareAll == all, { set(p.copy(compareAll = all)) })
+                    Column(Modifier.weight(1f)) {
+                        Text(label, fontWeight = FontWeight.Medium)
+                        Text(desc, color = Sub, fontSize = 13.sp)
+                    }
+                }
+            }
 
             Text(
                 buildAnnotatedString {

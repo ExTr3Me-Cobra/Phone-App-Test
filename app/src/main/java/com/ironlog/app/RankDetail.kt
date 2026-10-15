@@ -69,7 +69,7 @@ fun RankDetailScreen(id: String) {
             val curve = remember(lv.toList(), xMax) { (0..80).map { i -> val x = xMax * i / 80; x to (Standards.percentile(id, x, p) ?: 0.0) } }
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(12.dp)) {
                 Text("Where you sit", fontWeight = FontWeight.Bold)
-                Text(if (reps) "Across: reps.  Up: % of lifters you beat." else "Across: est. 1-rep max.  Up: % of lifters you beat.",
+                Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
                     color = Sub, fontSize = 12.sp)
                 val line = Color.White
                 val myColor = r?.let { Color(it.tier.color) } ?: Blue
@@ -93,7 +93,7 @@ fun RankDetailScreen(id: String) {
                     drawPath(path, line, style = Stroke(2.dp.toPx()))
                     // The five published levels.
                     lv.forEachIndexed { k, v ->
-                        drawCircle(line, 4.dp.toPx(), Offset(px(v), py(Standards.LEVEL_PCT[k])))
+                        drawCircle(line, 4.dp.toPx(), Offset(px(v), py(Standards.percentile(id, v, p) ?: Standards.LEVEL_PCT[k])))
                         drawContext.canvas.nativeCanvas.drawText(fmt(v).substringBefore(" "), px(v) - 10.dp.toPx(), size.height - 4.dp.toPx(), text)
                     }
                     // You.
@@ -115,7 +115,7 @@ fun RankDetailScreen(id: String) {
                     val reached = mine != null && mine >= lv[k]
                     Row {
                         Text((if (reached) "✓ " else "   ") + name, Modifier.weight(1f), color = if (reached) Color.White else Sub)
-                        Text("beats ${Standards.LEVEL_PCT[k].toInt()}%", Modifier.width(90.dp), color = Sub, fontSize = 13.sp)
+                        Text("beats ${(Standards.percentile(id, lv[k], p) ?: Standards.LEVEL_PCT[k]).toInt()}%", Modifier.width(90.dp), color = Sub, fontSize = 13.sp)
                         Text(fmt(lv[k]), Modifier.width(80.dp), fontWeight = FontWeight.Medium)
                     }
                 }
@@ -136,7 +136,7 @@ fun RankDetailScreen(id: String) {
                     Text(k, Modifier.width(110.dp), color = Sub, fontSize = 14.sp)
                     Text(v, Modifier.weight(1f), fontSize = 14.sp)
                 }
-                Line("People", (if (p.male) "Men" else "Women") + " who lift" + if (fit.estimatedFromMen) " (estimated from the other sex's data)" else "")
+                Line("People", (if (p.male) "Men" else "Women") + (if (p.compareAll) " – everyone, lifters and non-lifters" else " who lift") + if (fit.estimatedFromMen) " (estimated from the other sex's data)" else "")
                 Line("Body weight", p.bodyweight?.let { Units.weightU(it) } ?: "not set")
                 Line("Age", p.age?.let { a -> "$a" + if (a in 25..40) " (no adjustment)" else " (levels × ${"%.2f".format(Standards.ageFactor(a))})" } ?: "not set")
                 Line("Data", "Strength Level \"${info.lift}\"" + if (info.factor != 1.0) " × ${"%.2f".format(info.factor)} for this variation" else "")

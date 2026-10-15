@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -104,6 +105,8 @@ fun HomeRankCard() {
     val ranks = remember(workouts, profile, exercises) { Ranks.all(workouts, profile) }
     val overall = Ranks.overall(ranks.values.map { it.percentile })
     var open by remember { mutableStateOf(false) }
+    var picking by remember { mutableStateOf<String?>(null) }
+    picking?.let { g -> GroupPickDialog(g, Ranks.groupCandidates(ranks)[g].orEmpty(), profile) { picking = null } }
     Column(Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
         if (overall == null) {
             Text("Your rank", fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -131,9 +134,15 @@ fun HomeRankCard() {
                 Text("Average of ${ranks.size} ranked exercise${if (ranks.size == 1) "" else "s"}", color = Sub, fontSize = 12.sp)
             }
         }
+        // Which group you're compared with (Settings → Ranks).
+        Text(
+            if (profile.compareAll) "Compared with everyone your sex, size and age – lifters and non-lifters (estimated)."
+            else "Compared with people who lift, your sex, size and age.",
+            color = Sub.copy(alpha = 0.6f), fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp),
+        )
         // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
         val muscles = remember(ranks) {
-            val groups = Ranks.groupRanks(ranks)
+            val groups = Ranks.groupRanks(ranks, profile.groupPicks)
             Ranks.muscles(ranks).mapValues { (m, r) -> groups[Muscles.group(m)]?.first ?: r.percentile }
         }
         val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
@@ -146,15 +155,19 @@ fun HomeRankCard() {
         )
         if (open) {
             Text("Your muscles", fontWeight = FontWeight.Bold)
-            Text("Each muscle's rank is the average of your top two ranked exercises for it. Tap an exercise to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
-            Ranks.groupRanks(ranks).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
+            Text("Each muscle's rank is the average of two ranked exercises – your top two unless you choose (tap ✎). " +
+                "Tap an exercise to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
+            Ranks.groupRanks(ranks, profile.groupPicks).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
                 val (pct, top) = v
                 val tier = Tier.of(pct)
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
                         HSpacer(8)
-                        Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                        Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        if (profile.groupPicks[g].orEmpty().isNotEmpty()) Text("  (your pick)", color = Sub, fontSize = 11.sp)
+                        Text("  ✎", color = Blue, fontSize = 15.sp, modifier = Modifier.clickable { picking = g }.padding(horizontal = 4.dp))
+                        Box(Modifier.weight(1f))
                         RankBadge(tier, 22.dp)
                         HSpacer(4)
                         Text(rankText(pct), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color))
@@ -221,7 +234,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                         Text("(${topLabel(r.percentile)})")
                     }
                 }
-                Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
+                Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)}" + if (profile.compareAll) " – everyone, lifters or not." else " who lift.", fontSize = 15.sp,
                     modifier = Modifier.padding(top = 6.dp))
                 Text(
                     "Your best in the 30 days up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else "est. 1-rep max ${Units.weightU(r.value)}",
@@ -386,4 +399,37 @@ private fun RankDownView(c: Ranks.Celebration) {
             Text("Tap to continue", color = Sub, fontSize = 12.sp)
         }
     }
+}
+
+/** Choose which two ranked exercises stand for a muscle group on Home (default: your top two). */
+@Composable
+private fun GroupPickDialog(group: String, candidates: List<Ranks.Ranked>, profile: Profile, onDone: () -> Unit) {
+    val current = Ranks.groupRanks(candidates.associateBy { it.exercise.id }, profile.groupPicks)[group]?.second.orEmpty().map { it.exercise.id }
+    val chosen = remember { androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(current) } }
+    fun save(picks: List<String>) {
+        val all = Store.profile.value.groupPicks.toMutableMap()
+        if (picks.isEmpty()) all.remove(group) else all[group] = picks
+        Store.setProfile(Store.profile.value.copy(groupPicks = all))
+    }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDone,
+        title = { Text(titleCase(group)) },
+        text = {
+            Column(Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
+                Text("Pick up to two exercises to average for this muscle.", color = Sub, fontSize = 13.sp)
+                candidates.forEach { r ->
+                    val on = r.exercise.id in chosen
+                    Row(Modifier.fillMaxWidth().clickable {
+                        if (on) chosen.remove(r.exercise.id) else { if (chosen.size >= 2) chosen.removeAt(0); chosen.add(r.exercise.id) }
+                    }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        androidx.compose.material3.Checkbox(on, null)
+                        Text(starredName(r.exercise), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                        Text(rankText(r.percentile), fontSize = 12.sp, color = Color(r.tier.color))
+                    }
+                }
+            }
+        },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = { save(chosen.toList()); onDone() }, enabled = chosen.isNotEmpty()) { Text("Save") } },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = { save(emptyList()); onDone() }) { Text("Use my top two") } },
+    )
 }

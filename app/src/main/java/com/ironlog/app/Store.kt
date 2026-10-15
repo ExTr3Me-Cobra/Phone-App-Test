@@ -179,7 +179,13 @@ object Store {
         .put("workouts", JSONArray(_workouts.value.map(Json::workout)))
         .put("custom", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }))
         .put("profile", Json.profile(_profile.value.copy(apiKey = "")))
+        // Your versions of built-in exercises, and small settings kept in their own files.
+        .put("edited", JSONArray(overrides.values.map { it.toJson() }))
+        .put("files", JSONObject().apply { BACKUP_FILES.forEach { n -> read(n)?.let { put(n, it) } } })
         .toString()
+
+    /** Small settings files included in backups: Hevy match choices, the 1 Rep Max list. */
+    private val BACKUP_FILES = listOf("hevy_map.json", "onerm_list.json")
 
     /**
      * Full backup as a zip: backup.json (routines, workouts, your exercises, profile without the API key)
@@ -275,5 +281,7 @@ object Store {
         o.optJSONArray("routines")?.let { setRoutines(it.objs().map(Json::routine)) }
         o.optJSONArray("workouts")?.let { setWorkouts(it.objs().map(Json::workout).sortedByDescending { w -> w.start }) }
         o.optJSONObject("profile")?.let { setProfile(Json.profile(it).copy(apiKey = key, onboarded = true, cloud = _profile.value.cloud)) }
+        o.optJSONArray("edited")?.objs()?.forEach { saveExercise(Exercise.fromJson(it, false)) }
+        o.optJSONObject("files")?.let { f -> BACKUP_FILES.forEach { n -> if (f.has(n)) write(n, f.getString(n)) } }
     }
 }
