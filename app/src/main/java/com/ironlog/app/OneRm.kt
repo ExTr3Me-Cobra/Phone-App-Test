@@ -248,9 +248,11 @@ fun OneRmTestScreen(id: String) {
     val gold = Color(0xFFC9A94E)
     fun fmt(v: Double) = if (reps) "${v.roundToInt()} reps" else Units.weightU(v)
 
-    androidx.activity.compose.BackHandler { confirmLeave = true }
+    // Leaving with a ticked set asks first (the test isn't saved until you finish it).
+    fun leave() { if (OneRm.rows.any { it.done }) confirmLeave = true else { OneRm.clear(); Nav.back() } }
+    androidx.activity.compose.BackHandler { leave() }
     Column(Modifier.fillMaxSize()) {
-        TopBar("1RM: ${e.name}", action = "Finish") { finishTest(context, id)?.let { error = it } }
+        TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ExerciseThumb(e, 64.dp)
@@ -351,9 +353,9 @@ fun OneRmTestScreen(id: String) {
     }
     if (confirmLeave) AlertDialog(
         onDismissRequest = { confirmLeave = false },
-        title = { Text("Leave this test?") },
-        text = { Text("Your sets here won't be saved.") },
-        confirmButton = { TextButton(onClick = { confirmLeave = false; OneRm.clear(); Nav.back() }) { Text("Leave", color = Red) } },
+        title = { Text("Go back without saving?") },
+        text = { Text("This test isn't saved yet – your completed sets will be lost. Tap Finish to save it. Are you sure you want to go back?") },
+        confirmButton = { TextButton(onClick = { confirmLeave = false; OneRm.clear(); Nav.back() }) { Text("Go back", color = Red) } },
         dismissButton = { TextButton(onClick = { confirmLeave = false }) { Text("Keep testing") } },
     )
 }
