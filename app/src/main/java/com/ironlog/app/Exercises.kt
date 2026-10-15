@@ -76,6 +76,11 @@ fun PickerScreen(req: Route.Picker?) {
     var equipment by rememberSaveable { mutableStateOf<String?>(null) }
     var muscle by rememberSaveable { mutableStateOf<String?>(null) }
     var dialog by remember { mutableStateOf(0) }
+    // Star filters: show exercises with a gold ★, a blue ★, or no star.
+    var showGold by rememberSaveable { mutableStateOf(true) }
+    var showBlue by rememberSaveable { mutableStateOf(true) }
+    var showNone by rememberSaveable { mutableStateOf(true) }
+    val profile by Store.profile.collectAsState()
     val selected = rememberSaveable(saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() })) {
         mutableStateListOf<String>()
     }
@@ -84,12 +89,17 @@ fun PickerScreen(req: Route.Picker?) {
     val filtered = sorted.filter { e ->
         (equipment == null || e.equipment == equipment) &&
             (muscle == null || muscle in e.primary) && // only exercises where it's a main muscle
+            when (Standards.star(e.id, profile)) {
+                Standards.Star.EXACT -> showGold
+                Standards.Star.ESTIMATE -> showBlue
+                Standards.Star.NONE -> showNone
+            } &&
             words.all { w ->
                 e.name.lowercase().contains(w) || e.primary.any { it.contains(w) } || e.equipment.lowercase().contains(w) ||
                     e.muscles.any { it.value >= 0.7f && it.key.lowercase().contains(w) }
             }
     }
-    val browsing = words.isEmpty() && equipment == null && muscle == null
+    val browsing = words.isEmpty() && equipment == null && muscle == null && showGold && showBlue && showNone
     val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] } else emptyList()
 
     fun tap(e: Exercise) {
@@ -117,6 +127,15 @@ fun PickerScreen(req: Route.Picker?) {
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GreyButton(equipment ?: "All Equipment", Modifier.weight(1f), if (equipment != null) Blue else Color.White) { dialog = 1 }
             GreyButton(muscle?.let(::titleCase) ?: "All Muscles", Modifier.weight(1f), if (muscle != null) Blue else Color.White) { dialog = 2 }
+        }
+        if (Standards.mode(profile) != Standards.Mode.OFF) Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            androidx.compose.material3.FilterChip(showGold, { showGold = !showGold }, { Text("★", color = StarGold); Text(" Gold") })
+            if (Standards.mode(profile) == Standards.Mode.ALL)
+                androidx.compose.material3.FilterChip(showBlue, { showBlue = !showBlue }, { Text("★", color = StarEstimate); Text(" Blue") })
+            androidx.compose.material3.FilterChip(showNone, { showNone = !showNone }, { Text("No star") })
         }
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 16.dp)) {
             if (recent.isNotEmpty()) {
