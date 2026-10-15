@@ -314,7 +314,7 @@ object Ranks {
 
     /** The main muscles an exercise ranks: its primary group's muscles that work at 75% or more. */
     fun rankedMuscles(e: Exercise): List<String> =
-        e.muscles.filter { (m, v) -> v >= 0.75f && Muscles.group(m) in e.primary }.keys.toList()
+        e.muscles.filter { (m, v) -> v >= 0.75f && Muscles.group(m) in e.primary && Muscles.group(m) !in NOT_ON_HOME }.keys.toList()
 
     /** Each main muscle -> your best ranked exercise for it. */
     fun muscles(ranks: Map<String, Ranked>): Map<String, Ranked> {
@@ -341,7 +341,10 @@ object Ranks {
 
     /** The muscle groups an exercise ranks: with the Grip rank on, the dynamometer ranks Grip (and only Grip). */
     fun groupsOf(e: Exercise, p: Profile = Store.profile.value): List<String> =
-        if (p.gripRank && Standards.isFlat(e.id)) listOf(GRIP) else e.primary
+        if (p.gripRank && Standards.isFlat(e.id)) listOf(GRIP) else e.primary.filter { it !in NOT_ON_HOME }
+
+    /** Muscle groups left off the Home ranks and body map (their exercises still have their own rank). */
+    val NOT_ON_HOME = setOf("abductors", "adductors")
 
     /** Each muscle group -> every ranked exercise where it's the main muscle, best first. */
     fun groupCandidates(ranks: Map<String, Ranked>): Map<String, List<Ranked>> {

@@ -187,7 +187,7 @@ fun HomeRankCard() {
             }
             // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, forearms).
             val rankedGroups = Ranks.groupRanks(ranks, profile.picksNow).keys
-            Muscles.groups.keys.filter { g -> g !in rankedGroups }.forEach { g ->
+            Muscles.groups.keys.filter { g -> g !in rankedGroups && g !in Ranks.NOT_ON_HOME }.forEach { g ->
                 val rankable = StandardsData.all.filter { (!it.ai || Standards.mode(profile) == Standards.Mode.AI) && !(profile.gripRank && it.flat) }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
                 if (rankable.isEmpty()) return@forEach
                 val forYou = rankable.filter { Standards.covers(it.id, profile) }
