@@ -191,13 +191,14 @@ DERIVED = [
     ('Good Morning off Pins', 'Good Morning', 1.0, False),
     ('Seated Good Mornings', 'Good Morning', 0.7, False),
     # ---- Calves, traps, forearms
-    ('Smith Machine Calf Raise', 'Calf Raise', 0.8, False),
+    # Same movement as Strength Level's Barbell Calf Raise (bar on the back), just on a guided bar.
+    ('Smith Machine Calf Raise', 'Barbell Calf Raise', 1.0, True),
     ('Standing Barbell Calf Raise', 'Calf Raise', 0.8, False),
-    ('Rocking Standing Calf Raise', 'Calf Raise', 0.8, False),
+    ('Rocking Standing Calf Raise', 'Barbell Calf Raise', 1.0, True),
     ('Calf Press On The Leg Press Machine', 'Calf Raise', 1.2, False),
     ('Calf Press', 'Calf Raise', 1.2, False),
     ('Donkey Calf Raises', 'Calf Raise', 1.0, False),
-    ('Barbell Seated Calf Raise', 'Seated Calf Raise', 1.0, False),
+    ('Barbell Seated Calf Raise', 'Seated Calf Raise', 1.0, True),
     ('Barbell Shrug Behind The Back', 'Barbell Shrug', 0.9, False),
     ('Smith Machine Behind the Back Shrug', 'Barbell Shrug', 0.9, False),
     ('Leverage Shrug', 'Barbell Shrug', 1.0, False),

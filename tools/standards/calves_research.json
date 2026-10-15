@@ -1,0 +1,268 @@
+{
+ "Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page) - Machine Calf Raise",
+    "ref": "strengthlevel.com/strength-standards/machine-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "110": [48, 110, 202, 321, 461],
+     "120": [57, 123, 220, 344, 489],
+     "130": [66, 137, 238, 366, 515],
+     "140": [75, 150, 255, 387, 540],
+     "170": [102, 186, 302, 445, 608],
+     "200": [127, 220, 345, 497, 668],
+     "250": [167, 271, 408, 572, 755],
+     "300": [203, 317, 463, 638, 830],
+     "310": [210, 325, 474, 650, 844]
+    },
+    "female": {
+     "90": [26, 71, 143, 239, 353],
+     "100": [31, 80, 154, 253, 371],
+     "110": [36, 87, 165, 267, 387],
+     "120": [41, 94, 175, 280, 403],
+     "150": [54, 114, 202, 313, 443],
+     "200": [74, 143, 239, 360, 498],
+     "250": [92, 167, 270, 398, 542],
+     "260": [95, 172, 276, 405, 550]
+    },
+    "confidence": "high",
+    "notes": "Snippets for this table cite 'based on 350,435 lifts by Strength Level users since 2017' / '2017 to 2026' and '77,203 qualifying results from 350,435 community lifts'. Every row seen matches the app's raw/r4.json 'Calf Raise' rows exactly. Whole-community male: 95/181/302/453/625 lb (also the 25-40 age row); 'The average Machine Calf Raise weight for a male lifter is 302 lb' (an older snapshot said 295 lb); female average 195 lb. kg page male community: 43/82/137/205/284 kg. Strength Level has no separate standing 'Calf Raise' standards page: strengthlevel.com/strength-standards/calf-raise/lb appears in results titled 'These are the most popular Machine Calf Raise workouts...', i.e. an alias of Machine Calf Raise."
+   },
+   {
+    "name": "Strength Level (older snapshot) - Machine Calf Raise",
+    "ref": "strengthlevel.com/strength-standards/machine-calf-raise (older cached snapshot; comparison pages e.g. machine-calf-raise-vs-seated-leg-curl/lb, -vs-sled-leg-press, -vs-smith-machine-squat; calf-raise/lb alias)",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "110": [24, 81, 177, 310, 471]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "SUPERSEDED. Based on 348,923 lifts (fewer than the 350,435 in the current table, so older). Whole-community male 69/160/295/471/678 lb (kg 31/72/134/214/307), female 33/90/182/306/454 lb; average male 295 lb. The 110-lb row 24/81/177/310/471 was seen in a snippet for strengthlevel.com/strength-standards/calf-raise/lb and is identical to FitnessVolt's machine-calf-raise row (FitnessVolt copies this older version). The previously seen 120-lb row 32/95/198/337/504 was not re-seen in this run. A snippet gave a 180-lb row 85/177/310/480/677 for this version, but FitnessVolt's 180-lb figures (310 Int / 480 Adv / 677 Elite) are the same, so its origin is uncertain and it is not listed above. Same pattern as other Strength Level calf pages: the older version had lower Beginner and much higher Elite values."
+   }
+  ],
+  "page_exists": true,
+  "summary": "The app's 'Calf Raise' rows (raw/r4.json, sourced from machine-calf-raise/lb) ARE the current Strength Level table: 21 of 21 snippet rows checked (9 male, 8 female, plus 3 earlier) match exactly, and they are tied to the larger 350,435-lift count. The 24/81/177/310/471 version is the older 348,923-lift snapshot (still on comparison pages, the calf-raise/lb alias and FitnessVolt). Strength Level has no separate standing 'Calf Raise' page; calf-raise redirects/aliases to Machine Calf Raise."
+ },
+ "Seated Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page)",
+    "ref": "strengthlevel.com/strength-standards/seated-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "150": [54, 106, 179, 271, 377],
+     "180": [71, 129, 209, 308, 420],
+     "200": [81, 143, 227, 330, 445]
+    },
+    "female": {
+     "90": [18, 52, 109, 185, 277],
+     "120": [27, 68, 131, 214, 312],
+     "150": [36, 82, 150, 238, 341],
+     "200": [49, 101, 175, 270, 379],
+     "260": [63, 121, 201, 301, 416]
+    },
+    "confidence": "high",
+    "notes": "'Based on 253,479 lifts by Strength Level users from 2019 to 2026.' Male community 61/119/200/302/418 lb; female community 33/78/146/235/339 lb; average female 146 lb. All rows seen match the app's raw/r5.json exactly. An older version (comparison pages e.g. seated-calf-raise-vs-smith-machine-squat) had male 49/118/221/358/518, female 30..371, average male 221 lb; superseded."
+   }
+  ],
+  "page_exists": true,
+  "summary": "Page exists; app rows match the current table."
+ },
+ "Barbell Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page)",
+    "ref": "strengthlevel.com/strength-standards/barbell-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "110": [48, 99, 172, 265, 373],
+     "120": [58, 113, 190, 288, 400],
+     "150": [88, 154, 242, 351, 474],
+     "180": [117, 192, 290, 407, 539],
+     "200": [136, 216, 319, 442, 578],
+     "250": [180, 271, 385, 519, 666],
+     "300": [221, 320, 444, 587, 743],
+     "310": [229, 330, 455, 600, 757]
+    },
+    "female": {
+     "100": [37, 77, 135, 209, 295],
+     "120": [48, 92, 155, 233, 323],
+     "140": [58, 106, 173, 255, 349],
+     "160": [67, 119, 189, 275, 372],
+     "180": [76, 131, 204, 293, 392],
+     "200": [85, 142, 217, 309, 412]
+    },
+    "confidence": "medium",
+    "notes": "'Based on 180,397 lifts by Strength Level users from 2020 to 2026.' Weight includes the bar. Female community 55/104/173/259/356 lb (kg 25/47/78/117/162); male community Novice 78 kg (~171-172 lb). Older comparison-page version: male 86/160/262/390/535, female 37/88/165/265/383 (kg male 39..243 or 44..242). Rows are from summarizer snippets, not the page itself, but internally consistent."
+   }
+  ],
+  "page_exists": true,
+  "summary": "Page exists with full male/female bodyweight tables; average male about 119 kg in one snapshot."
+ },
+ "Dumbbell Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page)",
+    "ref": "strengthlevel.com/strength-standards/dumbbell-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "110": [7, 23, 51, 89, 135],
+     "130": [11, 30, 61, 102, 151],
+     "150": [15, 37, 70, 114, 165],
+     "180": [22, 47, 83, 130, 185],
+     "200": [26, 53, 91, 140, 196],
+     "250": [36, 66, 109, 162, 222]
+    },
+    "female": {
+     "100": [8, 21, 41, 67, 98],
+     "120": [10, 24, 45, 72, 104],
+     "140": [12, 27, 49, 77, 110],
+     "150": [13, 28, 50, 79, 112],
+     "180": [15, 31, 55, 84, 119]
+    },
+    "confidence": "medium",
+    "notes": "'Based on 151,971 lifts by Strength Level users from 2020 to 2026.' Weight is for one dumbbell (dumbbell weight included). Male community 16/40/75/122/178, female 12/26/48/77/110; average male 75 lb. The 150-lb rows were described as 'roughly'. Strength Level also has a separate Dumbbell Walking Calf Raise page (higher numbers; not collected)."
+   }
+  ],
+  "page_exists": true,
+  "summary": "Page exists; values are per dumbbell."
+ },
+ "Single Leg Seated Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page)",
+    "ref": "strengthlevel.com/strength-standards/single-leg-seated-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "150": [23, 63, 127, 214, 318],
+     "170": [30, 75, 144, 236, 344],
+     "190": [38, 87, 160, 256, 369],
+     "210": [45, 98, 176, 276, 392]
+    },
+    "female": {
+     "90": [14, 43, 91, 156, 235]
+    },
+    "confidence": "low",
+    "notes": "Two snapshots seen: community male 27/72/144/239/353 (60,713 lifts; average male 144 lb, female 92 lb; female community 14/44/92/158/237) and 33/74/137/217/312 (60,655 lifts) with a 180-lb male row 40/83/145/224/315. The rows above belong to the 60,713-lift snapshot (higher count, so probably newer, though the narrower 60,655 version fits the newer-is-narrower pattern seen on other pages). Female table is almost flat across bodyweight."
+   }
+  ],
+  "page_exists": true,
+  "summary": "Page exists; current version uncertain between two snapshots."
+ },
+ "Sled Press Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page)",
+    "ref": "strengthlevel.com/strength-standards/sled-press-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "150": [142, 244, 381, 549, 737],
+     "170": [175, 287, 434, 612, 810],
+     "180": [191, 308, 460, 642, 844],
+     "200": [223, 348, 508, 699, 910],
+     "220": [254, 386, 554, 753, 971]
+    },
+    "female": {
+     "110": [68, null, null, null, 528],
+     "120": [76, 152, 259, 394, 550],
+     "140": [92, 174, 287, 430, 592],
+     "160": [107, 194, 313, 461, 629]
+    },
+    "confidence": "medium",
+    "notes": "'Based on 140,620 lifts by Strength Level users from 2020 to 2026.' Average 434 lb men, 296 lb women. Male ratio community 1.00x BW Beginner, 2.50x Intermediate, 5.00x Elite. Female 25-40 age row Beginner 91, Elite 619. The male 170 row was given as 'roughly'. Older comparison page (sled-press-calf-raise-vs-horizontal-leg-press): male 106/244/449/716/1029, female 27..379. This is Strength Level's leg-press calf raise; no 'Leg Press Calf Raise' or 'Sled Leg Press Calf Raise' page was found."
+   }
+  ],
+  "page_exists": true,
+  "summary": "Exists as 'Sled Press Calf Raise' (leg press calf raise)."
+ },
+ "Donkey Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level comparison pages (added weight)",
+    "ref": "strengthlevel.com/strength-standards/donkey-calf-raise-vs-squat/lb (and -vs-bent-over-row/lb etc.)",
+    "population": "Strength Level users",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {},
+    "female": {},
+    "confidence": "low",
+    "notes": "Values are added weight (bodyweight-style exercise) and community-wide only. Squat/front squat/meadows row pages: male -59/+111/+373/+721/+1134, female -40/+46/+165/+313/+482. Bent-over row/pullover/shrug pages: male -3/+135/+323/+556/+820, female -40/+59/+198/+372/+571. Which set is current is unknown. No per-bodyweight rows seen."
+   }
+  ],
+  "page_exists": true,
+  "summary": "A main page appears in results (strengthlevel.com/strength-standards/donkey-calf-raise) but no bodyweight table was seen; standards are added weight and the numbers vary between pages."
+ },
+ "Bodyweight Calf Raise": {
+  "sources": [
+   {
+    "name": "Strength Level (current page)",
+    "ref": "strengthlevel.com/strength-standards/bodyweight-calf-raise/lb",
+    "population": "Strength Level users",
+    "unit": "reps",
+    "per_dumbbell": false,
+    "male": {},
+    "female": {},
+    "confidence": "low",
+    "notes": "Rep-based standards: average 57 reps for men (57-58), 42 reps for women; one community rep table 6/27/57/95/140. Comparison pages also show an added-weight form: male -74/+98/+371/+740/+1180 lb (-33/+45/+168/+335/+535 kg), female -18..+219 kg."
+   }
+  ],
+  "page_exists": true,
+  "summary": "Exists, but rep-based; not usable as a 1RM table."
+ },
+ "Smith Machine Calf Raise": {
+  "sources": [
+   {
+    "name": "Endura calculator (not Strength Level)",
+    "ref": "endura.coach/smith-machine-calf-raise-strength-standards-calculator/",
+    "population": "Endura model (methodology not shown in snippets)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "160": [null, 99, 143, 197, 254]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Endura gives ranges, men 160 lb: Novice 99-142, Intermediate 143-196, Advanced 197-253, Elite 254-304 (shown as lower bounds). Its numbers are far below Strength Level's. Other Endura snippets: machine calf raise women 100 lb Intermediate 71-100, Elite 128-146; men 200 lb Intermediate 161-226; seated calf raise men 160 lb Intermediate 168-203; women 150 lb bands Under 64 | 64-97 | 98-138 (Intermediate) | 139-180 | 181-216 | 217+; barbell men 180 lb Intermediate 129-182, women 140 lb Intermediate 79-112."
+   }
+  ],
+  "page_exists": false,
+  "summary": "Strength Level has no Smith Machine Calf Raise page (several searches found only comparison pages with other calf lifts)."
+ },
+ "Single Leg Calf Raise": {
+  "sources": [],
+  "page_exists": false,
+  "summary": "No standing single-leg calf raise page found on Strength Level (only Single Leg Seated Calf Raise)."
+ },
+ "_other_sources": {
+  "sources": [
+   {
+    "name": "AthletePath (ratio bands)",
+    "ref": "athletepath.com/strength-standards/standing-calf-raise/ and /seated-calf-raise/",
+    "population": "AthletePath ratio standards (methodology unknown)",
+    "unit": "x bodyweight",
+    "per_dumbbell": false,
+    "male": {},
+    "female": {},
+    "confidence": "low",
+    "notes": "Standing calf raise, male: Untrained <1.5x, Novice 1.5-2.2x, Intermediate 2.2-3x, Advanced 3-4x, Elite 4x+. Seated, 180-lb male: Intermediate 216 lb, Elite 414 lb. Seen once; a later search did not find the page again."
+   }
+  ],
+  "page_exists": false,
+  "summary": "No other gym-population calf standards with full per-bodyweight tables were found besides Strength Level (FitnessVolt excluded as asked; it copies the older Strength Level machine calf raise version)."
+ }
+}

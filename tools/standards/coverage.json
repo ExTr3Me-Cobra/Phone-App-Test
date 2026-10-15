@@ -522,6 +522,42 @@
    18
   ]
  },
+ "Barbell Calf Raise": {
+  "male": [
+   110.0,
+   310.0,
+   8
+  ],
+  "female": [
+   100.0,
+   200.0,
+   6
+  ]
+ },
+ "Dumbbell Calf Raise": {
+  "male": [
+   110.0,
+   250.0,
+   6
+  ],
+  "female": [
+   100.0,
+   180.0,
+   5
+  ]
+ },
+ "Sled Press Calf Raise": {
+  "male": [
+   150.0,
+   220.0,
+   5
+  ],
+  "female": [
+   120.0,
+   160.0,
+   3
+  ]
+ },
  "Cable Fly": {
   "male": [
    110.0,

@@ -69,6 +69,10 @@ MAP = {
     'Machine Chest Press': [('Leverage Chest Press', None)],
     'Machine Shoulder Press': [('Machine Shoulder (Military) Press', None), ('Leverage Shoulder Press', None)],
     'Seated Calf Raise': [('Seated Calf Raise', None)],
+    # Calf pages found in the Oct 2026 calf research (tools/standards/calves_research.json).
+    'Barbell Calf Raise': [('Standing Barbell Calf Raise', None)],
+    'Dumbbell Calf Raise': [('Standing Dumbbell Calf Raise', None)],
+    'Sled Press Calf Raise': [('Calf Press On The Leg Press Machine', None), ('Calf Press', None)],
     'Cable Fly': [('Cable Crossover', None)],
     # Added in the wider collection.
     'Seated Shoulder Press': [('Seated Barbell Military Press', None), ('Barbell Shoulder Press', None)],
@@ -124,7 +128,7 @@ MAP = {
 DUMBBELL = {'Dumbbell Bench Press', 'Dumbbell Row', 'Dumbbell Fly', 'Dumbbell Lateral Raise', 'Dumbbell Curl', 'Hammer Curl',
             'Incline Dumbbell Bench Press', 'Dumbbell Shrug', 'Dumbbell Lunge', 'Dumbbell Bulgarian Split Squat',
             'Seated Dumbbell Shoulder Press', 'Arnold Press', 'Dumbbell Front Raise', 'Incline Dumbbell Curl', 'Concentration Curl',
-            'Reverse Dumbbell Fly', 'Dumbbell Squat', 'Dumbbell Romanian Deadlift', 'Bent Over Dumbbell Row', 'Decline Dumbbell Bench Press'}
+            'Reverse Dumbbell Fly', 'Dumbbell Squat', 'Dumbbell Calf Raise', 'Dumbbell Romanian Deadlift', 'Bent Over Dumbbell Row', 'Decline Dumbbell Bench Press'}
 
 report = []
 
@@ -230,9 +234,10 @@ SOURCE_APPROX = {}  # lift -> why it's only an estimate
 # Strength Level's own page read differently this time, but it's unclear which version is current:
 # kept as they were, ranked only as an estimate.
 SL_UNSURE = {
-    'Calf Raise': 'A newer Strength Level reading differs a lot at Beginner/Novice (one partial reading) – an estimate until confirmed.',
     'Cable Fly': 'Strength Level shows two versions of this page (Advanced/Elite differ by 15–20%) – an estimate until confirmed.',
 }
+# Re-reads later found to be an OLDER version of the page (calf research, Oct 2026): ignored.
+OLD_RECHECK = {'Calf Raise'}
 NOT_GYM_GOERS = ('FitnessVolt', 'AthletePath', 'Endura', 'Workout Mag')
 SKIP_SOURCE = {}
 
@@ -261,7 +266,7 @@ def load_sources():
             # Rows re-read from Strength Level itself: averaged in like a source (the page may have been updated).
             chk = info.get('strength_level_check') or {}
             already = any(x.get('name', '').startswith('Strength Level') for x in out.get(lift, []))
-            if (chk.get('male') or chk.get('female')) and not already and lift not in SL_UNSURE:
+            if (chk.get('male') or chk.get('female')) and not already and lift not in SL_UNSURE and lift not in OLD_RECHECK:
                 out.setdefault(lift, []).append({'name': 'Strength Level (re-checked)', 'unit': 'reps' if info.get('_reps') else None,
                                                  'male': chk.get('male') or {}, 'female': chk.get('female') or {}, 'recheck': True})
     return out
