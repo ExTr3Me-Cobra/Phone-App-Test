@@ -304,7 +304,7 @@ fun OneRmTestScreen(id: String) {
             // Attempts
             Text(if (squeeze) "Your squeezes" else if (reps) "Your sets" else "Your sets & attempts", fontWeight = FontWeight.Bold, fontSize = 17.sp)
             Text(if (squeeze) "Enter each reading and tick it. Your best squeeze counts." else if (reps) "Tick a set when it's done. Your best set counts." else
-                "Tick each set when it's done. Your heaviest completed single counts; if you don't do a single, your best set is converted to a 1-rep max estimate.",
+                "Tick each set when it's done. The 1 Rep Max calculation is more accurate the higher the weight and the lower the max reps you can do with it.",
                 color = Sub, fontSize = 13.sp)
             Row {
                 Text("SET", Modifier.weight(0.6f), color = Sub, fontSize = 12.sp)
