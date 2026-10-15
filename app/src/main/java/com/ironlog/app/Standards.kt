@@ -208,16 +208,19 @@ object Standards {
         val done = sets.filter { it.done && !it.warmup }
         if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
-        val single = done.filter { it.reps == 1 }.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
-        return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
+        val single = done.filter { it.reps == 1 }.maxOfOrNull { rankWeight(it.weight) } ?: 0.0
+        return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(rankWeight(it.weight), it.reps) } ?: 0.0
     }
+
+    /** A set logged at 0 lb (or with no weight) counts as 1 lb for ranking, so it still gets a rank. */
+    private fun rankWeight(w: Double?) = if (w == null || w <= 0) 1.0 else w
 
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup } // warm-ups never count
         if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0 // one squeeze: the reading itself
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
-        else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
+        else done.maxOfOrNull { Stats.e1rm(rankWeight(it.weight), it.reps) } ?: 0.0
     }
 
     fun who(p: Profile) = (if (p.male) "men" else "women") +
