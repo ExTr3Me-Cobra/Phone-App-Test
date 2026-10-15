@@ -102,10 +102,7 @@ object Workouts {
         )
         Store.setActive(null)
         if (kept.items.isEmpty()) return null
-        val p = Store.profile.value
-        val before = Ranks.all(Store.workouts.value, p)
         Store.saveWorkout(kept)
-        Ranks.onFinished(before, Ranks.all(Store.workouts.value, p))
         return kept.id
     }
 

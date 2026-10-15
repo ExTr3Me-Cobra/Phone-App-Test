@@ -317,78 +317,68 @@ object Ranks {
     private val shownTier = HashMap<String, Int>()
     private var shownOverall = -1
 
-    /** This workout's rank tier for an exercise from its ticked sets (-1 = none yet). */
-    private fun sessionTier(w: Workout, id: String, p: Profile): Int {
-        val sets = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
-        val pct = Standards.percentile(id, Standards.bestValue(id, sets), p) ?: return -1
-        return Tier.of(pct).ordinal
+    /** Your ranks as if this workout ended now with only its ticked sets. */
+    private fun live(w: Workout, p: Profile): Map<String, Ranked> {
+        val now = w.copy(
+            end = System.currentTimeMillis(),
+            items = w.items.map { it.copy(sets = it.sets.filter { s -> s.done }) }.filter { it.sets.isNotEmpty() },
+        )
+        return all(Store.workouts.value.filter { it.id != w.id } + now, p)
     }
 
-    /** Overall tier counting this workout's ticked sets where they beat your previous numbers. */
-    private fun sessionOverall(w: Workout, p: Profile, before: Map<String, Ranked>): Double? {
-        val now = HashMap(before.mapValues { it.value.percentile })
-        for (id in w.items.map { it.exerciseId }.distinct()) {
-            if (!Standards.covers(id, p)) continue
-            val s = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
-            val v = Standards.percentile(id, Standards.bestValue(id, s), p) ?: continue
-            now[id] = maxOf(now[id] ?: 0.0, v)
+    /** Starts tracking a workout: what's on show is your rank before it. */
+    private fun track(w: Workout, p: Profile) {
+        if (forWorkout == w.id) return
+        forWorkout = w.id
+        val before = all(Store.workouts.value.filter { it.id != w.id }, p)
+        shownTier.clear()
+        before.forEach { (id, r) -> shownTier[id] = r.tier.ordinal }
+        shownOverall = overall(before.values.map { it.percentile })?.let { Tier.of(it).ordinal } ?: -1
+    }
+
+    /** Call after a set is ticked off: a rank going up or down shows straight away. */
+    fun onSetDone(w: Workout, exerciseId: String) {
+        val p = Store.profile.value
+        track(w, p)
+        if (!Standards.covers(exerciseId, p)) return
+        val ex = Store.exercise(exerciseId) ?: return
+        val after = live(w, p)
+        after[exerciseId]?.let { a ->
+            val was = shownTier[exerciseId] ?: -1
+            val t = a.tier.ordinal
+            when {
+                t > was -> celebrations += Celebration(ex.name, if (was < 0) "Ranked!" else "Rank up!", a.tier, a.percentile)
+                t < was -> celebrations += Celebration(ex.name, "Rank down", a.tier, a.percentile, down = true, from = Tier.entries[was])
+            }
+            shownTier[exerciseId] = t
         }
-        return overall(now.values)
+        val o = overall(after.values.map { it.percentile }) ?: return
+        val ot = Tier.of(o).ordinal
+        if (shownOverall >= 0 && ot > shownOverall)
+            celebrations += Celebration("Overall rank", "Your overall rank went up!", Tier.of(o), o)
+        else if (shownOverall >= 0 && ot < shownOverall)
+            celebrations += Celebration("Overall rank", "Rank down", Tier.of(o), o, down = true, from = Tier.entries[shownOverall])
+        shownOverall = ot
     }
 
     /**
-     * Call after a set is un-ticked: a rank that set earned is taken back (ticking it again earns it,
-     * and its celebration, again).
+     * Call after a set is un-ticked: whatever that set changed is quietly put back (ticking it again
+     * shows the rank change again).
      */
     fun onSetUndone(c: android.content.Context, w: Workout, exerciseId: String) {
         if (forWorkout != w.id) return
         val p = Store.profile.value
-        val shown = shownTier[exerciseId] ?: return
-        val before = all(Store.workouts.value.filter { it.id != w.id }, p)
-        val now = maxOf(sessionTier(w, exerciseId, p), before[exerciseId]?.tier?.ordinal ?: -1)
-        if (now < shown) {
-            if (now >= 0) shownTier[exerciseId] = now else shownTier.remove(exerciseId)
-            Store.exercise(exerciseId)?.let { ex -> celebrations.removeAll { it.title == ex.name && it.tier.ordinal > now } }
+        val after = live(w, p)
+        val t = after[exerciseId]?.tier?.ordinal ?: -1
+        val was = shownTier[exerciseId] ?: -1
+        if (t != was) {
+            Store.exercise(exerciseId)?.let { ex -> celebrations.removeAll { it.title == ex.name } }
+            if (t >= 0) shownTier[exerciseId] = t else shownTier.remove(exerciseId)
         }
-        val o = sessionOverall(w, p, before)
-        val oNow = o?.let { Tier.of(it).ordinal } ?: -1
-        if (oNow < shownOverall) {
-            shownOverall = oNow
-            celebrations.removeAll { it.title == "Overall rank" && it.tier.ordinal > oNow }
-        }
-    }
-
-    /** Call after a set is ticked off: queues a celebration if it raised a rank. */
-    fun onSetDone(w: Workout, exerciseId: String) {
-        if (forWorkout != w.id) { forWorkout = w.id; shownTier.clear(); shownOverall = -1 }
-        val p = Store.profile.value
-        if (!Standards.covers(exerciseId, p)) return
-        val ex = Store.exercise(exerciseId) ?: return
-        val before = all(Store.workouts.value.filter { it.id != w.id }, p)
-        val sets = w.items.filter { it.exerciseId == exerciseId }.flatMap { it.sets }
-        val pct = Standards.percentile(exerciseId, Standards.bestValue(exerciseId, sets), p) ?: return
-        val tier = Tier.of(pct).ordinal
-        val was = maxOf(before[exerciseId]?.tier?.ordinal ?: -1, shownTier[exerciseId] ?: -1)
-        if (tier > was) {
-            shownTier[exerciseId] = tier
-            celebrations += Celebration(ex.name, if (was < 0) "Ranked!" else "Rank up!", Tier.of(pct), pct)
-        }
-        // Overall: this session's numbers only count when they're better than before (drops apply when you finish).
-        val now = HashMap(before.mapValues { it.value.percentile })
-        for (id in w.items.map { it.exerciseId }.distinct()) {
-            if (!Standards.covers(id, p)) continue
-            val s = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
-            val v = Standards.percentile(id, Standards.bestValue(id, s), p) ?: continue
-            now[id] = maxOf(now[id] ?: 0.0, v)
-        }
-        val o = overall(now.values) ?: return
-        val oldO = overall(before.values.map { it.percentile })
-        val oTier = Tier.of(o).ordinal
-        if (oldO == null) { shownOverall = maxOf(shownOverall, oTier); return }
-        val oWas = maxOf(Tier.of(oldO).ordinal, shownOverall)
-        if (oTier > oWas) {
-            shownOverall = oTier
-            celebrations += Celebration("Overall rank", "Your overall rank went up!", Tier.of(o), o)
+        val ot = overall(after.values.map { it.percentile })?.let { Tier.of(it).ordinal } ?: -1
+        if (ot != shownOverall) {
+            celebrations.removeAll { it.title == "Overall rank" }
+            shownOverall = ot
         }
     }
 }
