@@ -240,7 +240,15 @@ fun TopBar(title: String, back: Boolean = true, action: String? = null, onAction
         if (back) Text(
             "←", fontSize = 26.sp, modifier = Modifier.align(Alignment.CenterStart).clickable { Nav.back() }.padding(horizontal = 16.dp),
         )
-        Text(title, fontSize = 19.sp, fontWeight = FontWeight.Medium, modifier = Modifier.align(Alignment.Center))
+        // Long titles shrink to two lines and never run under the back arrow or the action.
+        val side = maxOf(56, if (action != null) action.length * 10 + 36 else 0)
+        val long = title.length > 24
+        Text(
+            title, fontSize = if (long) 15.sp else 19.sp, lineHeight = if (long) 18.sp else 24.sp, fontWeight = FontWeight.Medium,
+            maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier.align(Alignment.Center).padding(horizontal = side.dp),
+        )
         if (action != null) Text(
             action, color = Blue, fontSize = 17.sp, fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterEnd).clickable(onClick = onAction).padding(horizontal = 16.dp),

@@ -191,20 +191,46 @@ object Ranks {
         val tier get() = Tier.of(percentile)
     }
 
-    /** Each ranked exercise from the last finished session you did it in (skipping it changes nothing). */
+    /** A best is protected this long: a weaker session within 30 days of it doesn't lower your rank. */
+    const val HOLD_MS = 30L * 24 * 60 * 60 * 1000
+
+    /**
+     * Each ranked exercise: the best of your sessions in the 30 days up to the last time you did it.
+     * So a weaker session can only lower a rank once your better one is more than 30 days older,
+     * and skipping an exercise changes nothing.
+     */
     fun all(workouts: List<Workout>, p: Profile): Map<String, Ranked> {
-        val out = HashMap<String, Ranked>()
-        for (w in workouts.filter { it.end != null }.sortedByDescending { it.start }) {
+        val sessions = HashMap<String, MutableList<Pair<Long, Double>>>()
+        for (w in workouts) {
+            if (w.end == null) continue
             for (id in w.items.map { it.exerciseId }.distinct()) {
-                if (id in out || !Standards.covers(id, p)) continue
-                val ex = Store.exercise(id) ?: continue
+                if (!Standards.covers(id, p)) continue
                 val v = Standards.bestValue(id, w.items.filter { it.exerciseId == id }.flatMap { it.sets })
-                if (v <= 0) continue
-                val pct = Standards.percentile(id, v, p) ?: continue
-                out[id] = Ranked(ex, v, pct)
+                if (v > 0) sessions.getOrPut(id) { mutableListOf() } += w.start to v
             }
         }
+        val out = HashMap<String, Ranked>()
+        for ((id, list) in sessions) {
+            val ex = Store.exercise(id) ?: continue
+            val latest = list.maxOf { it.first }
+            val v = list.filter { it.first >= latest - HOLD_MS }.maxOf { it.second }
+            val pct = Standards.percentile(id, v, p) ?: continue
+            out[id] = Ranked(ex, v, pct)
+        }
         return out
+    }
+
+    /** After finishing a workout: shows a rank-down for each rank (and the overall rank) that went down. */
+    fun onFinished(before: Map<String, Ranked>, after: Map<String, Ranked>) {
+        for ((id, b) in before) {
+            val a = after[id] ?: continue
+            if (a.tier.ordinal < b.tier.ordinal)
+                celebrations += Celebration(a.exercise.name, "Rank down", a.tier, a.percentile, down = true, from = b.tier)
+        }
+        val ob = overall(before.values.map { it.percentile }) ?: return
+        val oa = overall(after.values.map { it.percentile }) ?: return
+        if (Tier.of(oa).ordinal < Tier.of(ob).ordinal)
+            celebrations += Celebration("Overall rank", "Rank down", Tier.of(oa), oa, down = true, from = Tier.of(ob))
     }
 
     /** Overall: the average percentile of your ranked exercises. */
@@ -234,7 +260,10 @@ object Ranks {
 
     // ---- Rank-up celebrations during a workout ----
 
-    class Celebration(val title: String, val subtitle: String, val tier: Tier, val percentile: Double)
+    class Celebration(
+        val title: String, val subtitle: String, val tier: Tier, val percentile: Double,
+        val down: Boolean = false, val from: Tier? = null,
+    )
 
     val celebrations = androidx.compose.runtime.mutableStateListOf<Celebration>()
     private var forWorkout: String? = null

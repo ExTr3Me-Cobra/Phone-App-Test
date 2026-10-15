@@ -204,7 +204,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                 Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
                     modifier = Modifier.padding(top = 6.dp))
                 Text(
-                    "From your last session: " + if (info.reps) "${r.value.toInt()} reps" else "est. 1-rep max ${Units.weightU(r.value)}",
+                    "Your best in the 30 days up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else "est. 1-rep max ${Units.weightU(r.value)}",
                     color = Sub, fontSize = 13.sp,
                 )
                 Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
@@ -231,6 +231,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
 @Composable
 fun RankUpOverlay() {
     val c = Ranks.celebrations.firstOrNull() ?: return
+    if (c.down) { RankDownView(c); return }
     val context = LocalContext.current
     val pop = remember(c) { Animatable(0f) }
     val burst = remember(c) { Animatable(0f) }
@@ -296,6 +297,68 @@ fun RankUpOverlay() {
             Text("(${topLabel(c.percentile)})", color = Color.White, fontSize = 18.sp)
             Spacer(6)
             Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
+            Spacer(18)
+            Text("Tap to continue", color = Sub, fontSize = 12.sp)
+        }
+    }
+}
+
+/** A rank going down: the old badge sinks and fades, the new one drops in below a red arrow. */
+@Composable
+private fun RankDownView(c: Ranks.Celebration) {
+    val context = LocalContext.current
+    val drop = remember(c) { Animatable(0f) }   // 0 = old badge, 1 = new badge
+    val arrow = remember(c) { Animatable(0f) }
+    LaunchedEffect(c) {
+        runCatching {
+            context.getSystemService(android.os.Vibrator::class.java)?.vibrate(android.os.VibrationEffect.createOneShot(250, 120))
+        }
+        delay(700)
+        kotlinx.coroutines.coroutineScope {
+            launch { arrow.animateTo(1f, tween(500)) }
+            launch { drop.animateTo(1f, tween(1100)) }
+        }
+        delay(4000)
+        Ranks.celebrations.remove(c)
+    }
+    val red = Color(0xFFFF453A)
+    Box(
+        Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.82f))
+            .clickable(remember { MutableInteractionSource() }, null) { Ranks.celebrations.remove(c) },
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Text("RANK DOWN", color = red, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(8)
+            Box(Modifier.size(width = 220.dp, height = 210.dp), contentAlignment = Alignment.Center) {
+                val t = drop.value
+                // The old rank sinks, shrinks and greys out.
+                c.from?.let { old ->
+                    RankBadge(old, 150.dp, Modifier.graphicsLayer {
+                        translationY = t * 160f; alpha = 1f - t; scaleX = 1f - t * 0.4f; scaleY = 1f - t * 0.4f
+                    })
+                }
+                // The new rank falls into place.
+                RankBadge(c.tier, 150.dp, Modifier.graphicsLayer {
+                    translationY = (1f - t) * -160f; alpha = t
+                })
+                Text("▼", color = red, fontSize = 40.sp, modifier = Modifier.align(Alignment.BottomCenter)
+                    .graphicsLayer { alpha = arrow.value; translationY = arrow.value * 20f })
+            }
+            Spacer(8)
+            Text(
+                buildAnnotatedString {
+                    c.from?.let { withStyle(SpanStyle(color = Sub)) { append(it.label + "  →  ") } }
+                    append(c.tier.label)
+                },
+                color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold,
+            )
+            Text("(${topLabel(c.percentile)})", color = Color.White, fontSize = 18.sp)
+            Spacer(6)
+            Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
+            Spacer(6)
+            Text("Your best from the last 30 days is now lower than your old record.", color = Sub, fontSize = 13.sp,
+                textAlign = TextAlign.Center, modifier = Modifier.width(280.dp))
             Spacer(18)
             Text("Tap to continue", color = Sub, fontSize = 12.sp)
         }
