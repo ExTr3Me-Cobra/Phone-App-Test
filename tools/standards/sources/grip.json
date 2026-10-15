@@ -1,0 +1,335 @@
+{
+  "findings": [
+    {
+      "exercise": "Farmer's Walk",
+      "population": "Strength Level app users (self-selected lifters); 1,585 qualifying results from 18,319 community lifts (293 female); load per hand over 20 m",
+      "sex": "male",
+      "unit": "lb",
+      "values": {
+        "levels_lb_per_hand_all_bodyweights": {"beginner": 20, "novice": 45, "intermediate": 81, "advanced": 129, "elite": 184},
+        "bodyweight_ratio_per_hand": {"beginner": 0.10, "novice": 0.25, "intermediate": 0.45, "advanced": 0.70, "elite": 1.05},
+        "average_lb_per_hand": 81
+      },
+      "source": "Strength Level - Farmers Walk standards",
+      "ref": "https://strengthlevel.com/strength-standards/farmers-walk/lb",
+      "confidence": "medium",
+      "notes": "Levels are Strength Level's standard 5/20/50/80/95 percentile definitions, matching the app's scheme. The per-bodyweight table rows themselves were not visible in snippets; ratios were. Small sample relative to other SL lifts. Distance 20 m; no time component."
+    },
+    {
+      "exercise": "Farmer's Walk",
+      "population": "Strength Level app users (self-selected lifters); 293 female results; load per hand over 20 m",
+      "sex": "female",
+      "unit": "lb",
+      "values": {
+        "levels_lb_per_hand_all_bodyweights": {"beginner": 9, "novice": 24, "intermediate": 46, "advanced": 75, "elite": 111},
+        "bodyweight_ratio_per_hand": {"beginner": 0.05, "novice": 0.15, "intermediate": 0.30, "advanced": 0.50, "elite": 0.75},
+        "average_lb_per_hand": 46
+      },
+      "source": "Strength Level - Farmers Walk standards",
+      "ref": "https://strengthlevel.com/strength-standards/farmers-walk",
+      "confidence": "medium",
+      "notes": "Only 293 female results, so less reliable than male. kg page gives same ratios (beginner 4 kg)."
+    },
+    {
+      "exercise": "Farmer's Walk",
+      "population": "Strongman competitors (FitnessVolt, 'based on analysis of 2,000+ strongman competitions'); per hand, 50 ft (15 m)",
+      "sex": "male",
+      "unit": "lb",
+      "values": {
+        "per_hand_by_bodyweight_lb": {
+          "165": {"beginner": 100, "intermediate": 175, "elite": 275},
+          "181": {"beginner": 100, "novice": 150, "intermediate": 195, "advanced": 245, "elite": 300},
+          "198": {"beginner": 120, "intermediate": 210, "elite": 330},
+          "220": {"beginner": 135, "intermediate": 230, "elite": 360}
+        }
+      },
+      "source": "FitnessVolt farmers walk standards / calculator",
+      "ref": "https://fitnessvolt.com/strongman/farmers/",
+      "confidence": "low",
+      "notes": "Strongman population, far higher than general lifters; table not clearly split by sex in snippets (assumed male). Calculator also derives from deadlift 1RM at 40-45% per hand. Novice/advanced for some classes not seen. Use only as an upper anchor."
+    },
+    {
+      "exercise": "Farmer's Walk (timed hold)",
+      "population": "Physio/coaching benchmark (The Prehab Guys 'Carrying Capacity Assessment'); no population data",
+      "sex": "both",
+      "unit": "x bodyweight",
+      "values": {"total_load_for_30_seconds": {"good": 1.5, "extremely_good": 1.75, "elite": 2.0}},
+      "source": "The Prehab Guys - Carrying Capacity Assessment",
+      "ref": "https://theprehabguys.com/vimeo-video/carrying-capacity-assessment/",
+      "confidence": "low",
+      "notes": "Total load (both hands combined, e.g. 150 lb person carrying 300 lb total, hex bar allowed) held 30 s; 'total' is inferred from example. Not data-derived."
+    },
+    {
+      "exercise": "Farmer's Walk (timed hold)",
+      "population": "Claimed University of Pittsburgh study (JSCR) reported in a newspaper column; citation unverified",
+      "sex": "both",
+      "unit": "x bodyweight",
+      "values": {"male_total_load_60s": 1.0, "male_per_hand": 0.5, "female_total_load_60s": 0.75, "female_per_hand": 0.375},
+      "source": "Keys Weekly column 'Are farmer carry holds a key to longevity?'",
+      "ref": "https://keysweekly.com/42/functionally-caffeinated-wellness-are-farmer-carry-holds-a-key-to-longevity/",
+      "confidence": "low",
+      "notes": "Health benchmark for 60-second hold. Another result paraphrased it as 100%/75% bodyweight per hand - ambiguity. Not percentiles."
+    },
+    {
+      "exercise": "Farmer's Walk",
+      "population": "Strongman coach opinion (Breaking Muscle)",
+      "sex": "both",
+      "unit": "x bodyweight",
+      "values": {"per_hand": {"good_starting_point": 0.75, "advanced": 1.25, "exceptional": 1.5}},
+      "source": "Breaking Muscle - Strongman Series: The Farmer's Walk",
+      "ref": "https://breakingmuscle.com/strongman-series-the-farmers-walk/",
+      "confidence": "low",
+      "notes": "Opinion, strength-athlete oriented. Roughly consistent with SL male elite ~1.05x."
+    },
+    {
+      "exercise": "Kettlebell Farmer's Carry",
+      "population": "HYROX race standard (fixed loads, not norms)",
+      "sex": "both",
+      "unit": "lb",
+      "values": {"open_division_load_per_hand_kg": {"male": 24, "female": 16}, "distance_m": 200},
+      "source": "HYROX rules via hyroxdatalab",
+      "ref": "https://hyroxdatalab.com/articles/farmers-carry-strategy",
+      "confidence": "low",
+      "notes": "Values in kg (24 kg = ~53 lb, 16 kg = ~35 lb). A reference load only."
+    },
+    {
+      "exercise": "Dead Hang",
+      "population": "Fitness-site benchmarks (not measured population data)",
+      "sex": "both",
+      "unit": "seconds",
+      "values": {
+        "eatthis_general": {"beginner": "10-20", "intermediate": "21-45", "advanced": "46-90", "elite": ">90"},
+        "boxrox_by_age": {
+          "18-29": {"excellent": ">90", "needs_improvement": "<30"},
+          "30-39": {"excellent": ">75", "very_good": "50-75", "average": "25-50", "needs_improvement": "<25"},
+          "40-49": {"excellent": ">60", "very_good": "40-60", "average": "20-40", "needs_improvement": "<20"},
+          "50-59": {"excellent": ">50", "needs_improvement": "<15"},
+          "60-69": {"excellent": ">40", "needs_improvement": "<10"}
+        }
+      },
+      "source": "Eat This Not That; BoxRox",
+      "ref": "https://www.eatthis.com/dead-hang-grip-strength-test-ranking/ ; https://www.boxrox.com/?p=248213",
+      "confidence": "low",
+      "notes": "BoxRox explicitly notes no universally accepted medical standard. Not split by sex. Usable as a rough tier shape only."
+    },
+    {
+      "exercise": "Dead Hang",
+      "population": "Longevity-fitness targets (Peter Attia, via secondary summaries), adults age 40+",
+      "sex": "both",
+      "unit": "seconds",
+      "values": {"male_40s_target": 120, "female_40s_target": 90},
+      "source": "Secondary summaries of Peter Attia (Tom's Guide, Upworthy, podcast summary)",
+      "ref": "https://www.upworthy.com/test-for-longevity-ex1/?nb=1",
+      "confidence": "low",
+      "notes": "Aspirational targets, likely near 'advanced/elite' for general population. Other articles cite 60 s men / 30 s women as 'good' targets from an unnamed study; Substack suggests 90 s men / 60 s women."
+    },
+    {
+      "exercise": "Dead Hang",
+      "population": "25 healthy recreational athletes (11 men, 14 women, mean age 20.4) in GRIP-6 climbing/gym study",
+      "sex": "both",
+      "unit": "seconds",
+      "values": {"male_mean_sd": [64.0, 35.3], "female_mean_sd": [48.4, 29.1], "group_baseline_approx": 55, "group_after_6wk_approx": 61, "followup_sd": 31.3},
+      "source": "GRIP-6 study (PMC12641669, PMID 41283534 per secondary source)",
+      "ref": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12641669/",
+      "confidence": "medium",
+      "notes": "Sex-split means came via Coalition Chicago summary citing PMID 41283534; the PMID-to-paper mapping not confirmed. Tiny sample of active young adults - the only real measured data found. Mean ~ intermediate for active population; huge SD."
+    },
+    {
+      "exercise": "Flexed-Arm Hang (related, not dead hang)",
+      "population": "Adults (extrapolated) and Marine Corps female PFT (2015)",
+      "sex": "both",
+      "unit": "seconds",
+      "values": {"adult_male_avg": "20-25", "adult_female_avg": "7-10", "adult_female_85th_pct": 29, "usmc_female_min": 15, "usmc_female_max_score": 70, "fitnessgram_17plus_hfz": {"male": 15, "female": 8}},
+      "source": "Topend Sports flexed-arm hang calculators; PBS NewsHour 2015",
+      "ref": "https://www.topendsports.com/testing/tests/flexed-arm-hang-ipft.htm ; https://www.pbs.org/newshour/nation/marines-delay-female-fitness-test-after-half-fail-to-complete-three-pullups",
+      "confidence": "low",
+      "notes": "Bent-arm hang is much harder than a straight-arm dead hang; do not map directly. Topend says adult norms extrapolated."
+    },
+    {
+      "exercise": "Towel Hang",
+      "population": "4 tactical athletes (MTI mini-study) and r/GripTraining 2018 self-reported challenge",
+      "sex": "male",
+      "unit": "seconds",
+      "values": {"mti_individual_times": [28, 25, 17, 28], "reddit_one_towel_top_entries_range": "26-60", "reddit_best_two_towel": 158},
+      "source": "Mountain Tactical Institute; r/GripTraining July 2018 challenge",
+      "ref": "https://mtntactical.com/research/mini-study-results-mti-finds-no-perfect-grip-test-for-tactical-athletes/",
+      "confidence": "low",
+      "notes": "Snippet listed one MTI value as both 28 and 26. Sex of participants assumed male. Anecdotal; no norms exist."
+    },
+    {
+      "exercise": "Plate Pinch (pinch gauge bridge)",
+      "population": "General population, Milwaukee adults (310 men, 328 women, age 20-94), Mathiowetz et al. 1985",
+      "sex": "both",
+      "unit": "lb",
+      "values": {
+        "lateral_key_pinch_mean_sd": {
+          "male_right": {"20-29": [26.4, 4.3], "30-39": [26.3, 4.1], "40-49": [25.7, 2.8], "50-59": [25.5, 4.5], "60-69": [23.3, 4.7]},
+          "male_left": {"20-29": [24.9, 3.9], "30-39": [25.9, 4.5], "40-49": [25.0, 4.2], "50-59": [24.6, 4.7], "60-69": [22.1, 3.9]},
+          "female_right": {"20-29": [17.7, 2.1], "30-39": [17.7, 2.8], "40-49": [17.2, 3.2], "50-59": [16.2, 2.5], "60-69": [15.3, 2.7]},
+          "female_left": {"20-29": [16.4, 2.1], "30-39": [16.9, 3.3], "40-49": [16.2, 3.0], "50-59": [15.4, 2.6], "60-69": [14.3, 2.8]}
+        },
+        "tip_pinch_20-29_mean_sd": {"male_right": [18.2, 3.8], "male_left": [17.3, 4.0], "female_right": [11.5, 2.0], "female_left": [10.9, 1.8]},
+        "palmar_pinch_20-29_mean_sd": {"male_right": [26.3, 4.8], "male_left": [25.4, 5.1], "female_right": [17.5, 2.8], "female_left": [16.7, 2.9]}
+      },
+      "source": "Mathiowetz V et al. Grip and pinch strength: normative data for adults. Arch Phys Med Rehabil 1985;66(2):69-74 (as reproduced by Univ. of Michigan pages)",
+      "ref": "https://websites.umich.edu/~tja/strength/pinchLateralStrn.html ; https://websites.umich.edu/~tja/strength/pinchTipStrn.html ; https://websites.umich.edu/~tja/strength/pinchPalmarStrn.html",
+      "confidence": "high",
+      "notes": "High-quality clinical norms but a pinch gauge measures fingertip force, not plate-pinch load. Plate pinch (two plates smooth side out, full-hand) loads are much higher; no validated conversion. A 2016 millennials study found lateral pinch within 0.5-1 kg of these norms."
+    },
+    {
+      "exercise": "Plate Pinch",
+      "population": "Grip-sport community opinion and USAWA competition",
+      "sex": "male",
+      "unit": "lb",
+      "values": {"two_45s_one_hand": "'pretty darn good' (forum) / 'world class grip feat' (Legendary Strength)", "usawa_pinch_grip_record_lb": 255, "training_hold_target_seconds": "20-30 (move up if >30 s)"},
+      "source": "StrongFirst forum; Legendary Strength; USAWA; Muscle & Strength; Topend Sports",
+      "ref": "https://legendarystrength.com/feats-of-strength/pinch-grip/ ; https://www.usawa.com/pinch-grip/",
+      "confidence": "low",
+      "notes": "Only anchors: 90 lb (2x45) smooth pinch = very advanced/elite for men; 255 lb is a world-class two-hand competition record (Troy Goetsch 2013). No percentile data."
+    },
+    {
+      "exercise": "Hand Gripper Squeeze (Captains of Crush)",
+      "population": "Manufacturer ratings and marketing/anecdotal statements (IronMind, Rogue, retailers)",
+      "sex": "male",
+      "unit": "lb",
+      "values": {
+        "ratings_lb": {"Guide": 60, "Sport": 80, "Trainer": 100, "No.0.5": 120, "No.1": 140, "No.1.5": 167.5, "No.2": 195, "No.2.5": 237.5, "No.3": 280, "No.3.5": 322.5, "No.4": 365},
+        "statements": {
+          "No.1": "most people who lift weights cannot close it the first time (IronMind FAQ); 'baseline for most weightlifters' (Rogue)",
+          "No.2": "highly impressive grip (Rogue); rarely closed (Emerson)",
+          "No.3": "elite benchmark, certification required; first certified 1991 (Richard Sorin); 'about 75 men' (undated retailer claim)",
+          "No.4": "only a handful ever certified"
+        }
+      },
+      "source": "Wikipedia CoC page; Rogue Fitness product guide; IronMind FAQ/news; Emerson Knives",
+      "ref": "https://en.wikipedia.org/wiki/Captains_of_Crush_Grippers ; https://ironmind.com/export/sites/ironmind/.galleries/pdfs/Sebastian_PDFs/CoCFAQ.pdf",
+      "confidence": "low",
+      "notes": "No population percentages found. Reasonable mapping for male lifters: Trainer~novice, No.1~intermediate/advanced, No.2~advanced/elite, No.3 ~ world-class. Female data none."
+    },
+    {
+      "exercise": "Grip dynamometer (bridge)",
+      "population": "US general population, NHANES 2011-12 (Perna et al. 2016 JSCR), combined grip (sum of both hands)",
+      "sex": "both",
+      "unit": "lb",
+      "values": {"peak_combined_mean_age_30_39": {"male": 216.4, "female": 136.5}},
+      "source": "Perna FM et al. Muscular grip strength estimates of the U.S. population from NHANES 2011-12. J Strength Cond Res 2016;30(3)",
+      "ref": "https://stacks.cdc.gov/view/cdc/90691",
+      "confidence": "high",
+      "notes": "Paper has percentile tables by sex/age but they were not visible in snippets. McGrath et al. 2019 (PMC6954001) has absolute and BMI-normalized percentiles (5th-95th) from NHANES - worth pulling for a bodyweight bridge."
+    },
+    {
+      "exercise": "Grip dynamometer (bridge)",
+      "population": "Great Britain general population, 12 pooled studies (Dodds et al. 2014 PLoS ONE)",
+      "sex": "both",
+      "unit": "lb",
+      "values": {"peak_median_kg": {"male": 51, "female": 31}, "peak_age": {"male": "29-39", "female": "26-42"}, "weak_grip_prevalence_age80": {"male": 0.23, "female": 0.27}},
+      "source": "Dodds RM et al. Grip strength across the life course: normative data from twelve British studies. PLoS ONE 2014",
+      "ref": "https://pubmed.ncbi.nlm.nih.gov/25474696/",
+      "confidence": "high",
+      "notes": "Values in kg (single best hand), unit field kept for schema; 51 kg ~112 lb, 31 kg ~68 lb. Weak = 2.5 SD below peak mean."
+    },
+    {
+      "exercise": "Grip dynamometer (bridge)",
+      "population": "Topend Sports rating table, adults 25-29 (cites NIH Toolbox/ACSM); combined average of both hands",
+      "sex": "both",
+      "unit": "lb",
+      "values": {
+        "male_kg": {"very_poor": "<40", "poor": "40-43", "below_average": "44-47", "average": "48-51", "above_average": "52-55", "very_good": "56-64", "excellent": ">64"},
+        "female_kg": {"very_poor": "<20", "poor": "20-22", "below_average": "23-25", "average": "26-29", "above_average": "30-33", "very_good": "34-38", "excellent": ">38"},
+        "alt_page_25_29_male_kg": {"weak": "<37.7", "normal": "37.7-57.5", "strong": ">57.5"},
+        "alt_page_25_29_female_kg": {"weak": "<25.6", "strong": ">41.4"}
+      },
+      "source": "Topend Sports handgrip calculator and norms pages",
+      "ref": "https://www.topendsports.com/testing/tests/handgrip.htm ; https://www.topendsports.com/testing/norms/handgrip.htm",
+      "confidence": "medium",
+      "notes": "Values in kg. Two Topend pages use different protocols and disagree."
+    },
+    {
+      "exercise": "Grip dynamometer (bridge)",
+      "population": "Other general-population references",
+      "sex": "both",
+      "unit": "lb",
+      "values": {"korea_knhanes_weakness_cutoff_kg": {"male": 33, "female": 20}, "china_median_age20_80_kg": {"male": 39, "female": 24}, "mathiowetz_derived_male_20_24_dominant_kg": 54.88},
+      "source": "KNHANES 2014-15; China National Health Survey (PMC10235885); German Mathiowetz kg table",
+      "ref": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10235885/",
+      "confidence": "medium",
+      "notes": "Values in kg. Not directly mappable to app exercises."
+    },
+    {
+      "exercise": "Wrist Curl (proxy for Finger Curls)",
+      "population": "Strength Level app users; barbell wrist curl 1RM; 119,042-172,561 lifts depending on page version",
+      "sex": "both",
+      "unit": "lb",
+      "values": {
+        "male_levels_lb": {"beginner": 9, "novice": 45, "intermediate": 114, "advanced": 212, "elite": 335},
+        "male_levels_kg_page": {"beginner": 4, "novice": 21, "intermediate": 52, "advanced": 96, "elite": 152},
+        "female_levels_lb_from_comparison_pages": {"beginner": 1, "novice": 22, "intermediate": 74, "advanced": 157, "elite": 265}
+      },
+      "source": "Strength Level - Wrist Curl",
+      "ref": "https://strengthlevel.com/strength-standards/wrist-curl/lb",
+      "confidence": "low",
+      "notes": "Male elite 335 lb is implausibly high (user-entry noise likely). Female values look inconsistent. No finger curl page found. Use with heavy caps, or not at all."
+    },
+    {
+      "exercise": "Dumbbell Wrist Curl (proxy for Finger Curls)",
+      "population": "Strength Level app users, 1RM per dumbbell",
+      "sex": "both",
+      "unit": "lb",
+      "values": {
+        "main_page_male": {"beginner": 14, "novice": 31, "intermediate": 56, "advanced": 88, "elite": 126},
+        "average": {"male": 56, "female": 34},
+        "comparison_pages_male": {"beginner": 8, "novice": 28, "intermediate": 62, "advanced": 108, "elite": 164},
+        "comparison_pages_female": {"beginner": 7, "novice": 15, "intermediate": 27, "advanced": 42, "elite": 59}
+      },
+      "source": "Strength Level - Dumbbell Wrist Curl",
+      "ref": "https://strengthlevel.com/strength-standards/dumbbell-wrist-curl/lb",
+      "confidence": "low",
+      "notes": "Main vs comparison pages disagree (versions). Only loosely related to finger curls."
+    },
+    {
+      "exercise": "Pull Ups (proxy for Towel Pull-Up)",
+      "population": "Strength Level app users",
+      "sex": "male",
+      "unit": "reps",
+      "values": {"levels": {"beginner": "<1", "novice": 7, "intermediate": 13, "advanced": 21, "elite": 30}, "average": {"male": 13, "female": 6}, "fitnessvolt_male": {"beginner": "<1", "novice": 5, "intermediate": 14, "advanced": 25, "elite": 37}},
+      "source": "Strength Level - Pull Ups; FitnessVolt",
+      "ref": "https://strengthlevel.com/strength-standards/pull-ups/lb",
+      "confidence": "low",
+      "notes": "No towel pull-up standards exist. Towel version is much harder; any scaling factor would be an assumption."
+    },
+    {
+      "exercise": "Fat Grip / Axle Hold",
+      "population": "r/GripTraining May 2018 challenge (self-reported)",
+      "sex": "male",
+      "unit": "seconds",
+      "values": {"fat_gripz_185lb_hold_s": 40, "axle_173lb_at_170lb_bw_s": 33, "axle_dumbbell_one_hand_120lb_s": 32},
+      "source": "r/GripTraining May challenge: fat bar hold (bodyweight on axle, double overhand)",
+      "ref": "https://nyc1.lr.ggtyler.dev/r/GripTraining/comments/8gmxui/may_challenge_fat_bar_hold",
+      "confidence": "low",
+      "notes": "Anecdotes from grip enthusiasts; ~40 s with bodyweight-ish on fat grips was near top of thread."
+    },
+    {
+      "exercise": "Static Barbell Hold",
+      "population": "None found",
+      "sex": "both",
+      "unit": "seconds",
+      "values": {},
+      "source": "Searches returned no standards (MTI used a 185 lb trap bar hold for time without norms)",
+      "ref": "https://mtntactical.com/research/mini-study-results-mti-finds-no-perfect-grip-test-for-tactical-athletes/",
+      "confidence": "low",
+      "notes": "No data. Could only be derived from deadlift standards by assumption."
+    },
+    {
+      "exercise": "Suitcase Carry",
+      "population": "None found",
+      "sex": "both",
+      "unit": "x bodyweight",
+      "values": {},
+      "source": "No Strength Level page or published standard found",
+      "ref": "",
+      "confidence": "low",
+      "notes": "No data. Could borrow farmer's walk per-hand ratios with a discount (assumption)."
+    }
+  ],
+  "summary": "Only Farmer's Walk has real 5-level percentile standards in the app's own scheme: Strength Level (lifter population, 20 m, per hand) with bodyweight ratios per hand - men 0.10/0.25/0.45/0.70/1.05x, women 0.05/0.15/0.30/0.50/0.75x (medium confidence; small sample, especially female). Kettlebell Farmer's Carry can reuse these; Suitcase Carry could reuse them with an assumed discount. Dead Hang has no validated population percentiles: only fitness-site tiers (e.g. 10-20/21-45/46-90/>90 s), Attia targets (120 s men / 90 s women at 40+), and one small study (active young adults: men 64+/-35 s, women 48+/-29 s) - rankable with low-medium confidence, time-based and not bodyweight-dependent. Plate Pinch has solid clinical pinch-gauge norms (Mathiowetz 1985, high confidence) but they do not convert to plate load; plate anchors (2x45 lb = very advanced/world class for men) are anecdotal - low. Hand Gripper: CoC ratings are exact, but population share is only qualitative (No.1 stops most lifters, No.3 elite) - low. Wrist curl/dumbbell wrist curl Strength Level standards exist but look noisy; finger curls have no data - low. Towel Hang, Towel Pull-Up, Fat Grip Hold, Static Barbell Hold, Plate Pinch Carry: no standards found; only anecdotes or proxies (pull-up standards). Grip dynamometer norms (NHANES peak combined 216.4/136.5 lb; Dodds peak median 51/31 kg; Topend rating bands) are high-quality and could act as a bridge if the app ever estimates grip strength, but percentile tables were not visible in snippets."
+}

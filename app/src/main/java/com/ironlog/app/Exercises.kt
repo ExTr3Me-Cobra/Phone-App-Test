@@ -99,6 +99,20 @@ fun PickerScreen(req: Route.Picker?) {
                     e.muscles.any { it.value >= 0.7f && it.key.lowercase().contains(w) }
             }
     }
+    // Order: A–Z, by main muscle group, or yours first (in routines, then logged before, then the rest).
+    val sort = profile.exerciseSort
+    val routineIds = Store.routines.collectAsState().value.flatMap { r -> r.items.map { it.exerciseId } }.toSet()
+    val loggedIds = Store.workouts.collectAsState().value.flatMap { w -> w.items.map { it.exerciseId } }.toSet()
+    val sections: List<Pair<String?, List<Exercise>>> = when (sort) {
+        "muscle" -> filtered.groupBy { it.mainMuscle }.toSortedMap().map { (m, l) -> m to l }
+        "mine" -> listOf(
+            "In your routines" to filtered.filter { it.id in routineIds },
+            "Logged before" to filtered.filter { it.id !in routineIds && it.id in loggedIds },
+            "Everything else" to filtered.filter { it.id !in routineIds && it.id !in loggedIds },
+        ).filter { it.second.isNotEmpty() }
+        else -> listOf(null to filtered)
+    }
+    var sortMenu by remember { mutableStateOf(false) }
     val browsing = words.isEmpty() && equipment == null && muscle == null && showGold && showBlue && showNone
     val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] } else emptyList()
 
@@ -127,6 +141,17 @@ fun PickerScreen(req: Route.Picker?) {
         Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GreyButton(equipment ?: "All Equipment", Modifier.weight(1f), if (equipment != null) Blue else Color.White) { dialog = 1 }
             GreyButton(muscle?.let(::titleCase) ?: "All Muscles", Modifier.weight(1f), if (muscle != null) Blue else Color.White) { dialog = 2 }
+            Box {
+                GreyButton("⇅", Modifier.width(52.dp), if (sort != "az") Blue else Color.White) { sortMenu = true }
+                DropdownMenu(sortMenu, { sortMenu = false }) {
+                    listOf("az" to "Alphabetical (A–Z)", "muscle" to "By main muscle group", "mine" to "Mine first: routines, then logged")
+                        .forEach { (k, label) ->
+                            DropdownMenuItem({ Text(label) }, {
+                                sortMenu = false; Store.setProfile(Store.profile.value.copy(exerciseSort = k))
+                            }, trailingIcon = { if (sort == k) Text("✓") })
+                        }
+                }
+            }
         }
         if (Standards.mode(profile) != Standards.Mode.OFF) Row(
             Modifier.padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -143,7 +168,10 @@ fun PickerScreen(req: Route.Picker?) {
                 items(recent, key = { "r_" + it.id }) { e -> ExerciseRow(e, e.id in selected, req != null) { tap(e) } }
             }
             item { SectionTitle(if (browsing) "All Exercises (${filtered.size})" else "${filtered.size} found", Modifier.padding(top = 8.dp)) }
-            items(filtered, key = { it.id }) { e -> ExerciseRow(e, e.id in selected, req != null) { tap(e) } }
+            sections.forEach { (title, list) ->
+                if (title != null) item(key = "s_$title") { SectionTitle("$title (${list.size})", Modifier.padding(top = 4.dp)) }
+                items(list, key = { it.id }) { e -> ExerciseRow(e, e.id in selected, req != null) { tap(e) } }
+            }
         }
         if (req != null && req.multi && selected.isNotEmpty()) {
             BigButton(

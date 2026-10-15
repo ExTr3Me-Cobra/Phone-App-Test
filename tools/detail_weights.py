@@ -161,6 +161,8 @@ HEADS = [
     # ---- Forearms.
     (r'hammer|reverse.*curl|zottman|reverse.*preacher|reverse plate', 'forearms', {FBR: 1, FFL: .3, FEX: .6},
      ['Boland 2008', 'Kleiber 2015']),
+    # Opening the fingers against a band: the finger extensors (in the wrist-extensor group), not the grip flexors.
+    (r'finger extension', 'forearms', {FBR: .1, FFL: .1, FEX: 1}, ['Neumann 2017']),
     (r'reverse wrist|wrist extension|wrist roller', 'forearms', {FBR: .2, FFL: .5, FEX: 1}, ['Neumann 2017']),
     (r'wrist curl|wrist flexion|finger curl', 'forearms', {FBR: .1, FFL: 1, FEX: .25}, ['Neumann 2017']),
     (r'pronation|supination|wrist rotation', 'forearms', {FBR: .7, FFL: .7, FEX: .7}, ['Neumann 2017']),
