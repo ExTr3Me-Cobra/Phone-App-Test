@@ -124,11 +124,13 @@ MAP = {
     'Sit Ups': [('Sit-Up', None)],
     'Inverted Row': [('Inverted Row', None)],
     'Handstand Push Ups': [('Handstand Push-Ups', None)],
+    'Farmers Walk': [("Farmer's Walk", 'Weight per hand, carried about 20 m; time isn\'t used.'),
+                     ("Kettlebell Farmer's Carry", 'Weight per hand (Strength Level\'s farmer\'s walk with handles or dumbbells); time isn\'t used.')],
 }
 DUMBBELL = {'Dumbbell Bench Press', 'Dumbbell Row', 'Dumbbell Fly', 'Dumbbell Lateral Raise', 'Dumbbell Curl', 'Hammer Curl',
             'Incline Dumbbell Bench Press', 'Dumbbell Shrug', 'Dumbbell Lunge', 'Dumbbell Bulgarian Split Squat',
             'Seated Dumbbell Shoulder Press', 'Arnold Press', 'Dumbbell Front Raise', 'Incline Dumbbell Curl', 'Concentration Curl',
-            'Reverse Dumbbell Fly', 'Dumbbell Squat', 'Dumbbell Calf Raise', 'Dumbbell Romanian Deadlift', 'Bent Over Dumbbell Row', 'Decline Dumbbell Bench Press'}
+            'Reverse Dumbbell Fly', 'Dumbbell Squat', 'Dumbbell Calf Raise', 'Dumbbell Romanian Deadlift', 'Bent Over Dumbbell Row', 'Decline Dumbbell Bench Press', 'Farmers Walk'}
 
 report = []
 

@@ -15,6 +15,8 @@ object Standards {
 
     fun covers(id: String) = table.containsKey(id)
     fun isReps(id: String) = table[id]?.reps == true
+    /** Carries (logged as weight and time): ranked by the heaviest weight per hand; time isn't used. */
+    fun isCarry(id: String) = covers(id) && Store.exercise(id)?.type == ExType.WEIGHT_TIME
     fun info(id: String) = table[id]
 
     /** How well the published data matches you for one exercise. */
@@ -197,6 +199,7 @@ object Standards {
      */
     fun testValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup }
+        if (isCarry(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         val single = done.filter { it.reps == 1 }.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
@@ -205,6 +208,7 @@ object Standards {
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup } // warm-ups never count
+        if (isCarry(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
     }

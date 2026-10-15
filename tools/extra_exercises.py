@@ -74,7 +74,7 @@ EXTRA = [
   ["Put a rubber band around your fingers and thumb.", "Spread the fingers open against the band, then relax."]),
  ("Kettlebell Farmer's Carry", "Kettlebell", T, ["grip"], ["forearms", "traps", "abdominals", "quadriceps"], "strength",
   ["Pick up a heavy kettlebell in each hand.", "Walk tall for time or distance."]),
- ("Suitcase Carry", "Dumbbell", T, ["grip", "abdominals"], ["forearms", "traps", "glutes"], "strength",
+ ("Suitcase Carry", "Dumbbell", T, ["abdominals"], ["grip", "forearms", "traps", "lower back", "abductors", "glutes"], "strength",
   ["Hold one heavy dumbbell at your side.", "Walk without leaning toward the weight, then switch hands."]),
 
  # ---------- Back ----------

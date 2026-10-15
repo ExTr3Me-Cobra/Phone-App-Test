@@ -43,6 +43,7 @@ fun RankDetailScreen(id: String) {
     val lv = Standards.levels(id, p)
     val r = remember(workouts, p, id) { Ranks.all(workouts, p)[id] }
     val reps = info?.reps == true
+    val carry = Standards.isCarry(id)
     fun fmt(v: Double) = if (reps) "${v.toInt()} reps" else Units.weightU(Math.round(v).toDouble())
 
     Column(Modifier.fillMaxSize()) {
@@ -59,7 +60,7 @@ fun RankDetailScreen(id: String) {
                 Column(Modifier.padding(start = 12.dp)) {
                     Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
                     Text("(${topLabel(r.percentile)})")
-                    Text((if (reps) "Your best: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
+                    Text((if (reps) "Your best: " else if (carry) "Your heaviest carry: " else "Your est. 1-rep max: ") + fmt(r.value) + if (carry) " per hand" else "", color = Sub, fontSize = 14.sp)
                 }
             } else Text("Log this exercise to see where you sit.", color = Sub)
 
@@ -69,7 +70,7 @@ fun RankDetailScreen(id: String) {
             val curve = remember(lv.toList(), xMax) { (0..80).map { i -> val x = xMax * i / 80; x to (Standards.percentile(id, x, p) ?: 0.0) } }
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(12.dp)) {
                 Text("Where you sit", fontWeight = FontWeight.Bold)
-                Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
+                Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: ${if (carry) "weight per hand" else "est. 1-rep max"}.  Up: % of ${Standards.groupLabel(p)} you beat.",
                     color = Sub, fontSize = 12.sp)
                 val line = Color.White
                 val myColor = r?.let { Color(it.tier.color) } ?: Blue
@@ -122,7 +123,7 @@ fun RankDetailScreen(id: String) {
                 if (r != null && r.tier != Tier.entries.last()) {
                     val next = Tier.entries[r.tier.ordinal + 1]
                     Standards.valueFor(id, next.ordinal * 5.0, p)?.let {
-                        Text("Next rank (${next.label}): ${fmt(it)}" + if (!reps) " est. 1-rep max" else "", color = Color(next.color),
+                        Text("Next rank (${next.label}): ${fmt(it)}" + if (!reps) (if (carry) " per hand" else " est. 1-rep max") else "", color = Color(next.color),
                             fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                     }
                 }
@@ -141,7 +142,7 @@ fun RankDetailScreen(id: String) {
                 Line("Age", p.age?.let { a -> "$a" + if (a in 25..40) " (no adjustment)" else " (levels × ${"%.2f".format(Standards.ageFactor(a))})" } ?: "not set")
                 Line("Data", if (info.ai) "AI estimate: ${"%.0f".format(info.factor * 100)}% of the Strength Level \"${info.lift}\" standard"
                     else "Strength Level \"${info.lift}\"" + if (info.factor != 1.0) " × ${"%.2f".format(info.factor)} for this variation" else "")
-                if (info.perDumbbell) Line("Weight", "per dumbbell")
+                if (info.perDumbbell) Line("Weight", if (carry) "per hand" else "per dumbbell")
                 Text(fit.compared, color = Sub, fontSize = 12.sp)
                 if (!fit.exact) {
                     Text("Why it's an estimate:", fontSize = 13.sp, fontWeight = FontWeight.Medium)

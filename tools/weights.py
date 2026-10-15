@@ -97,5 +97,14 @@ FALLBACK = .3
 OVERRIDES = {
     # Forearm-plank scapular protraction: serratus leads, abdominals hold the plank (Ludewig 2004, Decker 1999).
     "Push-Up Plus": {"abdominals": .45, "shoulders": .35, "chest": .2},
+    # Grip holds/carries (re-checked): a pinch limits the load to a fraction of a farmer's carry, so the
+    # traps and trunk work far less; thick handles and heavy barbell holds load the wrist muscles and traps more.
+    "Plate Pinch Carry": {"forearms": .5, "traps": .3, "abdominals": .25},
+    "Fat Grip Dumbbell Hold": {"forearms": .55, "traps": .35},
+    "Static Barbell Hold": {"forearms": .4, "traps": .45},
+    # One-sided carry: the obliques and trunk resisting the side bend lead; grip still works hard.
+    "Suitcase Carry": {"grip": .8, "forearms": .5, "traps": .45, "lower back": .4, "abductors": .35, "glutes": .2},
 }
-OVERRIDE_REFS = {"Push-Up Plus": ['Ludewig 2004', 'Decker 1999']}
+OVERRIDE_REFS = {"Push-Up Plus": ['Ludewig 2004', 'Decker 1999'],
+                 "Plate Pinch Carry": ['Mogk 2003', 'McGill 2009'], "Fat Grip Dumbbell Hold": ['Mogk 2003'],
+                 "Static Barbell Hold": ['Mogk 2003', 'Escamilla 2002'], "Suitcase Carry": ['McGill 2009', 'Mogk 2003']}
