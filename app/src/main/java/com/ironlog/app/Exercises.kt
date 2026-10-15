@@ -239,6 +239,9 @@ fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () ->
 
 // ---------------- Exercise page ----------------
 
+/** Custom exercise -> the exercise picked to link it to, waiting for confirmation (kept outside the screen, which the picker covers). */
+private val pendingLink = androidx.compose.runtime.mutableStateMapOf<String, String>()
+
 @Composable
 fun ExerciseDetailScreen(id: String) {
     val all by Store.exercises.collectAsState()
@@ -269,6 +272,7 @@ fun ExerciseDetailScreen(id: String) {
 
     var topMenu by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
+    val linkTo = pendingLink[e.id]
     Column(Modifier.fillMaxSize()) {
         Box {
             TopBar("Exercise", action = "⋮") { topMenu = true }
@@ -276,9 +280,30 @@ fun ExerciseDetailScreen(id: String) {
                 DropdownMenu(topMenu, { topMenu = false }) {
                     DropdownMenuItem({ Text("Edit name, muscles & directions") }, { topMenu = false; Nav.go(Route.EditExercise(e.id)) })
                     if (e.edited) DropdownMenuItem({ Text("Reset to original") }, { topMenu = false; Store.resetExercise(e.id) })
+                    if (e.custom) DropdownMenuItem({ Text("Link to a ranked exercise…") }, {
+                        topMenu = false
+                        Nav.go(Route.Picker("Link \"${e.name}\" to", false) { ids -> ids.firstOrNull()?.takeIf { it != e.id }?.let { pendingLink[e.id] = it } })
+                    })
                     if (e.custom) DropdownMenuItem({ Text("Delete exercise", color = Red) }, { topMenu = false; deleting = true })
                 }
             }
+        }
+        linkTo?.let { to ->
+            val target = all[to]
+            val count = workouts.sumOf { w -> w.items.filter { it.exerciseId == e.id }.sumOf { it.sets.count { s -> s.done } } }
+            if (target == null) { pendingLink.remove(e.id); return@let }
+            ConfirmText(
+                "Move all ${count} logged set${if (count == 1) "" else "s"} of \"${e.name}\" to \"${target.name}\"? " +
+                    "Routines that use it switch over too, and \"${e.name}\" is deleted. This can't be undone." +
+                    (if (target.type != e.type) "\n\nCareful: \"${target.name}\" is logged differently (${target.type.label}), so some numbers may not carry over." else "") +
+                    (if (!Standards.covers(target.id)) "\n\nNote: \"${target.name}\" isn't a ranked exercise." else ""),
+                {
+                    pendingLink.remove(e.id)
+                    Store.mergeExercise(e.id, to)
+                    Nav.back(); Nav.go(Route.ExerciseDetail(to))
+                },
+                { pendingLink.remove(e.id) }, "Link",
+            )
         }
         if (deleting) ConfirmText("Delete \"${e.name}\"? Past workouts keep their numbers.", {
             deleting = false; Store.deleteCustomExercise(e.id); Nav.back()

@@ -113,6 +113,34 @@ object Store {
         _images.value++
     }
 
+    /**
+     * Moves everything logged or planned with custom exercise [from] onto exercise [to] (workouts, the workout in
+     * progress, routines, Hevy matches, 1 Rep Max list), then deletes [from]. Returns how many sets moved.
+     */
+    fun mergeExercise(from: String, to: String): Int {
+        if (from == to) return 0
+        var sets = 0
+        val moved = _workouts.value.map { w ->
+            if (w.items.none { it.exerciseId == from }) w
+            else w.copy(items = w.items.map { if (it.exerciseId == from) { sets += it.sets.count { s -> s.done }; it.copy(exerciseId = to) } else it })
+        }
+        setWorkouts(moved)
+        _active.value?.let { a -> if (a.items.any { it.exerciseId == from }) setActive(a.copy(items = a.items.map { if (it.exerciseId == from) it.copy(exerciseId = to) else it })) }
+        setRoutines(_routines.value.map { r -> r.copy(items = r.items.map { if (it.exerciseId == from) it.copy(exerciseId = to) else it }) })
+        runCatching {
+            val o = JSONObject(read("hevy_map.json") ?: "{}")
+            o.keys().asSequence().toList().forEach { k -> if (o.optString(k) == from) o.put(k, to) }
+            write("hevy_map.json", o.toString())
+        }
+        runCatching {
+            val a = org.json.JSONArray(read("onerm_list.json") ?: "[]")
+            val ids = List(a.length()) { a.getString(it) }.map { if (it == from) to else it }.distinct()
+            write("onerm_list.json", org.json.JSONArray(ids).toString())
+        }
+        deleteCustomExercise(from)
+        return sets
+    }
+
     // ----- pictures -----
     fun imageName(id: String) = id.replace(Regex("[^A-Za-z0-9_-]"), "_") + ".jpg"
     fun imagesDir() = File(dir, "images").apply { mkdirs() }
