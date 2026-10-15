@@ -1,0 +1,130 @@
+{
+  "findings": [
+    {
+      "id": "tomkinson_igrips_2025",
+      "source": "Tomkinson GR et al. (iGRIPS Group). International norms for adult handgrip strength: a systematic review of data on 2.4 million adults aged 20 to 100+ years from 69 countries and regions. J Sport Health Sci 2025;14:101014 (online 2024-12-06).",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11863340/",
+      "population": "2,405,863 adults (51.9% female), 100 studies, 69 countries/regions, ages 20-100+",
+      "measure": "Absolute handgrip in kg, harmonized via adjustment factors to the Southampton reference protocol (Jamar, seated; Southampton records the maximum of 3 trials per hand, i.e. best of either hand -- protocol detail from prior knowledge, not re-verified in search snippets)",
+      "type": "direct percentiles P5,P10,P20,...,P90,P95 by sex and 5-year age band",
+      "values_kg": {
+        "male":   {"20-24": [33.9,40.5,48.0,56.0,63.6], "25-29": [35.5,42.1,49.3,56.7,64.0], "30-34": [35.0,42.2,49.7,57.4,64.9], "35-39": [33.8,41.5,49.5,57.5,65.3]},
+        "female": {"20-24": [19.7,24.0,28.6,33.6,39.1], "25-29": [20.0,24.5,29.4,34.6,39.7], "30-34": [19.6,24.4,29.7,35.2,40.4], "35-39": [19.0,24.1,29.7,35.4,40.8]},
+        "columns": "P5,P20,P50,P80,P95"
+      },
+      "peak": "Peak at 30-39 y: 49.7 kg men, 29.7 kg women (published abstract; a preprint said 47.8 kg men)",
+      "uncertainty": "Male 20-24 row confirmed in a snippet of the paper itself. Other rows taken from secondary sites (joingetfitapp.com, fitnessnorms.com) that cite iGRIPS; P5/P50/P95 agree across those two sites, P20/P80 seen only on joingetfitapp. International pool includes lower-strength regions, so slightly below US/UK/N-European values."
+    },
+    {
+      "id": "dodds_2014_uk",
+      "source": "Dodds RM et al. Grip strength across the life course: normative data from twelve British studies. PLoS One 2014;9(12):e113637.",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0113637",
+      "population": "49,964 participants (60,803 observations), 12 British studies, ages 4-90",
+      "measure": "Maximum grip of all trials, either hand (kg); centile curves 10/25/50/75/90",
+      "type": "centile curves; only peak medians and T-score cut-points retrieved",
+      "values_kg": {"male_peak_median": 51, "male_peak_ages": "29-39", "female_peak_median": 31, "female_peak_ages": "26-42", "weak_cutpoints_T-2.5": {"male": 27, "female": 16}},
+      "derived": "Implied peak SD = (median-cut)/2.5 = ~9.6 kg men, ~6.0 kg women (assumes mean~median). Normal-model P5/P20/P50/P80/P95: men 35.2/42.9/51.0/59.1/66.8, women 21.1/25.9/31.0/36.1/40.9 (DERIVED, not published).",
+      "uncertainty": "Exact 10th/90th centile values at peak not retrieved (secondary sites quoting them appear mis-transcribed)."
+    },
+    {
+      "id": "wang_bohannon_2018_nih_toolbox",
+      "source": "Wang YC, Bohannon RW, Li X, Sindhu B, Kapellusch J. Hand-grip strength: normative reference values and equations for individuals 18 to 85 years of age residing in the United States. JOSPT 2018;48(9):685-693.",
+      "url": "https://www.jospt.org/doi/10.2519/jospt.2018.7851",
+      "population": "1,232 US adults 18-85, NIH Toolbox 2011 normative phase (Jamar, seated, elbow 90 deg)",
+      "measure": "Dominant and non-dominant hand separately, pounds; mean, SD, P10/25/50/75/90",
+      "values_lb": {"male_dominant_18-24": {"n":36,"mean":103.6,"sd":17.9,"P10_25_50_75_90":[79.8,91.3,105.4,112.9,127.6]}, "male_dominant_25-29": {"n":35,"mean":109.6,"sd":25.6,"P10_25_50_75_90":[74.3,95.5,108.7,131.0,145.9]}},
+      "uncertainty": "Small n per cell (~35); women rows not retrieved; snippet sex labels partially inferred."
+    },
+    {
+      "id": "nhanes_2011_2014_wang_bohannon_jht",
+      "source": "Wang YC, Bohannon RW et al. Summary of grip strength measurements obtained in the 2011-2012 and 2013-2014 NHANES. J Hand Ther 2019 (S0894-1130(17)30389-7).",
+      "url": "https://www.jhandtherapy.org/article/S0894-1130(17)30389-7/abstract",
+      "population": "13,676 US participants 6-80, Takei digital dynamometer",
+      "measure": "Best of 3 trials per hand, summarized by dominant/non-dominant side",
+      "values_kg": {"max_mean": "50.3 kg dominant hand men 30-34"},
+      "uncertainty": "Percentile tables not retrievable from snippets."
+    },
+    {
+      "id": "perna_2016_nhanes",
+      "source": "Perna FM et al. Muscular grip strength estimates of the U.S. population from NHANES 2011-2012. J Strength Cond Res 2016;30(3):867-874.",
+      "url": "https://stacks.cdc.gov/view/cdc/90691",
+      "measure": "COMBINED grip = sum of best reading of each hand (lb)",
+      "values": {"peak_mean_combined_30-39": {"male_lb": 216.4, "female_lb": 136.5, "male_kg": 98.2, "female_kg": 61.9}},
+      "uncertainty": "Percentile table exists in paper but values not retrieved. Combined (sum) measure is NOT comparable to single-hand max (roughly half ~49 kg / 31 kg)."
+    },
+    {
+      "id": "mcgrath_2019_nhanes",
+      "source": "McGrath R et al. Absolute and BMI normalized handgrip strength percentiles by gender, ethnicity, and hand dominance in Americans. Adv Geriatr Med Res 2019.",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6954001/",
+      "population": "13,617 NHANES 2011-2014 participants 6-80",
+      "measure": "Dominant hand, 10th-90th percentiles by quantile regression",
+      "uncertainty": "Numeric values not retrievable from snippets."
+    },
+    {
+      "id": "wong_2016_canada",
+      "source": "Wong SL. Grip strength reference values for Canadians aged 6 to 79: Canadian Health Measures Survey 2007-2013. Health Reports 2016 (82-003-X), Table 3.",
+      "url": "https://www150.statcan.gc.ca/n1/pub/82-003-x/2016010/article/14665/tbl/tbl03-eng.htm",
+      "measure": "Maximum grip strength (kg), Smedley; healthy household population; P5/10/25/50/75/90/95 from reference equations",
+      "values_kg": {"male_30-34": {"P5":35.9,"P50":46.9,"P95":58.7}, "female_30-34": {"P5":21.7,"P10":22.9,"P25":25.2,"P50":28.1,"P75":31.0,"P90":33.6,"P95":35.3}},
+      "uncertainty": "Narrower spread than iGRIPS (healthy-population equations); no P20/P80."
+    },
+    {
+      "id": "leong_2016_pure",
+      "source": "Leong DP et al. Reference ranges of handgrip strength from 125,462 healthy adults in 21 countries (PURE). J Cachexia Sarcopenia Muscle 2016;7:535-546.",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4833755/",
+      "population": "125,462 healthy adults 35-70, 21 countries, Jamar",
+      "values_kg": {"male_<40_Europe_NorthAmerica": {"median":50,"P25":43,"P75":56}},
+      "uncertainty": "Reports 25th-75th only; female equivalent not retrieved."
+    },
+    {
+      "id": "steiber_2016_germany",
+      "source": "Steiber N. Strong or weak handgrip? Normative reference values for the German population across the life course stratified by sex, age, and body height. PLoS One 2016;11(10):e0163917.",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5049850/",
+      "population": "11,790 persons (25,285 obs), SOEP 2006-2014, ages 17-90, Smedley",
+      "measure": "Means/SD by sex, age, height; weak = peak mean - 2 SD",
+      "uncertainty": "Numeric values not retrieved."
+    },
+    {
+      "id": "mathiowetz_1985",
+      "source": "Mathiowetz V et al. Grip and pinch strength: normative data for adults. Arch Phys Med Rehabil 1985;66:69-74.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/3970660/",
+      "population": "310 men, 328 women, Milwaukee, ages 20-94, Jamar pos. 2, mean of 3 trials",
+      "values": {"male_20-24_right_or_dominant": {"mean_lb":121.0,"sd_lb":20.6,"mean_kg":54.9,"sd_kg":9.3}, "female_20-24_right_or_dominant": {"mean_lb":70.4,"mean_kg":31.9,"sd_kg":6.6}},
+      "uncertainty": "Confirmed via a German kg reproduction of the table; small n (~25-30 per cell); dated."
+    },
+    {
+      "id": "leyk_2007_germany",
+      "source": "Leyk D et al. Hand-grip strength of young men, women and highly trained female athletes. Eur J Appl Physiol 2007;99:415-421.",
+      "url": "https://link.springer.com/article/10.1007/s00421-006-0351-1",
+      "population": "1,654 men and 533 women aged 20-25 (German), plus national-level female athletes",
+      "values": {"male_mean_N":541,"male_mean_kg":55.2,"female_mean_N":329,"female_mean_kg":33.5,"female_elite_athletes_N":444,"female_elite_athletes_kg":45.3,"note":"90% of women weaker than 95% of men; elite female athletes ~ male 25th percentile"}
+    },
+    {
+      "id": "athletes_misc",
+      "items": [
+        {"group":"Strongwomen (international event, n=7)","value":"~45 kg grip (similar to elite female judo/handball)","url":"https://www.researchgate.net/publication/401636429_Physical_Profile_of_Strongman_and_Strongwoman_Athletes","uncertainty":"strongman male mean not retrieved"},
+        {"group":"NFL defensive linemen/edge rushers (2024 Sack Summit, 15 of 21 shown)","value":"112-173 lb (~51-78 kg), mean of shown ~151 lb (~68 kg); hand unspecified","url":"https://thebarbell.com/grip-strength-test/","uncertainty":"informal media, incomplete list"},
+        {"group":"Adult male judo athletes (n=406, Jamar; Franchini et al. 2018 J Exerc Rehabil)","value":"classification table by weight class exists; values not retrieved (60 kg class ~43 kgf)","url":"https://www.e-jer.org/journal/view.php?number=2013600608"}
+      ]
+    }
+  ],
+  "recommended": {
+    "measure": "Max grip of the stronger hand (best single squeeze, either hand), kg, adults ~20-39 (peak); Jamar-type dynamometer, seated, elbow 90 deg",
+    "percentiles": [5, 20, 50, 80, 95],
+    "labels": ["Beginner", "Novice", "Intermediate", "Advanced", "Elite"],
+    "male_kg":   [34.5, 41.6, 49.1, 56.9, 64.5],
+    "female_kg": [19.6, 24.2, 29.4, 34.7, 40.0],
+    "male_lb":   [76.1, 91.7, 108.2, 125.4, 142.2],
+    "female_lb": [43.2, 53.4, 64.8, 76.5, 88.2],
+    "derivation": "Unweighted mean of the iGRIPS (Tomkinson 2025) DIRECT P5/P20/P50/P80/P95 values for the four 5-year bands 20-24, 25-29, 30-34, 35-39 (bands differ by <2 kg, so averaging percentiles approximates the pooled percentile closely but is not identical to it). No normal-distribution assumption. Cross-checks: Dodds 2014 UK peak median 51/31 kg (normal-model derived 5-95: men 35-67, women 21-41); NHANES dominant-hand mean 50.3 kg men 30-34; PURE Europe/N.America men <40 median 50 kg (IQR 43-56); Leyk 2007 young German men mean 55 kg, women 33.5 kg. Western populations sit ~1-3 kg above iGRIPS at P50.",
+    "sources": [
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC11863340/",
+      "https://www.joingetfitapp.com/fitness-calculators/free-grip-strength-calculator",
+      "https://fitnessnorms.com/strength/grip-strength/",
+      "https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0113637"
+    ]
+  },
+  "recommended_all_ages": null,
+  "recommended_all_ages_note": "No source found giving a single pooled 18-80 percentile table per sex. iGRIPS/NHANES/Canada give only age-banded tables; pooling would require population weighting not available from snippets. Suggest age-adjusting instead (iGRIPS male P50 ~48.8 kg at 40-44; JOSPT male dominant medians ~45.9 kg 40-44, 44.8 kg 50-54, 40.3 kg 60-64, 36.3 kg 70-74).",
+  "assessment": "iGRIPS (2.4M adults, protocol-harmonized, direct P5-P95 incl. P20/P80) is the best single source for exactly the requested percentiles. Main caveats: (1) several iGRIPS rows came via secondary sites citing the paper, though they match the one row seen in the paper itself; (2) international pool slightly underestimates Western gym-going users (UK/US medians ~50-51 kg men, ~31 kg women); (3) device matters - cheap digital spring dynamometers can read differently from Jamar; (4) do NOT mix with NHANES 'combined grip' (sum of both hands, ~2x). 'Elite' at P95 (~65 kg men / 40 kg women) is population-elite, not athlete-elite: trained strength athletes commonly read 60-80 kg (men) and ~45 kg (elite women), with top grip specialists far higher (unverified 100+ kg claims)."
+}

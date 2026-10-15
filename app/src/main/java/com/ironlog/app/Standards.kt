@@ -15,6 +15,8 @@ object Standards {
 
     fun covers(id: String) = table.containsKey(id)
     fun isReps(id: String) = table[id]?.reps == true
+    /** Ranked against everyone of your sex (no body weight or age), by your single best number. */
+    fun isFlat(id: String) = table[id]?.flat == true
     fun info(id: String) = table[id]
 
     /** How well the published data matches you for one exercise. */
@@ -28,6 +30,12 @@ object Standards {
     /** The rows to use for you, and anything that makes your percentile less exact. Null without a standard or body weight. */
     fun fit(id: String, p: Profile): Fit? {
         val s = table[id] ?: return null
+        if (s.flat) {
+            val rows = (if (p.male) s.male else s.female) ?: return null
+            return Fit(rows, false, emptyList(), "Compared with ${if (p.male) "men" else "women"} aged 20–39 – everyone, not just people who lift. " +
+                "Body weight and age aren't used. Source: international grip-strength norms from 2.4 million adults in 69 countries " +
+                "(Tomkinson et al. 2025), best squeeze of either hand on a hand dynamometer." + (s.note?.let { " $it" } ?: ""))
+        }
         val bw = p.bodyweight ?: return null
         val own = if (p.male) s.male else s.female
         // Your own sex's table first; the other sex's (scaled) only when there's none at all for yours.
@@ -167,6 +175,7 @@ object Standards {
      */
     fun levels(id: String, p: Profile): DoubleArray? {
         val rows = fit(id, p)?.rows ?: return null
+        if (isFlat(id)) return rows.first().second.copyOf()
         val bw = p.bodyweight ?: return null
         val f = ageFactor(p.age) * (table[id]?.factor ?: 1.0)
         return levelsAt(rows, bw).map { it * f }.toDoubleArray()
@@ -197,6 +206,7 @@ object Standards {
      */
     fun testValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup }
+        if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         val single = done.filter { it.reps == 1 }.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
@@ -205,6 +215,7 @@ object Standards {
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup } // warm-ups never count
+        if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0 // one squeeze: the reading itself
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
     }

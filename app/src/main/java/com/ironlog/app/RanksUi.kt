@@ -237,7 +237,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
             if (star != Standards.Star.NONE) withStyle(SpanStyle(color = starColor(star))) { append("★") }
         }, fontWeight = FontWeight.Bold)
         when {
-            profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
+            fit == null -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
             Standards.isAi(e.id) && mode != Standards.Mode.AI -> {
                 Text("No published data for this exercise. It can only be ranked as an AI estimate:", color = Sub)
                 Text("Switch Ranks to \"All on + AI\" in Settings to rank it with a purple ★.", color = Sub, fontSize = 13.sp,
@@ -259,10 +259,11 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                         Text("(${topLabel(r.percentile)})")
                     }
                 }
-                Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)}" + if (profile.compareAll) " – everyone, lifters or not." else " who lift.", fontSize = 15.sp,
+                Text(if (info.flat) "Stronger than about ${r.percentile.toInt()}% of ${if (profile.male) "men" else "women"} aged 20–39 – everyone, not just lifters."
+                    else "Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
                     modifier = Modifier.padding(top = 6.dp))
                 Text(
-                    "Your best in the 30 days up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else "est. 1-rep max ${Units.weightU(r.value)}",
+                    "Your best in the 30 days up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else if (info.flat) "best squeeze ${Units.weightU(r.value)}" else "est. 1-rep max ${Units.weightU(r.value)}",
                     color = Sub, fontSize = 13.sp,
                 )
                 Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {

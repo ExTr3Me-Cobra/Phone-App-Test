@@ -140,7 +140,7 @@ fun OneRmListScreen() {
     val list = remember(workouts, p, refresh) {
         val counts = HashMap<String, Int>()
         workouts.filter { it.end != null }.forEach { w -> w.items.map { it.exerciseId }.distinct().forEach { counts[it] = (counts[it] ?: 0) + 1 } }
-        val ids = (counts.keys + OneRm.added()).filter { Standards.covers(it, p) && Store.exercise(it) != null }.distinct()
+        val ids = (counts.keys + OneRm.added()).filter { Standards.covers(it, p) && !Standards.isFlat(it) && Store.exercise(it) != null }.distinct()
         ids.sortedWith(compareByDescending<String> { counts[it] ?: 0 }.thenBy { Store.exercise(it)?.name }).map { it to (counts[it] ?: 0) }
     }
     Column(Modifier.fillMaxSize()) {
@@ -180,7 +180,8 @@ fun OneRmListScreen() {
                 GreyButton("+ Add an exercise", Modifier.fillMaxWidth().padding(top = 8.dp), Blue) {
                     Nav.go(Route.Picker("Add to 1 Rep Max", false) { ids ->
                         val id = ids.firstOrNull() ?: return@Picker
-                        if (Standards.covers(id, Store.profile.value)) { OneRm.add(id); refresh++ }
+                        if (Standards.isFlat(id)) message = "Just log your best squeeze in a workout – the dynamometer reading is already your max."
+                        else if (Standards.covers(id, Store.profile.value)) { OneRm.add(id); refresh++ }
                         else message = "${Store.exercise(id)?.name} can't be ranked for you, so there's nothing to test it against. Pick one with a ★."
                     })
                 }

@@ -20,6 +20,8 @@ object StandardsData {
         val approx: String? = null,
         /** An AI estimate (a ratio to another lift's table): only ranked in "All on + AI" mode. */
         val ai: Boolean = false,
+        /** One table for everyone of a sex: body weight and age aren't used (grip dynamometer). */
+        val flat: Boolean = false,
     )
 
     @Volatile var all: List<Std> = emptyList()
@@ -40,7 +42,7 @@ object StandardsData {
                 }
                 fun str(k: String) = if (!o.has(k) || o.isNull(k)) null else o.getString(k)
                 Std(o.getString("i"), o.getString("lift"), rows("m"), rows("f"), o.getBoolean("r"), o.getBoolean("d"),
-                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false))
+                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false), o.optBoolean("u", false))
             }
         }.getOrDefault(emptyList())
     }

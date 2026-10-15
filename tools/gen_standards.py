@@ -399,6 +399,15 @@ for x in json.load(open(os.path.join(HERE, 'standards', 'ai', 'final.json'))):
                     'a': f'No published data for this exercise: ranked as about {pct:g}% of the "{x["anchor"]}" standard, from AI estimates.'})
     have.add(e['i']); ai_n += 1
 print('AI estimates:', ai_n)
+# Grip dynamometer: everyone aged 20-39 (not just lifters), by sex only – body weight and age aren't used.
+# Tomkinson et al. 2025 international norms (P5/P20/P50/P80/P95 averaged over the 20-24 … 35-39 bands); standards/dynamometer_research.json.
+dyn = json.load(open(os.path.join(HERE, 'standards', 'dynamometer_research.json')))['recommended']
+if 'Grip Dynamometer Test' in db:
+    flat = lambda lb: [[1.0] + lb, [1000.0] + lb]
+    entries.append({'i': db['Grip Dynamometer Test']['i'], 'lift': 'Grip Dynamometer', 'm': flat(dyn['male_lb']), 'f': flat(dyn['female_lb']),
+                    'r': False, 'd': False, 'k': 1.0, 'a': None, 'u': True,
+                    'note': 'Best single squeeze of either hand (seated, elbow at 90°).'})
+else: report.append('Grip Dynamometer Test not in the database')
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')
