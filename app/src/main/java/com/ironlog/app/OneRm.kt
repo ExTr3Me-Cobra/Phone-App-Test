@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -164,17 +165,35 @@ fun OneRmListScreen() {
         val ids = (counts.keys + OneRm.added()).filter { OneRm.canTest(it, p) && Store.exercise(it) != null }.distinct()
         ids.sortedWith(compareByDescending<String> { counts[it] ?: 0 }.thenBy { Store.exercise(it)?.name }).map { it to (counts[it] ?: 0) }
     }
+    var searching by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
+    val focus = remember { androidx.compose.ui.focus.FocusRequester() }
+    val words = query.lowercase().split(" ").filter { it.isNotBlank() }
+    val shown = if (words.isEmpty()) list else list.filter { (id, _) ->
+        val n = Store.exercise(id)?.name?.lowercase().orEmpty(); words.all { it in n }
+    }
     Column(Modifier.fillMaxSize()) {
-        TopBar("1 Rep Max")
+        TopBar("1 Rep Max", action = "🔍") { searching = !searching; if (!searching) query = "" }
+        if (searching) {
+            androidx.compose.material3.OutlinedTextField(
+                query, { query = it }, Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp).focusRequester(focus).typing(),
+                placeholder = { Text("Search your 1 Rep Max exercises") }, singleLine = true,
+                trailingIcon = { Text("✕", color = Sub, modifier = Modifier.clickable { query = ""; searching = false }.padding(12.dp)) },
+            )
+            androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
+        }
         LazyColumn(Modifier.fillMaxSize().navigationBarsPadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)) {
-            item {
+            if (words.isEmpty()) item {
                 Text("Pick an exercise to test your true one-rep max (or max reps for bodyweight moves). " +
                     "Your result sets your rank for it – later workouts only change it if they beat it.", color = Sub, fontSize = 14.sp)
                 if (Standards.mode(p) == Standards.Mode.OFF) Text("Ranks are turned off in Settings, so there's nothing to rank.",
                     color = Red, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
                 Spacer(10)
             }
-            items(list, key = { it.first }) { (id, n) ->
+            if (words.isNotEmpty() && shown.isEmpty()) item {
+                Text("No exercise in your list matches \"$query\". Add it below if it's not here yet.", color = Sub, modifier = Modifier.padding(vertical = 8.dp))
+            }
+            items(shown, key = { it.first }) { (id, n) ->
                 val e = Store.exercise(id)!!
                 val r = ranks[id]
                 Row(
