@@ -251,24 +251,36 @@ fun ExerciseDetailScreen(id: String) {
             }
             if (askAi) {
                 val p = Store.profile.value
+                // Starts from the standard prompt every time the dialog opens; your edits apply to this picture only.
+                val original = remember(e.id, e.name, e.muscles, e.equipment) { Pictures.prompt(e) }
+                var promptText by remember { mutableStateOf(original) }
                 AlertDialog(
                     onDismissRequest = { askAi = false },
                     title = { Text("Make an AI picture?") },
                     text = {
-                        Text(
-                            if (p.apiKey.isBlank()) "First add your OpenAI API key in Profile → Settings."
-                            else "One picture of \"${e.name}\" at ${p.imageQuality} quality costs about $" +
-                                "%.3f".format(Pictures.price(p.imageQuality)) + ", taken from your OpenAI API credit." +
-                                if (hasImage) "\n\nIt replaces this exercise's current picture." else "",
-                        )
+                        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                if (p.apiKey.isBlank()) "First add your OpenAI API key in Profile → Settings."
+                                else "One picture of \"${e.name}\" at ${p.imageQuality} quality costs about $" +
+                                    "%.3f".format(Pictures.price(p.imageQuality)) + ", taken from your OpenAI API credit." +
+                                    if (hasImage) "\n\nIt replaces this exercise's current picture." else "",
+                            )
+                            if (p.apiKey.isNotBlank()) {
+                                OutlinedTextField(promptText, { promptText = it }, Modifier.fillMaxWidth().typing(),
+                                    label = { Text("Prompt (edit for this picture)") }, textStyle = androidx.compose.ui.text.TextStyle(fontSize = 13.sp))
+                                if (promptText != original) Text("Reset to original prompt", color = Blue, fontSize = 14.sp,
+                                    modifier = Modifier.clickable { promptText = original }.padding(vertical = 4.dp))
+                            }
+                        }
                     },
                     confirmButton = {
                         if (p.apiKey.isNotBlank()) TextButton(onClick = {
+                            val usePrompt = promptText
                             askAi = false
                             busy = true
                             status = "Asking OpenAI for a picture – this takes up to a minute…"
                             scope.launch {
-                                val r = Pictures.generate(e, Store.profile.value)
+                                val r = Pictures.generate(e, Store.profile.value, usePrompt)
                                 busy = false
                                 status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
                             }
