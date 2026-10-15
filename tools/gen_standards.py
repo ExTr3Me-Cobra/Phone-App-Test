@@ -399,6 +399,26 @@ for x in json.load(open(os.path.join(HERE, 'standards', 'ai', 'final.json'))):
                     'a': f'No published data for this exercise: ranked as about {pct:g}% of the "{x["anchor"]}" standard, from AI estimates.'})
     have.add(e['i']); ai_n += 1
 print('AI estimates:', ai_n)
+# Cycling: Cycling Level's times by age, sex and ability for 5 km – 40 km (standards/cycling_research.json).
+# The app ranks a ride by its speed for its distance, as a 20 km-equivalent speed (km/h); "cy" holds every table.
+CYCLING = ['Bicycling', 'Bicycling, Stationary', 'Recumbent Bike']
+cyc = json.load(open(os.path.join(HERE, 'standards', 'cycling_research.json')))['cyclinglevel']
+CY_DIST = ['5k', '10k', '10 mile', '20k', '40k']
+def secs(t):
+    p = [int(x) for x in t.split(':')]
+    return p[0] * 3600 + p[1] * 60 + p[2] if len(p) == 3 else p[0] * 60 + p[1]
+def cy_rows(sex):
+    ages = sorted(cyc['5k'][sex], key=int)
+    return [[int(a)] + [[secs(t) for t in cyc[d][sex][a]] for d in CY_DIST] for a in ages]
+cy = {'km': [cyc[d]['km'] for d in CY_DIST], 'm': cy_rows('male'), 'f': cy_rows('female')}
+i20 = CY_DIST.index('20k')
+for name in CYCLING:
+    e = db.get(name)
+    if e is None: report.append(f'cycling: "{name}" not in the database'); continue
+    speed20 = lambda rows: [[r[0]] + [round(20 / t * 3600, 2) for t in r[1 + i20]] for r in rows]
+    entries.append({'i': e['i'], 'lift': 'Cycling', 'm': speed20(cy['m']), 'f': speed20(cy['f']), 'r': False, 'd': False,
+                    'note': None, 'k': 1.0, 'a': None, 'cy': cy})
+print('cycling entries:', len(CYCLING))
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')

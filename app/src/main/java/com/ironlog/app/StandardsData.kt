@@ -20,7 +20,12 @@ object StandardsData {
         val approx: String? = null,
         /** An AI estimate (a ratio to another lift's table): only ranked in "All on + AI" mode. */
         val ai: Boolean = false,
+        /** Cycling: Cycling Level's ride times by age (the rows of [male]/[female] are keyed by age, not body weight). */
+        val cy: Cycling? = null,
     )
+
+    /** Ride times (seconds) per age: [times] is [distance][level], for the distances in [km]. */
+    class Cycling(val km: DoubleArray, val male: List<Pair<Double, Array<DoubleArray>>>, val female: List<Pair<Double, Array<DoubleArray>>>)
 
     @Volatile var all: List<Std> = emptyList()
         private set
@@ -39,8 +44,18 @@ object StandardsData {
                     }
                 }
                 fun str(k: String) = if (!o.has(k) || o.isNull(k)) null else o.getString(k)
+                val cy = o.optJSONObject("cy")?.let { c ->
+                    val km = c.getJSONArray("km").let { k -> DoubleArray(k.length()) { k.getDouble(it) } }
+                    fun ages(s: String) = c.getJSONArray(s).let { r ->
+                        List(r.length()) { j ->
+                            val row = r.getJSONArray(j)
+                            row.getDouble(0) to Array(km.size) { d -> row.getJSONArray(d + 1).let { t -> DoubleArray(5) { t.getDouble(it) } } }
+                        }
+                    }
+                    Cycling(km, ages("m"), ages("f"))
+                }
                 Std(o.getString("i"), o.getString("lift"), rows("m"), rows("f"), o.getBoolean("r"), o.getBoolean("d"),
-                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false))
+                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false), cy)
             }
         }.getOrDefault(emptyList())
     }
