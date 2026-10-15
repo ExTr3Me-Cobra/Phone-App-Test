@@ -2,6 +2,7 @@ package com.ironlog.app
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -204,9 +205,22 @@ fun ActiveWorkoutScreen() {
                 if (ex != null) {
                     val prev = remember(workouts, ex.id) { Stats.previous(ex.id, workouts) }
                     val cols = columnsFor(ex.type, true)
+                    // 👑 on the ticked set that set a new best est. 1-rep max (moves to a later set that beats it).
+                    val bestBefore = remember(workouts, ex.id, w.id) {
+                        workouts.filter { it.id != w.id && it.end != null }.flatMap { o -> o.items.filter { it.exerciseId == ex.id }.flatMap { it.sets } }
+                            .filter { it.done && !it.warmup }.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
+                    }
+                    val crown = if (ex.type != ExType.WEIGHT) -1 else {
+                        var best = bestBefore; var at = -1
+                        item.sets.forEachIndexed { n, s ->
+                            val v = if (s.done && !s.warmup) Stats.e1rm(s.weight, s.reps) else 0.0
+                            if (v > best) { best = v; at = n }
+                        }
+                        at
+                    }
                     TableHeader(cols + ("✓" to 0.8f))
                     item.sets.forEachIndexed { n, s ->
-                        ActiveSetRow(ex, i, n, s, prev.getOrNull(n) ?: prev.lastOrNull(), cols, item.restSec, w.id)
+                        ActiveSetRow(ex, i, n, s, prev.getOrNull(n) ?: prev.lastOrNull(), cols, item.restSec, w.id, crown = n == crown)
                     }
                     Text("Tap a set number to mark it W (warm-up – never counts for ranks) or F (to failure). Long-press ✓ to delete a set.", color = Sub, fontSize = 12.sp,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
@@ -252,7 +266,7 @@ fun ActiveWorkoutScreen() {
 }
 
 @Composable
-private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet?, cols: List<Pair<String, Float>>, rest: Int, wid: String) {
+private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet?, cols: List<Pair<String, Float>>, rest: Int, wid: String, crown: Boolean = false) {
     val context = LocalContext.current
     val bg = if (s.done) Green.copy(alpha = 0.15f) else Bg
     val k = "$wid:$i:${ex.id}:$n"
@@ -267,6 +281,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                 val item = Store.active.value?.items?.getOrNull(i)
                 SetLabel(setNumber(item?.sets?.map { it.warmup } ?: emptyList(), n).coerceAtLeast(0), s.failure, Modifier, s.warmup)
             }
+            if (crown) Text("👑", fontSize = 15.sp, modifier = Modifier.align(Alignment.TopStart).offset(x = 30.dp, y = (-6).dp))
             SetTypeMenu(typeMenu, { typeMenu = false }, s.warmup, s.failure) { w, f ->
                 Workouts.updateSet(i, n) { it.copy(warmup = w, failure = f) }
                 // A set that's already ticked changes what counts for ranks.
