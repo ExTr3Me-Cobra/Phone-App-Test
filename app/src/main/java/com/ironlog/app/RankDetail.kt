@@ -171,5 +171,23 @@ fun RankDetailBody(id: String) {
                         ". Workouts since then only count if they beat it."
                 } ?: "Your rank uses your best in the 24 hours up to the last time you did this exercise.", color = Sub, fontSize = 12.sp)
             }
+
+            // The set your rank comes from.
+            val source = remember(workouts, p, id, r?.value) { r?.let { Ranks.source(id, it.value, workouts) } }
+            if (source != null) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                val (w, set) = source
+                val ex = Store.exercise(id)
+                Text("The set that earned this rank", fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("👑 ", fontSize = 18.sp)
+                    Text(ex?.let { Units.set(it.type, set) } ?: "", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    if (set.failure) Text("  (to failure)", color = Red, fontSize = 13.sp)
+                }
+                Text((if (w.test) "1 Rep Max test" else w.name.ifBlank { "Workout" }) + " · " +
+                    java.text.SimpleDateFormat("EEE, MMM d, yyyy · h:mm a", java.util.Locale.getDefault()).format(java.util.Date(w.start)),
+                    color = Sub, fontSize = 13.sp)
+                if (!reps && !flat && (set.reps ?: 1) > 1) Text("Est. 1-rep max from this set: ${fmt(r!!.value)}", color = Sub, fontSize = 13.sp)
+            }
     }
 }

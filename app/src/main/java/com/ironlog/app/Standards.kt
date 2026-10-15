@@ -311,6 +311,18 @@ object Ranks {
         return out
     }
 
+    /** The finished workout and set your rank's number came from (the latest one, if several match). */
+    fun source(id: String, value: Double, workouts: List<Workout>): Pair<Workout, DoneSet>? {
+        for (w in workouts.filter { it.end != null }.sortedByDescending { it.start }) {
+            for (s in w.items.filter { it.exerciseId == id }.flatMap { it.sets }) {
+                if (!s.done || s.warmup) continue
+                val v = if (w.test) Standards.testValue(id, listOf(s)) else Standards.bestValue(id, listOf(s))
+                if (kotlin.math.abs(v - value) < 0.01) return w to s
+            }
+        }
+        return null
+    }
+
     /** After finishing a workout: shows a rank-down for each rank (and the overall rank) that went down. */
     fun onFinished(before: Map<String, Ranked>, after: Map<String, Ranked>) {
         for ((id, b) in before) {
