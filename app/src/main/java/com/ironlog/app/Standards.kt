@@ -72,32 +72,37 @@ object Standards {
         return Fit(rows, own == null, problems, compared)
     }
 
-    enum class Mode { OFF, ACCURATE, ALL }
-    fun mode(p: Profile) = when (p.rankMode) { "off" -> Mode.OFF; "all" -> Mode.ALL; else -> Mode.ACCURATE }
+    /** In order: each mode ranks everything the one before it does, and more. */
+    enum class Mode { OFF, ACCURATE, ALL, AI }
+    fun mode(p: Profile) = when (p.rankMode) { "off" -> Mode.OFF; "all" -> Mode.ALL; "ai" -> Mode.AI; else -> Mode.ACCURATE }
+    fun isAi(id: String) = table[id]?.ai == true
 
     /** Does this exercise get a rank for you in your current mode? */
     fun covers(id: String, p: Profile): Boolean {
         val m = mode(p)
         if (m == Mode.OFF) return false
+        if (isAi(id) && m != Mode.AI) return false
         val f = fit(id, p) ?: return false
-        return m == Mode.ALL || f.exact
+        return m >= Mode.ALL || f.exact
     }
 
-    enum class Star { NONE, EXACT, ESTIMATE }
+    enum class Star { NONE, EXACT, ESTIMATE, AI }
 
     /**
      * The ★ after an exercise's name: gold when it's ranked from data that fits you closely,
-     * silver-blue when it's only ranked as an estimate (All on mode), none when it isn't ranked.
+     * silver-blue when it's only ranked as an estimate (All on mode), purple for an AI estimate (All on + AI),
+     * none when it isn't ranked.
      * Before your body weight is set, every rankable exercise shows gold.
      */
     fun star(id: String, p: Profile): Star {
         val m = mode(p)
         if (m == Mode.OFF || !covers(id)) return Star.NONE
+        if (isAi(id)) return if (m == Mode.AI) Star.AI else Star.NONE
         if (p.bodyweight == null) return Star.EXACT
         val f = fit(id, p) ?: return Star.NONE
         return when {
             f.exact -> Star.EXACT
-            m == Mode.ALL -> Star.ESTIMATE
+            m >= Mode.ALL -> Star.ESTIMATE
             else -> Star.NONE
         }
     }

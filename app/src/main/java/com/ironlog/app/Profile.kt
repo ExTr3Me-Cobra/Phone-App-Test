@@ -204,7 +204,9 @@ fun SettingsScreen() {
                     withStyle(SpanStyle(color = StarGold)) { append("★") }
                     append(" ranked from data that fits your body weight, age and sex.   ")
                     withStyle(SpanStyle(color = StarEstimate)) { append("★") }
-                    append(" ranked as an estimate (All on only).")
+                    append(" ranked as an estimate (All on).   ")
+                    withStyle(SpanStyle(color = StarAi)) { append("★") }
+                    append(" AI estimate (All on + AI).")
                 },
                 color = Sub, fontSize = 13.sp,
             )
@@ -341,6 +343,7 @@ fun RankModeChoice(p: Profile) {
             Triple("off", "Off", "No ranks, badges, stars or rank-up pop-ups anywhere."),
             Triple("accurate", "Accurate only", "Only exercises where the data closely fits your body weight, age and sex are ranked (gold ★)."),
             Triple("all", "All on", "Also ranks exercises as estimates where the data doesn't fit you exactly (blue ★)."),
+            Triple("ai", "All on + AI", "Also ranks 53 exercises with no published data, as AI estimates (purple ★): a % of a similar lift, agreed by 4 AIs. Least accurate."),
         ).forEach { (key, label, desc) ->
             Row(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.rankMode == key) Blue.copy(alpha = 0.15f) else Card)

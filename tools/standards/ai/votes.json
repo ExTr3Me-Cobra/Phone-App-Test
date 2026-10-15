@@ -1,0 +1,962 @@
+[
+ {
+  "n": 1,
+  "exercise": "Straight-Arm Pulldown",
+  "anchor": "Lat Pulldown",
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 65.0,
+   "Gemini": 40.0,
+   "Grok": 55.0
+  },
+  "median": 50.0,
+  "close": [
+   "Claude",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 2,
+  "exercise": "Rope Straight-Arm Pulldown",
+  "anchor": "Lat Pulldown",
+  "votes": {
+   "Claude": 40.0,
+   "ChatGPT": 60.0,
+   "Gemini": 40.0,
+   "Grok": 50.0
+  },
+  "median": 45.0,
+  "close": [
+   "Claude",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 3,
+  "exercise": "Leverage High Row",
+  "anchor": "Lat Pulldown",
+  "votes": {
+   "Claude": 90.0,
+   "ChatGPT": 110.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "median": 95.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 4,
+  "exercise": "Kneeling High Pulley Row",
+  "anchor": "Lat Pulldown",
+  "votes": {
+   "Claude": 80.0,
+   "ChatGPT": 70.0,
+   "Gemini": 95.0,
+   "Grok": 75.0
+  },
+  "median": 77.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 5,
+  "exercise": "Leverage Iso Row",
+  "anchor": "Seated Cable Row",
+  "votes": {
+   "Claude": 87.5,
+   "ChatGPT": 100.0,
+   "Gemini": 100.0,
+   "Grok": 95.0
+  },
+  "median": 97.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 6,
+  "exercise": "Shotgun Row",
+  "anchor": "Seated Cable Row",
+  "votes": {
+   "Claude": 42.5,
+   "ChatGPT": 45.0,
+   "Gemini": 45.0,
+   "Grok": 55.0
+  },
+  "median": 45.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini"
+  ]
+ },
+ {
+  "n": 7,
+  "exercise": "Incline Bench Pull",
+  "anchor": "Bent Over Row",
+  "votes": {
+   "Claude": 75.0,
+   "ChatGPT": 85.0,
+   "Gemini": 95.0,
+   "Grok": 70.0
+  },
+  "median": 80.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 8,
+  "exercise": "Alternating Renegade Row",
+  "anchor": "Dumbbell Row",
+  "votes": {
+   "Claude": 50.0,
+   "ChatGPT": 55.0,
+   "Gemini": 45.0,
+   "Grok": 65.0
+  },
+  "median": 52.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini"
+  ]
+ },
+ {
+  "n": 9,
+  "exercise": "Barbell Rear Delt Row",
+  "anchor": "Bent Over Row",
+  "votes": {
+   "Claude": 57.5,
+   "ChatGPT": 50.0,
+   "Gemini": 55.0,
+   "Grok": 55.0
+  },
+  "median": 55.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 10,
+  "exercise": "Cable Rope Rear-Delt Rows",
+  "anchor": "Face Pull",
+  "votes": {
+   "Claude": 100.0,
+   "ChatGPT": 85.0,
+   "Gemini": 100.0,
+   "Grok": 85.0
+  },
+  "median": 92.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 11,
+  "exercise": "Bent Over Low-Pulley Side Lateral",
+  "anchor": "Reverse Dumbbell Fly",
+  "votes": {
+   "Claude": 77.5,
+   "ChatGPT": 35.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "median": 73.75,
+  "close": [
+   "Claude",
+   "Grok"
+  ]
+ },
+ {
+  "n": 12,
+  "exercise": "Cable Seated Lateral Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 35.0,
+   "Gemini": 100.0,
+   "Grok": 65.0
+  },
+  "median": 65.0,
+  "close": [
+   "Claude",
+   "Grok"
+  ]
+ },
+ {
+  "n": 13,
+  "exercise": "Standing Low-Pulley Deltoid Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "votes": {
+   "Claude": 67.5,
+   "ChatGPT": 40.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "median": 68.75,
+  "close": [
+   "Claude",
+   "Grok"
+  ]
+ },
+ {
+  "n": 14,
+  "exercise": "Lying One-Arm Lateral Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "votes": {
+   "Claude": 57.5,
+   "ChatGPT": 65.0,
+   "Gemini": 90.0,
+   "Grok": 60.0
+  },
+  "median": 62.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 15,
+  "exercise": "One-Arm Incline Lateral Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "votes": {
+   "Claude": 77.5,
+   "ChatGPT": 60.0,
+   "Gemini": 90.0,
+   "Grok": 55.0
+  },
+  "median": 68.75,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 16,
+  "exercise": "Single Dumbbell Raise",
+  "anchor": "Dumbbell Front Raise",
+  "votes": {
+   "Claude": 160.0,
+   "ChatGPT": 90.0,
+   "Gemini": 150.0,
+   "Grok": 80.0
+  },
+  "median": 120.0,
+  "close": []
+ },
+ {
+  "n": 17,
+  "exercise": "Dumbbell One-Arm Upright Row",
+  "anchor": "Upright Row",
+  "votes": {
+   "Claude": 37.5,
+   "ChatGPT": 45.0,
+   "Gemini": 45.0,
+   "Grok": 50.0
+  },
+  "median": 45.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 18,
+  "exercise": "Landmine Press",
+  "anchor": "Shoulder Press",
+  "votes": {
+   "Claude": 60.0,
+   "ChatGPT": 65.0,
+   "Gemini": 115.0,
+   "Grok": 55.0
+  },
+  "median": 62.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 19,
+  "exercise": "Cable Shoulder Press",
+  "anchor": "Machine Shoulder Press",
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 65.0,
+   "Gemini": 90.0,
+   "Grok": 80.0
+  },
+  "median": 72.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 20,
+  "exercise": "Seated Cable Shoulder Press",
+  "anchor": "Machine Shoulder Press",
+  "votes": {
+   "Claude": 67.5,
+   "ChatGPT": 70.0,
+   "Gemini": 90.0,
+   "Grok": 85.0
+  },
+  "median": 77.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 21,
+  "exercise": "Standing Palm-In One-Arm Dumbbell Press",
+  "anchor": "Seated Dumbbell Shoulder Press",
+  "votes": {
+   "Claude": 87.5,
+   "ChatGPT": 80.0,
+   "Gemini": 85.0,
+   "Grok": 90.0
+  },
+  "median": 86.25,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 22,
+  "exercise": "Alternating Kettlebell Press",
+  "anchor": "Seated Dumbbell Shoulder Press",
+  "votes": {
+   "Claude": 85.0,
+   "ChatGPT": 85.0,
+   "Gemini": 90.0,
+   "Grok": 85.0
+  },
+  "median": 85.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 23,
+  "exercise": "Cable Chest Press",
+  "anchor": "Machine Chest Press",
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 65.0,
+   "Gemini": 85.0,
+   "Grok": 75.0
+  },
+  "median": 70.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 24,
+  "exercise": "Standing Cable Chest Press",
+  "anchor": "Machine Chest Press",
+  "votes": {
+   "Claude": 55.0,
+   "ChatGPT": 55.0,
+   "Gemini": 75.0,
+   "Grok": 70.0
+  },
+  "median": 62.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 25,
+  "exercise": "Incline Cable Chest Press",
+  "anchor": "Machine Chest Press",
+  "votes": {
+   "Claude": 57.5,
+   "ChatGPT": 50.0,
+   "Gemini": 75.0,
+   "Grok": 70.0
+  },
+  "median": 63.75,
+  "close": [
+   "Claude",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 26,
+  "exercise": "One-Arm Flat Bench Dumbbell Flye",
+  "anchor": "Dumbbell Fly",
+  "votes": {
+   "Claude": 92.5,
+   "ChatGPT": 90.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "median": 91.25,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 27,
+  "exercise": "Close-Grip Dumbbell Press",
+  "anchor": "Dumbbell Bench Press",
+  "votes": {
+   "Claude": 82.5,
+   "ChatGPT": 110.0,
+   "Gemini": 95.0,
+   "Grok": 90.0
+  },
+  "median": 92.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 28,
+  "exercise": "One Arm Floor Press",
+  "anchor": "Bench Press",
+  "votes": {
+   "Claude": 27.5,
+   "ChatGPT": 35.0,
+   "Gemini": 35.0,
+   "Grok": 50.0
+  },
+  "median": 35.0,
+  "close": [
+   "ChatGPT",
+   "Gemini"
+  ]
+ },
+ {
+  "n": 29,
+  "exercise": "Reverse Triceps Bench Press",
+  "anchor": "Close Grip Bench Press",
+  "votes": {
+   "Claude": 82.5,
+   "ChatGPT": 80.0,
+   "Gemini": 90.0,
+   "Grok": 85.0
+  },
+  "median": 83.75,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 30,
+  "exercise": "Decline Close-Grip Bench To Skull Crusher",
+  "anchor": "Lying Tricep Extension",
+  "votes": {
+   "Claude": 112.5,
+   "ChatGPT": 65.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "median": 95.0,
+  "close": [
+   "Claude",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 31,
+  "exercise": "Tate Press",
+  "anchor": "Dumbbell Tricep Extension",
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 65.0,
+   "Gemini": 55.0,
+   "Grok": 70.0
+  },
+  "median": 60.0,
+  "close": [
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 32,
+  "exercise": "Tricep Dumbbell Kickback",
+  "anchor": "Dumbbell Tricep Extension",
+  "votes": {
+   "Claude": 30.0,
+   "ChatGPT": 30.0,
+   "Gemini": 35.0,
+   "Grok": 35.0
+  },
+  "median": 32.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 33,
+  "exercise": "Machine Triceps Extension",
+  "anchor": "Tricep Pushdown",
+  "votes": {
+   "Claude": 100.0,
+   "ChatGPT": 90.0,
+   "Gemini": 105.0,
+   "Grok": 110.0
+  },
+  "median": 102.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 34,
+  "exercise": "Dip Machine",
+  "anchor": "Tricep Pushdown",
+  "votes": {
+   "Claude": 200.0,
+   "ChatGPT": 120.0,
+   "Gemini": 175.0,
+   "Grok": 130.0
+  },
+  "median": 152.5,
+  "close": [
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 35,
+  "exercise": "Cable One Arm Tricep Extension",
+  "anchor": "Tricep Pushdown",
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 40.0,
+   "Gemini": 55.0,
+   "Grok": 50.0
+  },
+  "median": 47.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 36,
+  "exercise": "Cable Lying Triceps Extension",
+  "anchor": "Tricep Pushdown",
+  "votes": {
+   "Claude": 77.5,
+   "ChatGPT": 70.0,
+   "Gemini": 100.0,
+   "Grok": 85.0
+  },
+  "median": 81.25,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 37,
+  "exercise": "Low Cable Triceps Extension",
+  "anchor": "Tricep Rope Pushdown",
+  "votes": {
+   "Claude": 80.0,
+   "ChatGPT": 75.0,
+   "Gemini": 85.0,
+   "Grok": 80.0
+  },
+  "median": 80.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 38,
+  "exercise": "Kneeling Cable Triceps Extension",
+  "anchor": "Tricep Rope Pushdown",
+  "votes": {
+   "Claude": 80.0,
+   "ChatGPT": 80.0,
+   "Gemini": 85.0,
+   "Grok": 85.0
+  },
+  "median": 82.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 39,
+  "exercise": "Standing Bent-Over Two-Arm Dumbbell Triceps Extension",
+  "anchor": "Dumbbell Tricep Extension",
+  "votes": {
+   "Claude": 32.5,
+   "ChatGPT": 75.0,
+   "Gemini": 45.0,
+   "Grok": 55.0
+  },
+  "median": 50.0,
+  "close": [
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 40,
+  "exercise": "High Cable Curls",
+  "anchor": "Cable Bicep Curl",
+  "votes": {
+   "Claude": 60.0,
+   "ChatGPT": 40.0,
+   "Gemini": 80.0,
+   "Grok": 70.0
+  },
+  "median": 65.0,
+  "close": [
+   "Claude",
+   "Grok"
+  ]
+ },
+ {
+  "n": 41,
+  "exercise": "Overhead Cable Curl",
+  "anchor": "Cable Bicep Curl",
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 75.0,
+   "Gemini": 90.0,
+   "Grok": 75.0
+  },
+  "median": 75.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 42,
+  "exercise": "Lying Cable Curl",
+  "anchor": "Cable Bicep Curl",
+  "votes": {
+   "Claude": 87.5,
+   "ChatGPT": 65.0,
+   "Gemini": 100.0,
+   "Grok": 80.0
+  },
+  "median": 83.75,
+  "close": [
+   "Claude",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 43,
+  "exercise": "Zottman Preacher Curl",
+  "anchor": "Preacher Curl",
+  "votes": {
+   "Claude": 35.0,
+   "ChatGPT": 45.0,
+   "Gemini": 35.0,
+   "Grok": 55.0
+  },
+  "median": 40.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini"
+  ]
+ },
+ {
+  "n": 44,
+  "exercise": "Bent-Arm Barbell Pullover",
+  "anchor": "Dumbbell Pullover",
+  "votes": {
+   "Claude": 100.0,
+   "ChatGPT": 100.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "median": 100.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 45,
+  "exercise": "Middle Back Shrug",
+  "anchor": "Dumbbell Shrug",
+  "votes": {
+   "Claude": 42.5,
+   "ChatGPT": 90.0,
+   "Gemini": 95.0,
+   "Grok": 80.0
+  },
+  "median": 85.0,
+  "close": [
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 46,
+  "exercise": "Smith Machine Leg Press",
+  "anchor": "Leg Press",
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 100.0,
+   "Gemini": 60.0,
+   "Grok": 70.0
+  },
+  "median": 65.0,
+  "close": [
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 47,
+  "exercise": "Kettlebell One-Legged Deadlift",
+  "anchor": "Romanian Deadlift",
+  "votes": {
+   "Claude": 27.5,
+   "ChatGPT": 35.0,
+   "Gemini": 25.0,
+   "Grok": 35.0
+  },
+  "median": 31.25,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 48,
+  "exercise": "Barbell Side Split Squat",
+  "anchor": "Barbell Lunge",
+  "votes": {
+   "Claude": 95.0,
+   "ChatGPT": 75.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "median": 85.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 49,
+  "exercise": "One Leg Barbell Squat",
+  "anchor": "Barbell Lunge",
+  "votes": {
+   "Claude": 95.0,
+   "ChatGPT": 55.0,
+   "Gemini": 100.0,
+   "Grok": 55.0
+  },
+  "median": 75.0,
+  "close": []
+ },
+ {
+  "n": 50,
+  "exercise": "Cable Hip Adduction",
+  "anchor": "Hip Adduction",
+  "votes": {
+   "Claude": 32.5,
+   "ChatGPT": 45.0,
+   "Gemini": 45.0,
+   "Grok": 50.0
+  },
+  "median": 45.0,
+  "close": [
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 51,
+  "exercise": "Pull Through",
+  "anchor": "Romanian Deadlift",
+  "votes": {
+   "Claude": 47.5,
+   "ChatGPT": 55.0,
+   "Gemini": 50.0,
+   "Grok": 60.0
+  },
+  "median": 52.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 52,
+  "exercise": "Cable Reverse Crunch",
+  "anchor": "Cable Crunch",
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 75.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "median": 72.5,
+  "close": [
+   "ChatGPT",
+   "Grok"
+  ]
+ },
+ {
+  "n": 53,
+  "exercise": "Seated Dumbbell Palms-Down Wrist Curl",
+  "anchor": "Wrist Curl",
+  "votes": {
+   "Claude": 27.5,
+   "ChatGPT": 40.0,
+   "Gemini": 25.0,
+   "Grok": 55.0
+  },
+  "median": 33.75,
+  "close": [
+   "Claude",
+   "ChatGPT"
+  ]
+ },
+ {
+  "n": 54,
+  "exercise": "Clean Pull",
+  "anchor": "Power Clean",
+  "votes": {
+   "Claude": 120.0,
+   "ChatGPT": 120.0,
+   "Gemini": 115.0,
+   "Grok": 110.0
+  },
+  "median": 117.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 55,
+  "exercise": "Power Clean from Blocks",
+  "anchor": "Power Clean",
+  "votes": {
+   "Claude": 95.0,
+   "ChatGPT": 110.0,
+   "Gemini": 110.0,
+   "Grok": 105.0
+  },
+  "median": 107.5,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ },
+ {
+  "n": 56,
+  "exercise": "Snatch Pull",
+  "anchor": "Snatch",
+  "votes": {
+   "Claude": 117.5,
+   "ChatGPT": 115.0,
+   "Gemini": 115.0,
+   "Grok": 115.0
+  },
+  "median": 115.0,
+  "close": [
+   "Claude",
+   "ChatGPT",
+   "Gemini",
+   "Grok"
+  ]
+ }
+]

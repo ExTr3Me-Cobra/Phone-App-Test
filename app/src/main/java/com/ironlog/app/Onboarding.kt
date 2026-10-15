@@ -246,6 +246,10 @@ private fun RanksPage(p: Profile) {
         withStyle(SpanStyle(color = StarEstimate, fontWeight = FontWeight.Bold)) { append("★ Blue") }
         append(" – estimate: from a close variation, or data that doesn't fully fit you.")
     }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
+    Text(buildAnnotatedString {
+        withStyle(SpanStyle(color = StarAi, fontWeight = FontWeight.Bold)) { append("★ Purple") }
+        append(" – AI estimate: no published data, so AIs estimated it from a similar lift.")
+    }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
     Text("Show ranks", fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
     RankModeChoice(p)
     Text("You can change this any time in Settings.", color = Sub, fontSize = 13.sp)

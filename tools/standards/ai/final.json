@@ -1,0 +1,674 @@
+[
+ {
+  "exercise": "Straight-Arm Pulldown",
+  "anchor": "Lat Pulldown",
+  "pct": 50.0,
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 65.0,
+   "Gemini": 40.0,
+   "Grok": 55.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Rope Straight-Arm Pulldown",
+  "anchor": "Lat Pulldown",
+  "pct": 45.0,
+  "votes": {
+   "Claude": 40.0,
+   "ChatGPT": 60.0,
+   "Gemini": 40.0,
+   "Grok": 50.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Leverage High Row",
+  "anchor": "Lat Pulldown",
+  "pct": 95.0,
+  "votes": {
+   "Claude": 90.0,
+   "ChatGPT": 110.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Kneeling High Pulley Row",
+  "anchor": "Lat Pulldown",
+  "pct": 77.5,
+  "votes": {
+   "Claude": 80.0,
+   "ChatGPT": 70.0,
+   "Gemini": 95.0,
+   "Grok": 75.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Leverage Iso Row",
+  "anchor": "Seated Cable Row",
+  "pct": 97.5,
+  "votes": {
+   "Claude": 87.5,
+   "ChatGPT": 100.0,
+   "Gemini": 100.0,
+   "Grok": 95.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Shotgun Row",
+  "anchor": "Seated Cable Row",
+  "pct": 45.0,
+  "votes": {
+   "Claude": 42.5,
+   "ChatGPT": 45.0,
+   "Gemini": 45.0,
+   "Grok": 55.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Incline Bench Pull",
+  "anchor": "Bent Over Row",
+  "pct": 80.0,
+  "votes": {
+   "Claude": 75.0,
+   "ChatGPT": 85.0,
+   "Gemini": 95.0,
+   "Grok": 70.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Alternating Renegade Row",
+  "anchor": "Dumbbell Row",
+  "pct": 52.5,
+  "votes": {
+   "Claude": 50.0,
+   "ChatGPT": 55.0,
+   "Gemini": 45.0,
+   "Grok": 65.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Barbell Rear Delt Row",
+  "anchor": "Bent Over Row",
+  "pct": 55.0,
+  "votes": {
+   "Claude": 57.5,
+   "ChatGPT": 50.0,
+   "Gemini": 55.0,
+   "Grok": 55.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Cable Rope Rear-Delt Rows",
+  "anchor": "Face Pull",
+  "pct": 92.5,
+  "votes": {
+   "Claude": 100.0,
+   "ChatGPT": 85.0,
+   "Gemini": 100.0,
+   "Grok": 85.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Bent Over Low-Pulley Side Lateral",
+  "anchor": "Reverse Dumbbell Fly",
+  "pct": 73.8,
+  "votes": {
+   "Claude": 77.5,
+   "ChatGPT": 35.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "why": "3 of 4 put a one-arm cable rear raise at 65\u2013100% of a dumbbell; ChatGPT (35%) is the outlier"
+ },
+ {
+  "exercise": "Cable Seated Lateral Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "pct": 65.0,
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 35.0,
+   "Gemini": 100.0,
+   "Grok": 65.0
+  },
+  "why": "same as above for the cable lateral raise"
+ },
+ {
+  "exercise": "Standing Low-Pulley Deltoid Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "pct": 68.8,
+  "votes": {
+   "Claude": 67.5,
+   "ChatGPT": 40.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "why": "same as above"
+ },
+ {
+  "exercise": "Lying One-Arm Lateral Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "pct": 62.5,
+  "votes": {
+   "Claude": 57.5,
+   "ChatGPT": 65.0,
+   "Gemini": 90.0,
+   "Grok": 60.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "One-Arm Incline Lateral Raise",
+  "anchor": "Dumbbell Lateral Raise",
+  "pct": 68.8,
+  "votes": {
+   "Claude": 77.5,
+   "ChatGPT": 60.0,
+   "Gemini": 90.0,
+   "Grok": 55.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Single Dumbbell Raise",
+  "anchor": "Dumbbell Front Raise",
+  "pct": 150,
+  "votes": {
+   "Claude": 160.0,
+   "ChatGPT": 90.0,
+   "Gemini": 150.0,
+   "Grok": 80.0
+  },
+  "why": "one dumbbell lifted by BOTH arms must be more than one hand's dumbbell: sided with Claude/Gemini (150\u2013160%)"
+ },
+ {
+  "exercise": "Dumbbell One-Arm Upright Row",
+  "anchor": "Upright Row",
+  "pct": 45.0,
+  "votes": {
+   "Claude": 37.5,
+   "ChatGPT": 45.0,
+   "Gemini": 45.0,
+   "Grok": 50.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Landmine Press",
+  "anchor": "Shoulder Press",
+  "pct": 62.5,
+  "votes": {
+   "Claude": 60.0,
+   "ChatGPT": 65.0,
+   "Gemini": 115.0,
+   "Grok": 55.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Cable Shoulder Press",
+  "anchor": "Machine Shoulder Press",
+  "pct": 72.5,
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 65.0,
+   "Gemini": 90.0,
+   "Grok": 80.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Seated Cable Shoulder Press",
+  "anchor": "Machine Shoulder Press",
+  "pct": 77.5,
+  "votes": {
+   "Claude": 67.5,
+   "ChatGPT": 70.0,
+   "Gemini": 90.0,
+   "Grok": 85.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Standing Palm-In One-Arm Dumbbell Press",
+  "anchor": "Seated Dumbbell Shoulder Press",
+  "pct": 86.2,
+  "votes": {
+   "Claude": 87.5,
+   "ChatGPT": 80.0,
+   "Gemini": 85.0,
+   "Grok": 90.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Alternating Kettlebell Press",
+  "anchor": "Seated Dumbbell Shoulder Press",
+  "pct": 85.0,
+  "votes": {
+   "Claude": 85.0,
+   "ChatGPT": 85.0,
+   "Gemini": 90.0,
+   "Grok": 85.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Cable Chest Press",
+  "anchor": "Machine Chest Press",
+  "pct": 70.0,
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 65.0,
+   "Gemini": 85.0,
+   "Grok": 75.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Standing Cable Chest Press",
+  "anchor": "Machine Chest Press",
+  "pct": 62.5,
+  "votes": {
+   "Claude": 55.0,
+   "ChatGPT": 55.0,
+   "Gemini": 75.0,
+   "Grok": 70.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Incline Cable Chest Press",
+  "anchor": "Machine Chest Press",
+  "pct": 63.8,
+  "votes": {
+   "Claude": 57.5,
+   "ChatGPT": 50.0,
+   "Gemini": 75.0,
+   "Grok": 70.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "One-Arm Flat Bench Dumbbell Flye",
+  "anchor": "Dumbbell Fly",
+  "pct": 91.2,
+  "votes": {
+   "Claude": 92.5,
+   "ChatGPT": 90.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Close-Grip Dumbbell Press",
+  "anchor": "Dumbbell Bench Press",
+  "pct": 92.5,
+  "votes": {
+   "Claude": 82.5,
+   "ChatGPT": 110.0,
+   "Gemini": 95.0,
+   "Grok": 90.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "One Arm Floor Press",
+  "anchor": "Bench Press",
+  "pct": 35.0,
+  "votes": {
+   "Claude": 27.5,
+   "ChatGPT": 35.0,
+   "Gemini": 35.0,
+   "Grok": 50.0
+  },
+  "why": "spread 28\u201350%, median 35% (a one-arm barbell press is well under half the two-arm bench)"
+ },
+ {
+  "exercise": "Reverse Triceps Bench Press",
+  "anchor": "Close Grip Bench Press",
+  "pct": 83.8,
+  "votes": {
+   "Claude": 82.5,
+   "ChatGPT": 80.0,
+   "Gemini": 90.0,
+   "Grok": 85.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Decline Close-Grip Bench To Skull Crusher",
+  "anchor": "Lying Tricep Extension",
+  "pct": 95.0,
+  "votes": {
+   "Claude": 112.5,
+   "ChatGPT": 65.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Tate Press",
+  "anchor": "Dumbbell Tricep Extension",
+  "pct": 60.0,
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 65.0,
+   "Gemini": 55.0,
+   "Grok": 70.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Tricep Dumbbell Kickback",
+  "anchor": "Dumbbell Tricep Extension",
+  "pct": 32.5,
+  "votes": {
+   "Claude": 30.0,
+   "ChatGPT": 30.0,
+   "Gemini": 35.0,
+   "Grok": 35.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Machine Triceps Extension",
+  "anchor": "Tricep Pushdown",
+  "pct": 102.5,
+  "votes": {
+   "Claude": 100.0,
+   "ChatGPT": 90.0,
+   "Gemini": 105.0,
+   "Grok": 110.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Dip Machine",
+  "anchor": "Tricep Pushdown",
+  "pct": null,
+  "votes": {
+   "Claude": 200.0,
+   "ChatGPT": 120.0,
+   "Gemini": 175.0,
+   "Grok": 130.0
+  },
+  "why": "dip machines differ hugely by brand (votes 120\u2013200%)"
+ },
+ {
+  "exercise": "Cable One Arm Tricep Extension",
+  "anchor": "Tricep Pushdown",
+  "pct": 47.5,
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 40.0,
+   "Gemini": 55.0,
+   "Grok": 50.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Cable Lying Triceps Extension",
+  "anchor": "Tricep Pushdown",
+  "pct": 81.2,
+  "votes": {
+   "Claude": 77.5,
+   "ChatGPT": 70.0,
+   "Gemini": 100.0,
+   "Grok": 85.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Low Cable Triceps Extension",
+  "anchor": "Tricep Rope Pushdown",
+  "pct": 80.0,
+  "votes": {
+   "Claude": 80.0,
+   "ChatGPT": 75.0,
+   "Gemini": 85.0,
+   "Grok": 80.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Kneeling Cable Triceps Extension",
+  "anchor": "Tricep Rope Pushdown",
+  "pct": 82.5,
+  "votes": {
+   "Claude": 80.0,
+   "ChatGPT": 80.0,
+   "Gemini": 85.0,
+   "Grok": 85.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Standing Bent-Over Two-Arm Dumbbell Triceps Extension",
+  "anchor": "Dumbbell Tricep Extension",
+  "pct": 32.5,
+  "votes": {
+   "Claude": 32.5,
+   "ChatGPT": 75.0,
+   "Gemini": 45.0,
+   "Grok": 55.0
+  },
+  "why": "this is a two-arm kickback (dumbbell in each hand) \u2013 the same movement as #32, which all four put at 30\u201335%"
+ },
+ {
+  "exercise": "High Cable Curls",
+  "anchor": "Cable Bicep Curl",
+  "pct": null,
+  "votes": {
+   "Claude": 60.0,
+   "ChatGPT": 40.0,
+   "Gemini": 80.0,
+   "Grok": 70.0
+  },
+  "why": "\"both arms\" on a two-stack crossover is ambiguous (votes 40\u201380%)"
+ },
+ {
+  "exercise": "Overhead Cable Curl",
+  "anchor": "Cable Bicep Curl",
+  "pct": 75.0,
+  "votes": {
+   "Claude": 65.0,
+   "ChatGPT": 75.0,
+   "Gemini": 90.0,
+   "Grok": 75.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Lying Cable Curl",
+  "anchor": "Cable Bicep Curl",
+  "pct": 83.8,
+  "votes": {
+   "Claude": 87.5,
+   "ChatGPT": 65.0,
+   "Gemini": 100.0,
+   "Grok": 80.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Zottman Preacher Curl",
+  "anchor": "Preacher Curl",
+  "pct": 40.0,
+  "votes": {
+   "Claude": 35.0,
+   "ChatGPT": 45.0,
+   "Gemini": 35.0,
+   "Grok": 55.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Bent-Arm Barbell Pullover",
+  "anchor": "Dumbbell Pullover",
+  "pct": 100.0,
+  "votes": {
+   "Claude": 100.0,
+   "ChatGPT": 100.0,
+   "Gemini": 100.0,
+   "Grok": 90.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Middle Back Shrug",
+  "anchor": "Dumbbell Shrug",
+  "pct": 85.0,
+  "votes": {
+   "Claude": 42.5,
+   "ChatGPT": 90.0,
+   "Gemini": 95.0,
+   "Grok": 80.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Smith Machine Leg Press",
+  "anchor": "Leg Press",
+  "pct": 65.0,
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 100.0,
+   "Gemini": 60.0,
+   "Grok": 70.0
+  },
+  "why": "votes 45\u2013100%, median 65%"
+ },
+ {
+  "exercise": "Kettlebell One-Legged Deadlift",
+  "anchor": "Romanian Deadlift",
+  "pct": 31.2,
+  "votes": {
+   "Claude": 27.5,
+   "ChatGPT": 35.0,
+   "Gemini": 25.0,
+   "Grok": 35.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Barbell Side Split Squat",
+  "anchor": "Barbell Lunge",
+  "pct": 85.0,
+  "votes": {
+   "Claude": 95.0,
+   "ChatGPT": 75.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "One Leg Barbell Squat",
+  "anchor": "Barbell Lunge",
+  "pct": 75.0,
+  "votes": {
+   "Claude": 95.0,
+   "ChatGPT": 55.0,
+   "Gemini": 100.0,
+   "Grok": 55.0
+  },
+  "why": "rear-foot-elevated split squat vs lunge: votes split 55/55/95/100, median 75%"
+ },
+ {
+  "exercise": "Cable Hip Adduction",
+  "anchor": "Hip Adduction",
+  "pct": 45.0,
+  "votes": {
+   "Claude": 32.5,
+   "ChatGPT": 45.0,
+   "Gemini": 45.0,
+   "Grok": 50.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Pull Through",
+  "anchor": "Romanian Deadlift",
+  "pct": 52.5,
+  "votes": {
+   "Claude": 47.5,
+   "ChatGPT": 55.0,
+   "Gemini": 50.0,
+   "Grok": 60.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Cable Reverse Crunch",
+  "anchor": "Cable Crunch",
+  "pct": null,
+  "votes": {
+   "Claude": 45.0,
+   "ChatGPT": 75.0,
+   "Gemini": 100.0,
+   "Grok": 70.0
+  },
+  "why": "cable reverse crunch set-ups vary too much (votes 45\u2013100%)"
+ },
+ {
+  "exercise": "Seated Dumbbell Palms-Down Wrist Curl",
+  "anchor": "Wrist Curl",
+  "pct": 33.8,
+  "votes": {
+   "Claude": 27.5,
+   "ChatGPT": 40.0,
+   "Gemini": 25.0,
+   "Grok": 55.0
+  },
+  "why": "votes 25\u201355%, median 34%"
+ },
+ {
+  "exercise": "Clean Pull",
+  "anchor": "Power Clean",
+  "pct": 117.5,
+  "votes": {
+   "Claude": 120.0,
+   "ChatGPT": 120.0,
+   "Gemini": 115.0,
+   "Grok": 110.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Power Clean from Blocks",
+  "anchor": "Power Clean",
+  "pct": 107.5,
+  "votes": {
+   "Claude": 95.0,
+   "ChatGPT": 110.0,
+   "Gemini": 110.0,
+   "Grok": 105.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ },
+ {
+  "exercise": "Snatch Pull",
+  "anchor": "Snatch",
+  "pct": 115.0,
+  "votes": {
+   "Claude": 117.5,
+   "ChatGPT": 115.0,
+   "Gemini": 115.0,
+   "Grok": 115.0
+  },
+  "why": "4 AIs agree (3+ within 20% of the median)"
+ }
+]

@@ -380,6 +380,25 @@ for name, lift, k, same in DERIVED:
                     else (APPROX.get(lift) or SOURCE_APPROX.get(lift) or 'A similar exercise\'s standard, scaled – an estimate.')})
     have.add(e['i']); derived += 1
 print('derived:', derived)
+
+# AI estimates (only ranked in "All on + AI" mode): a ratio to a real table, the median of
+# Claude, ChatGPT, Gemini and Grok answering tools/standards/ai/prompt.txt (see final.json).
+by_id = {e['i']: e for e in entries}
+ai_n = 0
+for x in json.load(open(os.path.join(HERE, 'standards', 'ai', 'final.json'))):
+    if not x['pct']: continue
+    e = db.get(x['exercise'])
+    if e is None or e['i'] in have: report.append(f'AI {x["exercise"]}: missing or already ranked'); continue
+    if x['anchor'] not in tables_by_lift or tables_by_lift[x['anchor']][1]:
+        report.append(f'AI {x["exercise"]}: anchor {x["anchor"]} has no weight table'); continue
+    tables = tables_by_lift[x['anchor']][0]; pct = x['pct']
+    rows = lambda sex: [[bw] + v for bw, v in tables[sex].items()] if sex in tables else None
+    entries.append({'i': e['i'], 'lift': x['anchor'], 'm': rows('male'), 'f': rows('female'), 'r': False,
+                    'd': False, 'k': round(pct / 100, 4), 'ai': True,
+                    'note': f'AI estimate: about {pct:g}% of your {x["anchor"]} 1-rep max (median of Claude, ChatGPT, Gemini and Grok).',
+                    'a': f'No published data for this exercise: ranked as about {pct:g}% of the "{x["anchor"]}" standard, from AI estimates.'})
+    have.add(e['i']); ai_n += 1
+print('AI estimates:', ai_n)
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')

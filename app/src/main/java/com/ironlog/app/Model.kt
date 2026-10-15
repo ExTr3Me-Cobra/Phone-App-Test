@@ -127,7 +127,7 @@ data class Profile(
     /** Rest-over sound: "" = phone's default alarm sound, "none" = silent, else a sound's address. */
     val restSound: String = "",
     val restVibrate: Boolean = true,
-    /** Ranks: "off", "accurate" (only where your biometrics are well covered by the data) or "all". */
+    /** Ranks: "off", "accurate" (only where your biometrics are well covered by the data) , "all" (estimates too) or "ai" (also AI estimates for exercises with no published data). */
     val rankMode: String = "accurate",
     /** Developer settings unlocked (tap the build number 10 times). */
     val devUnlocked: Boolean = false,

@@ -139,7 +139,8 @@ fun RankDetailScreen(id: String) {
                 Line("People", (if (p.male) "Men" else "Women") + (if (p.compareAll) " – everyone, lifters and non-lifters" else " who lift") + if (fit.estimatedFromMen) " (estimated from the other sex's data)" else "")
                 Line("Body weight", p.bodyweight?.let { Units.weightU(it) } ?: "not set")
                 Line("Age", p.age?.let { a -> "$a" + if (a in 25..40) " (no adjustment)" else " (levels × ${"%.2f".format(Standards.ageFactor(a))})" } ?: "not set")
-                Line("Data", "Strength Level \"${info.lift}\"" + if (info.factor != 1.0) " × ${"%.2f".format(info.factor)} for this variation" else "")
+                Line("Data", if (info.ai) "AI estimate: ${"%.0f".format(info.factor * 100)}% of the Strength Level \"${info.lift}\" standard"
+                    else "Strength Level \"${info.lift}\"" + if (info.factor != 1.0) " × ${"%.2f".format(info.factor)} for this variation" else "")
                 if (info.perDumbbell) Line("Weight", "per dumbbell")
                 Text(fit.compared, color = Sub, fontSize = 12.sp)
                 if (!fit.exact) {

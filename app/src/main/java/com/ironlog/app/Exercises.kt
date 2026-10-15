@@ -80,6 +80,7 @@ fun PickerScreen(req: Route.Picker?) {
     var showGold by rememberSaveable { mutableStateOf(true) }
     var showBlue by rememberSaveable { mutableStateOf(true) }
     var showNone by rememberSaveable { mutableStateOf(true) }
+    var showAi by rememberSaveable { mutableStateOf(true) }
     val profile by Store.profile.collectAsState()
     val selected = rememberSaveable(saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() })) {
         mutableStateListOf<String>()
@@ -92,6 +93,7 @@ fun PickerScreen(req: Route.Picker?) {
             when (Standards.star(e.id, profile)) {
                 Standards.Star.EXACT -> showGold
                 Standards.Star.ESTIMATE -> showBlue
+                Standards.Star.AI -> showAi
                 Standards.Star.NONE -> showNone
             } &&
             words.all { w ->
@@ -113,7 +115,7 @@ fun PickerScreen(req: Route.Picker?) {
         else -> listOf(null to filtered)
     }
     var sortMenu by remember { mutableStateOf(false) }
-    val browsing = words.isEmpty() && equipment == null && muscle == null && showGold && showBlue && showNone
+    val browsing = words.isEmpty() && equipment == null && muscle == null && showGold && showBlue && showAi && showNone
     val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] } else emptyList()
 
     fun tap(e: Exercise) {
@@ -158,8 +160,10 @@ fun PickerScreen(req: Route.Picker?) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             androidx.compose.material3.FilterChip(showGold, { showGold = !showGold }, { Text("★", color = StarGold); Text(" Gold") })
-            if (Standards.mode(profile) == Standards.Mode.ALL)
+            if (Standards.mode(profile) >= Standards.Mode.ALL)
                 androidx.compose.material3.FilterChip(showBlue, { showBlue = !showBlue }, { Text("★", color = StarEstimate); Text(" Blue") })
+            if (Standards.mode(profile) == Standards.Mode.AI)
+                androidx.compose.material3.FilterChip(showAi, { showAi = !showAi }, { Text("★", color = StarAi); Text(" AI") })
             androidx.compose.material3.FilterChip(showNone, { showNone = !showNone }, { Text("No star") })
         }
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 16.dp)) {

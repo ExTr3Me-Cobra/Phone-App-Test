@@ -78,6 +78,8 @@ fun RankBadge(t: Tier, size: Dp, modifier: Modifier = Modifier) {
 
 val StarGold = Color(0xFFC9A94E)
 val StarEstimate = Color(0xFF7FA3C6)
+val StarAi = Color(0xFFB48CE8)
+fun starColor(s: Standards.Star) = when (s) { Standards.Star.EXACT -> StarGold; Standards.Star.AI -> StarAi; else -> StarEstimate }
 
 /** An exercise name with a small ★: gold = ranked accurately, silver-blue = ranked as an estimate. */
 @Composable
@@ -87,7 +89,7 @@ fun starredName(e: Exercise?, missing: String = "Missing exercise"): AnnotatedSt
     return buildAnnotatedString {
         append(e?.name ?: missing)
         if (star != Standards.Star.NONE) withStyle(
-            SpanStyle(color = if (star == Standards.Star.EXACT) StarGold else StarEstimate, fontSize = 0.7.em),
+            SpanStyle(color = starColor(star), fontSize = 0.7.em),
         ) { append("  ★") }
     }
 }
@@ -181,7 +183,7 @@ fun HomeRankCard() {
             // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, grip).
             val rankedGroups = Ranks.groupRanks(ranks, profile.picksNow).keys
             Muscles.groups.keys.filter { g -> g !in rankedGroups }.forEach { g ->
-                val rankable = StandardsData.all.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
+                val rankable = StandardsData.all.filter { !it.ai || Standards.mode(profile) == Standards.Mode.AI }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
                 if (rankable.isEmpty()) return@forEach
                 val forYou = rankable.filter { Standards.covers(it.id, profile) }
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -232,10 +234,15 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
         Text(buildAnnotatedString {
             append("Your rank ")
             val star = Standards.star(e.id, profile)
-            if (star != Standards.Star.NONE) withStyle(SpanStyle(color = if (star == Standards.Star.EXACT) StarGold else StarEstimate)) { append("★") }
+            if (star != Standards.Star.NONE) withStyle(SpanStyle(color = starColor(star))) { append("★") }
         }, fontWeight = FontWeight.Bold)
         when {
             profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
+            Standards.isAi(e.id) && mode != Standards.Mode.AI -> {
+                Text("No published data for this exercise. It can only be ranked as an AI estimate:", color = Sub)
+                Text("Switch Ranks to \"All on + AI\" in Settings to rank it with a purple ★.", color = Sub, fontSize = 13.sp,
+                    modifier = Modifier.padding(top = 4.dp))
+            }
             mode == Standards.Mode.ACCURATE && !fit.exact -> {
                 Text("Not ranked in Accurate-only mode:", color = Sub)
                 fit.problems.forEach { Text("• $it", color = Sub, fontSize = 13.sp) }
@@ -270,7 +277,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                 modifier = Modifier.padding(top = 8.dp).clickable { details = !details })
             if (details) {
                 Text(fit.compared, color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-                if (!fit.exact && mode == Standards.Mode.ALL) fit.problems.forEach {
+                if (!fit.exact && mode >= Standards.Mode.ALL) fit.problems.forEach {
                     Text("• $it", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp))
                 }
             }
