@@ -349,7 +349,7 @@ private fun finishTest(c: Context, id: String): String? {
         else -> Ranks.Celebration(e.name, "Rank unchanged", a.tier, a.percentile, note = note)
     }
     // The overall rank too, if it moved.
-    val ob = Ranks.overall(before.values.map { it.percentile }); val oa = Ranks.overall(after.values.map { it.percentile })
+    val ob = Ranks.overallOf(before); val oa = Ranks.overallOf(after)
     if (ob != null && oa != null && Tier.of(oa) != Tier.of(ob)) Ranks.celebrations +=
         if (Tier.of(oa).ordinal > Tier.of(ob).ordinal) Ranks.Celebration("Overall rank", "Your overall rank went up!", Tier.of(oa), oa)
         else Ranks.Celebration("Overall rank", "Rank down", Tier.of(oa), oa, down = true, from = Tier.of(ob))

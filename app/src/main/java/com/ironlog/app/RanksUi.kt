@@ -103,7 +103,7 @@ fun HomeRankCard() {
     val exercises by Store.exercises.collectAsState()
     if (Standards.mode(profile) == Standards.Mode.OFF) return
     val ranks = remember(workouts, profile, exercises) { Ranks.all(workouts, profile) }
-    val overall = Ranks.overall(ranks.values.map { it.percentile })
+    val overall = Ranks.overallOf(ranks, profile)
     var open by remember { mutableStateOf(false) }
     var picking by remember { mutableStateOf<String?>(null) }
     picking?.let { g -> GroupPickDialog(g, Ranks.groupCandidates(ranks)[g].orEmpty(), profile) { picking = null } }
@@ -131,7 +131,8 @@ fun HomeRankCard() {
                 Text("Current overall rank", color = Sub, fontSize = 13.sp)
                 Text(t.label, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(t.color))
                 Text("(${topLabel(overall)})", fontSize = 15.sp)
-                Text("Average of ${ranks.size} ranked exercise${if (ranks.size == 1) "" else "s"}", color = Sub, fontSize = 12.sp)
+                val groupCount = Ranks.groupRanks(ranks, profile.picksNow).size
+                Text("Average of your $groupCount muscle group${if (groupCount == 1) "" else "s"}", color = Sub, fontSize = 12.sp)
             }
         }
         // Which group you're compared with (Settings → Ranks).
@@ -165,7 +166,6 @@ fun HomeRankCard() {
                         Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
                         HSpacer(8)
                         Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        if (profile.picksNow[g].orEmpty().isNotEmpty()) Text("  (your pick)", color = Sub, fontSize = 11.sp)
                         Text("  ✎", color = Blue, fontSize = 15.sp, modifier = Modifier.clickable { picking = g }.padding(horizontal = 4.dp))
                         Box(Modifier.weight(1f))
                         RankBadge(tier, 22.dp)

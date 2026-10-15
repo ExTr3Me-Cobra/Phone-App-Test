@@ -325,14 +325,18 @@ object Ranks {
             if (a.tier.ordinal < b.tier.ordinal)
                 celebrations += Celebration(a.exercise.name, "Rank down", a.tier, a.percentile, down = true, from = b.tier)
         }
-        val ob = overall(before.values.map { it.percentile }) ?: return
-        val oa = overall(after.values.map { it.percentile }) ?: return
+        val ob = overallOf(before) ?: return
+        val oa = overallOf(after) ?: return
         if (Tier.of(oa).ordinal < Tier.of(ob).ordinal)
             celebrations += Celebration("Overall rank", "Rank down", Tier.of(oa), oa, down = true, from = Tier.of(ob))
     }
 
     /** Overall: the average percentile of your ranked exercises. */
     fun overall(ranks: Collection<Double>): Double? = if (ranks.isEmpty()) null else ranks.average()
+
+    /** Overall body rank: the average of your muscle groups' ranks (each group = its two chosen/top exercises). */
+    fun overallOf(ranks: Map<String, Ranked>, p: Profile = Store.profile.value): Double? =
+        overall(groupRanks(ranks, p.picksNow).values.map { it.first })
 
     /** The main muscles an exercise ranks: its primary group's muscles that work at 75% or more. */
     fun rankedMuscles(e: Exercise): List<String> =
@@ -401,7 +405,7 @@ object Ranks {
         val before = all(Store.workouts.value.filter { it.id != w.id }, p)
         shownTier.clear()
         before.forEach { (id, r) -> shownTier[id] = r.tier.ordinal }
-        shownOverall = overall(before.values.map { it.percentile })?.let { Tier.of(it).ordinal } ?: -1
+        shownOverall = overallOf(before)?.let { Tier.of(it).ordinal } ?: -1
     }
 
     /** Call after a set is ticked off: a rank going up or down shows straight away. */
@@ -420,7 +424,7 @@ object Ranks {
             }
             shownTier[exerciseId] = t
         }
-        val o = overall(after.values.map { it.percentile }) ?: return
+        val o = overallOf(after) ?: return
         val ot = Tier.of(o).ordinal
         if (shownOverall >= 0 && ot > shownOverall)
             celebrations += Celebration("Overall rank", "Your overall rank went up!", Tier.of(o), o)
@@ -443,7 +447,7 @@ object Ranks {
             Store.exercise(exerciseId)?.let { ex -> celebrations.removeAll { it.title == ex.name } }
             if (t >= 0) shownTier[exerciseId] = t else shownTier.remove(exerciseId)
         }
-        val ot = overall(after.values.map { it.percentile })?.let { Tier.of(it).ordinal } ?: -1
+        val ot = overallOf(after)?.let { Tier.of(it).ordinal } ?: -1
         if (ot != shownOverall) {
             celebrations.removeAll { it.title == "Overall rank" }
             shownOverall = ot
