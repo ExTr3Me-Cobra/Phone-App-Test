@@ -57,9 +57,11 @@ fun NumField(
     keyboard: KeyboardType = KeyboardType.Decimal,
     background: Color = Color.Transparent,
     outlined: Boolean = false,
+    /** A duration: type digits only and the colons appear as you go (130 → 1:30, 12345 → 1:23:45). */
+    time: Boolean = false,
     onChange: (String) -> Unit,
 ) {
-    var text by remember(key) { mutableStateOf(initial) }
+    var text by remember(key) { mutableStateOf(if (time) initial.filter { it.isDigit() }.trimStart('0') else initial) }
     val shape = RoundedCornerShape(if (outlined) 10.dp else 6.dp)
     Box(
         modifier.typing().clip(shape).background(background)
@@ -72,15 +74,44 @@ fun NumField(
         BasicTextField(
             value = text,
             onValueChange = { t ->
-                val clean = t.filter { it.isDigit() || it == '.' || it == ':' }.take(8)
-                text = clean
-                onChange(clean)
+                if (time) {
+                    val digits = t.filter { it.isDigit() }.trimStart('0').take(6)
+                    text = digits
+                    onChange(timeText(digits))
+                } else {
+                    val clean = t.filter { it.isDigit() || it == '.' || it == ':' }.take(8)
+                    text = clean
+                    onChange(clean)
+                }
             },
+            visualTransformation = if (time) TimeTransformation else androidx.compose.ui.text.input.VisualTransformation.None,
             singleLine = true,
             textStyle = TextStyle(color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Medium, textAlign = align),
             cursorBrush = SolidColor(Blue),
-            keyboardOptions = KeyboardOptions(keyboardType = keyboard),
+            keyboardOptions = KeyboardOptions(keyboardType = if (time) KeyboardType.Number else keyboard),
             modifier = if (outlined) Modifier.fillMaxWidth() else Modifier,
+        )
+    }
+}
+
+/** Digits typed into a time box as m:ss or h:mm:ss ("" stays empty). */
+fun timeText(digits: String): String {
+    if (digits.isEmpty()) return ""
+    val d = digits.padStart(3, '0')
+    return if (d.length <= 4) d.dropLast(2) + ":" + d.takeLast(2)
+    else d.dropLast(4) + ":" + d.takeLast(4).take(2) + ":" + d.takeLast(2)
+}
+
+/** Shows a time box's digits with the colons in; the cursor stays at the end, where digits are typed and deleted. */
+private object TimeTransformation : androidx.compose.ui.text.input.VisualTransformation {
+    override fun filter(text: androidx.compose.ui.text.AnnotatedString): androidx.compose.ui.text.input.TransformedText {
+        val shown = timeText(text.text)
+        return androidx.compose.ui.text.input.TransformedText(
+            androidx.compose.ui.text.AnnotatedString(shown),
+            object : androidx.compose.ui.text.input.OffsetMapping {
+                override fun originalToTransformed(offset: Int) = shown.length
+                override fun transformedToOriginal(offset: Int) = text.length
+            },
         )
     }
 }

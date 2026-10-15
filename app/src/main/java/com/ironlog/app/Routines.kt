@@ -416,14 +416,14 @@ fun RoutineEditScreen(id: String?) {
                                         setAt { it.copy(reps = v.toIntOrNull()) }
                                     }
                                 }
-                                ExType.TIMED -> NumField(Units.time(s.seconds), "0:30", "$k:t", Modifier.weight(cols[1].second)) { v ->
+                                ExType.TIMED -> NumField(Units.time(s.seconds), "0:30", "$k:t", Modifier.weight(cols[1].second), time = true) { v ->
                                     setAt { it.copy(seconds = Units.parseTime(v)) }
                                 }
                                 ExType.WEIGHT_TIME -> {
                                     NumField(Units.weight(s.weight), "-", "$k:w", Modifier.weight(cols[1].second)) { v ->
                                         setAt { it.copy(weight = v.toDoubleOrNull()?.let(Units::fromShown)) }
                                     }
-                                    NumField(Units.time(s.seconds), "0:30", "$k:t", Modifier.weight(cols[2].second)) { v ->
+                                    NumField(Units.time(s.seconds), "0:30", "$k:t", Modifier.weight(cols[2].second), time = true) { v ->
                                         setAt { it.copy(seconds = Units.parseTime(v)) }
                                     }
                                 }
@@ -431,7 +431,7 @@ fun RoutineEditScreen(id: String?) {
                                     NumField(Units.distance(s.distance), "-", "$k:d", Modifier.weight(cols[1].second)) { v ->
                                         setAt { it.copy(distance = v.toDoubleOrNull()?.let(Units::distFromShown)) }
                                     }
-                                    NumField(Units.time(s.seconds), "-", "$k:t", Modifier.weight(cols[2].second)) { v ->
+                                    NumField(Units.time(s.seconds), "-", "$k:t", Modifier.weight(cols[2].second), time = true) { v ->
                                         setAt { it.copy(seconds = Units.parseTime(v)) }
                                     }
                                 }

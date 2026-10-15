@@ -330,7 +330,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
             ExType.TIMED -> {
                 Row(Modifier.weight(cols[2].second), verticalAlignment = Alignment.CenterVertically) {
                     NumField(Units.time(s.seconds), prev?.seconds?.let { Units.time(it) } ?: "0:30", "$vk:t",
-                        Modifier.weight(1f).padding(end = 6.dp), outlined = true) { v ->
+                        Modifier.weight(1f).padding(end = 6.dp), outlined = true, time = true) { v ->
                         Workouts.updateSet(i, n) { it.copy(seconds = Units.parseTime(v)) }
                     }
                     Stopwatch { sec -> Workouts.updateSet(i, n) { it.copy(seconds = sec) } }
@@ -343,7 +343,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                 }
                 Row(Modifier.weight(cols[3].second), verticalAlignment = Alignment.CenterVertically) {
                     NumField(Units.time(s.seconds), prev?.seconds?.let { Units.time(it) } ?: "0:30", "$vk:t",
-                        Modifier.weight(1f).padding(end = 6.dp), outlined = true) { v ->
+                        Modifier.weight(1f).padding(end = 6.dp), outlined = true, time = true) { v ->
                         Workouts.updateSet(i, n) { it.copy(seconds = Units.parseTime(v)) }
                     }
                     Stopwatch { sec -> Workouts.updateSet(i, n) { it.copy(seconds = sec) } }
@@ -355,7 +355,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                     Workouts.updateSet(i, n) { it.copy(distance = v.toDoubleOrNull()?.let(Units::distFromShown)) }
                 }
                 NumField(Units.time(s.seconds), prev?.seconds?.let { Units.time(it) } ?: "0:00", "$vk:t",
-                    Modifier.weight(cols[3].second).padding(end = 6.dp), outlined = true) { v ->
+                    Modifier.weight(cols[3].second).padding(end = 6.dp), outlined = true, time = true) { v ->
                     Workouts.updateSet(i, n) { it.copy(seconds = Units.parseTime(v)) }
                 }
             }
