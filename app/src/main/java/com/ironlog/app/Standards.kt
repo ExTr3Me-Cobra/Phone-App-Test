@@ -296,6 +296,13 @@ object Ranks {
         return out
     }
 
+    /** Each muscle group -> its rank (average of your top two ranked exercises for it) and those exercises. */
+    fun groupRanks(ranks: Map<String, Ranked>): Map<String, Pair<Double, List<Ranked>>> {
+        val by = HashMap<String, MutableList<Ranked>>()
+        for (r in ranks.values) for (g in r.exercise.primary) by.getOrPut(g) { mutableListOf() } += r
+        return by.mapValues { (_, l) -> val top = l.sortedByDescending { it.percentile }.take(2); top.map { it.percentile }.average() to top }
+    }
+
     /** Each muscle group -> your best ranked exercise where it's the main muscle. */
     fun groups(ranks: Map<String, Ranked>): Map<String, Ranked> {
         val out = HashMap<String, Ranked>()

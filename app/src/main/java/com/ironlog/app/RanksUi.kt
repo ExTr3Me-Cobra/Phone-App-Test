@@ -142,19 +142,30 @@ fun HomeRankCard() {
         )
         if (open) {
             Text("Your muscles", fontWeight = FontWeight.Bold)
-            Text("Each main muscle shows your best ranked exercise for it. Tap one to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
-            Ranks.groups(ranks).entries.sortedByDescending { it.value.percentile }.forEach { (g, r) ->
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
-                    .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(r.tier.color)))
-                    HSpacer(8)
-                    Column(Modifier.weight(1f)) {
-                        Text(titleCase(g), fontSize = 15.sp)
-                        val est = Standards.fit(r.exercise.id, profile)?.exact == false
-                        Text(r.exercise.name + if (est) "  (estimate)" else "", color = Sub, fontSize = 12.sp)
+            Text("Each muscle's rank is the average of your top two ranked exercises for it. Tap an exercise to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
+            Ranks.groupRanks(ranks).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
+                val (pct, top) = v
+                val tier = Tier.of(pct)
+                Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
+                        HSpacer(8)
+                        Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                        RankBadge(tier, 22.dp)
+                        HSpacer(4)
+                        Text(rankText(pct), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color))
                     }
-                    Text(rankText(r.percentile), fontSize = 14.sp)
-                    Text(" ›", color = Sub, fontSize = 18.sp)
+                    top.forEach { r ->
+                        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
+                            .padding(start = 22.dp, top = 3.dp, bottom = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                            val est = Standards.fit(r.exercise.id, profile)?.exact == false
+                            Text(r.exercise.name + if (est) "  (estimate)" else "", color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                            Text(rankText(r.percentile), fontSize = 13.sp, color = Color(r.tier.color))
+                            Text(" ›", color = Sub, fontSize = 16.sp)
+                        }
+                    }
+                    if (top.size == 1) Text("Rank one more exercise for this muscle to average two.", color = Sub, fontSize = 11.sp,
+                        modifier = Modifier.padding(start = 22.dp))
                 }
             }
             Spacer(10)
