@@ -254,7 +254,7 @@ object Pictures {
 
     /** Makes a picture with OpenAI and saves it. */
     suspend fun generate(e: Exercise, p: Profile, promptText: String = prompt(e)): Result = withContext(Dispatchers.IO) {
-        if (p.apiKey.isBlank()) return@withContext Result(false, 401, "Add your OpenAI API key in Profile → Settings first.")
+        if (p.apiKey.isBlank()) return@withContext Result(false, 401, "Add your OpenAI API key in Settings first.")
         val body = JSONObject()
             .put("model", p.imageModel.ifBlank { "gpt-image-1" })
             .put("prompt", promptText.ifBlank { prompt(e) })

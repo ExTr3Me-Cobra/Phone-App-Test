@@ -164,7 +164,7 @@ private fun WelcomePage() {
 private fun AboutYouPage(p: Profile) {
     fun set(np: Profile) = Store.setProfile(np)
     Title("About you")
-    Body("Used to rank you against lifters like you. You can change it later in Profile.")
+    Body("Used to rank you against lifters like you. You can change it later in Settings.")
 
     var unitsTick by remember { mutableStateOf(0) } // refreshes the weight box when units change
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

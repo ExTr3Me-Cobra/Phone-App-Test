@@ -45,55 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
+/** The Settings tab: your details, your exercises and every setting. */
 @Composable
-fun ProfileScreen() {
-    val p by Store.profile.collectAsState()
-    val workouts by Store.workouts.collectAsState()
-    fun set(np: Profile) = Store.setProfile(np)
-    Column(Modifier.fillMaxSize()) {
-        TopBar("Profile", back = false, action = "Settings") { Nav.go(Route.Settings) }
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("About you", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text("Used to rank your lifts against other people your size.", color = Sub, fontSize = 13.sp)
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                var bw by remember { mutableStateOf(p.bodyweight?.let { Units.weight(it) } ?: "") }
-                OutlinedTextField(bw, { t -> bw = t; set(p.copy(bodyweight = t.toDoubleOrNull()?.let(Units::fromShown))) },
-                    Modifier.weight(1f).typing(), label = { Text("Body weight (${Units.w})") }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
-                var age by remember { mutableStateOf(p.age?.toString() ?: "") }
-                OutlinedTextField(age, { t -> age = t; set(p.copy(age = t.toIntOrNull())) },
-                    Modifier.weight(1f).typing(), label = { Text("Age") }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                var ft by remember { mutableStateOf(p.heightIn?.let { (it / 12).toString() } ?: "") }
-                var inch by remember { mutableStateOf(p.heightIn?.let { (it % 12).toString() } ?: "") }
-                fun saveH() { val f = ft.toIntOrNull(); val i = inch.toIntOrNull() ?: 0; set(p.copy(heightIn = f?.let { it * 12 + i })) }
-                OutlinedTextField(ft, { ft = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("Height ft") }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                OutlinedTextField(inch, { inch = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("in") }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(p.male, { set(p.copy(male = true)) }, { Text("Male") })
-                FilterChip(!p.male, { set(p.copy(male = false)) }, { Text("Female") })
-            }
-            Text("Strength tables use body weight, sex and age; height isn't part of them, so it's kept for your records.",
-                color = Sub, fontSize = 12.sp)
-
-            Spacer(6)
-            GreyButton("📚  Exercises (${Store.exercises.value.values.count { !it.hidden }})") { Nav.go(Route.Library) }
-
-            Text("All time", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
-                StatBox("Workouts", "${workouts.size}", Modifier.weight(1f))
-                StatBox("Time", Units.duration(workouts.sumOf { (it.end ?: it.start) - it.start }), Modifier.weight(1f))
-                StatBox("Sets", "${workouts.sumOf { it.doneSets }}", Modifier.weight(1f))
-            }
-            Spacer(30)
-        }
-    }
-}
+fun ProfileScreen() = SettingsScreen()
 
 @Composable
 fun SettingsScreen() {
@@ -163,8 +117,39 @@ fun SettingsScreen() {
     }
 
     Column(Modifier.fillMaxSize()) {
-        TopBar("Settings")
+        TopBar("Settings", back = false)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("About you", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text("Used to rank your lifts against other people your size.", color = Sub, fontSize = 13.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                var bw by remember { mutableStateOf(p.bodyweight?.let { Units.weight(it) } ?: "") }
+                OutlinedTextField(bw, { t -> bw = t; set(p.copy(bodyweight = t.toDoubleOrNull()?.let(Units::fromShown))) },
+                    Modifier.weight(1f).typing(), label = { Text("Body weight (${Units.w})") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                var age by remember { mutableStateOf(p.age?.toString() ?: "") }
+                OutlinedTextField(age, { t -> age = t; set(p.copy(age = t.toIntOrNull())) },
+                    Modifier.weight(1f).typing(), label = { Text("Age") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                var ft by remember { mutableStateOf(p.heightIn?.let { (it / 12).toString() } ?: "") }
+                var inch by remember { mutableStateOf(p.heightIn?.let { (it % 12).toString() } ?: "") }
+                fun saveH() { val f = ft.toIntOrNull(); val i = inch.toIntOrNull() ?: 0; set(p.copy(heightIn = f?.let { it * 12 + i })) }
+                OutlinedTextField(ft, { ft = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("Height ft") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                OutlinedTextField(inch, { inch = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("in") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(p.male, { set(p.copy(male = true)) }, { Text("Male") })
+                FilterChip(!p.male, { set(p.copy(male = false)) }, { Text("Female") })
+            }
+            Text("Strength tables use body weight, sex and age; height isn't part of them, so it's kept for your records.",
+                color = Sub, fontSize = 12.sp)
+
+            Spacer(6)
+            GreyButton("📚  Exercises (${Store.exercises.value.values.count { !it.hidden }})") { Nav.go(Route.Library) }
+            Spacer(10)
             Text("Units", fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(!p.kg, { set(p.copy(kg = false)) }, { Text("Pounds (lbs) · miles") })

@@ -221,7 +221,7 @@ private fun BottomBar(tab: Int) {
     Row(Modifier.fillMaxWidth().background(Card).navigationBarsPadding().padding(vertical = 6.dp)) {
         TabItem("Home", "⌂", tab == 0) { Nav.home(0) }
         TabItem("Workout", "🏋", tab == 1) { Nav.home(1) }
-        TabItem("Profile", "👤", tab == 2) { Nav.home(2) }
+        TabItem("Settings", "⚙️", tab == 2) { Nav.home(2) }
     }
 }
 

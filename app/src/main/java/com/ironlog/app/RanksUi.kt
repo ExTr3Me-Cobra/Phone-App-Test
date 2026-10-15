@@ -109,10 +109,10 @@ fun HomeRankCard() {
             Text("Your rank", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
                 when {
-                    profile.bodyweight == null -> "Add your body weight (and age) in Profile, then log an exercise marked ★ to get ranked against other lifters."
+                    profile.bodyweight == null -> "Add your body weight (and age) in Settings, then log an exercise marked ★ to get ranked against other lifters."
                     Standards.mode(profile) == Standards.Mode.ACCURATE && StandardsData.all.none { Standards.covers(it.id, profile) } ->
                         "The published data doesn't cover your exact body weight/age closely enough for Accurate-only ranks. " +
-                            "Switch Ranks to \"All on\" in Profile → Settings to rank anyway."
+                            "Switch Ranks to \"All on\" in Settings to rank anyway."
                     else -> "Log an exercise marked ★ to get ranked against other lifters your size, age and sex."
                 },
                 color = Sub, fontSize = 14.sp,
@@ -204,11 +204,11 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
             if (star != Standards.Star.NONE) withStyle(SpanStyle(color = if (star == Standards.Star.EXACT) StarGold else StarEstimate)) { append("★") }
         }, fontWeight = FontWeight.Bold)
         when {
-            profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Profile to see where you rank.", color = Sub)
+            profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
             mode == Standards.Mode.ACCURATE && !fit.exact -> {
                 Text("Not ranked in Accurate-only mode:", color = Sub)
                 fit.problems.forEach { Text("• $it", color = Sub, fontSize = 13.sp) }
-                Text("Switch Ranks to \"All on\" in Profile → Settings to rank it anyway as an estimate.", color = Sub, fontSize = 13.sp,
+                Text("Switch Ranks to \"All on\" in Settings to rank it anyway as an estimate.", color = Sub, fontSize = 13.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
             r == null -> Text("Log this exercise to get your rank.", color = Sub)

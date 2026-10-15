@@ -448,7 +448,7 @@ fun SummaryScreen(id: String) {
             if (ranked.isNotEmpty()) {
                 Text("Your ranks", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 if (profile.bodyweight == null) {
-                    Text("Add your body weight (and age) in Profile to see how you rank against other lifters.", color = Sub)
+                    Text("Add your body weight (and age) in Settings to see how you rank against other lifters.", color = Sub)
                     GreyButton("Open Profile") { Nav.home(2) }
                 }
                 ranked.forEach { e ->

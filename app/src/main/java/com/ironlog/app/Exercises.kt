@@ -260,7 +260,7 @@ fun ExerciseDetailScreen(id: String) {
                     text = {
                         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(
-                                if (p.apiKey.isBlank()) "First add your OpenAI API key in Profile → Settings."
+                                if (p.apiKey.isBlank()) "First add your OpenAI API key in Settings."
                                 else "One picture of \"${e.name}\" at ${p.imageQuality} quality costs about $" +
                                     "%.3f".format(Pictures.price(p.imageQuality)) + ", taken from your OpenAI API credit." +
                                     if (hasImage) "\n\nIt replaces this exercise's current picture." else "",

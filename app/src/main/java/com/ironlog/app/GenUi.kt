@@ -54,7 +54,7 @@ fun GenDialog(title: String, ids: List<String>, onDismiss: () -> Unit) {
         text = {
             Column {
                 if (p.apiKey.isBlank()) {
-                    Text("First add your OpenAI API key in Profile → Settings.", color = Red)
+                    Text("First add your OpenAI API key in Settings.", color = Red)
                 } else {
                     Text(
                         "${ids.size} exercises, ${ids.size - missing.size} already have a picture. " +
