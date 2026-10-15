@@ -102,19 +102,24 @@ object OneRm {
         Triple(0.95, 1, "attempt 1"), Triple(1.00, 1, "attempt 2"),
     )
 
-    fun begin(id: String, best: Double?) {
+    /** The logged set your current rank comes from (or your best set ever if you're not ranked), as a fresh, unticked set. */
+    fun bestSet(id: String, workouts: List<Workout>, p: Profile): DoneSet? {
+        val sets = workouts.filter { it.end != null }.flatMap { w -> w.items.filter { it.exerciseId == id }.flatMap { it.sets } }
+            .filter { it.done && !it.warmup }
+        if (sets.isEmpty()) return null
+        fun v(s: DoneSet) = Standards.testValue(id, listOf(s))
+        val target = Ranks.all(workouts, p)[id]?.value
+        val s = target?.let { t -> sets.filter { kotlin.math.abs(v(it) - t) < 0.01 }.maxByOrNull { v(it) } } ?: sets.maxByOrNull { v(it) }
+        return s?.let { DoneSet(weight = it.weight, reps = it.reps, seconds = it.seconds, distance = it.distance) }
+    }
+
+    /** Starts a test with one set filled in from the set your rank comes from (add more as you go). */
+    fun begin(id: String, start: DoneSet?) {
         if (exerciseId == id && rows.isNotEmpty()) return
         exerciseId = id
         startedAt = System.currentTimeMillis()
         rows.clear()
-        if (Standards.isFlat(id)) {
-            repeat(6) { rows += DoneSet(reps = 1) } // 3 squeezes with each hand
-        } else if (Standards.isReps(id)) {
-            rows += DoneSet(reps = best?.let { (it * 0.35).roundToInt().coerceAtLeast(1) })
-            rows += DoneSet()
-        } else if (best != null) {
-            PLAN.forEach { (f, r, _) -> rows += DoneSet(weight = loadable(best * f), reps = r) }
-        } else rows += DoneSet(reps = 1)
+        rows += start ?: DoneSet(reps = if (Standards.isReps(id)) null else 1)
     }
 
     fun clear() { exerciseId = null; rows.clear() }
@@ -215,7 +220,7 @@ fun OneRmTestScreen(id: String) {
     val reps = Standards.isReps(id)
     val squeeze = Standards.isFlat(id)
     val best = remember(id) { OneRm.best(id, workouts, p) }
-    remember(id) { OneRm.begin(id, best); 0 }
+    remember(id) { OneRm.begin(id, OneRm.bestSet(id, workouts, p)); 0 }
     val r = remember(workouts, p) { Ranks.all(workouts, p)[id] }
     val notes = OneRm.notes(id)
     var confirmLeave by remember { mutableStateOf(false) }
@@ -313,7 +318,7 @@ fun OneRmTestScreen(id: String) {
             }
             GreyButton("+ Add set", textColor = Blue) {
                 val last = OneRm.rows.lastOrNull()
-                OneRm.rows += DoneSet(weight = last?.weight, reps = if (reps) null else 1)
+                OneRm.rows += last?.copy(done = false) ?: DoneSet(reps = if (reps) null else 1)
                 refresh++
             }
             error?.let { Text(it, color = Red) }
