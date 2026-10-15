@@ -131,9 +131,13 @@ fun HomeRankCard() {
                 Text("Average of ${ranks.size} ranked exercise${if (ranks.size == 1) "" else "s"}", color = Sub, fontSize = 12.sp)
             }
         }
-        val muscles = remember(ranks) { Ranks.muscles(ranks) }
-        val colors = muscles.mapValues { it.value.tier.color.toInt() }
-        val levels = muscles.mapValues { (it.value.percentile / 100).toFloat().coerceAtLeast(0.01f) }
+        // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
+        val muscles = remember(ranks) {
+            val groups = Ranks.groupRanks(ranks)
+            Ranks.muscles(ranks).mapValues { (m, r) -> groups[Muscles.group(m)]?.first ?: r.percentile }
+        }
+        val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
+        val levels = muscles.mapValues { (it.value / 100).toFloat().coerceAtLeast(0.01f) }
         BodyMapView(levels, Modifier.padding(top = 10.dp).fillMaxWidth().height(300.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black),
             colors = colors)
         Text(
