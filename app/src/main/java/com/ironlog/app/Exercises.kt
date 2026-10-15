@@ -241,6 +241,8 @@ fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () ->
 
 /** Custom exercise -> the exercise picked to link it to, waiting for confirmation (kept outside the screen, which the picker covers). */
 private val pendingLink = androidx.compose.runtime.mutableStateMapOf<String, String>()
+/** Developer: exercise -> where to move its history, waiting for confirmation. */
+private val pendingMove = androidx.compose.runtime.mutableStateMapOf<String, String>()
 
 @Composable
 fun ExerciseDetailScreen(id: String) {
@@ -284,6 +286,10 @@ fun ExerciseDetailScreen(id: String) {
                         topMenu = false
                         Nav.go(Route.Picker("Link \"${e.name}\" to", false) { ids -> ids.firstOrNull()?.takeIf { it != e.id }?.let { pendingLink[e.id] = it } })
                     })
+                    if (profile.devUnlocked) DropdownMenuItem({ Text("Developer: move history to another exercise…") }, {
+                        topMenu = false
+                        Nav.go(Route.Picker("Move \"${e.name}\" history to", false) { ids -> ids.firstOrNull()?.takeIf { it != e.id }?.let { pendingMove[e.id] = it } })
+                    })
                     if (e.custom) DropdownMenuItem({ Text("Delete exercise", color = Red) }, { topMenu = false; deleting = true })
                 }
             }
@@ -303,6 +309,21 @@ fun ExerciseDetailScreen(id: String) {
                     Nav.back(); Nav.go(Route.ExerciseDetail(to))
                 },
                 { pendingLink.remove(e.id) }, "Link",
+            )
+        }
+        pendingMove[e.id]?.let { to ->
+            val target = all[to] ?: run { pendingMove.remove(e.id); return@let }
+            val count = workouts.sumOf { w -> w.items.filter { it.exerciseId == e.id }.sumOf { it.sets.count { s -> s.done } } }
+            ConfirmText(
+                "Move all ${count} logged set${if (count == 1) "" else "s"} of \"${e.name}\" in your past workouts to \"${target.name}\"? " +
+                    "\"${e.name}\" stays (with no history) and routines aren't changed. This can't be undone." +
+                    (if (target.type != e.type) "\n\nCareful: \"${target.name}\" is logged differently (${target.type.label}), so some numbers may not carry over." else ""),
+                {
+                    pendingMove.remove(e.id)
+                    Store.moveHistory(e.id, to)
+                    Nav.back(); Nav.go(Route.ExerciseDetail(to))
+                },
+                { pendingMove.remove(e.id) }, "Move",
             )
         }
         if (deleting) ConfirmText("Delete \"${e.name}\"? Past workouts keep their numbers.", {

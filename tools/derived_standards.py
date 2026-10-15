@@ -195,6 +195,8 @@ DERIVED = [
     ('Smith Machine Calf Raise', 'Barbell Calf Raise', 1.0, True),
     ('Standing Barbell Calf Raise', 'Calf Raise', 0.8, False),
     ('Rocking Standing Calf Raise', 'Barbell Calf Raise', 1.0, True),
+    # Asked for: ranked exactly like Standing Calf Raises (the vest's weight is what's logged).
+    ('Standing Calf Raise (Weighted Vest)', 'Calf Raise', 1.0, True),
     ('Calf Press On The Leg Press Machine', 'Calf Raise', 1.2, False),
     ('Calf Press', 'Calf Raise', 1.2, False),
     ('Donkey Calf Raises', 'Calf Raise', 1.0, False),

@@ -259,6 +259,7 @@ fun Exercise.weightHint(): String {
                 "Log the weight in one hand (one dumbbell, kettlebell or handle), plus how long you held or carried it."
             else -> "Log the total weight (bar or frame plus plates), plus how long you held or carried it."
         }
+        n.contains("weighted vest") -> "Log only the vest's weight – not your body weight."
         n.startsWith("weighted") && (n.contains("pull") || n.contains("dip") || n.contains("chin")) ->
             "Log only the extra weight you add (belt, vest or dumbbell) – not your body weight."
         equipment == "Barbell" || equipment == "EZ Bar" -> when {

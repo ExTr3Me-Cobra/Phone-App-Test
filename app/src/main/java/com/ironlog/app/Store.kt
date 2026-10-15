@@ -113,18 +113,24 @@ object Store {
         _images.value++
     }
 
+    /** Moves every logged set of exercise [from] in your finished workouts onto [to]; [from] itself stays. Returns sets moved. */
+    fun moveHistory(from: String, to: String): Int {
+        if (from == to) return 0
+        var sets = 0
+        setWorkouts(_workouts.value.map { w ->
+            if (w.items.none { it.exerciseId == from }) w
+            else w.copy(items = w.items.map { if (it.exerciseId == from) { sets += it.sets.count { s -> s.done }; it.copy(exerciseId = to) } else it })
+        })
+        return sets
+    }
+
     /**
      * Moves everything logged or planned with custom exercise [from] onto exercise [to] (workouts, the workout in
      * progress, routines, Hevy matches, 1 Rep Max list), then deletes [from]. Returns how many sets moved.
      */
     fun mergeExercise(from: String, to: String): Int {
         if (from == to) return 0
-        var sets = 0
-        val moved = _workouts.value.map { w ->
-            if (w.items.none { it.exerciseId == from }) w
-            else w.copy(items = w.items.map { if (it.exerciseId == from) { sets += it.sets.count { s -> s.done }; it.copy(exerciseId = to) } else it })
-        }
-        setWorkouts(moved)
+        val sets = moveHistory(from, to)
         _active.value?.let { a -> if (a.items.any { it.exerciseId == from }) setActive(a.copy(items = a.items.map { if (it.exerciseId == from) it.copy(exerciseId = to) else it })) }
         setRoutines(_routines.value.map { r -> r.copy(items = r.items.map { if (it.exerciseId == from) it.copy(exerciseId = to) else it }) })
         runCatching {
