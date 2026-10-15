@@ -317,6 +317,15 @@ fun SettingsScreen() {
                 }
                 GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false)) }
                 Spacer(8)
+                Text("Backup log", fontWeight = FontWeight.Bold)
+                Text("What Android's Google backup has done with Loadout. Empty means Android hasn't asked Loadout for a backup yet.",
+                    color = Sub, fontSize = 13.sp)
+                var logTick by remember { mutableStateOf(0) }
+                val log = remember(logTick) { CloudBackup.readLog(context) }
+                Text(if (log.isEmpty()) "(nothing yet)" else log.takeLast(15).joinToString("\n"), fontSize = 12.sp, color = Sub,
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(10.dp))
+                GreyButton("Refresh log") { logTick++ }
+                Spacer(8)
                 Text("Wipe all Loadout data", fontWeight = FontWeight.Bold)
                 Text("Deletes everything on this phone – workouts, routines, your exercises and pictures, profile, settings and the API key – " +
                     "and empties the Google backup at its next run. For testing the first-run experience.", color = Sub, fontSize = 13.sp)
