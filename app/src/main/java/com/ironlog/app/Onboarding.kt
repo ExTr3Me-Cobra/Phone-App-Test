@@ -210,8 +210,10 @@ private fun YourDataPage(p: Profile, skip: () -> Unit) {
 @Composable
 private fun BackupCheckPage() {
     Title("Make sure your data is backing up")
-    Body("Make sure \"Back up data\" is on in your phone's backup settings.")
-    BackupStatus()
+    Body("Make sure \"Back up data\" is on in your phone's backup settings. Loadout is included automatically.")
+    val c = androidx.compose.ui.platform.LocalContext.current
+    GreyButton("Open backup settings") { CloudBackup.openSettings(c) }
+    Text("You can check that Loadout is backing up any time in Settings.", color = Sub, fontSize = 13.sp)
 }
 
 @Composable
