@@ -72,7 +72,8 @@ sealed interface Route {
     data class Tabs(val tab: Int) : Route
     data class RoutineView(val id: String) : Route
     data class RoutineEdit(val id: String?) : Route
-    class Picker(val title: String, val multi: Boolean, val onPick: (List<String>) -> Unit) : Route
+    /** [confirm]: the button text when picking several (default "Add N exercises"). */
+    class Picker(val title: String, val multi: Boolean, val confirm: String? = null, val onPick: (List<String>) -> Unit) : Route
     data class ExerciseDetail(val id: String) : Route
     data class EditExercise(val id: String?) : Route
     data object Active : Route
@@ -81,6 +82,7 @@ sealed interface Route {
     data object Settings : Route
     data object Library : Route
     data object HevyMatch : Route
+    data class RankDetail(val id: String) : Route
 }
 
 object Nav {
@@ -178,6 +180,7 @@ private fun Root() {
                 Route.Settings -> SettingsScreen()
                 Route.Library -> PickerScreen(null)
                 Route.HevyMatch -> HevyMatchScreen()
+                is Route.RankDetail -> RankDetailScreen(route.id)
             }
           }
         }

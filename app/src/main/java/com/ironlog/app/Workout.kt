@@ -48,7 +48,8 @@ import kotlinx.coroutines.delay
 object Workouts {
     /** Bumped when numbers are filled in for you, so the boxes show them. */
     var refresh by androidx.compose.runtime.mutableIntStateOf(0)
-    fun start(c: Context, r: Routine?) {
+    /** [exercises]: for a freestyle workout, the exercises you picked (3 empty sets each). */
+    fun start(c: Context, r: Routine?, exercises: List<String> = emptyList()) {
         val current = Store.active.value
         if (current != null) {
             // Already going: just go back to it.
@@ -62,7 +63,7 @@ object Workouts {
             start = System.currentTimeMillis(),
             items = r?.items?.map { i ->
                 WorkoutItem(i.exerciseId, i.sets.map { p -> DoneSet(p.weight, p.reps, p.seconds, p.distance, p.failure, false) }, i.restSec, i.note)
-            } ?: emptyList(),
+            } ?: exercises.map { WorkoutItem(it, List(3) { DoneSet() }, Store.profile.value.defaultRest) },
             bodyweight = Store.profile.value.bodyweight,
         )
         Store.setActive(w)

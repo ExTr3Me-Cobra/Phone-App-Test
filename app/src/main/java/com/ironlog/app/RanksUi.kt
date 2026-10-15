@@ -142,9 +142,10 @@ fun HomeRankCard() {
         )
         if (open) {
             Text("Your muscles", fontWeight = FontWeight.Bold)
-            Text("Each main muscle shows your best ranked exercise for it.", color = Sub, fontSize = 12.sp)
+            Text("Each main muscle shows your best ranked exercise for it. Tap one to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
             Ranks.groups(ranks).entries.sortedByDescending { it.value.percentile }.forEach { (g, r) ->
-                Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
+                    .padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(r.tier.color)))
                     HSpacer(8)
                     Column(Modifier.weight(1f)) {
@@ -153,6 +154,7 @@ fun HomeRankCard() {
                         Text(r.exercise.name + if (est) "  (estimate)" else "", color = Sub, fontSize = 12.sp)
                     }
                     Text(rankText(r.percentile), fontSize = 14.sp)
+                    Text(" ›", color = Sub, fontSize = 18.sp)
                 }
             }
             Spacer(10)
@@ -210,6 +212,8 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                 Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
                     Box(Modifier.fillMaxWidth((r.percentile / 100).toFloat()).height(8.dp).background(Color(r.tier.color)))
                 }
+                Text("See the chart and who you're compared with ›", color = Blue, fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 10.dp).clickable { Nav.go(Route.RankDetail(e.id)) })
             }
         }
         if (fit != null) {

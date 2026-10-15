@@ -128,7 +128,7 @@ fun PickerScreen(req: Route.Picker?) {
         }
         if (req != null && req.multi && selected.isNotEmpty()) {
             BigButton(
-                "Add ${selected.size} exercise${if (selected.size == 1) "" else "s"}",
+                req.confirm?.let { "$it (${selected.size})" } ?: "Add ${selected.size} exercise${if (selected.size == 1) "" else "s"}",
                 modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
             ) {
                 val ids = selected.toList()

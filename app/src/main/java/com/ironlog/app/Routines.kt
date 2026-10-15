@@ -63,8 +63,10 @@ fun WorkoutTab() {
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)) {
             item {
                 SectionTitle("Quick Start")
-                GreyButton("+  Start Empty Workout", Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                    Workouts.start(context, null)
+                GreyButton("+  Start Empty Freestyle Workout", Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    // Pick the exercises first; the workout (and its timer) starts when you tap Start.
+                    if (Store.active.value != null) Workouts.start(context, null)
+                    else Nav.go(Route.Picker("Choose exercises", true, "Start workout") { ids -> Workouts.start(context, null, ids) })
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     SectionTitle("Routines (${routines.size})", Modifier.weight(1f))

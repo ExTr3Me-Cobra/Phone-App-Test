@@ -139,10 +139,7 @@ object Standards {
      */
     fun percentile(id: String, value: Double, p: Profile): Double? {
         if (value <= 0) return null
-        val rows = fit(id, p)?.rows ?: return null
-        val bw = p.bodyweight ?: return null
-        val f = ageFactor(p.age)
-        val lv = levelsAt(rows, bw).map { it * f * (table[id]?.factor ?: 1.0) }
+        val lv = levels(id, p) ?: return null
         return when {
             value <= lv[0] -> PCT[0] * value / lv[0]
             value >= lv[4] -> 95 + 4.9 * (1 - exp(-(value - lv[4]) / (lv[4] - lv[3]).coerceAtLeast(1.0)))
@@ -151,6 +148,36 @@ object Standards {
                 PCT[i] + (PCT[i + 1] - PCT[i]) * (value - lv[i]) / (lv[i + 1] - lv[i])
             }
         }.coerceIn(0.0, 99.9)
+    }
+
+    /**
+     * The numbers you're compared against: est. 1-rep max (lb) or reps at the 5th, 20th, 50th, 80th and
+     * 95th percentile (Beginner … Elite) for your sex, body weight and age. Null without data or body weight.
+     */
+    fun levels(id: String, p: Profile): DoubleArray? {
+        val rows = fit(id, p)?.rows ?: return null
+        val bw = p.bodyweight ?: return null
+        val f = ageFactor(p.age) * (table[id]?.factor ?: 1.0)
+        return levelsAt(rows, bw).map { it * f }.toDoubleArray()
+    }
+
+    val LEVEL_NAMES = listOf("Beginner", "Novice", "Intermediate", "Advanced", "Elite")
+    val LEVEL_PCT get() = PCT
+
+    /** The number you'd need for a percentile (the reverse of [percentile]). */
+    fun valueFor(id: String, pct: Double, p: Profile): Double? {
+        val lv = levels(id, p) ?: return null
+        return when {
+            pct <= PCT[0] -> lv[0] * pct / PCT[0]
+            pct >= 95 -> {
+                val x = ((pct - 95) / 4.9).coerceAtMost(0.999)
+                lv[4] - ln(1 - x) * (lv[4] - lv[3]).coerceAtLeast(1.0)
+            }
+            else -> {
+                val i = (0 until 4).first { pct < PCT[it + 1] }
+                lv[i] + (lv[i + 1] - lv[i]) * (pct - PCT[i]) / (PCT[i + 1] - PCT[i])
+            }
+        }
     }
 
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
