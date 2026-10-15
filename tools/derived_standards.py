@@ -197,6 +197,8 @@ DERIVED = [
     ('Rocking Standing Calf Raise', 'Barbell Calf Raise', 1.0, True),
     # Asked for: ranked exactly like Standing Calf Raises (the vest's weight is what's logged).
     ('Standing Calf Raise (Weighted Vest)', 'Calf Raise', 1.0, True),
+    # One leg: ranked on the same table after converting to two-leg terms in the app (see 'ul' in gen_standards).
+    ('One-Leg Standing Calf Raise (Weighted Vest)', 'Calf Raise', 1.0, True),
     ('Calf Press On The Leg Press Machine', 'Calf Raise', 1.2, False),
     ('Calf Press', 'Calf Raise', 1.2, False),
     ('Donkey Calf Raises', 'Calf Raise', 1.0, False),

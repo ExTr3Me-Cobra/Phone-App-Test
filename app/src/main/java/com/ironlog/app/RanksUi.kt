@@ -296,7 +296,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                     else "Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
                     modifier = Modifier.padding(top = 6.dp))
                 Text(
-                    "Your best in the 24 hours up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else if (info.flat) "best squeeze ${Units.weightU(r.value)}" else "est. 1-rep max ${Units.weightU(r.value)}",
+                    "Your best in the 24 hours up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else if (info.flat) "best squeeze ${Units.weightU(r.value)}" else if (info.oneLeg) "two-leg equivalent ${Units.weightU(r.value)}" else "est. 1-rep max ${Units.weightU(r.value)}",
                     color = Sub, fontSize = 13.sp,
                 )
                 Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {

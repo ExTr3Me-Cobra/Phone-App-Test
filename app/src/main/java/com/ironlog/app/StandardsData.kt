@@ -22,6 +22,8 @@ object StandardsData {
         val ai: Boolean = false,
         /** One table for everyone of a sex: body weight and age aren't used (grip dynamometer). */
         val flat: Boolean = false,
+        /** One leg of a two-leg body-weight move: ranked on the two-leg table after converting your load. */
+        val oneLeg: Boolean = false,
     )
 
     @Volatile var all: List<Std> = emptyList()
@@ -42,7 +44,7 @@ object StandardsData {
                 }
                 fun str(k: String) = if (!o.has(k) || o.isNull(k)) null else o.getString(k)
                 Std(o.getString("i"), o.getString("lift"), rows("m"), rows("f"), o.getBoolean("r"), o.getBoolean("d"),
-                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false), o.optBoolean("u", false))
+                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false), o.optBoolean("u", false), o.optBoolean("ul", false))
             }
         }.getOrDefault(emptyList())
     }

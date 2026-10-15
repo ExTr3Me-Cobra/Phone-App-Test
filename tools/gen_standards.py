@@ -408,6 +408,14 @@ if 'Grip Dynamometer Test' in db:
                     'r': False, 'd': False, 'k': 1.0, 'a': None, 'u': True,
                     'note': 'Best single squeeze of either hand (seated, elbow at 90°).'})
 else: report.append('Grip Dynamometer Test not in the database')
+# One-leg versions of a two-leg body-weight move: the app converts your load to two-leg terms
+# (body weight + 2 × one-leg load, from the per-leg est. 1-rep max) before using the two-leg table.
+ONE_LEG = {'One-Leg Standing Calf Raise (Weighted Vest)'}
+for e in entries:
+    n = next((x for x, v in db.items() if v['i'] == e['i']), None)
+    if n in ONE_LEG:
+        e['ul'] = True
+        e['note'] = 'Ranked on the two-legged standing calf raise standard: your one-leg lift is converted to the two-leg load it matches (body weight + 2 × your one-leg load).'
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')

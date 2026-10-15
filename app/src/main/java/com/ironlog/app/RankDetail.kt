@@ -58,6 +58,7 @@ fun RankDetailBody(id: String) {
     val r = remember(workouts, p, id) { Ranks.all(workouts, p)[id] }
     val reps = info?.reps == true
     val flat = info?.flat == true
+    val oneLeg = info?.oneLeg == true
     fun fmt(v: Double) = if (reps) "${v.toInt()} reps" else Units.weightU(Math.round(v).toDouble())
 
     if (info == null || fit == null || lv == null) {
@@ -70,7 +71,7 @@ fun RankDetailBody(id: String) {
                 Column(Modifier.padding(start = 12.dp)) {
                     Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
                     Text("(${topLabel(r.percentile)})")
-                    Text((if (reps) "Your best: " else if (flat) "Your best squeeze: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
+                    Text((if (reps) "Your best: " else if (flat) "Your best squeeze: " else if (oneLeg) "Your two-leg equivalent: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
                 }
             } else Text("Log this exercise to see where you sit.", color = Sub)
 
@@ -80,7 +81,7 @@ fun RankDetailBody(id: String) {
             val curve = remember(lv.toList(), xMax) { (0..80).map { i -> val x = xMax * i / 80; x to (Standards.percentile(id, x, p) ?: 0.0) } }
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(12.dp)) {
                 Text("Where you sit", fontWeight = FontWeight.Bold)
-                Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else if (flat) "Across: best squeeze.  Up: % of ${if (p.male) "men" else "women"} aged 20–39 you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
+                Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else if (flat) "Across: best squeeze.  Up: % of ${if (p.male) "men" else "women"} aged 20–39 you beat." else if (oneLeg) "Across: two-leg equivalent load (body weight + 2 × your one-leg est. max).  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
                     color = Sub, fontSize = 12.sp)
                 val line = Color.White
                 val myColor = r?.let { Color(it.tier.color) } ?: Blue

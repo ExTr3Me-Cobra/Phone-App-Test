@@ -103,8 +103,11 @@ OVERRIDES = {
     "Fat Grip Dumbbell Hold": {"forearms": .55, "traps": .35},
     "Static Barbell Hold": {"forearms": .4, "traps": .45},
     # One-sided carry: the obliques and trunk resisting the side bend lead; grip still works hard.
+    # One leg: the hip abductors (glute medius) hold the pelvis level while balancing.
+    "One-Leg Standing Calf Raise (Weighted Vest)": {"abductors": .25},
     "Suitcase Carry": {"grip": .8, "forearms": .5, "traps": .45, "lower back": .4, "abductors": .35, "glutes": .2},
 }
 OVERRIDE_REFS = {"Push-Up Plus": ['Ludewig 2004', 'Decker 1999'],
                  "Plate Pinch Carry": ['Mogk 2003', 'McGill 2009'], "Fat Grip Dumbbell Hold": ['Mogk 2003'],
-                 "Static Barbell Hold": ['Mogk 2003', 'Escamilla 2002'], "Suitcase Carry": ['McGill 2009', 'Mogk 2003']}
+                 "Static Barbell Hold": ['Mogk 2003', 'Escamilla 2002'], "Suitcase Carry": ['McGill 2009', 'Mogk 2003'],
+                 "One-Leg Standing Calf Raise (Weighted Vest)": ['Hebert-Losier 2012']}

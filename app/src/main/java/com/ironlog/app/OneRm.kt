@@ -275,7 +275,7 @@ fun OneRmTestScreen(id: String) {
                     Bullet(best?.let { "One easy set of about ${(it * 0.35).roundToInt().coerceAtLeast(1)} reps (a third of your best), then rest 3–5 minutes." }
                         ?: "One easy set of a few reps, well short of failure, then rest 3–5 minutes.")
                     Bullet("Then one all-out set: strict reps only, stop at the first rep you can't do with good form.")
-                } else if (best != null) {
+                } else if (best != null && !Standards.isOneLeg(id)) {
                     Text("Based on your current best of about ${fmt(best)}:", color = Sub, fontSize = 13.sp)
                     if (e.equipment == "Barbell") Bullet("Empty bar × 8–10")
                     OneRm.PLAN.forEach { (f, n, label) ->

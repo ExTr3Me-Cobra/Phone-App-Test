@@ -207,9 +207,25 @@ object Standards {
     fun testValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup }
         if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
+        if (isOneLeg(id)) return done.maxOfOrNull { oneLegValue(it) } ?: 0.0
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         val single = done.filter { it.reps == 1 }.maxOfOrNull { rankWeight(it.weight) } ?: 0.0
         return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(rankWeight(it.weight), it.reps) } ?: 0.0
+    }
+
+    fun isOneLeg(id: String) = table[id]?.oneLeg == true
+
+    /**
+     * One-leg set -> the two-leg load it matches. On one leg that leg lifts your body weight + the vest;
+     * on two legs each leg lifts half of (body weight + vest). So matching per-leg strength means
+     * two-leg load = 2 × (one-leg est. 1-rep max of body weight + vest) − body weight.
+     */
+    private fun oneLegValue(s: DoneSet): Double {
+        val bw = Store.profile.value.bodyweight ?: return 0.0
+        val reps = s.reps ?: return 0.0
+        if (reps <= 0) return 0.0
+        val total = Stats.e1rm(bw + (s.weight ?: 0.0).coerceAtLeast(0.0), reps)
+        return (2 * total - bw).coerceAtLeast(1.0)
     }
 
     /** A set logged at 0 lb (or with no weight) counts as 1 lb for ranking, so it still gets a rank. */
@@ -219,6 +235,7 @@ object Standards {
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup } // warm-ups never count
         if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0 // one squeeze: the reading itself
+        if (isOneLeg(id)) return done.maxOfOrNull { oneLegValue(it) } ?: 0.0
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(rankWeight(it.weight), it.reps) } ?: 0.0
     }
