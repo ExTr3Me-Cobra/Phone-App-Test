@@ -158,8 +158,7 @@ fun HomeRankCard() {
                     top.forEach { r ->
                         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
                             .padding(start = 22.dp, top = 3.dp, bottom = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                            val est = Standards.fit(r.exercise.id, profile)?.exact == false
-                            Text(r.exercise.name + if (est) "  (estimate)" else "", color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                            Text(starredName(r.exercise), color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
                             Text(rankText(r.percentile), fontSize = 13.sp, color = Color(r.tier.color))
                             Text(" ›", color = Sub, fontSize = 16.sp)
                         }
