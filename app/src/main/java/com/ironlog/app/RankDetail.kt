@@ -53,11 +53,12 @@ fun RankDetailScreen(id: String) {
         }
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Your rank
+            Text(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
             if (r != null) Row(verticalAlignment = Alignment.CenterVertically) {
                 RankBadge(r.tier, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
                     Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
-                    Text("(${topLabel(r.percentile)})" + if (!fit.exact) " · estimate" else "")
+                    Text("(${topLabel(r.percentile)})")
                     Text((if (reps) "Your best: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
                 }
             } else Text("Log this exercise to see where you sit.", color = Sub)

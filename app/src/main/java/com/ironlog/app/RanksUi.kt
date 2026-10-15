@@ -198,7 +198,11 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
     val r = remember(workouts, profile, e.id) { Ranks.all(workouts, profile)[e.id] }
     var details by remember { mutableStateOf(false) }
     Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
-        Text("Your rank ★", fontWeight = FontWeight.Bold)
+        Text(buildAnnotatedString {
+            append("Your rank ")
+            val star = Standards.star(e.id, profile)
+            if (star != Standards.Star.NONE) withStyle(SpanStyle(color = if (star == Standards.Star.EXACT) StarGold else StarEstimate)) { append("★") }
+        }, fontWeight = FontWeight.Bold)
         when {
             profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Profile to see where you rank.", color = Sub)
             mode == Standards.Mode.ACCURATE && !fit.exact -> {
@@ -214,7 +218,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                     HSpacer(12)
                     Column {
                         Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
-                        Text("(${topLabel(r.percentile)})" + if (!fit.exact) "  · estimate" else "")
+                        Text("(${topLabel(r.percentile)})")
                     }
                 }
                 Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
