@@ -69,9 +69,14 @@ fun HevyMatchScreen() {
                 item {
                     Text("Match exercises", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(
+                        "Only match an exercise to the exact same Loadout exercise – same movement, equipment and grip. " +
+                            "A close-but-different match gives you wrong ranks, because your Hevy numbers get compared " +
+                            "against the wrong lift. If there's no exact match, add it as a custom exercise.",
+                        fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp),
+                    )
+                    Text(
                         "Tap each Hevy exercise and choose the Loadout exercise its sets go to, or add it as a new custom exercise " +
-                            "(no picture or directions until you add them). When picking, tap ⓘ Info to read how an exercise is done. " +
-                            "Untick an exercise to leave it out. Your choices are remembered for next time.",
+                            "(no picture or directions until you add them). When picking, tap ⓘ Info to read how an exercise is done.",
                         color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                     )
                     val skipped = plan.unmatched.count { choices[it.hevy] == HevyImport.SKIP }
