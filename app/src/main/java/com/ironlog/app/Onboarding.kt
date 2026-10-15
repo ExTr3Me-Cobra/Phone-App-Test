@@ -212,7 +212,7 @@ private fun BackupCheckPage() {
     Title("Make sure your data is backing up")
     Body("Make sure \"Back up data\" is on in your phone's backup settings. Loadout is included automatically.")
     val c = androidx.compose.ui.platform.LocalContext.current
-    GreyButton("Open backup settings") { CloudBackup.openSettings(c) }
+    BackupSettingsButton()
     Text("You can check that Loadout is backing up any time in Settings.", color = Sub, fontSize = 13.sp)
 }
 
@@ -337,6 +337,40 @@ fun BackupStatus() {
         }
         Text("Your phone backs up on its own when idle. To do it now, open backup settings and tap Back up now, then come back here.",
             color = Sub, fontSize = 13.sp, lineHeight = 18.sp)
-        GreyButton("Open backup settings") { CloudBackup.openSettings(c) }
+        BackupSettingsButton()
     }
+}
+
+/** "Open backup settings": the exact steps to reach Google's backup (Samsung hides it under Accounts and backup), plus shortcuts. */
+@Composable
+fun BackupSettingsButton() {
+    val c = androidx.compose.ui.platform.LocalContext.current
+    var open by remember { mutableStateOf(false) }
+    var failed by remember { mutableStateOf(false) }
+    GreyButton("Open backup settings") { open = true; failed = false }
+    if (open) androidx.compose.material3.AlertDialog(
+        onDismissRequest = { open = false },
+        title = { Text("Back up to Google") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(if (CloudBackup.isSamsung) "Samsung's own backup (Samsung Cloud) doesn't save Loadout. Use Google's:" else "In your phone's settings:")
+                val steps = if (CloudBackup.isSamsung) listOf(
+                    "Open Settings → Accounts and backup.",
+                    "Under Google Drive, tap Back up data.",
+                    "Turn it on if it's off, then tap Back up now.",
+                ) else listOf(
+                    "Open Settings → Google → Backup (or Settings → System → Backup).",
+                    "Turn on Backup by Google One.",
+                    "Tap Back up now.",
+                )
+                steps.forEachIndexed { i, t -> Text("${i + 1}. $t") }
+                Text("Then come back – the green tick shows once Loadout has been backed up.", color = Sub, fontSize = 13.sp)
+                if (failed) Text("Couldn't open Google's settings directly on this phone – use Open phone Settings and follow the steps.", color = Red, fontSize = 13.sp)
+            }
+        },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = { open = false; CloudBackup.openPhoneSettings(c) }) { Text("Open phone Settings") } },
+        dismissButton = {
+            androidx.compose.material3.TextButton(onClick = { if (CloudBackup.openGoogle(c)) open = false else failed = true }) { Text("Try Google's page") }
+        },
+    )
 }
