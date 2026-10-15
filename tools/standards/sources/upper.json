@@ -1,0 +1,524 @@
+{
+ "Pull Ups": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/pull-ups",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "reps",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      0,
+      6,
+      13,
+      23,
+      32
+     ],
+     "150": [
+      null,
+      null,
+      17,
+      28,
+      39
+     ],
+     "200": [
+      null,
+      null,
+      16,
+      24,
+      33
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Reps. 180-lb row read from a snippet that attributed it to both FitnessVolt and Strength Level; app SL 180 row is [1,7,13,21,28], so this is most likely FitnessVolt's. Snippet said FitnessVolt page has two conflicting bodyweight tables (other one gives ~9 reps Intermediate at 150); 150/200 rows from first table only. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "130": [
+     0,
+     7,
+     14,
+     23,
+     33
+    ]
+   },
+   "female": {
+    "132": [
+     0,
+     0,
+     6,
+     12,
+     20
+    ]
+   },
+   "differs_from_app": "none (male 130 matches exactly; female 60-kg row ~132 lb matches app female 130 [0,0,6,12,20])"
+  },
+  "summary": "Strength Level re-check matches the app. FitnessVolt is similar at 180 lb (Int 13) but higher at Advanced/Elite (23/32 vs 21/28) and has internally inconsistent tables; no ExRx/Symmetric Strength rep tables found."
+ },
+ "Chin Ups": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/chin-up",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "reps",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      0,
+      7,
+      13,
+      22,
+      30
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Reps. A second FitnessVolt chin-ups page gave ~16 Int / ~25 Adv at 180 lb (columns uncertain), not recorded. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "180": [
+     1,
+     7,
+     13,
+     21,
+     28
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none (male 180 matches exactly)"
+  },
+  "summary": "Strength Level 180-lb row matches app. FitnessVolt agrees within 1-2 reps (Adv 22 vs 21, Elite 30 vs 28)."
+ },
+ "Lat Pulldown": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/lat-pulldown",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "130": [
+      66,
+      102,
+      146,
+      199,
+      258
+     ],
+     "150": [
+      78,
+      116,
+      164,
+      219,
+      280
+     ],
+     "180": [
+      95,
+      136,
+      187,
+      246,
+      311
+     ],
+     "200": [
+      105,
+      148,
+      201,
+      263,
+      329
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "1RM lb, cable stack weight. Snippet did not state sex of the table; assumed male (values in male range). null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {},
+   "female": {
+    "130": [
+     50,
+     72,
+     100,
+     132,
+     168
+    ],
+    "150": [
+     55,
+     78,
+     107,
+     140,
+     176
+    ]
+   },
+   "differs_from_app": "none (female 130 and 150 match exactly)"
+  },
+  "summary": "SL female rows match the app. FitnessVolt male rows are ~10-12 lb lower at Beginner/Novice, ~same at Intermediate (187 vs 189 at 180 lb), and 5-15 lb higher at Advanced/Elite (311 vs 296 at 180) - within ~5% mid-range."
+ },
+ "Dumbbell Lateral Raise": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/dumbbell-lateral-raise",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "150": [
+      7,
+      16,
+      31,
+      49,
+      72
+     ],
+     "180": [
+      null,
+      null,
+      36,
+      56,
+      null
+     ],
+     "200": [
+      11,
+      22,
+      39,
+      60,
+      85
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "1RM lb per dumbbell. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "180": [
+     null,
+     null,
+     36,
+     null,
+     null
+    ]
+   },
+   "female": {
+    "150": [
+     7,
+     13,
+     20,
+     30,
+     40
+    ]
+   },
+   "differs_from_app": "male 180 Intermediate seen as 36 vs app 37 (1 lb, possibly a different snapshot); female 150 matches exactly"
+  },
+  "summary": "SL essentially matches app. FitnessVolt within ~1-4 lb of app (slightly lower Beginner/Novice, slightly higher Elite)."
+ },
+ "Face Pull": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/face-pull",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      null,
+      null,
+      106,
+      161,
+      null
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "1RM lb cable stack. Matches the current SL 180 row seen in search, not the app. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "150": [
+     23,
+     49,
+     88,
+     139,
+     197
+    ],
+    "180": [
+     32,
+     63,
+     106,
+     161,
+     223
+    ],
+    "200": [
+     38,
+     71,
+     117,
+     174,
+     239
+    ]
+   },
+   "female": {},
+   "differs_from_app": "all three male rows differ: app 150 [27,53,90,137,191], 180 [35,64,105,155,211], 200 [40,71,113,165,224]. Live SL is ~3-4 lb lower at Beginner/Novice, similar Intermediate, +2..+10 Advanced, +6..+15 Elite (wider spread). Snippets showed two page versions (180,366 vs 124,548 lifts); table likely from newer, larger dataset but not certain."
+  },
+  "summary": "Live Strength Level (and FitnessVolt) give a wider Beginner-to-Elite spread than the app: Elite ~6% higher at 180-200 lb, Beginner ~3 lb lower. Consider refreshing app rows."
+ },
+ "Upright Row": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/upright-row",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      null,
+      null,
+      143,
+      206,
+      null
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "1RM lb barbell. FitnessVolt's separate 'barbell upright row' page gives 104/136 (derived from shoulder press x0.72) - not recorded. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "150": [
+     39,
+     null,
+     null,
+     null,
+     245
+    ],
+    "180": [
+     52,
+     null,
+     null,
+     null,
+     278
+    ],
+    "200": [
+     61,
+     null,
+     null,
+     null,
+     298
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none (Beginner and Elite at 150/180/200 match exactly; middle values not in snippet)"
+  },
+  "summary": "SL matches the app; FitnessVolt 180-lb Intermediate/Advanced (143/206) match the app exactly."
+ },
+ "Machine Chest Press": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/chest-press",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      null,
+      null,
+      207,
+      292,
+      null
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "1RM lb machine. Matches the SL 'Chest Press' table seen in search. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "150": [
+     64,
+     112,
+     177,
+     255,
+     344
+    ],
+    "180": [
+     83,
+     137,
+     207,
+     292,
+     386
+    ],
+    "200": [
+     95,
+     152,
+     226,
+     314,
+     411
+    ]
+   },
+   "female": {},
+   "differs_from_app": "SL 'Chest Press' page (803,579 lifts) rows differ from app: app 150 [70,114,172,242,319], 180 [88,137,200,274,356], 200 [99,151,216,294,378]. Live SL is ~5 lb lower Beginner, +5..+10 Int, +13..+20 Adv, +25..+33 Elite. A SL comparison page listed overall male Int 189 (different snapshot). Unclear whether the app's rows are an older or newer snapshot."
+  },
+  "summary": "Strength Level 'Chest Press' page and FitnessVolt agree with each other and are notably higher than the app at Advanced/Elite (~+7-9%); lower levels are close."
+ },
+ "Machine Shoulder Press": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/machine-shoulder-press",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      null,
+      null,
+      175,
+      252,
+      null
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "1RM lb. Equals the OLDER SL snapshot (483,525 lifts), supporting the view that FitnessVolt mirrors old SL data. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "180": [
+     67,
+     112,
+     172,
+     244,
+     325
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none for the newer page version (488,940 lifts) - matches app 180 exactly. An older version (483,525 lifts) gave [65,112,175,252,339]."
+  },
+  "summary": "App matches the newest Strength Level snapshot. Older SL/FitnessVolt values are only 2-4% higher at Advanced/Elite."
+ },
+ "Cable Fly": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/cable-fly",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      null,
+      null,
+      91,
+      153,
+      null
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "1RM lb cable stack (per page; unclear whether one or both handles). Matches the SL table seen in search, not the app. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "150": [
+     9,
+     32,
+     72,
+     129,
+     198
+    ],
+    "180": [
+     16,
+     44,
+     91,
+     153,
+     228
+    ],
+    "200": [
+     20,
+     53,
+     102,
+     168,
+     246
+    ]
+   },
+   "female": {},
+   "differs_from_app": "all three male rows differ: app 150 [12,34,67,112,167], 180 [19,44,82,131,189], 200 [23,51,91,142,202]. Live SL: Beginner -3, Novice ~same, Int +5..+11, Adv +17..+26, Elite +31..+44 lb (~+20%). Snippets showed two page versions (196,079 vs 142,952 lifts); unknown which version the table came from."
+  },
+  "summary": "Strength Level search table and FitnessVolt agree with each other and are much higher than the app at Advanced/Elite (~15-20%); app's cable fly rows look like a different (likely older/smaller) snapshot. Needs a direct page check."
+ },
+ "Dumbbell Fly": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/dumbbell-fly",
+    "population": "FitnessVolt strength-standards calculator; page claims '2.5M+ verified competition results' but accessory/machine tables appear to mirror (older snapshots of) Strength Level user data, so treat as largely derivative of Strength Level, not independent",
+    "mapping": "Beginner/Novice/Intermediate/Advanced/Elite used directly (same names as Strength Level)",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "180": [
+      25,
+      41,
+      64,
+      92,
+      125
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "1RM lb; snippet did not say per dumbbell or combined (SL equivalent is per dumbbell). Higher than both SL snapshots. null = value not visible in search snippet."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "150": [
+     14,
+     27,
+     45,
+     68,
+     94
+    ],
+    "180": [
+     18,
+     33,
+     53,
+     78,
+     106
+    ],
+    "200": [
+     21,
+     37,
+     58,
+     84,
+     113
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none for the newer /lb version (345,131 lifts) - exact match. Older version (258,120 lifts): 150 [11,26,46,73,104], 180 [16,32,55,83,116], 200 [19,36,60,90,124]."
+  },
+  "summary": "App matches the newest Strength Level snapshot exactly. FitnessVolt is ~20% higher at every level (64 vs 53 Int at 180) - low confidence outlier."
+ }
+}

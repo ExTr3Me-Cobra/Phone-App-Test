@@ -3,6 +3,8 @@
 Sources, merged per exercise and sex, row by row (body weight -> 5 levels):
 - tools/standards/batch_*.json  first collection (rows at 150/180/220 lb men, 120/140/170 lb women)
 - tools/standards/raw/*.json    second, wider collection ({"v": [...], "c": 1|2}; c=2 = seen twice)
+- tools/standards/sources/*.json other gym-goer standards (ExRx, StrengthLog) and Strength Level re-reads,
+  averaged in level by level where they agree (see blend()).
 
 Checks (a row that fails is dropped and reported):
 - the 5 levels must rise left to right;
@@ -185,7 +187,9 @@ def merge(lift, sex, rows):
         if len(cands) == 1: out[bw] = cands[0][0]; continue
         base = cands[0][0]
         if all(max(abs(a - b) / max(b, 1) for a, b in zip(v, base)) <= 0.07 for v, _, _ in cands):
-            out[bw] = max(cands, key=lambda t: t[1])[0]
+            # Close readings of the same row: average them (weighted by how often each was seen).
+            w = [cd[1] for cd in cands]
+            out[bw] = [round(sum(cd[0][k] * cd[1] for cd in cands) / sum(w), 1) for k in range(5)]
         else:
             twice = [cd for cd in cands if cd[1] >= 2]
             if len(twice) == 1: out[bw] = twice[0][0]; report.append(f'{lift} {sex} {bw:g}: sources disagree, kept the one seen twice')
@@ -214,9 +218,117 @@ def trend_check(lift, sex, rows, reps):
     return rows
 
 
+# ---- Other gym-goer sources (tools/standards/sources/*.json), blended into the Strength Level tables ----
+AGREE = 0.15      # a level within 15% of Strength Level counts as agreeing: averaged in
+FAR = 0.30        # a level more than 30% off on two or more levels: the lift ranks only as an estimate
+LEVELS = ['Beginner', 'Novice', 'Intermediate', 'Advanced', 'Elite']
+SOURCE_NOTES = {}  # lift -> note shown in the app (which sources were averaged)
+SOURCE_APPROX = {}  # lift -> why it's only an estimate
+# Not gym-goer data, so never averaged in: FitnessVolt (modelled from competition results / copies of older
+# Strength Level pages), AthletePath (fixed body-weight multiples), Endura (weight bands), The Workout Mag
+# (years-of-training levels).
+# Strength Level's own page read differently this time, but it's unclear which version is current:
+# kept as they were, ranked only as an estimate.
+SL_UNSURE = {
+    'Calf Raise': 'A newer Strength Level reading differs a lot at Beginner/Novice (one partial reading) – an estimate until confirmed.',
+    'Cable Fly': 'Strength Level shows two versions of this page (Advanced/Elite differ by 15–20%) – an estimate until confirmed.',
+}
+NOT_GYM_GOERS = ('FitnessVolt', 'AthletePath', 'Endura', 'Workout Mag')
+SKIP_SOURCE = {}
+
+
+def interp(rows, bw, k):
+    """Strength Level level k at body weight bw (log-log between rows, extended at the ends)."""
+    bws = sorted(rows)
+    if bw <= bws[0]: a, b = bws[0], bws[1]
+    elif bw >= bws[-1]: a, b = bws[-2], bws[-1]
+    else: a = max(x for x in bws if x <= bw); b = min(x for x in bws if x > bw) if bw not in rows else bw
+    if a == b: return rows[a][k]
+    va, vb = max(rows[a][k], 0.5), max(rows[b][k], 0.5)
+    return math.exp(math.log(va) + (math.log(vb) - math.log(va)) * (math.log(bw) - math.log(a)) / (math.log(b) - math.log(a)))
+
+
+def load_sources():
+    out = {}
+    for f in sorted(glob.glob(os.path.join(HERE, 'standards', 'sources', '*.json'))):
+        try: d = json.load(open(f))
+        except Exception as ex: report.append(f'{f}: unreadable ({ex})'); continue
+        for lift, info in d.items():
+            for src in (info.get('sources') or []):
+                name = src.get('name', '')
+                if src.get('confidence') == 'low' or (lift, name) in SKIP_SOURCE or any(x in name for x in NOT_GYM_GOERS): continue
+                out.setdefault(lift, []).append(src)
+            # Rows re-read from Strength Level itself: averaged in like a source (the page may have been updated).
+            chk = info.get('strength_level_check') or {}
+            already = any(x.get('name', '').startswith('Strength Level') for x in out.get(lift, []))
+            if (chk.get('male') or chk.get('female')) and not already and lift not in SL_UNSURE:
+                out.setdefault(lift, []).append({'name': 'Strength Level (re-checked)', 'unit': 'reps' if info.get('_reps') else None,
+                                                 'male': chk.get('male') or {}, 'female': chk.get('female') or {}, 'recheck': True})
+    return out
+
+
+def blend(lift, sex, rows, reps, sources):
+    """
+    Averages other sources into the Strength Level rows, level by level. Each source counts once:
+    its typical ratio to Strength Level (geometric mean over the body weights it covers) for each level.
+    A source within 15% at a level is averaged in for that level; one more than 30% off at two or more
+    levels makes the lift an estimate; anything in between is left out for that level.
+    """
+    if len(rows) < 2: return rows
+    per_level = [[] for _ in range(5)]  # per level: one ratio per agreeing source
+    middle = [[] for _ in range(5)]     # per level: (source, ratio) 15–30% off – used only if independent sources agree
+    far_levels, used = set(), set()
+    for src in sources:
+        if not src.get('recheck') and (src.get('unit') == 'reps') != reps: continue
+        name = src['name']
+        half = 0.5 if (lift in DUMBBELL and src.get('per_dumbbell') is False and not reps) else 1.0
+        logs = [[] for _ in range(5)]
+        for bw, v in (src.get(sex) or {}).items():
+            if not isinstance(v, list) or len(v) != 5: continue
+            bw = float(bw)
+            if 'StrengthLog' in name and all(x is not None for x in v):
+                # StrengthLog's levels are the 5/25/50/75/95th percentiles: move them to 5/20/50/80/95 along its own curve.
+                v = [v[0], v[0] + (v[1] - v[0]) * 0.75, v[2], v[3] + (v[4] - v[3]) * 0.25, v[4]]
+            for k in range(5):
+                # ExRx "Untrained" means never trained, not the 5th percentile of lifters: not comparable with Beginner.
+                if k == 0 and 'ExRx' in name: continue
+                if v[k] is None or v[k] <= 0: continue
+                sl = interp(rows, bw, k)
+                if sl <= 0.5: continue
+                logs[k].append(math.log(v[k] * half / sl))
+        for k in range(5):
+            if not logs[k]: continue
+            r = math.exp(sum(logs[k]) / len(logs[k]))
+            if src.get('recheck') and abs(r - 1) < 0.01: continue  # re-read and unchanged: nothing new
+            if abs(r - 1) <= AGREE: per_level[k].append(r); used.add(name)
+            elif abs(r - 1) > FAR: far_levels.add(k)
+            else: middle[k].append((name, r))
+            report.append(f'{lift} {sex}: {name} {LEVELS[k]} {(r - 1) * 100:+.1f}% ({len(logs[k])} rows)')
+    # Two or more independent sources 15–30% off in the same direction and within 10% of each other:
+    # they're probably right, so they're averaged in too.
+    for k in range(5):
+        m = middle[k]
+        if len(m) >= 2 and max(r for _, r in m) / min(r for _, r in m) <= 1.10 and len({r > 1 for _, r in m}) == 1:
+            per_level[k] += [r for _, r in m]; used |= {n for n, _ in m}
+            report.append(f'{lift} {sex}: {LEVELS[k]} – {len(m)} independent sources agree with each other, averaged in')
+    if len(far_levels) >= 2:
+        SOURCE_APPROX[lift] = 'Other strength standards differ a lot from Strength Level for ' + \
+            ', '.join(LEVELS[k] for k in sorted(far_levels)) + ' – an estimate.'
+        report.append(f'{lift} {sex}: sources far apart at {[LEVELS[k] for k in sorted(far_levels)]} – estimate only')
+    if not used: return rows
+    adj = [(1 + sum(r)) / (1 + len(r)) for r in per_level]
+    report.append(f'{lift} {sex}: AVERAGED with {sorted(used)} – level changes ' + ', '.join(f'{(a - 1) * 100:+.1f}%' for a in adj))
+    others = sorted(u for u in used if not u.startswith('Strength Level'))
+    SOURCE_NOTES[lift] = ('Averaged with ' + ' and '.join(others) + '.' if others else '') + \
+        (' Includes a newer reading of Strength Level\'s table.' if len(others) < len(used) else '')
+    return {bw: [round(v[k] * adj[k], 1) for k in range(5)] for bw, v in rows.items()}
+
+
+SOURCES = load_sources()
 data = load()
 entries, used, lifts_used, coverage = [], 0, 0, {}
 tables_by_lift = {}
+for lift, why in SL_UNSURE.items(): SOURCE_APPROX[lift] = why
 for lift, exs in MAP.items():
     if lift not in data: report.append(f'{lift}: no data – not ranked'); continue
     if lift in EXCLUDE: report.append(f'{lift}: left out ({EXCLUDE[lift]})'); continue
@@ -228,6 +340,7 @@ for lift, exs in MAP.items():
         for (l, sx, bw), why in DROP_ROWS.items():
             if l == lift and sx == sex and bw in merged: del merged[bw]; report.append(f'{lift} {sex} {bw:g}: {why} – dropped')
         rows = trend_check(lift, sex, merged, reps)
+        rows = blend(lift, sex, rows, reps, SOURCES.get(lift, []))
         if len(rows) >= 2: tables[sex] = dict(sorted(rows.items()))
         elif rows: report.append(f'{lift} {sex}: only one row – not enough to rank')
     if not tables: report.append(f'{lift}: no usable rows'); continue
@@ -239,7 +352,8 @@ for lift, exs in MAP.items():
             t = tables.get(sex)
             return [[bw] + v for bw, v in t.items()] if t else None
         entries.append({'i': db[name]['i'], 'lift': lift, 'm': rows_of('male'), 'f': rows_of('female'),
-                        'r': reps, 'd': lift in DUMBBELL, 'note': note, 'k': 1.0, 'a': APPROX.get(lift) or APPROX_EXERCISE.get(name)})
+                        'r': reps, 'd': lift in DUMBBELL, 'note': ' '.join(x for x in (note, SOURCE_NOTES.get(lift)) if x) or None, 'k': 1.0,
+                        'a': APPROX.get(lift) or APPROX_EXERCISE.get(name) or SOURCE_APPROX.get(lift)})
         used += 1
     tables_by_lift[lift] = (tables, reps)
 
@@ -254,10 +368,11 @@ for name, lift, k, same in DERIVED:
     if reps != (e['t'] == 'BODYWEIGHT'): report.append(f'{name}: logged differently from {lift} – skipped'); continue
     rows = lambda sex: [[bw] + v for bw, v in tables[sex].items()] if sex in tables else None
     how = 'the same' if abs(k - 1) < 0.04 else f'{k:g}×'
-    note = f'Ranked with the Strength Level "{lift}" standard ({how}' + (' per dumbbell' if e['e'] == 'Dumbbell' and k < 0.6 else '') + ').'
+    note = f'Ranked with the "{lift}" standard ({how}' + (' per dumbbell' if e['e'] == 'Dumbbell' and k < 0.6 else '') + ').'
     entries.append({'i': e['i'], 'lift': lift, 'm': rows('male'), 'f': rows('female'), 'r': reps,
                     'd': e['e'] == 'Dumbbell' and lift not in ('Goblet Squat', 'Dumbbell Tricep Extension'), 'note': note, 'k': k,
-                    'a': None if same and not APPROX.get(lift) else (APPROX.get(lift) or 'A similar exercise\'s standard, scaled – an estimate.')})
+                    'a': None if same and not (APPROX.get(lift) or SOURCE_APPROX.get(lift))
+                    else (APPROX.get(lift) or SOURCE_APPROX.get(lift) or 'A similar exercise\'s standard, scaled – an estimate.')})
     have.add(e['i']); derived += 1
 print('derived:', derived)
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))

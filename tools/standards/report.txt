@@ -1,6 +1,118 @@
+Bench Press male: ExRx (Kilgore/Rippetoe, ages 18-39) Novice -6.4% (11 rows)
+Bench Press male: ExRx (Kilgore/Rippetoe, ages 18-39) Intermediate -12.8% (11 rows)
+Bench Press male: ExRx (Kilgore/Rippetoe, ages 18-39) Advanced -5.6% (11 rows)
+Bench Press male: ExRx (Kilgore/Rippetoe, ages 18-39) Elite -4.2% (11 rows)
+Bench Press male: StrengthLog (app users) Beginner -7.4% (9 rows)
+Bench Press male: StrengthLog (app users) Novice -11.1% (9 rows)
+Bench Press male: StrengthLog (app users) Intermediate -11.2% (9 rows)
+Bench Press male: StrengthLog (app users) Advanced -8.4% (9 rows)
+Bench Press male: StrengthLog (app users) Elite -7.6% (9 rows)
+Bench Press male: AVERAGED with ['ExRx (Kilgore/Rippetoe, ages 18-39)', 'StrengthLog (app users)'] – level changes -3.7%, -5.8%, -8.0%, -4.7%, -3.9%
+Bench Press female: ExRx (Kilgore/Rippetoe, ages 18-39) Novice +27.5% (6 rows)
+Bench Press female: ExRx (Kilgore/Rippetoe, ages 18-39) Intermediate -6.8% (9 rows)
+Bench Press female: ExRx (Kilgore/Rippetoe, ages 18-39) Advanced -15.5% (9 rows)
+Bench Press female: ExRx (Kilgore/Rippetoe, ages 18-39) Elite -21.6% (9 rows)
+Bench Press female: StrengthLog (app users) Beginner +12.2% (10 rows)
+Bench Press female: StrengthLog (app users) Novice -6.4% (10 rows)
+Bench Press female: StrengthLog (app users) Intermediate -14.0% (10 rows)
+Bench Press female: StrengthLog (app users) Advanced -15.3% (10 rows)
+Bench Press female: StrengthLog (app users) Elite -15.3% (10 rows)
+Bench Press female: Advanced – 2 independent sources agree with each other, averaged in
+Bench Press female: Elite – 2 independent sources agree with each other, averaged in
+Bench Press female: AVERAGED with ['ExRx (Kilgore/Rippetoe, ages 18-39)', 'StrengthLog (app users)'] – level changes +6.1%, -3.2%, -6.9%, -10.2%, -12.3%
+Deadlift male: ExRx (Kilgore/Rippetoe), age 18-39 Novice -5.3% (7 rows)
+Deadlift male: ExRx (Kilgore/Rippetoe), age 18-39 Intermediate -10.7% (2 rows)
+Deadlift male: ExRx (Kilgore/Rippetoe), age 18-39 Advanced -1.3% (2 rows)
+Deadlift male: ExRx (Kilgore/Rippetoe), age 18-39 Elite +0.6% (2 rows)
+Deadlift male: StrengthLog (user training logs) Beginner -19.8% (4 rows)
+Deadlift male: StrengthLog (user training logs) Novice -15.8% (4 rows)
+Deadlift male: StrengthLog (user training logs) Intermediate -9.2% (4 rows)
+Deadlift male: StrengthLog (user training logs) Advanced -7.1% (4 rows)
+Deadlift male: StrengthLog (user training logs) Elite -9.7% (4 rows)
+Deadlift male: AVERAGED with ['ExRx (Kilgore/Rippetoe), age 18-39', 'StrengthLog (user training logs)'] – level changes +0.0%, -2.7%, -6.6%, -2.8%, -3.1%
+Deadlift female: ExRx (Kilgore/Rippetoe), age 18-39 Novice +3.2% (9 rows)
+Deadlift female: ExRx (Kilgore/Rippetoe), age 18-39 Intermediate -12.3% (3 rows)
+Deadlift female: ExRx (Kilgore/Rippetoe), age 18-39 Advanced -10.1% (3 rows)
+Deadlift female: ExRx (Kilgore/Rippetoe), age 18-39 Elite -13.4% (3 rows)
+Deadlift female: StrengthLog (user training logs) Beginner -3.2% (2 rows)
+Deadlift female: StrengthLog (user training logs) Novice -4.1% (2 rows)
+Deadlift female: StrengthLog (user training logs) Intermediate -5.6% (2 rows)
+Deadlift female: StrengthLog (user training logs) Advanced -4.0% (2 rows)
+Deadlift female: StrengthLog (user training logs) Elite -9.8% (2 rows)
+Deadlift female: AVERAGED with ['ExRx (Kilgore/Rippetoe), age 18-39', 'StrengthLog (user training logs)'] – level changes -1.6%, -0.3%, -5.9%, -4.7%, -7.8%
+Shoulder Press male: ExRx (Kilgore/Rippetoe Press, ages 18-39) Novice +6.8% (7 rows)
+Shoulder Press male: ExRx (Kilgore/Rippetoe Press, ages 18-39) Intermediate -1.7% (7 rows)
+Shoulder Press male: ExRx (Kilgore/Rippetoe Press, ages 18-39) Advanced -10.9% (7 rows)
+Shoulder Press male: ExRx (Kilgore/Rippetoe Press, ages 18-39) Elite -9.7% (7 rows)
+Shoulder Press male: StrengthLog (app users) Beginner -3.1% (5 rows)
+Shoulder Press male: StrengthLog (app users) Novice -9.4% (5 rows)
+Shoulder Press male: StrengthLog (app users) Intermediate -14.7% (5 rows)
+Shoulder Press male: StrengthLog (app users) Advanced -18.6% (5 rows)
+Shoulder Press male: StrengthLog (app users) Elite -23.0% (5 rows)
+Shoulder Press male: AVERAGED with ['ExRx (Kilgore/Rippetoe Press, ages 18-39)', 'StrengthLog (app users)'] – level changes -1.6%, -0.9%, -5.5%, -5.4%, -4.8%
+Shoulder Press female: ExRx (Kilgore/Rippetoe Press, ages 18-39) Novice +23.2% (4 rows)
+Shoulder Press female: ExRx (Kilgore/Rippetoe Press, ages 18-39) Intermediate -1.6% (4 rows)
+Shoulder Press female: ExRx (Kilgore/Rippetoe Press, ages 18-39) Advanced -6.6% (4 rows)
+Shoulder Press female: ExRx (Kilgore/Rippetoe Press, ages 18-39) Elite -8.2% (4 rows)
+Shoulder Press female: StrengthLog (app users) Beginner +9.5% (4 rows)
+Shoulder Press female: StrengthLog (app users) Novice +0.7% (4 rows)
+Shoulder Press female: StrengthLog (app users) Intermediate -9.3% (4 rows)
+Shoulder Press female: StrengthLog (app users) Advanced -16.6% (4 rows)
+Shoulder Press female: StrengthLog (app users) Elite -24.2% (4 rows)
+Shoulder Press female: AVERAGED with ['ExRx (Kilgore/Rippetoe Press, ages 18-39)', 'StrengthLog (app users)'] – level changes +4.7%, +0.3%, -3.6%, -3.3%, -4.1%
+Bent Over Row male: Strength Level (newer snapshot) Beginner -6.3% (4 rows)
+Bent Over Row male: Strength Level (newer snapshot) Novice -4.1% (4 rows)
+Bent Over Row male: Strength Level (newer snapshot) Intermediate -2.9% (4 rows)
+Bent Over Row male: Strength Level (newer snapshot) Advanced -1.7% (4 rows)
+Bent Over Row male: Strength Level (newer snapshot) Elite -0.8% (4 rows)
+Bent Over Row male: AVERAGED with ['Strength Level (newer snapshot)'] – level changes -3.2%, -2.0%, -1.4%, -0.8%, -0.4%
+Front Squat male: Strength Level (re-checked) Beginner +1.4% (2 rows)
+Front Squat male: Strength Level (re-checked) Novice +1.5% (2 rows)
+Front Squat male: Strength Level (re-checked) Intermediate +1.3% (2 rows)
+Front Squat male: Strength Level (re-checked) Advanced +1.5% (2 rows)
+Front Squat male: Strength Level (re-checked) Elite +1.2% (2 rows)
+Front Squat male: AVERAGED with ['Strength Level (re-checked)'] – level changes +0.7%, +0.7%, +0.7%, +0.8%, +0.6%
+Power Clean male: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Novice +0.6% (7 rows)
+Power Clean male: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Intermediate -4.0% (7 rows)
+Power Clean male: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Advanced +4.0% (7 rows)
+Power Clean male: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Elite +0.6% (7 rows)
+Power Clean male: AVERAGED with ['ExRx (Kilgore/Rippetoe) Clean, age 18-39'] – level changes +0.0%, +0.3%, -2.0%, +2.0%, +0.3%
+Power Clean female: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Novice -3.5% (2 rows)
+Power Clean female: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Intermediate -16.1% (2 rows)
+Power Clean female: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Advanced -15.1% (2 rows)
+Power Clean female: ExRx (Kilgore/Rippetoe) Clean, age 18-39 Elite -14.7% (2 rows)
+Power Clean female: AVERAGED with ['ExRx (Kilgore/Rippetoe) Clean, age 18-39'] – level changes +0.0%, -1.7%, +0.0%, +0.0%, -7.3%
+Dumbbell Row male: Strength Level (re-checked) Novice +1.8% (2 rows)
+Dumbbell Row male: Strength Level (re-checked) Intermediate +1.8% (2 rows)
+Dumbbell Row male: AVERAGED with ['Strength Level (re-checked)'] – level changes +0.0%, +0.9%, +0.9%, +0.0%, +0.0%
+Dumbbell Lateral Raise male: Strength Level (re-checked) Intermediate -2.7% (1 rows)
+Dumbbell Lateral Raise male: AVERAGED with ['Strength Level (re-checked)'] – level changes +0.0%, +0.0%, -1.4%, +0.0%, +0.0%
+Barbell Curl female: Strength Level (re-checked) Advanced +1.5% (1 rows)
+Barbell Curl female: Strength Level (re-checked) Elite +1.1% (1 rows)
+Barbell Curl female: AVERAGED with ['Strength Level (re-checked)'] – level changes +0.0%, +0.0%, +0.0%, +0.7%, +0.6%
 Preacher Curl male 110: identical to the barbell curl row – dropped
+Preacher Curl male: Strength Level (re-checked) Beginner +1.1% (3 rows)
+Preacher Curl male: AVERAGED with ['Strength Level (re-checked)'] – level changes +0.5%, +0.0%, +0.0%, +0.0%, +0.0%
+Pull Ups female: Strength Level (re-checked) Elite +1.1% (1 rows)
+Pull Ups female: AVERAGED with ['Strength Level (re-checked)'] – level changes +0.0%, +0.0%, +0.0%, +0.0%, +0.5%
+Machine Chest Press male: Strength Level (re-checked) Beginner -6.1% (3 rows)
+Machine Chest Press male: Strength Level (re-checked) Intermediate +3.7% (3 rows)
+Machine Chest Press male: Strength Level (re-checked) Advanced +6.2% (3 rows)
+Machine Chest Press male: Strength Level (re-checked) Elite +8.3% (3 rows)
+Machine Chest Press male: AVERAGED with ['Strength Level (re-checked)'] – level changes -3.1%, +0.0%, +1.8%, +3.1%, +4.2%
 Smith Machine Incline Bench Press: no data – not ranked
 Hip Abduction: estimate only (Strength Level shows two different versions of this page.)
+Face Pull male: Strength Level (re-checked) Beginner -9.6% (3 rows)
+Face Pull male: Strength Level (re-checked) Novice -3.1% (3 rows)
+Face Pull male: Strength Level (re-checked) Advanced +3.6% (3 rows)
+Face Pull male: Strength Level (re-checked) Elite +5.2% (3 rows)
+Face Pull male: AVERAGED with ['Strength Level (re-checked)'] – level changes -4.8%, -1.5%, +0.0%, +1.8%, +2.6%
+Sumo Deadlift male: Strength Level (newer snapshot) Beginner -3.0% (1 rows)
+Sumo Deadlift male: Strength Level (newer snapshot) Novice -2.6% (1 rows)
+Sumo Deadlift male: Strength Level (newer snapshot) Intermediate -2.3% (1 rows)
+Sumo Deadlift male: Strength Level (newer snapshot) Advanced -2.0% (1 rows)
+Sumo Deadlift male: Strength Level (newer snapshot) Elite -2.0% (1 rows)
+Sumo Deadlift male: AVERAGED with ['Strength Level (newer snapshot)'] – level changes -1.5%, -1.3%, -1.2%, -1.0%, -1.0%
 Hack Squat: estimate only (Strength Level shows two different versions of this page.)
 Wrist Curl female 100: off-trend [0.0, 10.0, 34.0, 73.0, 124.0] – dropped
 Wrist Curl female 110: off-trend [1.0, 12.0, 39.0, 80.0, 133.0] – dropped

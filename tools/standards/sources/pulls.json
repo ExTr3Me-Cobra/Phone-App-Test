@@ -1,0 +1,254 @@
+{
+  "Deadlift": {
+    "sources": [
+      {
+        "name": "ExRx (Kilgore/Rippetoe), age 18-39",
+        "ref": "exrx.net/Testing/WeightLifting/DeadliftStandards",
+        "population": "untrained to elite recreational/strength-trained adults (Kilgore/Rippetoe tables); Elite approaches competitive level",
+        "mapping": "Untrained->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": {
+          "114": [95, 180, null, null, null],
+          "123": [105, 195, null, null, null],
+          "181": [150, 275, 315, 440, 550],
+          "198": [null, null, 335, 460, 565],
+          "220": [165, 305, null, null, null],
+          "242": [170, 320, null, null, null],
+          "275": [175, 325, null, null, null],
+          "319": [180, 335, null, null, null]
+        },
+        "female": {
+          "97": [55, 105, null, null, null],
+          "105": [60, 115, null, null, null],
+          "114": [65, 120, null, null, null],
+          "123": [70, 130, null, null, null],
+          "132": [75, 135, null, null, null],
+          "148": [80, 150, 175, 240, 295],
+          "165": [90, 160, 190, 260, 320],
+          "181": [95, 175, 205, 275, 330],
+          "198": [100, 185, null, null, null]
+        },
+        "confidence": "medium",
+        "notes": "1RM, total bar weight. null = value not visible in any snippet (not interpolated). Snippets were search-engine summaries; sex of tables inferred from table order (men first, 114-320+; women second, 97-199+) and from World Record column (women 148: 470, 165: 499). ExRx also has age-variant pages (DeadliftStandards40LB/50LB/60LB) with lower numbers which were NOT used. One snippet gave a table 132:135/195/250, 148:155/215/275 ... of unclear sex/age; excluded. ExRx Untrained is much lower than SL Beginner at light body weights for women, and ExRx Novice-Elite are well below SL for men (e.g. 181 lb: ExRx Int 315 vs SL Int ~348 at 180)."
+      },
+      {
+        "name": "StrengthLog (user training logs)",
+        "ref": "strengthlog.com/deadlift-strength-standards-lb/",
+        "population": "app users' training logs (21,677 users) - regular gym-goers",
+        "mapping": "StrengthLog uses the same 5 names (Beginner/Novice/Intermediate/Advanced/Elite); per snippet Intermediate = stronger than 50%, Advanced = stronger than 75% (SL uses 80%); other cut-offs not seen",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": {
+          "150": [141, 216, 279, 334, 412],
+          "180": [163, 249, 318, 384, 483],
+          "200": [176, 268, 341, 413, 524],
+          "220": [188, 285, 362, 440, 562]
+        },
+        "female": {
+          "120": [82, 134, 170, 218, 282],
+          "140": [85, 145, 183, 234, 305]
+        },
+        "confidence": "medium",
+        "notes": "1RM lb as listed. Women's lb table seen only up to 140 lb body weight. Advanced percentile (75%) differs from SL's 80%, so Advanced/Elite naturally lower."
+      }
+    ],
+    "strength_level_check": {
+      "male": {},
+      "female": {
+        "120": [80, 123, 178, 242, 313],
+        "150": [99, 146, 205, 274, 349],
+        "160": [105, 153, 213, 283, 359],
+        "180": [115, 166, 228, 301, 379],
+        "200": [126, 178, 242, 317, 397]
+      },
+      "differs_from_app": "none (all 5 female rows identical to app). No male body-weight row surfaced; only SL's ratio summary (1.00/1.50/2.00/2.50/3.25 x BW) and the unweighted male overview 173/246/336/440/552."
+    },
+    "summary": "SL female rows match the app exactly. Other gym-goer sources are lower than SL from Novice upward: StrengthLog men are ~8-10% lower at Intermediate (318 vs 348 at 180 lb) and ~10-12% lower at Advanced/Elite; ExRx men 181 lb is ~10% lower at Int/Elite, but ExRx/StrengthLog Beginner is below SL's Beginner for men (150-163 vs 201 at 180 lb). Women: StrengthLog at 120 lb ~5% lower at Intermediate, ~10% lower at Elite."
+  },
+  "Sumo Deadlift": {
+    "sources": [
+      {
+        "name": "Strength Level (newer snapshot)",
+        "ref": "strengthlevel.com/strength-standards/sumo-deadlift/lb",
+        "population": "Strength Level users (849,267 lifts)",
+        "mapping": "identical level names",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": { "180": [223, 295, 381, 478, 580] },
+        "female": {},
+        "confidence": "medium",
+        "notes": "Search summary says an older version of the same page (852,835 lifts) listed 230/303/390/488/592 at 180 lb, which equals the app's row. FitnessVolt quoted the same 381/478 values (it mirrors this data) so it is not an independent source."
+      }
+    ],
+    "strength_level_check": {
+      "male": { "180": [230, 303, 390, 488, 592] },
+      "female": {},
+      "differs_from_app": "App matches the older SL snapshot at 180 lb. Newer snapshot shown in search is ~2-3% lower (223/295/381/478/580)."
+    },
+    "summary": "No independent gym-goer table found (ExRx has no sumo standard). SL's current sumo numbers appear ~2-3% below the app's at 180 lb male; otherwise consistent."
+  },
+  "Romanian Deadlift": {
+    "sources": [],
+    "strength_level_check": {
+      "male": {},
+      "female": { "180": [82, 120, 168, 223, 283] },
+      "differs_from_app": "none (female 180 matches exactly). SL ratios seen: male 0.75/1.0/1.5/2.0/2.75 x BW, female 0.5 .. 2.0 x BW; unweighted overview male 121/185/266/361/466, female 63/99/146/201/262."
+    },
+    "summary": "Only Strength Level data found; the one checked row matches the app. FitnessVolt quotes 180 lb male Intermediate ~274 lb and Advanced ~360 lb (vs app 280/364), but FitnessVolt is a competition-ratio model, so it is only a rough corroboration (within ~2%)."
+  },
+  "Barbell Shrug": {
+    "sources": [
+      {
+        "name": "FitnessVolt (modeled)",
+        "ref": "fitnessvolt.com/strength-standards/barbell-shrug",
+        "population": "modeled from competition-lifter percentiles (2.5M+ competition results) via strength ratios - NOT direct gym-goer shrug data",
+        "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names; its percentile cut-offs differ (Beginner = bottom 25%, Intermediate = 50th, Elite = top 10%)",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": {
+          "150": [83, 147, 234, 341, 462],
+          "180": [119, 194, 292, 410, 542],
+          "220": [165, 252, 363, 493, 637]
+        },
+        "female": {},
+        "confidence": "low",
+        "notes": "Population is competitive lifters and values are modeled, so the brief's rules make this a weak source; recorded only as a cross-check."
+      }
+    ],
+    "strength_level_check": {
+      "male": {},
+      "female": {},
+      "differs_from_app": "No SL body-weight rows surfaced; SL unweighted male overview 101/181/288/420/570."
+    },
+    "summary": "No gym-goer source besides SL. FitnessVolt's modeled table is close to the app's (180 lb: 119/194/292/410/542 vs app 121/192/284/394/515), i.e. within ~3% to Int and ~4-5% higher at Adv/Elite."
+  },
+  "Dumbbell Shrug": {
+    "sources": [],
+    "strength_level_check": {
+      "male": { "180": [38, 64, 99, 141, 188] },
+      "female": {},
+      "differs_from_app": "none (male 180 matches exactly; per dumbbell). SL female unweighted overview 13/31/59/94/137."
+    },
+    "summary": "Only SL data found; the checked row matches the app. No other gym-goer standards with numeric tables surfaced."
+  },
+  "Bent Over Row": {
+    "sources": [
+      {
+        "name": "Strength Level (newer snapshot)",
+        "ref": "strengthlevel.com/strength-standards/bent-over-row",
+        "population": "Strength Level users (2,149,712 lifts)",
+        "mapping": "identical level names",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": {
+          "130": [62, 95, 137, 186, 240],
+          "150": [78, 115, 160, 213, 271],
+          "220": [131, 177, 232, 295, 362],
+          "250": [152, 201, 259, 326, 396]
+        },
+        "female": {},
+        "confidence": "medium",
+        "notes": "From a search-result summary of the SL bodyweight table; consistently lower than the app's rows, suggesting a newer data snapshot. Unweighted male overview seen in two versions: 94/137/192/255/325 and 89/133/188/253/323."
+      }
+    ],
+    "strength_level_check": {
+      "male": {
+        "130": [62, 95, 137, 186, 240],
+        "150": [78, 115, 160, 213, 271],
+        "220": [131, 177, 232, 295, 362],
+        "250": [152, 201, 259, 326, 396]
+      },
+      "female": {},
+      "differs_from_app": "All 4 male rows differ: SL now ~5-8 lb lower at Beginner/Novice (e.g. 150: 78 vs 84, 115 vs 120), ~5-7 lb lower at Intermediate, ~2-5 lb lower at Advanced/Elite."
+    },
+    "summary": "No ExRx/StrengthLog row table found. The current SL bent-over row table appears ~3-8% below the app's values (largest at Beginner), so the app may be slightly generous at low levels."
+  },
+  "Dumbbell Row": {
+    "sources": [
+      {
+        "name": "FitnessVolt one-arm bent-over row (modeled)",
+        "ref": "fitnessvolt.com/strength-standards/dumbbell-one-arm-bent-over-row/",
+        "population": "modeled from ratios to a base lift (competition data), not measured",
+        "mapping": "same names",
+        "unit": "lb",
+        "per_dumbbell": true,
+        "male": { "180": [null, null, 77, 99, null] },
+        "female": {},
+        "confidence": "low",
+        "notes": "Only Intermediate (0.43 x BW) and Advanced start (~99) at 180 lb seen. Much lower than SL; modeled, not measured."
+      }
+    ],
+    "strength_level_check": {
+      "male": {
+        "150": [33, 56, 84, 115, 149],
+        "180": [44, 67, 97, 132, 171]
+      },
+      "female": {},
+      "differs_from_app": "180 matches. 150 differs slightly: SL shows 33/56/84/115/149 vs app 33/54/81/113/149 (+2-3 lb at Nov/Int/Adv). An older SL snapshot showed 31/53/82/117/157 (150) and 42/67/99/138/180 (180)."
+    },
+    "summary": "App matches current SL within ~3 lb. The only other source (FitnessVolt, modeled) is ~20% lower at Intermediate, but it is not a measured gym-goer table."
+  },
+  "Seated Cable Row": {
+    "sources": [
+      {
+        "name": "FitnessVolt seated cable row (modeled)",
+        "ref": "fitnessvolt.com/strength-standards/seated-cable-row",
+        "population": "modeled from FitnessVolt strength ratios (competition-based), sex not labeled in snippet",
+        "mapping": "same names",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": {
+          "120": [59, 92, 135, 185, 240],
+          "150": [82, 120, 167, 223, 283]
+        },
+        "female": {},
+        "confidence": "low",
+        "notes": "Sex not stated; assumed male because values sit next to SL male values (app male 150: 86/123/168/220/276). Another FitnessVolt page gave a cable-rope row 180 lb male Int ~106 and a seated row Int 122 or 196, so FitnessVolt is internally inconsistent."
+      }
+    ],
+    "strength_level_check": {
+      "male": {},
+      "female": {},
+      "differs_from_app": "No SL body-weight rows surfaced; SL unweighted overviews male 91/133/186/246/313, female 44/70/104/145/190."
+    },
+    "summary": "No ExRx/StrengthLog table. FitnessVolt's (low-confidence) 150 lb row is within ~3% of the app's male 150 row. Machine-stack weights vary by brand, so any standard is approximate."
+  },
+  "Power Clean": {
+    "sources": [
+      {
+        "name": "ExRx (Kilgore/Rippetoe) Clean, age 18-39",
+        "ref": "exrx.net/Testing/WeightLifting/CleanStandards (women from CleanStandardsKg)",
+        "population": "untrained to elite recreational/strength-trained adults",
+        "mapping": "Untrained->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite",
+        "unit": "lb",
+        "per_dumbbell": false,
+        "male": {
+          "132": [65, 120, 150, 200, 240],
+          "148": [75, 135, 165, 225, 265],
+          "165": [80, 145, 180, 245, 290],
+          "181": [85, 160, 195, 265, 310],
+          "198": [90, 165, 205, 280, 325],
+          "220": [95, 175, 215, 295, 345],
+          "242": [100, 185, 225, 305, 355]
+        },
+        "female": {
+          "97": [28, 61, 72, 94, 116],
+          "198": [61, 110, 127, 165, 209]
+        },
+        "confidence": "medium",
+        "notes": "ExRx 'Clean' = power-clean-style catch (bar caught at/above 90 deg knee angle). Women's values read in kg (44 kg: 12.5/27.5/32.5/42.5/52.5; 90 kg: 27.5/50/57.5/75/95) and converted x2.2046, body weights 44 kg->97 lb, 90 kg->198 lb. Age-variant pages CleanStandards40LB/50LB/60LB (lower values) were NOT used."
+      }
+    ],
+    "strength_level_check": {
+      "male": {
+        "160": [102, 137, 179, 227, 278],
+        "180": [117, 154, 198, 248, 301],
+        "200": [130, 169, 216, 268, 323]
+      },
+      "female": {},
+      "differs_from_app": "none (all 3 male rows match exactly). Unweighted SL male overview seen in two versions: 102/143/193/250/311 and 102/147/202/266/336."
+    },
+    "summary": "SL rows match the app. ExRx agrees closely at Intermediate (181 lb: 195 vs SL 198) and Elite (310 vs 301) and is ~7% higher at Advanced, but ExRx Untrained/Novice are much lower (85/160 vs SL 117/154 for Beginner; Novice roughly equal). Women's ExRx is far below SL (e.g. 198 lb Int 127 vs SL ~140 at 200)."
+  }
+}

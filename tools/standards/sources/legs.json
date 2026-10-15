@@ -1,0 +1,512 @@
+{
+ "Squat": {
+  "sources": [
+   {
+    "name": "ExRx (current 2020s tables, ages 18-39)",
+    "ref": "exrx.net/Testing/WeightLifting/SquatStandards",
+    "population": "ExRx performance standards for adults 18-39 (not population norms per ExRx); below-parallel squat",
+    "mapping": "Untrained->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "148": [
+      100,
+      190,
+      230,
+      315,
+      410
+     ],
+     "181": [
+      120,
+      220,
+      270,
+      370,
+      480
+     ]
+    },
+    "female": {
+     "148": [
+      65,
+      120,
+      140,
+      185,
+      230
+     ],
+     "181": [
+      75,
+      140,
+      165,
+      215,
+      270
+     ],
+     "199": [
+      85,
+      160,
+      185,
+      240,
+      305
+     ]
+    },
+    "confidence": "low",
+    "notes": "Snippet-only; summarizer often could not tell men's from women's table. Male 181 row also appeared as 100/190/230/320/415 in another snippet (likely the 148 row mis-attributed). Female untrained/novice column confirmed separately for 97-198 lb: 97:40/85, 105:50/90, 114:55/100, 123:55/105, 132:60/110, 148:65/120, 165:70/130, 181:75/140, 198:80/150, 199+:85/160. '199' key = 199+ class. These are the newer ExRx tables (with World Record column), much lower than the classic Kilgore/Rippetoe 2006 numbers. ExRx tiers are ~35-50% below Strength Level at Novice-Elite for women and ~10-20% below for men."
+   },
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/squat/",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "120": [
+      90,
+      120,
+      150,
+      198,
+      240
+     ],
+     "140": [
+      105,
+      140,
+      175,
+      231,
+      280
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "Gym-based table = flat BW multiples 0.75/1.0/1.25/1.65/2.0x. Much lower than Strength Level at Novice+ (SL 120 lb male: 92/136/192/257/327)."
+   },
+   {
+    "name": "StrengthLog (user logs)",
+    "ref": "strengthlog.com/squat-strength-standards-lb/",
+    "population": "Training logs of 22,074 StrengthLog app users (gym-goers)",
+    "mapping": "Beginner->Beginner ... Elite->Elite (same names; percentile definitions not stated)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "150": [
+      110,
+      172,
+      216,
+      258,
+      394
+     ],
+     "180": [
+      128,
+      199,
+      251,
+      307,
+      465
+     ],
+     "200": [
+      139,
+      214,
+      272,
+      335,
+      506
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Snippet only; Advanced->Elite jump looks odd so column reading may be off. Intermediate ~12-16% below SL; Elite close to SL."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "120": [
+     92,
+     136,
+     192,
+     257,
+     327
+    ]
+   },
+   "female": {
+    "120": [
+     63,
+     100,
+     148,
+     206,
+     269
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "Strength Level rows re-verified (male 120, female 120 match). ExRx (new tables), FitnessVolt and StrengthLog all sit below SL at Intermediate (roughly 10-25% for men; ExRx women ~40% lower), so SL is the most generous-to-strong / hardest standard; no source suggests SL is too easy."
+ },
+ "Front Squat": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/barbell-front-squat/",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {},
+    "female": {},
+    "confidence": "low",
+    "notes": "Only partial 180-lb male row seen: Intermediate ~239 (1.33x BW), Advanced ~306. Page says it is modelled from ratios to a base lift, not measured. Close to SL 180 (234/297)."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     67,
+     101,
+     144,
+     194,
+     249
+    ],
+    "120": [
+     77,
+     113,
+     158,
+     211,
+     268
+    ]
+   },
+   "female": {
+    "110": [
+     58,
+     85,
+     119,
+     158,
+     201
+    ],
+    "120": [
+     62,
+     90,
+     125,
+     165,
+     209
+    ]
+   },
+   "differs_from_app": "Female 110/120 match. strengthlevel.com/strength-standards/front-squat shows male 110 = 67/101/144/194/249 and 120 = 77/113/158/211/268 vs app 66/99/142/191/246 and 76/112/156/208/265 (app matches the older /barbell-front-squat page). Current SL is ~1-2% higher; negligible."
+  },
+  "summary": "SL front squat essentially confirmed (current site ~1-2% higher for light men). FitnessVolt's 180-lb Intermediate/Advanced (239/306) is within ~3% of the app's SL row."
+ },
+ "Leg Press": {
+  "sources": [],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     112,
+     196,
+     309,
+     448,
+     605
+    ],
+    "120": [
+     132,
+     222,
+     342,
+     488,
+     651
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none (matches SL 'Sled Leg Press' page). Note SL horizontal leg press is lower: male 110 = 90/162/261/383/521."
+  },
+  "summary": "Strength Level sled leg press rows re-verified exactly. No independent bodyweight table found (Marathon Handbook only re-cites SL; there are no official leg press norms). Machine type matters a lot (horizontal press ~15-20% lower)."
+ },
+ "Leg Extension": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/leg-extension",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      89,
+      147,
+      222,
+      313,
+      414
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "180-lb male row only."
+   }
+  ],
+  "strength_level_check": {
+   "male": {},
+   "female": {},
+   "differs_from_app": "none observed (snippet confirmed SL 180-lb male Intermediate = 231, same as app)"
+  },
+  "summary": "FitnessVolt 180-lb male row (89/147/222/313/414) vs app SL (107/162/231/313/402): ~17% lower at Beginner, ~4% lower at Intermediate, equal at Advanced, 3% higher at Elite. Broad agreement."
+ },
+ "Lying Leg Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/lying-leg-curl",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "110": [
+      26,
+      53,
+      92,
+      142,
+      199
+     ],
+     "120": [
+      31,
+      60,
+      101,
+      153,
+      213
+     ],
+     "180": [
+      59,
+      97,
+      149,
+      210,
+      279
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": ""
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     34,
+     60,
+     95,
+     138,
+     187
+    ],
+    "120": [
+     39,
+     67,
+     104,
+     149,
+     199
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none"
+  },
+  "summary": "SL rows re-verified. FitnessVolt is lower at Beginner/Novice (~10-25%), about equal at Intermediate (within 3%), and ~3-8% higher at Advanced/Elite - a wider spread around the same median."
+ },
+ "Seated Leg Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/seated-leg-curl",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      73,
+      120,
+      182,
+      257,
+      340
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "180-lb male row. One snippet claimed SL's 180 row is identical, which contradicts the app's SL row (87/131/185/250/320); treated as a summarizer error, not as an SL re-check."
+   }
+  ],
+  "strength_level_check": {
+   "male": {},
+   "female": {},
+   "differs_from_app": "not re-verified (no reliable SL snippet)"
+  },
+  "summary": "FitnessVolt 180-lb male (73/120/182/257/340) vs app SL (87/131/185/250/320): lower at the bottom (-16%/-8%), same median, higher at the top (+3%/+6%)."
+ },
+ "Calf Raise": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/machine-calf-raise",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      85,
+      177,
+      310,
+      480,
+      677
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Intermediate 310 and Advanced 480 (2.67x BW) seen clearly on FitnessVolt machine calf raise page; Beginner/Novice/Elite (85/177/677) came from a snippet attributed to SL's calf-raise page, so the row may belong to either site."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     24,
+     81,
+     177,
+     310,
+     471
+    ],
+    "120": [
+     32,
+     95,
+     198,
+     337,
+     504
+    ]
+   },
+   "female": {},
+   "differs_from_app": "strengthlevel.com/strength-standards/calf-raise/lb (titled 'Machine Calf Raise') snippet shows male 110 = 24/81/177/310/471 and 120 = 32/95/198/337/504 vs app 48/110/202/321/461 and 57/123/220/344/489: Beginner ~45-50% lower, Novice ~25% lower, Intermediate ~10% lower, Advanced ~2-3% lower, Elite ~2-3% higher. Medium-low confidence (single snippet); SL may have updated the table."
+  },
+  "summary": "Calf raise is the one lift where current sources disagree with the app: both a fresh SL snippet and FitnessVolt show a wider spread (much lower Beginner/Novice, ~same or higher Advanced/Elite). Worth re-pulling the full SL calf-raise table."
+ },
+ "Hip Thrust": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/hip-thrust",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      114,
+      198,
+      312,
+      451,
+      608
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "180-lb male row; second (likely female) table was cut off."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     45,
+     102,
+     186,
+     296,
+     424
+    ],
+    "120": [
+     56,
+     119,
+     209,
+     325,
+     459
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none"
+  },
+  "summary": "SL rows re-verified. FitnessVolt 180-lb male is ~5-12% below app SL (129/218/335/478/639) at every level."
+ },
+ "Dumbbell Lunge": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/dumbbell-lunge",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "110": [
+      7,
+      20,
+      42,
+      71,
+      105
+     ],
+     "120": [
+      9,
+      24,
+      46,
+      77,
+      113
+     ],
+     "180": [
+      24,
+      45,
+      73,
+      110,
+      152
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "Assumed per-dumbbell like SL (not stated). The 180 row came from a bodyweight table whose page variant was unclear; the main page gave Intermediate 70 / Advanced 107 for 180 lb."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     9,
+     23,
+     43,
+     70,
+     102
+    ],
+    "120": [
+     11,
+     25,
+     47,
+     75,
+     108
+    ]
+   },
+   "female": {},
+   "differs_from_app": "none"
+  },
+  "summary": "SL rows re-verified. FitnessVolt within ~1-5 lb of SL at 110/120 lb (lower at Beginner, slightly higher at Elite); at 180 lb it is ~10% higher than the app row (22/41/67/100/137)."
+ },
+ "Dumbbell Bulgarian Split Squat": {
+  "sources": [
+   {
+    "name": "FitnessVolt",
+    "ref": "fitnessvolt.com/strength-standards/dumbbell-bulgarian-split-squat",
+    "population": "FitnessVolt 'FVCP' percentiles; site claims basis of 2.5M+ competition results, but levels are labelled like Strength Level (5/20/50/80/95%) and values track gym-goer data, not meet data. Population unclear.",
+    "mapping": "Beginner->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite (same 5 names)",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "180": [
+      26,
+      45,
+      70,
+      102,
+      136
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "Assumed per-dumbbell like SL (not stated). A second FitnessVolt page gave 71/103 for Intermediate/Advanced at 180."
+   }
+  ],
+  "strength_level_check": {
+   "male": {},
+   "female": {},
+   "differs_from_app": "not re-verified by bodyweight (SL overall male Intermediate 69 / Advanced 101 seen, not BW-specific)"
+  },
+  "summary": "FitnessVolt 180-lb male (26/45/70/102/136) is ~3-13% below the app's SL row (30/49/75/106/140); close agreement."
+ }
+}

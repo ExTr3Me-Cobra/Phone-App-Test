@@ -1,0 +1,924 @@
+{
+ "Barbell Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/barbell-curl/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "110": [
+      20,
+      39,
+      67,
+      102,
+      142
+     ],
+     "150": [
+      34,
+      58,
+      91,
+      131,
+      177
+     ],
+     "180": [
+      44,
+      72,
+      108,
+      151,
+      199
+     ],
+     "200": [
+      50,
+      80,
+      118,
+      163,
+      213
+     ],
+     "250": [
+      66,
+      99,
+      140,
+      189,
+      243
+     ],
+     "260": [
+      69,
+      102,
+      144,
+      194,
+      248
+     ],
+     "310": [
+      82,
+      119,
+      164,
+      217,
+      274
+     ]
+    },
+    "female": {
+     "110": [
+      10,
+      24,
+      45,
+      71,
+      103
+     ],
+     "140": [
+      15,
+      31,
+      54,
+      83,
+      117
+     ],
+     "150": [
+      16,
+      33,
+      56,
+      86,
+      121
+     ],
+     "200": [
+      23,
+      43,
+      69,
+      102,
+      139
+     ],
+     "250": [
+      29,
+      51,
+      79,
+      114,
+      153
+     ],
+     "260": [
+      31,
+      52,
+      81,
+      116,
+      156
+     ]
+    },
+    "confidence": "medium",
+    "notes": "Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets. Includes bar weight."
+   },
+   {
+    "name": "AthletePath",
+    "ref": "athletepath.com/strength-standards/barbell-curl/",
+    "population": "not stated; fixed bodyweight-ratio bands (men: untrained <0.4x, novice 0.4-0.6x, intermediate 0.6-0.85x, advanced 0.85-1.15x, elite >=1.15x)",
+    "mapping": "Untrained->Beginner, Novice->Novice, Intermediate->Intermediate, Advanced->Advanced, Elite->Elite",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "165": [
+      null,
+      66,
+      99,
+      140,
+      null
+     ],
+     "180": [
+      36,
+      72,
+      108,
+      153,
+      207
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Formula-like ratio table (values = ratio x bodyweight), not an observed population distribution. Female table not seen."
+   },
+   {
+    "name": "Endura (endura.coach)",
+    "ref": "endura.coach/barbell-curl-strength-standards-calculator/",
+    "population": "not stated; app/calculator benchmarks on estimated 1RM",
+    "mapping": "Each value = lower bound of the named band (Novice 55-82 -> Novice threshold 55, etc.). Beginner band is 'under X' so no Beginner threshold (null). Endura also has a 'Stretch' band above Elite (men 180: 183+, women 150: 127+), ignored.",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      null,
+      55,
+      83,
+      120,
+      156
+     ]
+    },
+    "female": {
+     "150": [
+      null,
+      30,
+      53,
+      75,
+      106
+     ]
+    },
+    "confidence": "low",
+    "notes": "Band-lower-bound mapping is my interpretation; Endura's 'Elite' sits well below FitnessVolt/Strength Level Elite."
+   },
+   {
+    "name": "The Workout Mag",
+    "ref": "theworkoutmag.com/training/average-man-barbell-curl-strength-standards",
+    "population": "men by training experience (novice 6-12 mo, intermediate 1-3 yr, advanced 3-5 yr)",
+    "mapping": "Novice->Novice, Intermediate->Intermediate, Advanced->Advanced (experience-based, not percentile; mapping loose)",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "165": [
+      null,
+      99,
+      132,
+      165,
+      null
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Experience-based tiers, ~0.6/0.8/1.0x bodyweight; much higher than all other sources at Novice/Intermediate."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "180": [
+     49,
+     73,
+     104,
+     140,
+     180
+    ]
+   },
+   "female": {
+    "198": [
+     26,
+     44,
+     66,
+     95,
+     126
+    ]
+   },
+   "differs_from_app": "none (male 180 row matches app exactly; SL kg table 90 kg female = 12/20/30/43/57 kg -> 26/44/66/95/126 lb at 198 lb bw, consistent with app 200-lb row 26/44/67/94/125; 110 kg male = 31/44/60/78/97 kg -> 68/97/132/172/214 lb at 243 lb bw, consistent with app 240-lb row 67/95/130/170/214). Note: SL community-wide (not bw-specific) male figures seen as 38/66/103/149/201 on some pages and 42/67/99/138/180 on others - different page snapshots."
+  },
+  "summary": "FitnessVolt broadly agrees with the app: Beginner ~5-15% lower, Novice equal, Intermediate +2-5%, Advanced +7-9%, Elite +10-11% (male 180: 44/72/108/151/199 vs app 49/73/104/140/180). AthletePath (ratio formula) agrees at Novice/Intermediate; Endura is lower at the top, The Workout Mag much higher at Novice/Intermediate."
+ },
+ "Dumbbell Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/dumbbell-curl/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "150": [
+      12,
+      27,
+      47,
+      73,
+      104
+     ],
+     "180": [
+      16,
+      32,
+      54,
+      83,
+      115
+     ],
+     "200": [
+      19,
+      36,
+      59,
+      88,
+      121
+     ]
+    },
+    "female": {
+     "140": [
+      8,
+      17,
+      30,
+      46,
+      66
+     ]
+    },
+    "confidence": "low",
+    "notes": "Page does not state per-dumbbell vs combined (treated as one dumbbell because values match SL scale). 150/200 rows came from a snippet whose sex label was unclear; assigned male because they bracket the confirmed male 180 row. Page also has a contradictory 140-lb row with Intermediate 44 lb."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     9,
+     19,
+     33,
+     51,
+     71
+    ],
+    "180": [
+     19,
+     32,
+     49,
+     71,
+     95
+    ],
+    "310": [
+     33,
+     50,
+     71,
+     96,
+     124
+    ]
+   },
+   "female": {
+    "140": [
+     9,
+     17,
+     27,
+     40,
+     55
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "FitnessVolt (one-dumbbell) is close to the app at Beginner/Novice and higher at the top: male 180 Intermediate +10%, Advanced +17%, Elite +21% (54/83/115 vs 49/71/95); female 140 similar pattern (30/46/66 vs 27/40/55)."
+ },
+ "Hammer Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/hammer-curl/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "180": [
+      22,
+      36,
+      54,
+      76,
+      101
+     ]
+    },
+    "female": {
+     "140": [
+      10,
+      18,
+      28,
+      41,
+      55
+     ]
+    },
+    "confidence": "medium",
+    "notes": "Per-dumbbell not stated explicitly; values on one-dumbbell scale. Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets."
+   },
+   {
+    "name": "AthletePath",
+    "ref": "athletepath.com/strength-standards/hammer-curl/",
+    "population": "not stated; bodyweight-ratio table, men 20-39",
+    "mapping": "Untrained->Beginner ... Elite->Elite",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      36,
+      72,
+      108,
+      144,
+      198
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Reported as TOTAL weight of both dumbbells (per snippet). Per dumbbell = 18/36/54/72/99. Ratio-formula table."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     11,
+     20,
+     32,
+     48,
+     66
+    ],
+    "180": [
+     24,
+     37,
+     54,
+     73,
+     95
+    ],
+    "310": [
+     45,
+     63,
+     84,
+     108,
+     134
+    ]
+   },
+   "female": {
+    "90": [
+     7,
+     13,
+     20,
+     30,
+     41
+    ],
+    "140": [
+     11,
+     18,
+     27,
+     38,
+     50
+    ],
+    "260": [
+     19,
+     27,
+     38,
+     51,
+     65
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "Good agreement: male 180 FitnessVolt 22/36/54/76/101 and AthletePath (per DB) 18/36/54/72/99 vs app 24/37/54/73/95 - Intermediate identical, Elite +4-6%, Beginner 8-25% lower."
+ },
+ "Preacher Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/preacher-curl/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      42,
+      69,
+      104,
+      146,
+      194
+     ]
+    },
+    "female": {
+     "140": [
+      16,
+      null,
+      55,
+      85,
+      119
+     ]
+    },
+    "confidence": "medium",
+    "notes": "Female Novice not shown. Page says reader data still building. Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets."
+   },
+   {
+    "name": "AthletePath",
+    "ref": "athletepath.com/strength-standards/barbell-preacher-curl/",
+    "population": "not stated; bodyweight-ratio table",
+    "mapping": "Untrained->Beginner ... Elite->Elite",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      31,
+      63,
+      90,
+      126,
+      180
+     ]
+    },
+    "female": {},
+    "confidence": "low",
+    "notes": "Ratio-formula table (0.175/0.35/0.5/0.7/1.0x bw at 180)."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     24,
+     42,
+     66,
+     95,
+     128
+    ],
+    "180": [
+     46,
+     70,
+     100,
+     136,
+     175
+    ],
+    "310": [
+     79,
+     109,
+     146,
+     189,
+     235
+    ]
+   },
+   "female": {
+    "140": [
+     20,
+     35,
+     54,
+     78,
+     104
+    ]
+   },
+   "differs_from_app": "none (app raw r3.json lacks a male 180 row but batch_d.json 180 = 46/70/100/136/175 matches)"
+  },
+  "summary": "FitnessVolt male 180 is within ~4% at Novice/Intermediate, +7% Advanced, +11% Elite vs app; AthletePath is 10-30% lower at Beginner-Advanced and ~equal at Elite. Female 140 FitnessVolt Int/Adv/Elite ~+2/+9/+14%."
+ },
+ "EZ Bar Curl": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/ez-bar-curl/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      51,
+      76,
+      107,
+      144,
+      184
+     ]
+    },
+    "female": {
+     "140": [
+      24,
+      null,
+      60,
+      85,
+      112
+     ]
+    },
+    "confidence": "medium",
+    "notes": "Labelled 'Estimated Standards'. Female Novice not shown. Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     31,
+     47,
+     68,
+     93,
+     121
+    ],
+    "180": [
+     56,
+     78,
+     104,
+     135,
+     167
+    ],
+    "310": [
+     93,
+     120,
+     152,
+     189,
+     227
+    ]
+   },
+   "female": {
+    "90": [
+     15,
+     26,
+     40,
+     58,
+     78
+    ],
+    "140": [
+     26,
+     40,
+     58,
+     79,
+     102
+    ],
+    "260": [
+     47,
+     65,
+     88,
+     113,
+     141
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "FitnessVolt close to app: male 180 Beginner -9%, Novice -3%, Intermediate +3%, Advanced +7%, Elite +10%; female 140 similar (+3/+8/+10% at Int/Adv/Elite)."
+ },
+ "Tricep Pushdown": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/tricep-pushdown/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "110": [
+      16,
+      40,
+      76,
+      124,
+      181
+     ],
+     "150": [
+      33,
+      64,
+      109,
+      165,
+      229
+     ],
+     "180": [
+      45,
+      null,
+      130,
+      191,
+      260
+     ],
+     "250": [
+      72,
+      117,
+      174,
+      244,
+      320
+     ],
+     "310": [
+      94,
+      143,
+      207,
+      281,
+      364
+     ]
+    },
+    "female": {
+     "110": [
+      13,
+      30,
+      55,
+      88,
+      127
+     ],
+     "140": [
+      19,
+      null,
+      68,
+      104,
+      146
+     ],
+     "150": [
+      21,
+      42,
+      71,
+      108,
+      151
+     ],
+     "250": [
+      39,
+      67,
+      102,
+      146,
+      195
+     ]
+    },
+    "confidence": "medium",
+    "notes": "Straight-bar pushdown (rope is a separate page). Page says reader data still building. Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     22,
+     45,
+     79,
+     122,
+     172
+    ],
+    "180": [
+     49,
+     82,
+     126,
+     179,
+     238
+    ],
+    "310": [
+     92,
+     135,
+     190,
+     254,
+     324
+    ]
+   },
+   "female": {
+    "90": [
+     11,
+     25,
+     46,
+     73,
+     105
+    ],
+    "260": [
+     40,
+     65,
+     97,
+     135,
+     177
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "FitnessVolt agrees at Beginner-Intermediate (within ~5-10%, Beginner a bit lower) but is higher at the top: Advanced +2-11%, Elite +5-12% (male 310 Elite 364 vs 324; female 150 Elite 151 vs 137)."
+ },
+ "Tricep Rope Pushdown": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/tricep-rope-pushdown/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      39,
+      68,
+      109,
+      158,
+      214
+     ]
+    },
+    "female": {
+     "140": [
+      18,
+      34,
+      57,
+      86,
+      119
+     ]
+    },
+    "confidence": "medium",
+    "notes": "Estimated standards; reader data still building. Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     17,
+     36,
+     64,
+     100,
+     142
+    ],
+    "180": [
+     40,
+     67,
+     104,
+     148,
+     198
+    ],
+    "310": [
+     75,
+     112,
+     158,
+     212,
+     272
+    ]
+   },
+   "female": {
+    "90": [
+     11,
+     23,
+     40,
+     63,
+     89
+    ],
+    "140": [
+     19,
+     34,
+     55,
+     80,
+     110
+    ],
+    "260": [
+     33,
+     53,
+     79,
+     109,
+     143
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "Very close: male 180 FitnessVolt 39/68/109/158/214 vs app 40/67/104/148/198 (Int +5%, Adv +7%, Elite +8%); female 140 18/34/57/86/119 vs 19/34/55/80/110."
+ },
+ "Lying Tricep Extension": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/lying-tricep-extension/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": false,
+    "male": {
+     "180": [
+      48,
+      74,
+      107,
+      148,
+      193
+     ]
+    },
+    "female": {},
+    "confidence": "medium",
+    "notes": "Barbell/EZ skull crusher. Second (likely female) table showed 180-lb Intermediate 63 lb only; not recorded. FitnessVolt's generic 'tricep extension' page gives 180-lb male Intermediate 113 (different exercise). Page tables are not labelled male/female in snippets; sex assigned because each block matches the page's own '180 lb male' / '140 lb female' text. 1RM lb. null = value not shown in search snippets."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     18,
+     33,
+     54,
+     80,
+     110
+    ],
+    "180": [
+     45,
+     69,
+     98,
+     132,
+     170
+    ],
+    "310": [
+     91,
+     123,
+     161,
+     205,
+     251
+    ]
+   },
+   "female": {
+    "90": [
+     9,
+     19,
+     34,
+     52,
+     73
+    ],
+    "140": [
+     16,
+     29,
+     46,
+     67,
+     90
+    ],
+    "260": [
+     28,
+     44,
+     65,
+     90,
+     117
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "FitnessVolt male 180 runs 7-14% above the app at every level (48/74/107/148/193 vs 45/69/98/132/170), most at Elite."
+ },
+ "Dumbbell Tricep Extension": {
+  "sources": [
+   {
+    "name": "FitnessVolt strength standards",
+    "ref": "fitnessvolt.com/strength-standards/dumbbell-tricep-extension/",
+    "population": "FitnessVolt site tiers ('estimated standards'); site claims a model built from verified competition results plus reader data still building - population is unclear, not a pure gym-goer survey",
+    "mapping": "FitnessVolt Beginner/Novice/Intermediate/Advanced/Elite -> same names",
+    "unit": "lb",
+    "per_dumbbell": true,
+    "male": {
+     "180": [
+      14,
+      null,
+      55,
+      87,
+      123
+     ]
+    },
+    "female": {
+     "140": [
+      7,
+      null,
+      28,
+      43,
+      61
+     ]
+    },
+    "confidence": "low",
+    "notes": "Values from page text, not table; page's own 140-lb table row (Novice 21, Int 41, Adv 69, Elite 102) contradicts its female text - likely that row is the male table. Per dumbbell assumed (single-DB overhead extension). Reader data still building."
+   }
+  ],
+  "strength_level_check": {
+   "male": {
+    "110": [
+     4,
+     13,
+     27,
+     47,
+     72
+    ],
+    "180": [
+     14,
+     28,
+     49,
+     75,
+     105
+    ],
+    "310": [
+     32,
+     52,
+     79,
+     112,
+     148
+    ]
+   },
+   "female": {
+    "90": [
+     4,
+     10,
+     19,
+     31,
+     44
+    ],
+    "140": [
+     8,
+     15,
+     26,
+     39,
+     54
+    ],
+    "260": [
+     14,
+     23,
+     36,
+     51,
+     68
+    ]
+   },
+   "differs_from_app": "none"
+  },
+  "summary": "FitnessVolt matches app at Beginner, higher at top: male 180 Int +12%, Adv +16%, Elite +17%; female 140 Int +8%, Adv +10%, Elite +13%. Low confidence due to page inconsistency."
+ }
+}
