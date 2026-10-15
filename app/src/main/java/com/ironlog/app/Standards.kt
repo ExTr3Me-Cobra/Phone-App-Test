@@ -185,7 +185,7 @@ object Standards {
      * estimate from the other sets. Max-reps exercises: the most reps.
      */
     fun testValue(id: String, sets: List<DoneSet>): Double {
-        val done = sets.filter { it.done }
+        val done = sets.filter { it.done && !it.warmup }
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         val single = done.filter { it.reps == 1 }.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
@@ -193,7 +193,7 @@ object Standards {
 
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
-        val done = sets.filter { it.done }
+        val done = sets.filter { it.done && !it.warmup } // warm-ups never count
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
     }

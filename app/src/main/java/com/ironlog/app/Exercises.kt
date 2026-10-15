@@ -335,7 +335,8 @@ fun ExerciseDetailScreen(id: String) {
                     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
                         Text(Units.date(s.workout.start), fontWeight = FontWeight.Medium)
                         s.sets.forEachIndexed { i, set ->
-                            Text("${if (set.failure) "F" else "${i + 1}"}   ${Units.set(e.type, set)}", color = if (set.failure) Red else Sub)
+                            Text("${when { set.warmup -> "W"; set.failure -> "F"; else -> "${setNumber(s.sets.map { it.warmup }, i) + 1}" }}   ${Units.set(e.type, set)}",
+                                color = when { set.warmup -> Orange; set.failure -> Red; else -> Sub })
                         }
                     }
                 }

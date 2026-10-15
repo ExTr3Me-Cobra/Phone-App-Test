@@ -134,7 +134,7 @@ fun WorkoutDetailScreen(id: String) {
                     DropdownMenuItem({ Text("Save as routine") }, {
                         menu = false
                         val r = Routine(Store.newId(), w.name, w.items.map { i ->
-                            RoutineItem(i.exerciseId, i.sets.map { PlanSet(it.reps, it.weight, it.seconds, it.distance, it.failure) }, i.restSec)
+                            RoutineItem(i.exerciseId, i.sets.map { PlanSet(it.reps, it.weight, it.seconds, it.distance, it.failure, it.warmup) }, i.restSec)
                         })
                         Store.saveRoutine(r)
                         Nav.go(Route.RoutineView(r.id))
@@ -166,7 +166,7 @@ fun WorkoutDetailScreen(id: String) {
                 }
                 item.sets.forEachIndexed { n, s ->
                     Row(Modifier.fillMaxWidth().background(if (n % 2 == 1) Card else Bg).padding(horizontal = 8.dp, vertical = 8.dp)) {
-                        SetLabel(n, s.failure, Modifier.height(22.dp).padding(end = 24.dp))
+                        SetLabel(setNumber(item.sets.map { it.warmup }, n), s.failure, Modifier.height(22.dp).padding(end = 24.dp), s.warmup)
                         Text(ex?.let { Units.set(it.type, s) } ?: "")
                     }
                 }

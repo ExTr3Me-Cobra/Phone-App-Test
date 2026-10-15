@@ -26,6 +26,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -177,8 +180,33 @@ fun RestLine(sec: Int, onClick: (() -> Unit)?) {
 }
 
 @Composable
-fun SetLabel(n: Int, failure: Boolean, modifier: Modifier) =
-    Text(if (failure) "F" else "${n + 1}", color = if (failure) Red else Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = modifier)
+fun SetLabel(n: Int, failure: Boolean, modifier: Modifier, warmup: Boolean = false) = Text(
+    when { warmup -> "W"; failure -> "F"; else -> "${n + 1}" },
+    color = when { warmup -> Orange; failure -> Red; else -> Color.White }, fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = modifier,
+)
+
+val Orange = Color(0xFFFF9F0A)
+
+/** Working-set number: warm-ups (W) aren't counted, so the first working set is 1. */
+fun setNumber(warmups: List<Boolean>, n: Int) = warmups.take(n + 1).count { !it } - 1
+
+/** Tap a set number: choose Warm-up (W), Failure (F) or a normal set. */
+@Composable
+fun SetTypeMenu(open: Boolean, onDismiss: () -> Unit, warmup: Boolean, failure: Boolean, onChoose: (warmup: Boolean, failure: Boolean) -> Unit) {
+    androidx.compose.material3.DropdownMenu(open, onDismiss) {
+        androidx.compose.material3.DropdownMenuItem(
+            { Text(buildAnnotatedString { withStyle(SpanStyle(color = Orange, fontWeight = FontWeight.Bold)) { append("W  ") }; append("Warm-up set (never counts for ranks)") }) },
+            { onDismiss(); onChoose(!warmup, false) },
+            trailingIcon = { if (warmup) Text("✓") },
+        )
+        androidx.compose.material3.DropdownMenuItem(
+            { Text(buildAnnotatedString { withStyle(SpanStyle(color = Red, fontWeight = FontWeight.Bold)) { append("F  ") }; append("Failure set") }) },
+            { onDismiss(); onChoose(false, !failure) },
+            trailingIcon = { if (failure) Text("✓") },
+        )
+        if (warmup || failure) androidx.compose.material3.DropdownMenuItem({ Text("Normal set") }, { onDismiss(); onChoose(false, false) })
+    }
+}
 
 @Composable
 private fun PlanRowView(t: ExType, n: Int, s: PlanSet) {
@@ -187,7 +215,7 @@ private fun PlanRowView(t: ExType, n: Int, s: PlanSet) {
         Modifier.fillMaxWidth().background(if (n % 2 == 1) Card else Bg).padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SetLabel(n, s.failure, Modifier.weight(cols[0].second))
+        SetLabel(n, s.failure, Modifier.weight(cols[0].second), s.warmup)
         val values = when (t) {
             ExType.WEIGHT -> listOf(Units.weight(s.weight).ifEmpty { "-" }, s.reps?.toString() ?: if (s.failure) "max" else "-")
             ExType.BODYWEIGHT -> listOf(s.reps?.toString() ?: if (s.failure) "max" else "-")
@@ -270,9 +298,13 @@ fun RoutineEditScreen(id: String?) {
                             Modifier.fillMaxWidth().background(if (n % 2 == 1) Card else Bg).padding(horizontal = 16.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            SetLabel(n, s.failure, Modifier.weight(cols[0].second).clickable {
-                                updateItem(i) { it.copy(sets = it.sets.toMutableList().also { l -> l[n] = s.copy(failure = !s.failure) }) }
-                            }.padding(vertical = 6.dp))
+                            Box(Modifier.weight(cols[0].second)) {
+                                var menu by remember { mutableStateOf(false) }
+                                SetLabel(setNumber(item.sets.map { it.warmup }, n), s.failure, Modifier.clickable { menu = true }.padding(vertical = 6.dp, horizontal = 4.dp), s.warmup)
+                                SetTypeMenu(menu, { menu = false }, s.warmup, s.failure) { w, f ->
+                                    updateItem(i) { it.copy(sets = it.sets.toMutableList().also { l -> l[n] = l[n].copy(warmup = w, failure = f) }) }
+                                }
+                            }
                             fun setAt(change: (PlanSet) -> PlanSet) =
                                 updateItem(i) { it.copy(sets = it.sets.toMutableList().also { l -> l[n] = change(l[n]) }) }
                             val k = "${draft.id}:$i:$n:${item.exerciseId}:${item.sets.size}"
@@ -313,7 +345,7 @@ fun RoutineEditScreen(id: String?) {
                             }.padding(6.dp))
                         }
                     }
-                    Text("Tap a set number to mark it as a failure set (F).", color = Sub, fontSize = 12.sp,
+                    Text("Tap a set number to mark it as a warm-up (W) or failure set (F).", color = Sub, fontSize = 12.sp,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
                     GreyButton("+ Add Set", Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)) {
                         updateItem(i) { it.copy(sets = it.sets + (it.sets.lastOrNull()?.copy() ?: PlanSet())) }

@@ -233,6 +233,7 @@ object HevyImport {
             }
             fun num(i: Int?) = if (i == null || i < 0) null else r.getOrNull(i)?.trim()?.toDoubleOrNull()
             val set = JSONObject().put("f", cType >= 0 && r.getOrNull(cType) == "failure").put("x", true)
+            if (cType >= 0 && r.getOrNull(cType) == "warmup") set.put("wu", true)
             (num(cW) ?: num(cKg)?.let { it / 0.45359237 })?.let { set.put("w", it) }
             num(cR)?.let { set.put("r", it.toInt()) }
             num(cT)?.let { set.put("t", it.toInt()) }

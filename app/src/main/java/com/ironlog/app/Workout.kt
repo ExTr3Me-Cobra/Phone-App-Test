@@ -62,7 +62,7 @@ object Workouts {
             name = r?.name ?: "Workout",
             start = System.currentTimeMillis(),
             items = r?.items?.map { i ->
-                WorkoutItem(i.exerciseId, i.sets.map { p -> DoneSet(p.weight, p.reps, p.seconds, p.distance, p.failure, false) }, i.restSec, i.note)
+                WorkoutItem(i.exerciseId, i.sets.map { p -> DoneSet(p.weight, p.reps, p.seconds, p.distance, p.failure, false, p.warmup) }, i.restSec, i.note)
             } ?: exercises.map { WorkoutItem(it, List(3) { DoneSet() }, Store.profile.value.defaultRest) },
             bodyweight = Store.profile.value.bodyweight,
         )
@@ -208,7 +208,7 @@ fun ActiveWorkoutScreen() {
                     item.sets.forEachIndexed { n, s ->
                         ActiveSetRow(ex, i, n, s, prev.getOrNull(n) ?: prev.lastOrNull(), cols, item.restSec, w.id)
                     }
-                    Text("Tap a set number to mark it F (to failure). Long-press ✓ to delete a set.", color = Sub, fontSize = 12.sp,
+                    Text("Tap a set number to mark it W (warm-up – never counts for ranks) or F (to failure). Long-press ✓ to delete a set.", color = Sub, fontSize = 12.sp,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
                     GreyButton("+ Add Set", Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp)) {
                         Workouts.updateItem(i) { it.copy(sets = it.sets + (it.sets.lastOrNull()?.copy(done = false) ?: DoneSet())) }
@@ -256,13 +256,22 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
     val context = LocalContext.current
     val bg = if (s.done) Green.copy(alpha = 0.15f) else Bg
     val k = "$wid:$i:${ex.id}:$n"
+    var typeMenu by remember { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth().background(bg).padding(horizontal = 16.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(cols[0].second)) {
             Box(
                 Modifier.size(42.dp).clip(RoundedCornerShape(8.dp)).background(Card2)
-                    .clickable { Workouts.updateSet(i, n) { it.copy(failure = !it.failure) } },
+                    .clickable { typeMenu = true },
                 contentAlignment = Alignment.Center,
-            ) { SetLabel(n, s.failure, Modifier) }
+            ) {
+                val item = Store.active.value?.items?.getOrNull(i)
+                SetLabel(setNumber(item?.sets?.map { it.warmup } ?: emptyList(), n).coerceAtLeast(0), s.failure, Modifier, s.warmup)
+            }
+            SetTypeMenu(typeMenu, { typeMenu = false }, s.warmup, s.failure) { w, f ->
+                Workouts.updateSet(i, n) { it.copy(warmup = w, failure = f) }
+                // A set that's already ticked changes what counts for ranks.
+                Store.active.value?.let { if (s.done) { if (w) Ranks.onSetUndone(context, it, ex.id) else Ranks.onSetDone(it, ex.id) } }
+            }
         }
         // Previous: tap to copy it in.
         Text(

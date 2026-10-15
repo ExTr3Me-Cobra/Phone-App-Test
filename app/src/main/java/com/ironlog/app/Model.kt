@@ -76,6 +76,8 @@ data class PlanSet(
     val seconds: Int? = null,
     val distance: Double? = null,
     val failure: Boolean = false,
+    /** A warm-up set: never counts toward ranks. */
+    val warmup: Boolean = false,
 )
 
 data class RoutineItem(val exerciseId: String, val sets: List<PlanSet>, val restSec: Int = 90, val note: String = "")
@@ -90,6 +92,8 @@ data class DoneSet(
     val distance: Double? = null,
     val failure: Boolean = false,
     val done: Boolean = false,
+    /** A warm-up set: never counts toward ranks. */
+    val warmup: Boolean = false,
 )
 
 data class WorkoutItem(val exerciseId: String, val sets: List<DoneSet>, val restSec: Int = 90, val note: String = "")
@@ -145,8 +149,8 @@ private fun JSONObject.putOpt2(k: String, v: Any?): JSONObject = if (v == null) 
 
 object Json {
     fun planSet(s: PlanSet) = JSONObject().putOpt2("r", s.reps).putOpt2("w", s.weight).putOpt2("t", s.seconds)
-        .putOpt2("d", s.distance).put("f", s.failure)
-    fun planSet(o: JSONObject) = PlanSet(o.optIntOrNull("r"), o.optDoubleOrNull("w"), o.optIntOrNull("t"), o.optDoubleOrNull("d"), o.optBoolean("f"))
+        .putOpt2("d", s.distance).put("f", s.failure).apply { if (s.warmup) put("wu", true) }
+    fun planSet(o: JSONObject) = PlanSet(o.optIntOrNull("r"), o.optDoubleOrNull("w"), o.optIntOrNull("t"), o.optDoubleOrNull("d"), o.optBoolean("f"), o.optBoolean("wu"))
 
     fun routine(r: Routine) = JSONObject().put("id", r.id).put("name", r.name).put("items", JSONArray(r.items.map { i ->
         JSONObject().put("ex", i.exerciseId).put("rest", i.restSec).put("note", i.note).put("sets", JSONArray(i.sets.map(::planSet)))
@@ -156,8 +160,8 @@ object Json {
     })
 
     fun doneSet(s: DoneSet) = JSONObject().putOpt2("w", s.weight).putOpt2("r", s.reps).putOpt2("t", s.seconds)
-        .putOpt2("d", s.distance).put("f", s.failure).put("x", s.done)
-    fun doneSet(o: JSONObject) = DoneSet(o.optDoubleOrNull("w"), o.optIntOrNull("r"), o.optIntOrNull("t"), o.optDoubleOrNull("d"), o.optBoolean("f"), o.optBoolean("x"))
+        .putOpt2("d", s.distance).put("f", s.failure).put("x", s.done).apply { if (s.warmup) put("wu", true) }
+    fun doneSet(o: JSONObject) = DoneSet(o.optDoubleOrNull("w"), o.optIntOrNull("r"), o.optIntOrNull("t"), o.optDoubleOrNull("d"), o.optBoolean("f"), o.optBoolean("x"), o.optBoolean("wu"))
 
     fun workout(w: Workout) = JSONObject().put("id", w.id).putOpt2("routine", w.routineId).put("name", w.name)
         .put("start", w.start).putOpt2("end", w.end).putOpt2("bw", w.bodyweight).apply { if (w.test) put("test", true) }
