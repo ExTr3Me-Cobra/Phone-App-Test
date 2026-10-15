@@ -278,13 +278,15 @@ object Ranks {
         val out = HashMap<String, Ranked>()
         for ((id, list) in sessions) {
             val ex = Store.exercise(id) ?: continue
-            // Your latest 1 Rep Max test sets the rank; only workouts after it count, and only if they beat it.
-            val test = list.filter { it.test }.maxByOrNull { it.start }
+            // 1 Rep Max tests: the best test within 24 hours of your latest one sets the rank, so only a weaker test
+            // 24+ hours after a better one lowers it. Workouts since then can only raise it (never lower it).
+            val tests = list.filter { it.test }
+            val test = tests.maxByOrNull { it.start }
+            val testValue = test?.let { t -> tests.filter { it.start >= t.start - HOLD_MS }.maxOf { it.value } }
             val after = list.filter { !it.test && (test == null || it.start > test.start) }
-            val fromWorkouts = after.maxOfOrNull { it.start }?.let { latest ->
-                after.filter { it.start >= latest - HOLD_MS }.maxOf { it.value }
-            }
-            val v = maxOf(test?.value ?: 0.0, fromWorkouts ?: 0.0)
+            val fromWorkouts = if (test != null) after.maxOfOrNull { it.value }
+                else after.maxOfOrNull { it.start }?.let { latest -> after.filter { it.start >= latest - HOLD_MS }.maxOf { it.value } }
+            val v = maxOf(testValue ?: 0.0, fromWorkouts ?: 0.0)
             if (v <= 0) continue
             val pct = Standards.percentile(id, v, p) ?: continue
             out[id] = Ranked(ex, v, pct, test?.start)
