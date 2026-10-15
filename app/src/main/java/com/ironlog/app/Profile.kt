@@ -147,8 +147,6 @@ fun SettingsScreen() {
             Text("Strength tables use body weight, sex and age; height isn't part of them, so it's kept for your records.",
                 color = Sub, fontSize = 12.sp)
 
-            Spacer(6)
-            GreyButton("📚  Exercises (${Store.exercises.value.values.count { !it.hidden }})") { Nav.go(Route.Library) }
             Spacer(10)
             Text("Units", fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

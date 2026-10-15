@@ -77,6 +77,8 @@ fun HomeScreen() {
                     }
                     if (calendar) WorkoutCalendar(workouts)
                 }
+                val exerciseCount = Store.exercises.collectAsState().value.values.count { !it.hidden }
+                GreyButton("📚  Exercises ($exerciseCount)", Modifier.padding(horizontal = 16.dp).fillMaxWidth()) { Nav.go(Route.Library) }
                 if (workouts.isEmpty()) {
                     Column(Modifier.padding(16.dp)) {
                         Text("Welcome to Loadout 💪", fontSize = 22.sp, fontWeight = FontWeight.Bold)
