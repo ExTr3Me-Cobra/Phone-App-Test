@@ -184,6 +184,30 @@ fun HomeRankCard() {
                         modifier = Modifier.padding(start = 22.dp))
                 }
             }
+            // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, grip).
+            val rankedGroups = Ranks.groupRanks(ranks, profile.picksNow).keys
+            Muscles.groups.keys.filter { g -> g !in rankedGroups }.forEach { g ->
+                val rankable = StandardsData.all.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
+                if (rankable.isEmpty()) return@forEach
+                val forYou = rankable.filter { Standards.covers(it.id, profile) }
+                Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Card2))
+                        HSpacer(8)
+                        Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Sub, modifier = Modifier.weight(1f))
+                        Text("Not ranked yet", fontSize = 13.sp, color = Sub)
+                    }
+                    Text(
+                        when {
+                            forYou.isNotEmpty() -> "Log " + forYou.take(3).joinToString(", ") { it.name } + (if (forYou.size > 3) " or another ★ exercise" else "") + " to rank it."
+                            Standards.mode(profile) == Standards.Mode.ACCURATE -> "Only estimate data so far (" + rankable.take(2).joinToString(", ") { it.name } +
+                                ") – switch Ranks to All on in Settings to rank it."
+                            else -> "No exercise for it can be ranked with your current details."
+                        },
+                        color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp),
+                    )
+                }
+            }
             Spacer(10)
             Text("Colour key", fontWeight = FontWeight.Bold)
             Tier.entries.reversed().forEach { tier ->

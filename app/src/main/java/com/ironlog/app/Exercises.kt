@@ -83,7 +83,7 @@ fun PickerScreen(req: Route.Picker?) {
     val words = query.lowercase().split(" ").filter { it.isNotBlank() }
     val filtered = sorted.filter { e ->
         (equipment == null || e.equipment == equipment) &&
-            (muscle == null || muscle in e.primary || muscle in e.secondary) &&
+            (muscle == null || muscle in e.primary) && // only exercises where it's a main muscle
             words.all { w ->
                 e.name.lowercase().contains(w) || e.primary.any { it.contains(w) } || e.equipment.lowercase().contains(w) ||
                     e.muscles.any { it.value >= 0.7f && it.key.lowercase().contains(w) }
