@@ -80,6 +80,7 @@ def build():
     add(F, 'abs (lower)', cut(ab, below(397)))
     add(F, 'obliques', f['abdominals'][1])
     add(F, 'serratus (serratus anterior)', f['serratus'][0])
+    add(F, 'lats', f['lats'][0])
     q = f['quadriceps'][0]
     L1 = ((205, 455), (213, 645))
     add(F, 'quadriceps (vastus lateralis)', cut(q, leftof(*L1)))
