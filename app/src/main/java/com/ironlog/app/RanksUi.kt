@@ -142,7 +142,7 @@ fun HomeRankCard() {
         )
         // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
         val muscles = remember(ranks) {
-            val groups = Ranks.groupRanks(ranks, profile.groupPicks)
+            val groups = Ranks.groupRanks(ranks, profile.picksNow)
             Ranks.muscles(ranks).mapValues { (m, r) -> groups[Muscles.group(m)]?.first ?: r.percentile }
         }
         val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
@@ -157,7 +157,7 @@ fun HomeRankCard() {
             Text("Your muscles", fontWeight = FontWeight.Bold)
             Text("Each muscle's rank is the average of two ranked exercises – your top two unless you choose (tap ✎). " +
                 "Tap an exercise to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
-            Ranks.groupRanks(ranks, profile.groupPicks).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
+            Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
                 val (pct, top) = v
                 val tier = Tier.of(pct)
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -165,7 +165,7 @@ fun HomeRankCard() {
                         Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
                         HSpacer(8)
                         Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        if (profile.groupPicks[g].orEmpty().isNotEmpty()) Text("  (your pick)", color = Sub, fontSize = 11.sp)
+                        if (profile.picksNow[g].orEmpty().isNotEmpty()) Text("  (your pick)", color = Sub, fontSize = 11.sp)
                         Text("  ✎", color = Blue, fontSize = 15.sp, modifier = Modifier.clickable { picking = g }.padding(horizontal = 4.dp))
                         Box(Modifier.weight(1f))
                         RankBadge(tier, 22.dp)
@@ -404,12 +404,10 @@ private fun RankDownView(c: Ranks.Celebration) {
 /** Choose which two ranked exercises stand for a muscle group on Home (default: your top two). */
 @Composable
 private fun GroupPickDialog(group: String, candidates: List<Ranks.Ranked>, profile: Profile, onDone: () -> Unit) {
-    val current = Ranks.groupRanks(candidates.associateBy { it.exercise.id }, profile.groupPicks)[group]?.second.orEmpty().map { it.exercise.id }
+    val current = Ranks.groupRanks(candidates.associateBy { it.exercise.id }, profile.picksNow)[group]?.second.orEmpty().map { it.exercise.id }
     val chosen = remember { androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(current) } }
     fun save(picks: List<String>) {
-        val all = Store.profile.value.groupPicks.toMutableMap()
-        if (picks.isEmpty()) all.remove(group) else all[group] = picks
-        Store.setProfile(Store.profile.value.copy(groupPicks = all))
+        Store.setProfile(Store.profile.value.withPicks(group, picks))
     }
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDone,

@@ -219,7 +219,7 @@ private fun ResumeBar() {
 private fun BottomBar(tab: Int) {
     HorizontalDivider(color = Card2)
     Row(Modifier.fillMaxWidth().background(Card).navigationBarsPadding().padding(vertical = 6.dp)) {
-        TabItem("Home", "⌂", tab == 0) { Nav.home(0) }
+        TabItem("Home", "🏠", tab == 0) { Nav.home(0) }
         TabItem("Workout", "🏋", tab == 1) { Nav.home(1) }
         TabItem("Settings", "⚙️", tab == 2) { Nav.home(2) }
     }

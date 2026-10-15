@@ -143,7 +143,20 @@ data class Profile(
     val compareAll: Boolean = false,
     /** Home: the two exercises you picked to stand for a muscle group (default: your top two). */
     val groupPicks: Map<String, List<String>> = emptyMap(),
-)
+) {
+    /** Picks are remembered separately for each ranking mode (Accurate only / All on × Lifters / Everyone). */
+    val pickMode get() = "$rankMode/${if (compareAll) "everyone" else "lifters"}|"
+
+    /** Your muscle-group picks for the mode you're in now. */
+    val picksNow: Map<String, List<String>>
+        get() = groupPicks.filterKeys { it.startsWith(pickMode) }.mapKeys { it.key.removePrefix(pickMode) }
+
+    fun withPicks(group: String, picks: List<String>): Profile {
+        val all = groupPicks.toMutableMap()
+        if (picks.isEmpty()) all.remove(pickMode + group) else all[pickMode + group] = picks
+        return copy(groupPicks = all)
+    }
+}
 
 // ---------- JSON ----------
 
