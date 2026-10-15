@@ -65,9 +65,40 @@ fun WorkoutTab() {
     val context = LocalContext.current
     var deleting by remember { mutableStateOf<Routine?>(null) }
     var aiFor by remember { mutableStateOf<Routine?>(null) }
+    // Hold a routine, then drag: the list shrinks to just names while you move it.
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val rowH = with(androidx.compose.ui.platform.LocalDensity.current) { 56.dp.toPx() }
+    var dragFrom by remember { mutableStateOf<Int?>(null) }
+    var dragY by remember { mutableStateOf(0f) }
+    var listTop by remember { mutableStateOf(0f) }
+    var released by remember { mutableStateOf(0L) }
+    fun dragTo(): Int = ((dragY - listTop) / rowH).toInt().coerceIn(0, Store.routines.value.lastIndex)
+    fun dragModifier(i: Int) = Modifier.pointerInput(i, routines.size) {
+        detectDragGesturesAfterLongPress(
+            onDragStart = { o ->
+                val top = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == i + 1 }?.offset ?: return@detectDragGesturesAfterLongPress
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                dragY = top + o.y
+                listTop = (dragY - rowH * i - rowH / 2).coerceAtLeast(0f)
+                dragFrom = i
+            },
+            onDrag = { change, d -> change.consume(); dragY += d.y },
+            onDragEnd = {
+                dragFrom?.let { from ->
+                    val to = dragTo()
+                    if (to != from) Store.setRoutines(Store.routines.value.toMutableList().also { l -> l.add(to, l.removeAt(from)) })
+                }
+                dragFrom = null; released = System.currentTimeMillis()
+            },
+            onDragCancel = { dragFrom = null; released = System.currentTimeMillis() },
+        )
+    }
+    fun clicksOk() = dragFrom == null && System.currentTimeMillis() - released > 400
     Column(Modifier.fillMaxSize()) {
         TopBar("Workout", back = false)
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)) {
+      Box(Modifier.fillMaxSize()) {
+        LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)) {
             item {
                 if (Standards.mode(Store.profile.value) != Standards.Mode.OFF)
                     OneRmButton(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp))
@@ -87,11 +118,12 @@ fun WorkoutTab() {
                     color = Sub, modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
-            items(routines, key = { it.id }) { r ->
+            items(routines.size, key = { routines[it].id }) { i ->
+                val r = routines[i]
                 var menu by remember { mutableStateOf(false) }
                 Column(
-                    Modifier.padding(horizontal = 16.dp, vertical = 6.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                        .background(Card).clickable { Nav.go(Route.RoutineView(r.id)) }.padding(16.dp),
+                    dragModifier(i).padding(horizontal = 16.dp, vertical = 6.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                        .background(Card).clickable { if (clicksOk()) Nav.go(Route.RoutineView(r.id)) }.padding(16.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(r.name.ifBlank { "Routine" }, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
@@ -113,10 +145,35 @@ fun WorkoutTab() {
                         color = Sub, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 14.sp,
                     )
                     Spacer(12)
-                    BigButton("Start Routine") { Workouts.start(context, r) }
+                    BigButton("Start Routine") { if (clicksOk()) Workouts.start(context, r) }
+                }
+            }
+            if (routines.size > 1) item {
+                Text("Tip: hold a routine and drag to reorder.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            }
+        }
+        dragFrom?.let { from ->
+            val to = dragTo()
+            val order = routines.indices.toMutableList().also { it.add(to, it.removeAt(from)) }
+            Box(Modifier.matchParentSize().background(Bg)) {
+                order.forEachIndexed { pos, idx ->
+                    val held = idx == from
+                    val y = if (held) dragY - rowH / 2 else listTop + pos * rowH
+                    Row(
+                        Modifier.offset { androidx.compose.ui.unit.IntOffset(0, y.toInt()) }.fillMaxWidth().height(56.dp)
+                            .padding(horizontal = 12.dp, vertical = 4.dp).clip(RoundedCornerShape(10.dp))
+                            .background(if (held) Blue.copy(alpha = 0.35f) else Card).padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("≡", color = Sub, fontSize = 20.sp)
+                        HSpacer(12)
+                        Text(routines[idx].name.ifBlank { "Routine" }, fontSize = 16.sp,
+                            fontWeight = if (held) FontWeight.Bold else FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
                 }
             }
         }
+      }
     }
     aiFor?.let { r -> GenDialog("AI pictures: ${r.name}", r.items.map { it.exerciseId }.distinct()) { aiFor = null } }
     deleting?.let { r ->
