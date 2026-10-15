@@ -360,30 +360,14 @@ private fun finishTest(c: Context, id: String): String? {
     val value = Standards.testValue(id, done)
     if (value <= 0) return if (Standards.isFlat(id)) "Enter your squeeze reading." else if (Standards.isReps(id)) "Enter the reps you did." else "Enter the weight and reps you lifted."
     val p = Store.profile.value
-    val before = Ranks.all(Store.workouts.value, p)
     val w = Workout(
         id = Store.newId(), routineId = null, name = "1RM test: ${e.name}", start = OneRm.startedAt, end = System.currentTimeMillis(),
         items = listOf(WorkoutItem(id, done, 180)), bodyweight = p.bodyweight, test = true,
     )
     Store.saveWorkout(w)
-    val after = Ranks.all(Store.workouts.value, p)
-    val a = after[id]
-    val b = before[id]
-    val result = if (Standards.isReps(id)) "${value.roundToInt()} reps" else Units.weightU(value)
-    val note = "1RM test: $result" + (b?.let { " (was " + (if (Standards.isReps(id)) "${it.value.roundToInt()} reps" else Units.weightU(it.value)) + ")" } ?: "")
+    // Rank changes already popped up as each set was ticked; finishing just saves and shows the chart.
     OneRm.clear()
     Nav.back()
     Nav.go(Route.RankDetail(id))
-    if (a != null) Ranks.celebrations += when {
-        b == null -> Ranks.Celebration(e.name, "Ranked!", a.tier, a.percentile, note = note)
-        a.tier.ordinal > b.tier.ordinal -> Ranks.Celebration(e.name, "Rank up!", a.tier, a.percentile, note = note)
-        a.tier.ordinal < b.tier.ordinal -> Ranks.Celebration(e.name, "Rank down", a.tier, a.percentile, down = true, from = b.tier, note = note)
-        else -> Ranks.Celebration(e.name, "Rank unchanged", a.tier, a.percentile, note = note)
-    }
-    // The overall rank too, if it moved.
-    val ob = Ranks.overallOf(before); val oa = Ranks.overallOf(after)
-    if (ob != null && oa != null && Tier.of(oa) != Tier.of(ob)) Ranks.celebrations +=
-        if (Tier.of(oa).ordinal > Tier.of(ob).ordinal) Ranks.Celebration("Overall rank", "Your overall rank went up!", Tier.of(oa), oa)
-        else Ranks.Celebration("Overall rank", "Rank down", Tier.of(oa), oa, down = true, from = Tier.of(ob))
     return null
 }
