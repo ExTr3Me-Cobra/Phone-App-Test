@@ -43,6 +43,7 @@ fun HevyMatchScreen() {
     var busy by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf<String?>(null) }
     var warn by remember { mutableStateOf<String?>(null) }
+    var editAsk by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) } // custom exercise id
     val scope = rememberCoroutineScope()
     val haveRoutines = Store.routines.collectAsState().value.map { it.id }.toSet()
 
@@ -102,7 +103,7 @@ fun HevyMatchScreen() {
                             Text("${u.sets} set${if (u.sets == 1) "" else "s"} from Hevy", color = Sub, fontSize = 12.sp)
                             when {
                                 !included -> Text("Won't be imported", color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
-                                target != null -> Text("→ " + target.name, color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+                                target != null -> Text("→ " + target.name + if (target.custom) " (custom)" else "", color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                                 choice == "" -> Text("→ New custom exercise", color = Blue, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                                 else -> Text("Not matched yet" + (guess?.let { " · maybe ${it.name}?" } ?: ""),
                                     color = androidx.compose.ui.graphics.Color(0xFFFF9F0A), fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
@@ -175,10 +176,25 @@ fun HevyMatchScreen() {
                         asking = null
                         Nav.go(Route.Picker("Match \"$hevy\"", false) { ids -> ids.firstOrNull()?.let { choices[hevy] = it } })
                     }) { Text("Pick a Loadout exercise") }
-                    TextButton(onClick = { choices[hevy] = ""; asking = null }) { Text("New custom exercise") }
+                    TextButton(onClick = {
+                        choices[hevy] = HevyImport.createCustom(hevy)
+                        editAsk = choices[hevy]
+                        asking = null
+                    }) { Text("New custom exercise") }
                 }
             },
             confirmButton = { TextButton(onClick = { asking = null }) { Text("Cancel") } },
+        )
+    }
+    editAsk?.let { id ->
+        val ex = Store.exercise(id)
+        AlertDialog(
+            onDismissRequest = { editAsk = null },
+            title = { Text("Edit \"${ex?.name ?: "exercise"}\" now?") },
+            text = { Text("It starts with no picture, directions or muscles, so it won't show on your heatmaps until you add them. " +
+                "Recommended: set it up now. You can also do it later from its page in your exercises.") },
+            confirmButton = { TextButton(onClick = { editAsk = null; Nav.go(Route.EditExercise(id)) }) { Text("Edit now (recommended)") } },
+            dismissButton = { TextButton(onClick = { editAsk = null }) { Text("Later") } },
         )
     }
     warn?.let { msg ->

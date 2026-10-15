@@ -93,6 +93,39 @@ object HevyImport {
     /** Workout names ticked to become routines. */
     val routinePicks = androidx.compose.runtime.mutableStateMapOf<String, Boolean>()
 
+    /** How each Hevy exercise in the file was logged (weight, time, reps, distance), for new custom exercises. */
+    private val typeGuess = HashMap<String, ExType>()
+
+    private fun customId(hevy: String) = "custom_hevy_" + hevy.replace(Regex("[^A-Za-z0-9]+"), "_").trim('_')
+
+    /** A new custom exercise for a Hevy exercise: no picture or directions; muscles only where a close base is known. */
+    private fun buildCustom(hevy: String, type: ExType): Exercise {
+        val c = CUSTOM[hevy]
+        val base = c?.first?.let { library()[it.lowercase()] }
+        return Exercise(
+            customId(hevy), hevy.replace("(band)", "(Band)"), c?.second ?: "Other", c?.third ?: type,
+            base?.primary ?: emptyList(), base?.secondary ?: emptyList(), base?.category ?: "strength",
+            emptyList(), custom = true,
+            secondaryWeights = base?.secondaryWeights ?: emptyList(),
+            detail = base?.detail ?: emptyMap(),
+        )
+    }
+
+    /** Makes (or reuses) the custom exercise for [hevy] right away, so you can edit it before importing. Returns its id. */
+    fun createCustom(hevy: String): String {
+        val id = customId(hevy)
+        if (Store.exercise(id) == null) Store.saveCustomExercise(buildCustom(hevy, typeGuess[hevy] ?: ExType.WEIGHT))
+        return id
+    }
+
+    private fun guessType(hasW: Boolean, hasT: Boolean, hasR: Boolean, hasD: Boolean) = when {
+        hasW && hasT && !hasR -> ExType.WEIGHT_TIME
+        hasW -> ExType.WEIGHT
+        hasT && !hasR -> ExType.TIMED
+        hasD -> ExType.CARDIO
+        else -> ExType.BODYWEIGHT
+    }
+
     /** Reads the file and lists the exercises with no direct match. */
     fun prepare(text: String): Plan {
         val rows = parseCsv(text.trimStart('﻿'))
@@ -109,6 +142,16 @@ object HevyImport {
         }
         choices.clear()
         unmatched.forEach { u -> u.saved?.let { choices[u.hevy] = it } }
+
+        // How each exercise was logged, for any you turn into custom exercises.
+        val head = rows[0]
+        fun idx(vararg n: String) = n.map { head.indexOf(it) }.filter { it >= 0 }
+        val wI = idx("weight_lbs", "weight_kg"); val tI = idx("duration_seconds"); val rI = idx("reps"); val dI = idx("distance_miles", "distance_km")
+        typeGuess.clear()
+        rows.drop(1).filter { it.size > cEx && it[cEx].isNotBlank() }.groupBy { it[cEx] }.forEach { (n, rs) ->
+            fun any(cols: List<Int>) = rs.any { r -> cols.any { r.getOrNull(it).orEmpty().isNotBlank() } }
+            typeGuess[n] = guessType(any(wI), any(tI), any(rI), any(dI))
+        }
 
         // Workout names -> possible routines (built from the most recent session with that name).
         val cTitle = rows[0].indexOf("title"); val cStart = rows[0].indexOf("start_time")
@@ -150,26 +193,12 @@ object HevyImport {
         val custom = HashMap<String, Exercise>()
         fun exerciseFor(hevy: String, row: List<String>): String {
             choices[hevy]?.takeIf { it.isNotEmpty() && Store.exercise(it) != null }?.let { return it }
-            val id = "custom_hevy_" + hevy.replace(Regex("[^A-Za-z0-9]+"), "_").trim('_')
+            val id = customId(hevy)
             Store.exercise(id)?.let { return it.id }
             custom[id]?.let { return id }
-            val c = CUSTOM[hevy]
-            val base = c?.first?.let { byName[it.lowercase()] }
             fun has(i: Int?) = i != null && i >= 0 && row.getOrNull(i).orEmpty().isNotBlank()
-            val type = c?.third ?: when {
-                (has(cW) || has(cKg)) && has(cT) && !has(cR) -> ExType.WEIGHT_TIME
-                has(cW) || has(cKg) -> ExType.WEIGHT
-                has(cT) && !has(cR) -> ExType.TIMED
-                has(cD) || has(cKm) -> ExType.CARDIO
-                else -> ExType.BODYWEIGHT
-            }
-            custom[id] = Exercise(
-                id, hevy.replace("(band)", "(Band)"), c?.second ?: "Other", type,
-                base?.primary ?: emptyList(), base?.secondary ?: emptyList(), base?.category ?: "strength",
-                emptyList(), custom = true, // no directions or picture until you add them
-                secondaryWeights = base?.secondaryWeights ?: emptyList(),
-                detail = base?.detail ?: emptyMap(),
-            )
+            val type = typeGuess[hevy] ?: guessType(has(cW) || has(cKg), has(cT), has(cR), has(cD) || has(cKm))
+            custom[id] = buildCustom(hevy, type)
             return id
         }
 
