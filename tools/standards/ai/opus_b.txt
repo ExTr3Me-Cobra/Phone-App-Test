@@ -1,0 +1,56 @@
+1 | Straight-Arm Pulldown | 45 | medium
+2 | Rope Straight-Arm Pulldown | 40 | medium
+3 | Leverage High Row | 90 | low
+4 | Kneeling High Pulley Row | 85 | low
+5 | Leverage Iso Row | 85 | low
+6 | Shotgun Row | 45 | medium
+7 | Incline Bench Pull | 75 | medium
+8 | Alternating Renegade Row | 50 | medium
+9 | Barbell Rear Delt Row | 55 | medium
+10 | Cable Rope Rear-Delt Rows | 100 | medium
+11 | Bent Over Low-Pulley Side Lateral | 75 | low
+12 | Cable Seated Lateral Raise | 60 | low
+13 | Standing Low-Pulley Deltoid Raise | 60 | low
+14 | Lying One-Arm Lateral Raise | 55 | low
+15 | One-Arm Incline Lateral Raise | 85 | medium
+16 | Single Dumbbell Raise | 160 | medium
+17 | Dumbbell One-Arm Upright Row | 35 | medium
+18 | Landmine Press | 70 | low
+19 | Cable Shoulder Press | 60 | low
+20 | Seated Cable Shoulder Press | 60 | low
+21 | Standing Palm-In One-Arm Dumbbell Press | 90 | medium
+22 | Alternating Kettlebell Press | 85 | medium
+23 | Cable Chest Press | 60 | low
+24 | Standing Cable Chest Press | 50 | low
+25 | Incline Cable Chest Press | 55 | low
+26 | One-Arm Flat Bench Dumbbell Flye | 90 | medium
+27 | Close-Grip Dumbbell Press | 80 | medium
+28 | One Arm Floor Press | 25 | low
+29 | Reverse Triceps Bench Press | 80 | medium
+30 | Decline Close-Grip Bench To Skull Crusher | 110 | low
+31 | Tate Press | 45 | low
+32 | Tricep Dumbbell Kickback | 30 | medium
+33 | Machine Triceps Extension | 100 | low
+34 | Dip Machine | 200 | low
+35 | Cable One Arm Tricep Extension | 45 | medium
+36 | Cable Lying Triceps Extension | 75 | low
+37 | Low Cable Triceps Extension | 80 | medium
+38 | Kneeling Cable Triceps Extension | 80 | medium
+39 | Standing Bent-Over Two-Arm Dumbbell Triceps Extension | 35 | low
+40 | High Cable Curls | 60 | low
+41 | Overhead Cable Curl | 65 | low
+42 | Lying Cable Curl | 90 | low
+43 | Zottman Preacher Curl | 35 | medium
+44 | Bent-Arm Barbell Pullover | 100 | low
+45 | Middle Back Shrug | 45 | low
+46 | Smith Machine Leg Press | 45 | low
+47 | Kettlebell One-Legged Deadlift | 30 | medium
+48 | Barbell Side Split Squat | 95 | low
+49 | One Leg Barbell Squat | 100 | low
+50 | Cable Hip Adduction | 30 | low
+51 | Pull Through | 45 | low
+52 | Cable Reverse Crunch | 40 | low
+53 | Seated Dumbbell Palms-Down Wrist Curl | 25 | medium
+54 | Clean Pull | 120 | high
+55 | Power Clean from Blocks | 95 | high
+56 | Snatch Pull | 120 | high

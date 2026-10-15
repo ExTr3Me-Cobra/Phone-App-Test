@@ -1,0 +1,66 @@
+Answer from your own knowledge only — don't search the web.
+
+For each exercise below, estimate how much weight a typical person can lift for ONE rep on it, as a PERCENTAGE of their one-rep max on the "compared with" exercise. Same person, same training level. Follow the "weight logged as" note exactly (e.g. one dumbbell vs. total barbell weight; cable/machine stack weight as shown on the stack).
+
+Example (not in the list): if someone's barbell Bench Press max is 200 lb and their Dumbbell Bench Press max is 80 lb per dumbbell, answer 40.
+
+Exercises:
+1. Straight-Arm Pulldown | compared with: Lat Pulldown | weight logged as: cable stack weight
+2. Rope Straight-Arm Pulldown | compared with: Lat Pulldown | weight logged as: cable stack weight
+3. Leverage High Row | compared with: Lat Pulldown | weight logged as: plates/stack on the machine
+4. Kneeling High Pulley Row | compared with: Lat Pulldown | weight logged as: cable stack weight
+5. Leverage Iso Row | compared with: Seated Cable Row | weight logged as: plates on the machine (both arms)
+6. Shotgun Row | compared with: Seated Cable Row | weight logged as: cable stack weight, one arm
+7. Incline Bench Pull | compared with: Bent Over Row | weight logged as: barbell total (chest-supported row)
+8. Alternating Renegade Row | compared with: Dumbbell Row | weight logged as: one dumbbell
+9. Barbell Rear Delt Row | compared with: Bent Over Row | weight logged as: barbell total
+10. Cable Rope Rear-Delt Rows | compared with: Face Pull | weight logged as: cable stack weight
+11. Bent Over Low-Pulley Side Lateral | compared with: Reverse Dumbbell Fly | weight logged as: cable stack weight, one arm (anchor is per dumbbell)
+12. Cable Seated Lateral Raise | compared with: Dumbbell Lateral Raise | weight logged as: cable stack weight, one arm (anchor is per dumbbell)
+13. Standing Low-Pulley Deltoid Raise | compared with: Dumbbell Lateral Raise | weight logged as: cable stack weight, one arm (anchor is per dumbbell)
+14. Lying One-Arm Lateral Raise | compared with: Dumbbell Lateral Raise | weight logged as: one dumbbell (anchor is per dumbbell)
+15. One-Arm Incline Lateral Raise | compared with: Dumbbell Lateral Raise | weight logged as: one dumbbell (anchor is per dumbbell)
+16. Single Dumbbell Raise | compared with: Dumbbell Front Raise | weight logged as: one dumbbell held in both hands (anchor is per dumbbell, one per hand)
+17. Dumbbell One-Arm Upright Row | compared with: Upright Row | weight logged as: one dumbbell (anchor is barbell total)
+18. Landmine Press | compared with: Shoulder Press | weight logged as: plates on the landmine end of the bar (anchor is standing barbell press total)
+19. Cable Shoulder Press | compared with: Machine Shoulder Press | weight logged as: cable stack weight, both arms
+20. Seated Cable Shoulder Press | compared with: Machine Shoulder Press | weight logged as: cable stack weight, both arms
+21. Standing Palm-In One-Arm Dumbbell Press | compared with: Seated Dumbbell Shoulder Press | weight logged as: one dumbbell (anchor is per dumbbell)
+22. Alternating Kettlebell Press | compared with: Seated Dumbbell Shoulder Press | weight logged as: one kettlebell (anchor is per dumbbell)
+23. Cable Chest Press | compared with: Machine Chest Press | weight logged as: cable stack weight, both arms
+24. Standing Cable Chest Press | compared with: Machine Chest Press | weight logged as: cable stack weight, both arms
+25. Incline Cable Chest Press | compared with: Machine Chest Press | weight logged as: cable stack weight, both arms
+26. One-Arm Flat Bench Dumbbell Flye | compared with: Dumbbell Fly | weight logged as: one dumbbell (anchor is per dumbbell)
+27. Close-Grip Dumbbell Press | compared with: Dumbbell Bench Press | weight logged as: one dumbbell (anchor is per dumbbell)
+28. One Arm Floor Press | compared with: Bench Press | weight logged as: barbell total, one arm (anchor is two-arm bench total)
+29. Reverse Triceps Bench Press | compared with: Close Grip Bench Press | weight logged as: barbell total
+30. Decline Close-Grip Bench To Skull Crusher | compared with: Lying Tricep Extension | weight logged as: barbell total
+31. Tate Press | compared with: Dumbbell Tricep Extension | weight logged as: one dumbbell (anchor is one dumbbell held in both hands overhead)
+32. Tricep Dumbbell Kickback | compared with: Dumbbell Tricep Extension | weight logged as: one dumbbell (anchor is one dumbbell held in both hands overhead)
+33. Machine Triceps Extension | compared with: Tricep Pushdown | weight logged as: machine stack weight
+34. Dip Machine | compared with: Tricep Pushdown | weight logged as: machine stack weight
+35. Cable One Arm Tricep Extension | compared with: Tricep Pushdown | weight logged as: cable stack weight, one arm (anchor is two-arm)
+36. Cable Lying Triceps Extension | compared with: Tricep Pushdown | weight logged as: cable stack weight
+37. Low Cable Triceps Extension | compared with: Tricep Rope Pushdown | weight logged as: cable stack weight (overhead, rope)
+38. Kneeling Cable Triceps Extension | compared with: Tricep Rope Pushdown | weight logged as: cable stack weight (overhead)
+39. Standing Bent-Over Two-Arm Dumbbell Triceps Extension | compared with: Dumbbell Tricep Extension | weight logged as: one dumbbell per hand (anchor is one dumbbell held in both hands overhead)
+40. High Cable Curls | compared with: Cable Bicep Curl | weight logged as: cable stack weight, both arms (double-biceps pose)
+41. Overhead Cable Curl | compared with: Cable Bicep Curl | weight logged as: cable stack weight
+42. Lying Cable Curl | compared with: Cable Bicep Curl | weight logged as: cable stack weight
+43. Zottman Preacher Curl | compared with: Preacher Curl | weight logged as: one dumbbell (anchor is EZ/barbell total)
+44. Bent-Arm Barbell Pullover | compared with: Dumbbell Pullover | weight logged as: barbell total (anchor is one dumbbell held in both hands)
+45. Middle Back Shrug | compared with: Dumbbell Shrug | weight logged as: one dumbbell (anchor is per dumbbell)
+46. Smith Machine Leg Press | compared with: Leg Press | weight logged as: plates on the Smith bar (anchor is sled leg press plates)
+47. Kettlebell One-Legged Deadlift | compared with: Romanian Deadlift | weight logged as: one kettlebell (anchor is barbell total)
+48. Barbell Side Split Squat | compared with: Barbell Lunge | weight logged as: barbell total
+49. One Leg Barbell Squat | compared with: Barbell Lunge | weight logged as: barbell total
+50. Cable Hip Adduction | compared with: Hip Adduction | weight logged as: cable stack weight, one leg (anchor is machine, both legs)
+51. Pull Through | compared with: Romanian Deadlift | weight logged as: cable stack weight (anchor is barbell total)
+52. Cable Reverse Crunch | compared with: Cable Crunch | weight logged as: cable stack weight
+53. Seated Dumbbell Palms-Down Wrist Curl | compared with: Wrist Curl | weight logged as: one dumbbell (anchor is palms-up barbell wrist curl total)
+54. Clean Pull | compared with: Power Clean | weight logged as: barbell total
+55. Power Clean from Blocks | compared with: Power Clean | weight logged as: barbell total
+56. Snatch Pull | compared with: Snatch | weight logged as: barbell total
+
+Reply ONLY with one line per exercise, in this exact format:
+number | exercise | percentage | confidence (high/medium/low)
