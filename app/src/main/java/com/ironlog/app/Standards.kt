@@ -53,8 +53,7 @@ object Standards {
         s.approx?.let { problems += it }
         if (own == null) problems += if (p.male) "No published data for men on this exercise: estimated from women's data, scaled by the men-to-women ratio on push-ups and dips."
             else "No published data for women on this exercise: estimated from men's data, scaled by the women-to-men ratio on push-ups and dips."
-        val sex = if (p.compareAll) (if (p.male) "all men – lifters and non-lifters –" else "all women – lifters and non-lifters –")
-            else if (p.male) "men who lift" else "women who lift"
+        val sex = if (p.male) "men who lift" else "women who lift"
         val near = rows.map { it.first }.let { ws ->
             val below = ws.lastOrNull { it <= bw }; val above = ws.firstOrNull { it >= bw }
             when {
@@ -69,9 +68,7 @@ object Standards {
             else -> "age ${p.age} (standards × ${"%.2f".format(ageFactor(p.age))})"
         }
         val compared = "Compared with $sex at your body weight of ${Units.weightU(bw)} ($near), $age. " +
-            "Source: Strength Level \"${s.lift}\"" + (if (own == null) (if (p.male) ", women's table scaled for men." else ", men's table scaled for women.") else ".") + (s.note?.let { " $it" } ?: "") +
-            (if (p.compareAll) " Everyone mode estimates non-lifters from studies of untrained adults and how many people " +
-                "strength-train (about ${if (p.male) "1 in 4" else "1 in 7"} at your age group's peak) – an estimate on top of the lifter data." else "")
+            "Source: Strength Level \"${s.lift}\"" + (if (own == null) (if (p.male) ", women's table scaled for men." else ", men's table scaled for women.") else ".") + (s.note?.let { " $it" } ?: "")
         return Fit(rows, own == null, problems, compared)
     }
 
@@ -143,8 +140,7 @@ object Standards {
     fun percentile(id: String, value: Double, p: Profile): Double? {
         if (value <= 0) return null
         val lv = levels(id, p) ?: return null
-        val lifters = lifterPercentile(lv, value)
-        return if (p.compareAll) everyonePercentile(lv, value, lifters, isReps(id), p) else lifters
+        return lifterPercentile(lv, value)
     }
 
     /** Where [value] sits among people who lift (Strength Level and the sources averaged into it). */
@@ -158,42 +154,7 @@ object Standards {
             }
         }.coerceIn(0.0, 99.9)
 
-    /**
-     * "Everyone" mode: where you sit among ALL people your sex, size and age, lifters and non-lifters.
-     * Model (tools/standards/population, research Oct 2026):
-     * - share who strength-train regularly (deliberate weight training, roughly half of "any muscle-
-     *   strengthening activity" in NHIS 2020 / Sandercock 2022): men 25% / 17% / 12% and women 15% / 11% / 8%
-     *   at ages under 45 / 45–64 / 65+;
-     * - non-lifters: centred on the 10th percentile of lifters (untrained-adult studies put typical
-     *   untrained men at the 4th–30th, median about 10th) and spread about 25% (log-normal);
-     * - lifters: the usual tables.
-     */
-    private fun everyonePercentile(lv: DoubleArray, value: Double, lifters: Double, reps: Boolean, p: Profile): Double {
-        val age = p.age ?: 30
-        val share = if (p.male) (if (age < 45) 0.25 else if (age < 65) 0.17 else 0.12)
-            else (if (age < 45) 0.15 else if (age < 65) 0.11 else 0.08)
-        val median = lifterValue(lv, 10.0)
-        val z = if (reps) (ln(value + 1) - ln(median + 1)) / 0.45 else (ln(value) - ln(median)) / 0.25
-        val nonLifters = normalCdf(z)
-        return (100 * ((1 - share) * nonLifters + share * lifters / 100)).coerceIn(0.0, 99.9)
-    }
-
-    private fun normalCdf(z: Double): Double {
-        // Abramowitz–Stegun approximation of the standard normal distribution.
-        val t = 1 / (1 + 0.2316419 * kotlin.math.abs(z))
-        val d = 0.3989423 * exp(-z * z / 2)
-        val q = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
-        return if (z >= 0) 1 - q else q
-    }
-
-    /** The lifter-scale number at a lifter percentile. */
-    private fun lifterValue(lv: DoubleArray, pct: Double): Double = when {
-        pct <= PCT[0] -> lv[0] * pct / PCT[0]
-        pct >= 95 -> lv[4]
-        else -> { val i = (0 until 4).first { pct < PCT[it + 1] }; lv[i] + (lv[i + 1] - lv[i]) * (pct - PCT[i]) / (PCT[i + 1] - PCT[i]) }
-    }
-
-    fun groupLabel(p: Profile) = if (p.compareAll) "everyone" else "people who lift"
+    fun groupLabel(p: Profile) = "people who lift"
 
     /**
      * The numbers you're compared against: est. 1-rep max (lb) or reps at the 5th, 20th, 50th, 80th and
@@ -212,12 +173,6 @@ object Standards {
     /** The number you'd need for a percentile (the reverse of [percentile]). */
     fun valueFor(id: String, pct: Double, p: Profile): Double? {
         val lv = levels(id, p) ?: return null
-        if (p.compareAll) {
-            // No closed form with the mix of lifters and non-lifters: search for it.
-            var lo = 0.01; var hi = lv[4] * 3
-            repeat(60) { val mid = (lo + hi) / 2; if ((percentile(id, mid, p) ?: 0.0) < pct) lo = mid else hi = mid }
-            return hi
-        }
         return when {
             pct <= PCT[0] -> lv[0] * pct / PCT[0]
             pct >= 95 -> {

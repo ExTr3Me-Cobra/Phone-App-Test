@@ -135,12 +135,6 @@ fun HomeRankCard() {
                 Text("Average of your $groupCount muscle group${if (groupCount == 1) "" else "s"}", color = Sub, fontSize = 12.sp)
             }
         }
-        // Which group you're compared with (Settings → Ranks).
-        Text(
-            if (profile.compareAll) "Compared with everyone your sex, size and age – lifters and non-lifters (estimated)."
-            else "Compared with people who lift, your sex, size and age.",
-            color = Sub.copy(alpha = 0.6f), fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp),
-        )
         // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
         val muscles = remember(ranks) {
             val groups = Ranks.groupRanks(ranks, profile.picksNow)

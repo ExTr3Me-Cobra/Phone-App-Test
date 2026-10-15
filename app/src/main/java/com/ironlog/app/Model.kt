@@ -217,7 +217,7 @@ object Json {
         o.optString("quality", "medium"), o.optInt("rest", 90),
         o.optString("restSound", ""), o.optBoolean("restVibrate", true),
         o.optString("rankMode", "accurate").ifBlank { "accurate" },
-        o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"), o.optBoolean("onb"), o.optString("bk"), o.optBoolean("cmp"),
+        o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"), o.optBoolean("onb"), o.optString("bk"), false, // "Everyone" mode was removed
         groupPicks = o.optJSONObject("gp")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
         exerciseSort = o.optString("sort", "az").ifBlank { "az" },
     )
