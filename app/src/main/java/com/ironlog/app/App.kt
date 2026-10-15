@@ -83,6 +83,8 @@ sealed interface Route {
     data object Library : Route
     data object HevyMatch : Route
     data class RankDetail(val id: String) : Route
+    data object OneRmList : Route
+    data class OneRmTest(val id: String) : Route
 }
 
 object Nav {
@@ -109,6 +111,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StandardsData.init(this)
+        OneRm.init(this)
         Store.load(this)
         BodyMap.init(this)
         Rest.ensureChannel(this)
@@ -181,6 +184,8 @@ private fun Root() {
                 Route.Library -> PickerScreen(null)
                 Route.HevyMatch -> HevyMatchScreen()
                 is Route.RankDetail -> RankDetailScreen(route.id)
+                Route.OneRmList -> OneRmListScreen()
+                is Route.OneRmTest -> OneRmTestScreen(route.id)
             }
           }
         }

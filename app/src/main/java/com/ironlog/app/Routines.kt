@@ -62,6 +62,8 @@ fun WorkoutTab() {
         TopBar("Workout", back = false)
         LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)) {
             item {
+                if (Standards.mode(Store.profile.value) != Standards.Mode.OFF)
+                    OneRmButton(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp))
                 SectionTitle("Quick Start")
                 GreyButton("+  Start Empty Freestyle Workout", Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                     // Pick the exercises first; the workout (and its timer) starts when you tap Start.

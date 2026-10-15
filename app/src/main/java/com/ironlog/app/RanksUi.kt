@@ -301,6 +301,7 @@ fun RankUpOverlay() {
             Text("(${topLabel(c.percentile)})", color = Color.White, fontSize = 18.sp)
             Spacer(6)
             Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
+            c.note?.let { Spacer(6); Text(it, color = Color.White, fontSize = 15.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp)) }
             Spacer(18)
             Text("Tap to continue", color = Sub, fontSize = 12.sp)
         }
@@ -361,7 +362,7 @@ private fun RankDownView(c: Ranks.Celebration) {
             Spacer(6)
             Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
             Spacer(6)
-            Text("Your best from the last 30 days is now lower than your old record.", color = Sub, fontSize = 13.sp,
+            Text(c.note ?: "Your best from the last 30 days is now lower than your old record.", color = Sub, fontSize = 13.sp,
                 textAlign = TextAlign.Center, modifier = Modifier.width(280.dp))
             Spacer(18)
             Text("Tap to continue", color = Sub, fontSize = 12.sp)

@@ -180,6 +180,17 @@ object Standards {
         }
     }
 
+    /**
+     * A 1 Rep Max test's result: the heaviest completed single; if there's no single, the best
+     * estimate from the other sets. Max-reps exercises: the most reps.
+     */
+    fun testValue(id: String, sets: List<DoneSet>): Double {
+        val done = sets.filter { it.done }
+        if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
+        val single = done.filter { it.reps == 1 }.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
+        return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
+    }
+
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done }
@@ -214,7 +225,8 @@ fun topLabel(percentile: Double) = "top ${(100 - percentile).toInt().coerceIn(1,
 
 /** Your ranks from your logged workouts. */
 object Ranks {
-    class Ranked(val exercise: Exercise, val value: Double, val percentile: Double) {
+    /** [testedAt]: when the 1 Rep Max test this rank rests on was done (null = from workouts only). */
+    class Ranked(val exercise: Exercise, val value: Double, val percentile: Double, val testedAt: Long? = null) {
         val tier get() = Tier.of(percentile)
     }
 
@@ -227,22 +239,30 @@ object Ranks {
      * and skipping an exercise changes nothing.
      */
     fun all(workouts: List<Workout>, p: Profile): Map<String, Ranked> {
-        val sessions = HashMap<String, MutableList<Pair<Long, Double>>>()
+        class S(val start: Long, val value: Double, val test: Boolean)
+        val sessions = HashMap<String, MutableList<S>>()
         for (w in workouts) {
             if (w.end == null) continue
             for (id in w.items.map { it.exerciseId }.distinct()) {
                 if (!Standards.covers(id, p)) continue
-                val v = Standards.bestValue(id, w.items.filter { it.exerciseId == id }.flatMap { it.sets })
-                if (v > 0) sessions.getOrPut(id) { mutableListOf() } += w.start to v
+                val sets = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
+                val v = if (w.test) Standards.testValue(id, sets) else Standards.bestValue(id, sets)
+                if (v > 0) sessions.getOrPut(id) { mutableListOf() } += S(w.start, v, w.test)
             }
         }
         val out = HashMap<String, Ranked>()
         for ((id, list) in sessions) {
             val ex = Store.exercise(id) ?: continue
-            val latest = list.maxOf { it.first }
-            val v = list.filter { it.first >= latest - HOLD_MS }.maxOf { it.second }
+            // Your latest 1 Rep Max test sets the rank; only workouts after it count, and only if they beat it.
+            val test = list.filter { it.test }.maxByOrNull { it.start }
+            val after = list.filter { !it.test && (test == null || it.start > test.start) }
+            val fromWorkouts = after.maxOfOrNull { it.start }?.let { latest ->
+                after.filter { it.start >= latest - HOLD_MS }.maxOf { it.value }
+            }
+            val v = maxOf(test?.value ?: 0.0, fromWorkouts ?: 0.0)
+            if (v <= 0) continue
             val pct = Standards.percentile(id, v, p) ?: continue
-            out[id] = Ranked(ex, v, pct)
+            out[id] = Ranked(ex, v, pct, test?.start)
         }
         return out
     }
@@ -289,7 +309,7 @@ object Ranks {
 
     class Celebration(
         val title: String, val subtitle: String, val tier: Tier, val percentile: Double,
-        val down: Boolean = false, val from: Tier? = null,
+        val down: Boolean = false, val from: Tier? = null, val note: String? = null,
     )
 
     val celebrations = androidx.compose.runtime.mutableStateListOf<Celebration>()

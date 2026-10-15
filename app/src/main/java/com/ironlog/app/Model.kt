@@ -104,6 +104,8 @@ data class Workout(
     val items: List<WorkoutItem>,
     /** Body weight at the time (for rankings). */
     val bodyweight: Double? = null,
+    /** A 1 Rep Max test: its result sets your rank for that exercise. */
+    val test: Boolean = false,
 ) {
     val doneSets get() = items.sumOf { i -> i.sets.count { it.done } }
 }
@@ -158,7 +160,7 @@ object Json {
     fun doneSet(o: JSONObject) = DoneSet(o.optDoubleOrNull("w"), o.optIntOrNull("r"), o.optIntOrNull("t"), o.optDoubleOrNull("d"), o.optBoolean("f"), o.optBoolean("x"))
 
     fun workout(w: Workout) = JSONObject().put("id", w.id).putOpt2("routine", w.routineId).put("name", w.name)
-        .put("start", w.start).putOpt2("end", w.end).putOpt2("bw", w.bodyweight)
+        .put("start", w.start).putOpt2("end", w.end).putOpt2("bw", w.bodyweight).apply { if (w.test) put("test", true) }
         .put("items", JSONArray(w.items.map { i ->
             JSONObject().put("ex", i.exerciseId).put("rest", i.restSec).put("note", i.note).put("sets", JSONArray(i.sets.map(::doneSet)))
         }))
@@ -169,6 +171,7 @@ object Json {
             WorkoutItem(i.getString("ex"), i.getJSONArray("sets").objs().map(::doneSet), i.optInt("rest", 90), i.optString("note"))
         },
         o.optDoubleOrNull("bw"),
+        o.optBoolean("test"),
     )
 
     /** A time: milliseconds, or (in imports) a local date-time like "2026-10-12T20:12" read in the phone's time zone. */
