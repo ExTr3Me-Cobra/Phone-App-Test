@@ -112,7 +112,7 @@ object Stats {
 /** Showing numbers in the chosen units. Everything is stored in pounds and miles. */
 object Units {
     private const val KG = 0.45359237
-    const val KM = 1.609344
+    private const val KM = 1.609344
     val kg get() = Store.profile.value.kg
     val w get() = if (kg) "kg" else "lbs"
     val dist get() = if (kg) "km" else "mi"

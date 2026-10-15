@@ -183,7 +183,7 @@ fun HomeRankCard() {
             // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, grip).
             val rankedGroups = Ranks.groupRanks(ranks, profile.picksNow).keys
             Muscles.groups.keys.filter { g -> g !in rankedGroups }.forEach { g ->
-                val rankable = StandardsData.all.filter { it.cy == null && (!it.ai || Standards.mode(profile) == Standards.Mode.AI) }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
+                val rankable = StandardsData.all.filter { !it.ai || Standards.mode(profile) == Standards.Mode.AI }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
                 if (rankable.isEmpty()) return@forEach
                 val forYou = rankable.filter { Standards.covers(it.id, profile) }
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -202,18 +202,6 @@ fun HomeRankCard() {
                         },
                         color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp),
                     )
-                }
-            }
-            // Cycling has its own rank (speed, not strength), kept out of the muscle groups and the overall rank.
-            ranks.values.filter { Standards.isCycling(it.exercise.id) }.sortedByDescending { it.percentile }.forEach { r ->
-                Row(Modifier.fillMaxWidth().padding(top = 8.dp).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }, verticalAlignment = Alignment.CenterVertically) {
-                    RankBadge(r.tier, 28.dp)
-                    HSpacer(8)
-                    Column(Modifier.weight(1f)) {
-                        Text("🚴 " + r.exercise.name, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                        Text("Cardio – not part of your overall rank", color = Sub, fontSize = 11.sp)
-                    }
-                    Text(r.tier.label, color = Color(r.tier.color), fontSize = 14.sp)
                 }
             }
             Spacer(10)
@@ -249,7 +237,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
             if (star != Standards.Star.NONE) withStyle(SpanStyle(color = starColor(star))) { append("★") }
         }, fontWeight = FontWeight.Bold)
         when {
-            fit == null || (profile.bodyweight == null && info.cy == null) -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
+            profile.bodyweight == null || fit == null -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
             Standards.isAi(e.id) && mode != Standards.Mode.AI -> {
                 Text("No published data for this exercise. It can only be ranked as an AI estimate:", color = Sub)
                 Text("Switch Ranks to \"All on + AI\" in Settings to rank it with a purple ★.", color = Sub, fontSize = 13.sp,
@@ -261,7 +249,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                 Text("Switch Ranks to \"All on\" in Settings to rank it anyway as an estimate.", color = Sub, fontSize = 13.sp,
                     modifier = Modifier.padding(top = 4.dp))
             }
-            r == null -> Text(if (info.cy != null) "Log a ride of 2–100 km with its distance and time to get your rank." else "Log this exercise to get your rank.", color = Sub)
+            r == null -> Text("Log this exercise to get your rank.", color = Sub)
             else -> {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RankBadge(r.tier, 64.dp)
@@ -271,15 +259,10 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                         Text("(${topLabel(r.percentile)})")
                     }
                 }
-                Text(if (info.cy != null) "Faster than about ${r.percentile.toInt()}% of ${if (profile.male) "men" else "women"} your age who cycle."
-                    else "Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
+                Text("Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)}" + if (profile.compareAll) " – everyone, lifters or not." else " who lift.", fontSize = 15.sp,
                     modifier = Modifier.padding(top = 6.dp))
                 Text(
-                    "Your best in the 30 days up to your last session: " + when {
-                        info.reps -> "${r.value.toInt()} reps"
-                        info.cy != null -> "${Standards.show(e.id, r.value)} over 20 km (or the same rank at your distance)"
-                        else -> "est. 1-rep max ${Units.weightU(r.value)}"
-                    },
+                    "Your best in the 30 days up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else "est. 1-rep max ${Units.weightU(r.value)}",
                     color = Sub, fontSize = 13.sp,
                 )
                 Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {

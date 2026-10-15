@@ -28,7 +28,6 @@ object Standards {
     /** The rows to use for you, and anything that makes your percentile less exact. Null without a standard or body weight. */
     fun fit(id: String, p: Profile): Fit? {
         val s = table[id] ?: return null
-        if (s.cy != null) return cyclingFit(s, p)
         val bw = p.bodyweight ?: return null
         val own = if (p.male) s.male else s.female
         // Your own sex's table first; the other sex's (scaled) only when there's none at all for yours.
@@ -74,65 +73,6 @@ object Standards {
     }
 
     /** In order: each mode ranks everything the one before it does, and more. */
-    // ---- Cycling: ranked by speed for the distance ridden ----
-
-    fun isCycling(id: String) = table[id]?.cy != null
-
-    /** Rides are shown as the speed over this distance that ranks the same as the ride, so any length compares. */
-    const val CY_KM = 20.0
-    private const val CY_MIN_KM = 2.0
-    private const val CY_MAX_KM = 100.0
-
-    private fun cyAge(p: Profile) = (p.age ?: 25).coerceIn(10, 90).toDouble()
-
-    /** Straight-line blend between the published ages. */
-    private fun byAge(rows: List<Pair<Double, Double>>, age: Double): Double {
-        if (age <= rows.first().first) return rows.first().second
-        if (age >= rows.last().first) return rows.last().second
-        val i = rows.indexOfLast { it.first <= age }.coerceAtMost(rows.size - 2)
-        val (a0, v0) = rows[i]; val (a1, v1) = rows[i + 1]
-        return v0 + (v1 - v0) * (age - a0) / (a1 - a0)
-    }
-
-    private fun cyclingFit(s: StandardsData.Std, p: Profile): Fit? {
-        val rows = (if (p.male) s.male else s.female) ?: return null
-        val problems = mutableListOf<String>()
-        when {
-            p.age == null -> problems += "Your age isn't set, so you're compared with 25-year-olds."
-            p.age < 10 || p.age > 90 -> problems += "Your age is outside the published ages (10–90), so the nearest age is used."
-        }
-        val compared = "Compared with ${if (p.male) "men" else "women"} who cycle, aged ${cyAge(p).toInt()}. " +
-            "Source: Cycling Level's times by age, sex and ability for 5, 10, 16, 20 and 40 km. Each ride's speed is ranked " +
-            "against the times for its distance, then shown as the speed over 20 km that ranks the same, so rides of any length compare. " +
-            "Rides of 2–100 km count; past 40 km the times are extended."
-        return Fit(rows, false, problems, compared)
-    }
-
-    /** A ride's rank as a 20 km-equivalent speed (km/h) for you; 0 if it can't be ranked. */
-    fun rideValue(id: String, distanceMi: Double?, seconds: Int?, p: Profile): Double {
-        val c = table[id]?.cy ?: return 0.0
-        val km = (distanceMi ?: return 0.0) * Units.KM
-        if (seconds == null || seconds <= 0 || km < CY_MIN_KM || km > CY_MAX_KM) return 0.0
-        val rows = if (p.male) c.male else c.female
-        val age = cyAge(p)
-        val i = c.km.indexOfLast { it <= km }.coerceIn(0, c.km.size - 2)
-        // Each level's time at the ride's distance: log time against log distance between the nearest two (extended past the ends).
-        val speeds = DoubleArray(5) { k ->
-            fun t(d: Int) = ln(byAge(rows.map { it.first to it.second[d][k] }, age))
-            val x0 = ln(c.km[i]); val x1 = ln(c.km[i + 1])
-            km / exp(t(i) + (t(i + 1) - t(i)) * (ln(km) - x0) / (x1 - x0)) * 3600
-        }
-        val pct = lifterPercentile(speeds, km / seconds * 3600)
-        return fromPct(levels(id, p) ?: return 0.0, pct)
-    }
-
-    /** A rank value as text: reps, a 20 km-equivalent speed, or a weight. */
-    fun show(id: String, v: Double): String = when {
-        isReps(id) -> "${v.toInt()} reps"
-        isCycling(id) -> if (Units.kg) "%.1f km/h".format(v) else "%.1f mph".format(v / Units.KM)
-        else -> Units.weightU(Math.round(v).toDouble())
-    }
-
     enum class Mode { OFF, ACCURATE, ALL, AI }
     fun mode(p: Profile) = when (p.rankMode) { "off" -> Mode.OFF; "all" -> Mode.ALL; "ai" -> Mode.AI; else -> Mode.ACCURATE }
     fun isAi(id: String) = table[id]?.ai == true
@@ -227,7 +167,6 @@ object Standards {
      */
     fun levels(id: String, p: Profile): DoubleArray? {
         val rows = fit(id, p)?.rows ?: return null
-        if (isCycling(id)) return DoubleArray(5) { k -> byAge(rows.map { it.first to it.second[k] }, cyAge(p)) }
         val bw = p.bodyweight ?: return null
         val f = ageFactor(p.age) * (table[id]?.factor ?: 1.0)
         return levelsAt(rows, bw).map { it * f }.toDoubleArray()
@@ -237,10 +176,9 @@ object Standards {
     val LEVEL_PCT get() = PCT
 
     /** The number you'd need for a percentile (the reverse of [percentile]). */
-    fun valueFor(id: String, pct: Double, p: Profile): Double? = levels(id, p)?.let { fromPct(it, pct) }
-
-    private fun fromPct(lv: DoubleArray, pct: Double): Double =
-        when {
+    fun valueFor(id: String, pct: Double, p: Profile): Double? {
+        val lv = levels(id, p) ?: return null
+        return when {
             pct <= PCT[0] -> lv[0] * pct / PCT[0]
             pct >= 95 -> {
                 val x = ((pct - 95) / 4.9).coerceAtMost(0.999)
@@ -251,23 +189,22 @@ object Standards {
                 lv[i] + (lv[i + 1] - lv[i]) * (pct - PCT[i]) / (PCT[i + 1] - PCT[i])
             }
         }
+    }
 
     /**
      * A 1 Rep Max test's result: the heaviest completed single; if there's no single, the best
      * estimate from the other sets. Max-reps exercises: the most reps.
      */
-    fun testValue(id: String, sets: List<DoneSet>, p: Profile = Store.profile.value): Double {
+    fun testValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup }
-        if (isCycling(id)) return bestValue(id, sets, p)
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         val single = done.filter { it.reps == 1 }.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
         return if (single > 0) single else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
     }
 
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
-    fun bestValue(id: String, sets: List<DoneSet>, p: Profile = Store.profile.value): Double {
+    fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup } // warm-ups never count
-        if (isCycling(id)) return done.maxOfOrNull { rideValue(id, it.distance, it.seconds, p) } ?: 0.0
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
     }
@@ -320,7 +257,7 @@ object Ranks {
             for (id in w.items.map { it.exerciseId }.distinct()) {
                 if (!Standards.covers(id, p)) continue
                 val sets = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
-                val v = if (w.test) Standards.testValue(id, sets, p) else Standards.bestValue(id, sets, p)
+                val v = if (w.test) Standards.testValue(id, sets) else Standards.bestValue(id, sets)
                 if (v > 0) sessions.getOrPut(id) { mutableListOf() } += S(w.start, v, w.test)
             }
         }
@@ -368,7 +305,7 @@ object Ranks {
     /** Each main muscle -> your best ranked exercise for it. */
     fun muscles(ranks: Map<String, Ranked>): Map<String, Ranked> {
         val out = HashMap<String, Ranked>()
-        for (r in ranks.values) if (!Standards.isCycling(r.exercise.id)) for (m in rankedMuscles(r.exercise)) {
+        for (r in ranks.values) for (m in rankedMuscles(r.exercise)) {
             if ((out[m]?.percentile ?: -1.0) < r.percentile) out[m] = r
         }
         return out
@@ -387,14 +324,14 @@ object Ranks {
     /** Each muscle group -> every ranked exercise where it's the main muscle, best first. */
     fun groupCandidates(ranks: Map<String, Ranked>): Map<String, List<Ranked>> {
         val by = HashMap<String, MutableList<Ranked>>()
-        for (r in ranks.values) if (!Standards.isCycling(r.exercise.id)) for (g in r.exercise.primary) by.getOrPut(g) { mutableListOf() } += r
+        for (r in ranks.values) for (g in r.exercise.primary) by.getOrPut(g) { mutableListOf() } += r
         return by.mapValues { (_, l) -> l.sortedByDescending { it.percentile } }
     }
 
     /** Each muscle group -> your best ranked exercise where it's the main muscle. */
     fun groups(ranks: Map<String, Ranked>): Map<String, Ranked> {
         val out = HashMap<String, Ranked>()
-        for (r in ranks.values) if (!Standards.isCycling(r.exercise.id)) for (g in r.exercise.primary) {
+        for (r in ranks.values) for (g in r.exercise.primary) {
             if ((out[g]?.percentile ?: -1.0) < r.percentile) out[g] = r
         }
         return out

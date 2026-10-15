@@ -43,8 +43,7 @@ fun RankDetailScreen(id: String) {
     val lv = Standards.levels(id, p)
     val r = remember(workouts, p, id) { Ranks.all(workouts, p)[id] }
     val reps = info?.reps == true
-    val cyc = info?.cy != null
-    fun fmt(v: Double) = Standards.show(id, v)
+    fun fmt(v: Double) = if (reps) "${v.toInt()} reps" else Units.weightU(Math.round(v).toDouble())
 
     Column(Modifier.fillMaxSize()) {
         TopBar(e.name)
@@ -60,7 +59,7 @@ fun RankDetailScreen(id: String) {
                 Column(Modifier.padding(start = 12.dp)) {
                     Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
                     Text("(${topLabel(r.percentile)})")
-                    Text((if (reps) "Your best: " else if (cyc) "Your 20 km speed: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
+                    Text((if (reps) "Your best: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
                 }
             } else Text("Log this exercise to see where you sit.", color = Sub)
 
@@ -70,11 +69,7 @@ fun RankDetailScreen(id: String) {
             val curve = remember(lv.toList(), xMax) { (0..80).map { i -> val x = xMax * i / 80; x to (Standards.percentile(id, x, p) ?: 0.0) } }
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(12.dp)) {
                 Text("Where you sit", fontWeight = FontWeight.Bold)
-                Text(when {
-                    reps -> "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat."
-                    cyc -> "Across: speed over 20 km (rides of other lengths are converted).  Up: % of cyclists your age you beat."
-                    else -> "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat."
-                },
+                Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
                     color = Sub, fontSize = 12.sp)
                 val line = Color.White
                 val myColor = r?.let { Color(it.tier.color) } ?: Blue
@@ -109,7 +104,7 @@ fun RankDetailScreen(id: String) {
                         drawCircle(Color.Black, 3.dp.toPx(), Offset(px(mine), py(r.percentile)))
                     }
                 }
-                if (mine != null) Text("● You: ${fmt(mine)} – ${if (cyc) "faster" else "stronger"} than ${r!!.percentile.toInt()}%", color = myColor, fontSize = 13.sp)
+                if (mine != null) Text("● You: ${fmt(mine)} – stronger than ${r!!.percentile.toInt()}%", color = myColor, fontSize = 13.sp)
             }
 
             // The numbers behind it.
@@ -127,7 +122,7 @@ fun RankDetailScreen(id: String) {
                 if (r != null && r.tier != Tier.entries.last()) {
                     val next = Tier.entries[r.tier.ordinal + 1]
                     Standards.valueFor(id, next.ordinal * 5.0, p)?.let {
-                        Text("Next rank (${next.label}): ${fmt(it)}" + if (cyc) " over 20 km" else if (!reps) " est. 1-rep max" else "", color = Color(next.color),
+                        Text("Next rank (${next.label}): ${fmt(it)}" + if (!reps) " est. 1-rep max" else "", color = Color(next.color),
                             fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
                     }
                 }
@@ -141,24 +136,18 @@ fun RankDetailScreen(id: String) {
                     Text(k, Modifier.width(110.dp), color = Sub, fontSize = 14.sp)
                     Text(v, Modifier.weight(1f), fontSize = 14.sp)
                 }
-                if (cyc) {
-                    Line("People", (if (p.male) "Men" else "Women") + " who cycle")
-                    Line("Age", p.age?.let { "$it (Cycling Level's table for your age)" } ?: "not set – compared with 25-year-olds")
-                    Line("Data", "Cycling Level ride times, 5–40 km")
-                } else {
                 Line("People", (if (p.male) "Men" else "Women") + (if (p.compareAll) " – everyone, lifters and non-lifters" else " who lift") + if (fit.estimatedFromMen) " (estimated from the other sex's data)" else "")
                 Line("Body weight", p.bodyweight?.let { Units.weightU(it) } ?: "not set")
                 Line("Age", p.age?.let { a -> "$a" + if (a in 25..40) " (no adjustment)" else " (levels × ${"%.2f".format(Standards.ageFactor(a))})" } ?: "not set")
                 Line("Data", if (info.ai) "AI estimate: ${"%.0f".format(info.factor * 100)}% of the Strength Level \"${info.lift}\" standard"
                     else "Strength Level \"${info.lift}\"" + if (info.factor != 1.0) " × ${"%.2f".format(info.factor)} for this variation" else "")
                 if (info.perDumbbell) Line("Weight", "per dumbbell")
-                }
                 Text(fit.compared, color = Sub, fontSize = 12.sp)
                 if (!fit.exact) {
                     Text("Why it's an estimate:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     fit.problems.forEach { Text("• $it", color = Sub, fontSize = 12.sp) }
                 }
-                if (!cyc) Text(r?.testedAt?.let {
+                Text(r?.testedAt?.let {
                     "Your rank is set by your 1 Rep Max test on " + java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.getDefault()).format(java.util.Date(it)) +
                         ". Workouts since then only count if they beat it."
                 } ?: "Your rank uses your best in the 30 days up to the last time you did this exercise.", color = Sub, fontSize = 12.sp)
