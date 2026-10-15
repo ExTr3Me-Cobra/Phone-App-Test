@@ -196,6 +196,15 @@ fun SettingsScreen() {
             Spacer(8)
             Text("Ranks", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             RankModeChoice(p)
+            Row(Modifier.fillMaxWidth().clickable { set(p.copy(gripRank = !p.gripRank)) }, verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Separate Grip rank")
+                    Text(if (p.gripRank) "Grip is ranked only from the Grip Dynamometer Test and colours your hands on Home."
+                        else "Off: no Grip rank – your forearms rank (including the dynamometer) colours your forearms and hands.",
+                        color = Sub, fontSize = 12.sp)
+                }
+                androidx.compose.material3.Switch(p.gripRank, { set(p.copy(gripRank = it)) })
+            }
 
             Text(
                 buildAnnotatedString {

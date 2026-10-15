@@ -332,17 +332,25 @@ object Ranks {
         }
     }
 
+    /** The hands on the heatmap: the finger flexors that do the gripping. */
+    const val HANDS = "forearms (finger flexors)"
+    const val GRIP = "grip"
+
+    /** The muscle groups an exercise ranks: with the Grip rank on, the dynamometer ranks Grip (and only Grip). */
+    fun groupsOf(e: Exercise, p: Profile = Store.profile.value): List<String> =
+        if (p.gripRank && Standards.isFlat(e.id)) listOf(GRIP) else e.primary
+
     /** Each muscle group -> every ranked exercise where it's the main muscle, best first. */
     fun groupCandidates(ranks: Map<String, Ranked>): Map<String, List<Ranked>> {
         val by = HashMap<String, MutableList<Ranked>>()
-        for (r in ranks.values) for (g in r.exercise.primary) by.getOrPut(g) { mutableListOf() } += r
+        for (r in ranks.values) for (g in groupsOf(r.exercise)) by.getOrPut(g) { mutableListOf() } += r
         return by.mapValues { (_, l) -> l.sortedByDescending { it.percentile } }
     }
 
     /** Each muscle group -> your best ranked exercise where it's the main muscle. */
     fun groups(ranks: Map<String, Ranked>): Map<String, Ranked> {
         val out = HashMap<String, Ranked>()
-        for (r in ranks.values) for (g in r.exercise.primary) {
+        for (r in ranks.values) for (g in groupsOf(r.exercise)) {
             if ((out[g]?.percentile ?: -1.0) < r.percentile) out[g] = r
         }
         return out

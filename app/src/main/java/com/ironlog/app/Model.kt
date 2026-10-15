@@ -156,6 +156,8 @@ data class Profile(
     val groupPicks: Map<String, List<String>> = emptyMap(),
     /** Exercise list order: "az", "muscle" or "mine" (in routines, then logged, then the rest). */
     val exerciseSort: String = "az",
+    /** Home: a separate Grip rank (hands on the heatmap) from the Grip Dynamometer Test; off = grip is part of forearms. */
+    val gripRank: Boolean = true,
 ) {
     /** Picks are remembered separately for each ranking mode (Accurate only / All on × Lifters / Everyone). */
     val pickMode get() = "$rankMode/${if (compareAll) "everyone" else "lifters"}|"
@@ -220,7 +222,7 @@ object Json {
         .put("male", p.male).put("kg", p.kg).put("model", p.imageModel) // the API key is kept apart (never backed up)
         .put("quality", p.imageQuality).put("rest", p.defaultRest)
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
-        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("homeAll", p.homeAllTime).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort)
+        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("homeAll", p.homeAllTime).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort).put("grip", p.gripRank)
         .put("gp", JSONObject(p.groupPicks.mapValues { JSONArray(it.value) } as Map<*, *>))
     fun profile(o: JSONObject) = Profile(
         o.optDoubleOrNull("bw"), o.optIntOrNull("h"), o.optIntOrNull("age"), o.optBoolean("male", true),
@@ -231,6 +233,7 @@ object Json {
         o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"), o.optBoolean("onb"), o.optString("bk"), false, // "Everyone" mode was removed
         groupPicks = o.optJSONObject("gp")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
         exerciseSort = o.optString("sort", "az").ifBlank { "az" },
+        gripRank = o.optBoolean("grip", true),
     )
 
     fun JSONArray.objs(): List<JSONObject> = List(length()) { getJSONObject(it) }

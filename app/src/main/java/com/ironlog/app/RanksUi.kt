@@ -138,9 +138,14 @@ fun HomeRankCard() {
             }
         }
         // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
-        val muscles = remember(ranks) {
+        val muscles = remember(ranks, profile) {
             val groups = Ranks.groupRanks(ranks, profile.picksNow)
-            Ranks.muscles(ranks).mapValues { (m, r) -> groups[Muscles.group(m)]?.first ?: r.percentile }
+            val m = Ranks.muscles(ranks).filterValues { !(profile.gripRank && Standards.isFlat(it.exercise.id)) }
+                .mapValues { (m, r) -> groups[Muscles.group(m)]?.first ?: r.percentile }.toMutableMap()
+            m.remove(Ranks.HANDS)
+            if (profile.gripRank) groups[Ranks.GRIP]?.let { m[Ranks.HANDS] = it.first } // hands: only from the dynamometer
+            else groups["forearms"]?.let { f -> Muscles.groups["forearms"].orEmpty().forEach { h -> m[h] = f.first } } // forearms rank covers forearms and hands
+            m
         }
         val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
         val levels = muscles.mapValues { (it.value / 100).toFloat().coerceAtLeast(0.01f) }
@@ -183,7 +188,7 @@ fun HomeRankCard() {
             // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, forearms).
             val rankedGroups = Ranks.groupRanks(ranks, profile.picksNow).keys
             Muscles.groups.keys.filter { g -> g !in rankedGroups }.forEach { g ->
-                val rankable = StandardsData.all.filter { !it.ai || Standards.mode(profile) == Standards.Mode.AI }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
+                val rankable = StandardsData.all.filter { (!it.ai || Standards.mode(profile) == Standards.Mode.AI) && !(profile.gripRank && it.flat) }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
                 if (rankable.isEmpty()) return@forEach
                 val forYou = rankable.filter { Standards.covers(it.id, profile) }
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
@@ -203,6 +208,16 @@ fun HomeRankCard() {
                         color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp),
                     )
                 }
+            }
+            if (profile.gripRank && Ranks.GRIP !in rankedGroups) Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Card2))
+                    HSpacer(8)
+                    Text("Grip", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Sub, modifier = Modifier.weight(1f))
+                    Text("Not ranked yet", fontSize = 13.sp, color = Sub)
+                }
+                Text("Log a Grip Dynamometer Test to rank your grip and colour your hands. (Turn the Grip rank off in Settings.)",
+                    color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp))
             }
             Spacer(10)
             Text("Colour key", fontWeight = FontWeight.Bold)
