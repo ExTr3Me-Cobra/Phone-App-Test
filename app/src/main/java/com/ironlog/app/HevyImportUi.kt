@@ -39,7 +39,7 @@ fun HevyMatchScreen() {
     val plan = HevyImport.pending ?: run { Nav.back(); return }
     val choices = HevyImport.choices
     val picks = HevyImport.routinePicks
-    var asking by remember { mutableStateOf<String?>(null) }
+    var asking by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) } // still open after reading an exercise
     var busy by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf<String?>(null) }
     var warn by remember { mutableStateOf<String?>(null) }
@@ -70,7 +70,8 @@ fun HevyMatchScreen() {
                     Text("Match exercises", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(
                         "Tap each Hevy exercise and choose the Loadout exercise its sets go to, or add it as a new custom exercise " +
-                            "(no picture or directions until you add them). Untick an exercise to leave it out. Your choices are remembered for next time.",
+                            "(no picture or directions until you add them). When picking, tap ⓘ Info to read how an exercise is done. " +
+                            "Untick an exercise to leave it out. Your choices are remembered for next time.",
                         color = Sub, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                     )
                     val skipped = plan.unmatched.count { choices[it.hevy] == HevyImport.SKIP }
@@ -161,7 +162,10 @@ fun HevyMatchScreen() {
             text = {
                 Column {
                     Text("Where should these sets go?", modifier = Modifier.padding(bottom = 8.dp))
-                    if (guess != null) TextButton(onClick = { choices[hevy] = guess.id; asking = null }) { Text("Use \"${guess.name}\"") }
+                    if (guess != null) {
+                        TextButton(onClick = { choices[hevy] = guess.id; asking = null }) { Text("Use \"${guess.name}\"") }
+                        TextButton(onClick = { Nav.go(Route.ExerciseDetail(guess.id)) }) { Text("ⓘ Read about \"${guess.name}\"") }
+                    }
                     TextButton(onClick = {
                         asking = null
                         Nav.go(Route.Picker("Match \"$hevy\"", false) { ids -> ids.firstOrNull()?.let { choices[hevy] = it } })

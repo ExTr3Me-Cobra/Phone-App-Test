@@ -176,7 +176,11 @@ fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () ->
                     if (e.custom) { HSpacer(8); Chip("Custom") }
                 }
             }
-            Text("›", color = Sub, fontSize = 26.sp, modifier = Modifier.clickable { Nav.go(Route.ExerciseDetail(e.id)) }.padding(horizontal = 8.dp))
+            // While picking, a clear button to read the exercise first (tapping the row picks it).
+            if (picking) Text("ⓘ Info", color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Card2).clickable { Nav.go(Route.ExerciseDetail(e.id)) }
+                    .padding(horizontal = 10.dp, vertical = 8.dp))
+            else Text("›", color = Sub, fontSize = 26.sp, modifier = Modifier.clickable { Nav.go(Route.ExerciseDetail(e.id)) }.padding(horizontal = 8.dp))
         }
     }
     HorizontalDivider(color = Card, modifier = Modifier.padding(start = 92.dp))

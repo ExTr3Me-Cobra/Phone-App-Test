@@ -102,7 +102,8 @@ object HevyImport {
         val saved = savedChoices()
         val counts = rows.drop(1).mapNotNull { it.getOrNull(cEx)?.takeIf { n -> n.isNotBlank() } }.groupingBy { it }.eachCount()
         // Every exercise gets matched by you; only choices you made before are filled in.
-        val unmatched = counts.keys.sorted().map { n ->
+        // Most-used exercises first.
+        val unmatched = counts.keys.sortedWith(compareByDescending<String> { counts.getValue(it) }.thenBy { it }).map { n ->
             val savedId = saved[n]?.takeIf { it == "" || it == SKIP || Store.exercise(it) != null }
             Unmatched(n, counts.getValue(n), savedId, directId(n, byName))
         }
