@@ -243,10 +243,10 @@ private fun RowScope.TabItem(label: String, icon: String, selected: Boolean, onC
 
 /** Top bar like the reference screens: back arrow, centred title, optional action. */
 @Composable
-fun TopBar(title: String, back: Boolean = true, action: String? = null, onAction: () -> Unit = {}) {
+fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: () -> Unit = { Nav.back() }, onAction: () -> Unit = {}) {
     Box(Modifier.fillMaxWidth().background(Card).statusBarsPadding().height(56.dp)) {
         if (back) Text(
-            "←", fontSize = 26.sp, modifier = Modifier.align(Alignment.CenterStart).clickable { Nav.back() }.padding(horizontal = 16.dp),
+            "←", fontSize = 26.sp, modifier = Modifier.align(Alignment.CenterStart).clickable(onClick = onBack).padding(horizontal = 16.dp),
         )
         // Long titles shrink to two lines and never run under the back arrow or the action.
         val side = maxOf(56, if (action != null) action.length * 10 + 36 else 0)

@@ -111,11 +111,25 @@ object HevyImport {
         )
     }
 
+    /** Custom exercises made on the matching screen this time: deleted again if you leave without importing. */
+    val createdNow = mutableSetOf<String>()
+
     /** Makes (or reuses) the custom exercise for [hevy] right away, so you can edit it before importing. Returns its id. */
     fun createCustom(hevy: String): String {
         val id = customId(hevy)
-        if (Store.exercise(id) == null) Store.saveCustomExercise(buildCustom(hevy, typeGuess[hevy] ?: ExType.WEIGHT))
+        if (Store.exercise(id) == null) {
+            Store.saveCustomExercise(buildCustom(hevy, typeGuess[hevy] ?: ExType.WEIGHT))
+            createdNow += id
+        }
         return id
+    }
+
+    /** Deletes custom exercises made here that aren't used anywhere ([keep]: ones chosen for the import). */
+    fun discardCreated(keep: Set<String> = emptySet()) {
+        val used = Store.workouts.value.flatMap { w -> w.items.map { it.exerciseId } }.toSet() +
+            Store.routines.value.flatMap { r -> r.items.map { it.exerciseId } } + keep
+        createdNow.filter { it !in used }.forEach { Store.deleteCustomExercise(it) }
+        createdNow.clear()
     }
 
     private fun guessType(hasW: Boolean, hasT: Boolean, hasR: Boolean, hasD: Boolean) = when {
@@ -141,6 +155,7 @@ object HevyImport {
             Unmatched(n, counts.getValue(n), savedId, directId(n, byName))
         }
         choices.clear()
+        createdNow.clear()
         unmatched.forEach { u -> u.saved?.let { choices[u.hevy] = it } }
 
         // How each exercise was logged, for any you turn into custom exercises.

@@ -43,19 +43,24 @@ fun HevyMatchScreen() {
     var busy by remember { mutableStateOf(false) }
     var done by remember { mutableStateOf<String?>(null) }
     var warn by remember { mutableStateOf<String?>(null) }
+    var leaving by remember { mutableStateOf(false) }
+    fun leave() { HevyImport.discardCreated(); HevyImport.pending = null; Nav.back() }
+    androidx.activity.compose.BackHandler(enabled = done == null) { leaving = true }
     var editAsk by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) } // custom exercise id
     val scope = rememberCoroutineScope()
     val haveRoutines = Store.routines.collectAsState().value.map { it.id }.toSet()
 
     Column(Modifier.fillMaxSize()) {
         val left = plan.unmatched.count { it.hevy !in choices }
-        TopBar("Import from Hevy", action = if (busy) null else "Import") {
+        TopBar("Import from Hevy", action = if (busy) null else "Import", onBack = { leaving = true }) {
             if (left > 0) { warn = "Match every exercise first – $left still to go."; return@TopBar }
             busy = true
             scope.launch {
                 done = withContext(Dispatchers.IO) {
                     runCatching {
                         val n = HevyImport.import(plan.text, choices.toMap(), picks.filterValues { it }.keys)
+                        // Custom exercises made here but not used in the end (e.g. you picked something else instead).
+                        withContext(Dispatchers.Main) { HevyImport.discardCreated(choices.values.toSet()) }
                         val r = Store.lastRoutines
                         "Imported $n workout${if (n == 1) "" else "s"} from Hevy (any already here were skipped)." +
                             if (r > 0) " Made $r routine${if (r == 1) "" else "s"} – find them on the Workout tab." else ""
@@ -195,6 +200,16 @@ fun HevyMatchScreen() {
                 "Recommended: set it up now. You can also do it later from its page in your exercises.") },
             confirmButton = { TextButton(onClick = { editAsk = null; Nav.go(Route.EditExercise(id)) }) { Text("Edit now (recommended)") } },
             dismissButton = { TextButton(onClick = { editAsk = null }) { Text("Later") } },
+        )
+    }
+    if (leaving) {
+        if (HevyImport.createdNow.isEmpty()) { leaving = false; leave() }
+        else AlertDialog(
+            onDismissRequest = { leaving = false },
+            title = { Text("Leave without importing?") },
+            text = { Text("The ${HevyImport.createdNow.size} custom exercise${if (HevyImport.createdNow.size == 1) "" else "s"} you made here will be deleted.") },
+            confirmButton = { TextButton(onClick = { leaving = false; leave() }) { Text("Leave & delete", color = Red) } },
+            dismissButton = { TextButton(onClick = { leaving = false }) { Text("Stay") } },
         )
     }
     warn?.let { msg ->
