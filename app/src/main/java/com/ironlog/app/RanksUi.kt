@@ -151,6 +151,13 @@ fun HomeRankCard() {
         val levels = muscles.mapValues { (it.value / 100).toFloat().coerceAtLeast(0.01f) }
         BodyMapView(levels, Modifier.padding(top = 10.dp).fillMaxWidth().height(300.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black),
             colors = colors)
+        // Every rank colour in order, blended: Wood 1 on the left to Legend on the right.
+        Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp))
+            .background(androidx.compose.ui.graphics.Brush.horizontalGradient(Tier.entries.map { Color(it.color) })))
+        Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+            Text("Wood", color = Sub, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text("Legend", color = Sub, fontSize = 11.sp)
+        }
         Text(
             if (open) "Hide muscle ranks & colour key ▴" else "Show muscle ranks & colour key ▾",
             color = Blue, fontSize = 15.sp, modifier = Modifier.fillMaxWidth().clickable { open = !open }.padding(vertical = 10.dp),
