@@ -1,6 +1,10 @@
 package com.ironlog.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -158,11 +162,12 @@ fun RoutineViewScreen(id: String) {
 }
 
 @Composable
-fun ExerciseHeader(ex: Exercise?, trailing: (@Composable () -> Unit)? = null) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.clickable { ex?.let { Nav.go(Route.ExerciseDetail(it.id)) } }) { ExerciseThumb(ex, 48.dp) }
+fun ExerciseHeader(ex: Exercise?, modifier: Modifier = Modifier, noClick: () -> Boolean = { false }, trailing: (@Composable () -> Unit)? = null) {
+    fun open() { if (!noClick()) ex?.let { Nav.go(Route.ExerciseDetail(it.id)) } }
+    Row(modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.clickable { open() }) { ExerciseThumb(ex, 48.dp) }
         HSpacer(14)
-        Column(Modifier.weight(1f).clickable { ex?.let { Nav.go(Route.ExerciseDetail(it.id)) } }) {
+        Column(Modifier.weight(1f).clickable { open() }) {
             Text(starredName(ex), color = Blue, fontSize = 18.sp, fontWeight = FontWeight.Medium)
             if (ex?.custom == true) { Spacer(4); Chip("Custom") }
         }
@@ -238,6 +243,37 @@ fun RoutineEditScreen(id: String?) {
     fun updateItem(i: Int, change: (RoutineItem) -> RoutineItem) =
         update { r -> r.copy(items = r.items.toMutableList().also { it[i] = change(it[i]) }) }
 
+    // Hold an exercise's header, then drag: the list shrinks to just names while you move it.
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val rowH = with(density) { 56.dp.toPx() }
+    var dragFrom by remember { mutableStateOf<Int?>(null) }
+    var dragY by remember { mutableStateOf(0f) }   // finger, in the list's coordinates
+    var listTop by remember { mutableStateOf(0f) } // where the short list starts
+    var released by remember { mutableStateOf(0L) }
+    fun dragTo(): Int = ((dragY - listTop) / rowH).toInt().coerceIn(0, (Drafts.routine ?: draft).items.lastIndex)
+    fun dragModifier(i: Int) = Modifier.pointerInput(i, draft.items.size) {
+        detectDragGesturesAfterLongPress(
+            onDragStart = { o ->
+                val top = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == i + 1 }?.offset ?: return@detectDragGesturesAfterLongPress
+                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                dragY = top + o.y
+                listTop = (dragY - rowH * i - rowH / 2).coerceAtLeast(0f)
+                dragFrom = i
+            },
+            onDrag = { change, d -> change.consume(); dragY += d.y },
+            onDragEnd = {
+                dragFrom?.let { from ->
+                    val to = dragTo()
+                    if (to != from) update { r -> r.copy(items = r.items.toMutableList().also { l -> l.add(to, l.removeAt(from)) }) }
+                }
+                dragFrom = null; released = System.currentTimeMillis()
+            },
+            onDragCancel = { dragFrom = null; released = System.currentTimeMillis() },
+        )
+    }
+
     Column(Modifier.fillMaxSize()) {
         TopBar(if (id == null) "New Routine" else "Edit Routine", action = "Save") {
             val r = Drafts.routine ?: return@TopBar
@@ -248,8 +284,11 @@ fun RoutineEditScreen(id: String?) {
             }
         }
         // Lots of room at the bottom so the last sets can scroll up above the keyboard.
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 400.dp)) {
+      Box(Modifier.fillMaxSize()) {
+        LazyColumn(Modifier.fillMaxSize(), state = listState, contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 400.dp)) {
             item {
+                if (draft.items.size > 1) Text("Tip: hold an exercise's name and drag to reorder.", color = Sub, fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp))
                 OutlinedTextField(
                     draft.name, { n -> update { it.copy(name = n) } },
                     Modifier.fillMaxWidth().padding(16.dp).typing(), label = { Text("Routine name") }, singleLine = true,
@@ -260,7 +299,7 @@ fun RoutineEditScreen(id: String?) {
                 val item = draft.items[i]
                 val ex = Store.exercise(item.exerciseId)
                 var menu by remember { mutableStateOf(false) }
-                ExerciseHeader(ex) {
+                ExerciseHeader(ex, dragModifier(i), noClick = { dragFrom != null || System.currentTimeMillis() - released < 400 }) {
                     Box {
                         Text("•••", color = Sub, fontSize = 18.sp, modifier = Modifier.clickable { menu = true }.padding(8.dp))
                         DropdownMenu(menu, { menu = false }) {
@@ -362,6 +401,29 @@ fun RoutineEditScreen(id: String?) {
                 }
             }
         }
+        // While dragging: every exercise as a short row; the held one follows your finger.
+        dragFrom?.let { from ->
+            val to = dragTo()
+            val order = draft.items.indices.toMutableList().also { it.add(to, it.removeAt(from)) }
+            Box(Modifier.matchParentSize().background(Bg)) {
+                order.forEachIndexed { pos, idx ->
+                    val held = idx == from
+                    val y = if (held) dragY - rowH / 2 else listTop + pos * rowH
+                    Row(
+                        Modifier.offset { androidx.compose.ui.unit.IntOffset(0, y.toInt()) }.fillMaxWidth().height(56.dp)
+                            .padding(horizontal = 12.dp, vertical = 4.dp).clip(RoundedCornerShape(10.dp))
+                            .background(if (held) Blue.copy(alpha = 0.35f) else Card).padding(horizontal = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("≡", color = Sub, fontSize = 20.sp)
+                        HSpacer(12)
+                        Text(Store.exercise(draft.items[idx].exerciseId)?.name ?: "Missing exercise", fontSize = 16.sp,
+                            fontWeight = if (held) FontWeight.Bold else FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            }
+        }
+      }
     }
     restFor?.let { i ->
         RestPicker(draft.items.getOrNull(i)?.restSec ?: 90, { restFor = null }) { sec -> updateItem(i) { it.copy(restSec = sec) }; restFor = null }
