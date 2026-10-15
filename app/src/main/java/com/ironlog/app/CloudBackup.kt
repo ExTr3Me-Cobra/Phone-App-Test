@@ -67,43 +67,18 @@ class CloudBackup : BackupAgent() {
     override fun onRestore(data: BackupDataInput?, appVersionCode: Int, newState: ParcelFileDescriptor?) {}
 
     companion object {
-        private const val GMS = "com.google.android.gms"
-
-        /**
-         * Tries to open Google's backup page, then Play services' "Google" settings (which lists Backup).
-         * Returns false if neither opens – it never falls back to the phone maker's own backup page,
-         * which on Samsung phones is Samsung Cloud, not Google.
-         */
-        fun openGoogle(c: Context): Boolean {
-            val backup = listOf(
-                "com.google.android.gms.backup.component.BackupSettingsActivity",
-                "com.google.android.gms.backup.settings.component.BackupSettingsActivity",
-                "com.google.android.gms.backup.BackupSettingsActivity",
+        /** Opens the phone's backup settings (Google's page if it can, otherwise general settings). */
+        fun openSettings(c: Context) {
+            val tries = listOf(
+                Intent().setClassName("com.google.android.gms", "com.google.android.gms.backup.component.BackupSettingsActivity"),
+                Intent("android.settings.BACKUP_AND_RESET_SETTINGS"),
+                Intent(Settings.ACTION_PRIVACY_SETTINGS),
+                Intent(Settings.ACTION_SETTINGS),
             )
-            val found = runCatching {
-                @Suppress("DEPRECATION")
-                c.packageManager.getPackageInfo(GMS, android.content.pm.PackageManager.GET_ACTIVITIES).activities.orEmpty()
-                    .filter { it.exported && it.name.contains("backup", true) && it.name.contains("setting", true) }.map { it.name }
-            }.getOrDefault(emptyList())
-            val google = listOf(
-                "com.google.android.gms.app.settings.GoogleSettingsLink",
-                "com.google.android.gms.app.settings.GoogleSettingsIALink",
-                "com.google.android.gms.app.settings.GoogleSettingsActivity",
-            )
-            for (name in (backup + found + google).distinct()) {
-                val i = Intent().setClassName(GMS, name).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                if (runCatching { c.startActivity(i) }.isSuccess) { log(c, "Opened $name"); return true }
+            for (i in tries) {
+                if (runCatching { c.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess) return
             }
-            log(c, "Couldn't open Google's backup or Google settings directly")
-            return false
         }
-
-        /** The phone's main Settings app. */
-        fun openPhoneSettings(c: Context) {
-            runCatching { c.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-        }
-
-        val isSamsung get() = android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true)
 
         /** A short record of what Android's backup did with Loadout (newest last), for Developer settings. */
         fun log(c: Context, msg: String) {
