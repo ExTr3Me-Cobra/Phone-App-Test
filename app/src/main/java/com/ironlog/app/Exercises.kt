@@ -85,7 +85,7 @@ fun PickerScreen(req: Route.Picker?) {
     val selected = rememberSaveable(saver = listSaver(save = { it.toList() }, restore = { it.toMutableStateList() })) {
         mutableStateListOf<String>()
     }
-    val sorted = remember(all) { all.values.filter { !it.hidden }.sortedBy { it.name.lowercase() } }
+    val sorted = remember(all) { all.values.filter { !it.hidden && req?.only?.invoke(it) != false }.sortedBy { it.name.lowercase() } }
     val words = query.lowercase().split(" ").filter { it.isNotBlank() }
     val filtered = sorted.filter { e ->
         (equipment == null || e.equipment == equipment) &&
@@ -116,7 +116,7 @@ fun PickerScreen(req: Route.Picker?) {
     }
     var sortMenu by remember { mutableStateOf(false) }
     val browsing = words.isEmpty() && equipment == null && muscle == null && showGold && showBlue && showAi && showNone
-    val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] } else emptyList()
+    val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] }.filter { req?.only?.invoke(it) != false } else emptyList()
 
     fun tap(e: Exercise) {
         when {

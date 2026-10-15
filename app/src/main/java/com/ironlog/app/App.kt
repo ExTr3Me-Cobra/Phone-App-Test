@@ -73,7 +73,7 @@ sealed interface Route {
     data class RoutineView(val id: String) : Route
     data class RoutineEdit(val id: String?) : Route
     /** [confirm]: the button text when picking several (default "Add N exercises"). */
-    class Picker(val title: String, val multi: Boolean, val confirm: String? = null, val onPick: (List<String>) -> Unit) : Route
+    class Picker(val title: String, val multi: Boolean, val confirm: String? = null, val only: ((Exercise) -> Boolean)? = null, val onPick: (List<String>) -> Unit) : Route
     data class ExerciseDetail(val id: String) : Route
     data class EditExercise(val id: String?) : Route
     data object Active : Route

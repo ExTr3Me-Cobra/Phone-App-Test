@@ -64,6 +64,13 @@ object OneRm {
     }
     fun notes(id: String) = notes[id]
 
+    /** Exercises a max test makes sense for: ranked for you (★) and scored on a max weight, max reps or a dynamometer squeeze. */
+    fun canTest(id: String, p: Profile): Boolean {
+        if (!Standards.covers(id, p)) return false
+        val t = Store.exercise(id)?.type ?: return false
+        return t == ExType.WEIGHT || t == ExType.BODYWEIGHT
+    }
+
     // Exercises you added to the list before doing them.
     fun added(): List<String> = runCatching {
         JSONArray(Store.readFile("onerm_list.json") ?: "[]").let { a -> List(a.length()) { a.getString(it) } }
@@ -100,7 +107,9 @@ object OneRm {
         exerciseId = id
         startedAt = System.currentTimeMillis()
         rows.clear()
-        if (Standards.isReps(id)) {
+        if (Standards.isFlat(id)) {
+            repeat(6) { rows += DoneSet(reps = 1) } // 3 squeezes with each hand
+        } else if (Standards.isReps(id)) {
             rows += DoneSet(reps = best?.let { (it * 0.35).roundToInt().coerceAtLeast(1) })
             rows += DoneSet()
         } else if (best != null) {
@@ -141,7 +150,7 @@ fun OneRmListScreen() {
     val list = remember(workouts, p, refresh) {
         val counts = HashMap<String, Int>()
         workouts.filter { it.end != null }.forEach { w -> w.items.map { it.exerciseId }.distinct().forEach { counts[it] = (counts[it] ?: 0) + 1 } }
-        val ids = (counts.keys + OneRm.added()).filter { Standards.covers(it, p) && !Standards.isFlat(it) && Store.exercise(it) != null }.distinct()
+        val ids = (counts.keys + OneRm.added()).filter { OneRm.canTest(it, p) && Store.exercise(it) != null }.distinct()
         ids.sortedWith(compareByDescending<String> { counts[it] ?: 0 }.thenBy { Store.exercise(it)?.name }).map { it to (counts[it] ?: 0) }
     }
     Column(Modifier.fillMaxSize()) {
@@ -179,10 +188,9 @@ fun OneRmListScreen() {
                 if (list.isEmpty()) Text("No ranked exercises done yet. Add one below, or log a workout first.", color = Sub,
                     modifier = Modifier.padding(vertical = 8.dp))
                 GreyButton("+ Add an exercise", Modifier.fillMaxWidth().padding(top = 8.dp), Blue) {
-                    Nav.go(Route.Picker("Add to 1 Rep Max", false) { ids ->
+                    Nav.go(Route.Picker("Add to 1 Rep Max", false, only = { OneRm.canTest(it.id, Store.profile.value) }) { ids ->
                         val id = ids.firstOrNull() ?: return@Picker
-                        if (Standards.isFlat(id)) message = "Just log your best squeeze in a workout – the dynamometer reading is already your max."
-                        else if (Standards.covers(id, Store.profile.value)) { OneRm.add(id); refresh++ }
+                        if (OneRm.canTest(id, Store.profile.value)) { OneRm.add(id); refresh++ }
                         else message = "${Store.exercise(id)?.name} can't be ranked for you, so there's nothing to test it against. Pick one with a ★."
                     })
                 }
@@ -199,6 +207,7 @@ fun OneRmTestScreen(id: String) {
     val e = Store.exercise(id) ?: run { Nav.back(); return }
     val context = LocalContext.current
     val reps = Standards.isReps(id)
+    val squeeze = Standards.isFlat(id)
     val best = remember(id) { OneRm.best(id, workouts, p) }
     remember(id) { OneRm.begin(id, best); 0 }
     val r = remember(workouts, p) { Ranks.all(workouts, p)[id] }
@@ -226,7 +235,11 @@ fun OneRmTestScreen(id: String) {
             Section("Warm-up plan", Blue) {
                 Bullet("5–10 minutes of easy cardio (bike, rower, brisk walk) until you're warm and lightly sweating.")
                 notes?.prep?.forEach { Bullet(it) }
-                if (reps) {
+                if (squeeze) {
+                    Bullet("Open and close your hands 10–15 times and shake them out.")
+                    Bullet("One practice squeeze with each hand at about half effort.")
+                    Bullet("Then 3 all-out squeezes with each hand, alternating hands, resting about a minute before using the same hand again.")
+                } else if (reps) {
                     Bullet(best?.let { "One easy set of about ${(it * 0.35).roundToInt().coerceAtLeast(1)} reps (a third of your best), then rest 3–5 minutes." }
                         ?: "One easy set of a few reps, well short of failure, then rest 3–5 minutes.")
                     Bullet("Then one all-out set: strict reps only, stop at the first rep you can't do with good form.")
@@ -243,6 +256,12 @@ fun OneRmTestScreen(id: String) {
                     Bullet("Rest 3–5 minutes before each heavy single.")
                 }
             }
+            if (squeeze) Section("Form", Green) {
+                Bullet("Sit upright with your feet flat, upper arm against your side and elbow bent to 90°; wrist straight.")
+                Bullet("Set the handle so the middle of your fingers wraps it comfortably.")
+                Bullet("Squeeze as hard as you can for about 3 seconds – steady, no jerking or swinging the arm.")
+                Bullet("Read the peak value and enter it. Your single best squeeze from either hand counts.")
+            }
             notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green) { f.forEach { Bullet(it) } } }
             Section("Safety", Red) {
                 notes?.safety?.forEach { Bullet(it) }
@@ -251,14 +270,14 @@ fun OneRmTestScreen(id: String) {
             }
 
             // Attempts
-            Text(if (reps) "Your sets" else "Your sets & attempts", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            Text(if (reps) "Tick a set when it's done. Your best set counts." else
+            Text(if (squeeze) "Your squeezes" else if (reps) "Your sets" else "Your sets & attempts", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text(if (squeeze) "Enter each reading and tick it. Your best squeeze counts." else if (reps) "Tick a set when it's done. Your best set counts." else
                 "Tick each set when it's done. Your heaviest completed single counts; if you don't do a single, your best set is converted to a 1-rep max estimate.",
                 color = Sub, fontSize = 13.sp)
             Row {
                 Text("SET", Modifier.weight(0.6f), color = Sub, fontSize = 12.sp)
-                if (!reps) Text(Units.w.uppercase(), Modifier.weight(1.4f), color = Sub, fontSize = 12.sp)
-                Text("REPS", Modifier.weight(1.2f), color = Sub, fontSize = 12.sp)
+                if (!reps) Text(if (squeeze) "SQUEEZE (${Units.w})" else Units.w.uppercase(), Modifier.weight(1.4f), color = Sub, fontSize = 12.sp)
+                Text(if (squeeze) "HAND" else "REPS", Modifier.weight(1.2f), color = Sub, fontSize = 12.sp)
                 Text("", Modifier.weight(1.2f))
             }
             OneRm.rows.forEachIndexed { i, s ->
@@ -268,7 +287,8 @@ fun OneRmTestScreen(id: String) {
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
                     }
-                    NumField(s.reps?.toString() ?: "", "0", "$k:r", Modifier.weight(1.2f).padding(end = 6.dp), KeyboardType.Number, outlined = true) { v ->
+                    if (squeeze) Text(if (i % 2 == 0) "Right" else "Left", Modifier.weight(1.2f), color = Sub)
+                    else NumField(s.reps?.toString() ?: "", "0", "$k:r", Modifier.weight(1.2f).padding(end = 6.dp), KeyboardType.Number, outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(reps = v.toIntOrNull())
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
@@ -328,7 +348,7 @@ private fun finishTest(c: Context, id: String): String? {
     val e = Store.exercise(id) ?: return "Exercise not found."
     if (done.isEmpty()) return "Tick at least one completed set first."
     val value = Standards.testValue(id, done)
-    if (value <= 0) return if (Standards.isReps(id)) "Enter the reps you did." else "Enter the weight and reps you lifted."
+    if (value <= 0) return if (Standards.isFlat(id)) "Enter your squeeze reading." else if (Standards.isReps(id)) "Enter the reps you did." else "Enter the weight and reps you lifted."
     val p = Store.profile.value
     val before = Ranks.all(Store.workouts.value, p)
     val w = Workout(

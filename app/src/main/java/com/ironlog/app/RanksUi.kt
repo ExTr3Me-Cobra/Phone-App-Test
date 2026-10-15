@@ -181,7 +181,8 @@ fun HomeRankCard() {
                             Text(" ›", color = Sub, fontSize = 16.sp)
                         }
                     }
-                    if (top.size == 1) Text("Rank one more exercise for this muscle to average two.", color = Sub, fontSize = 11.sp,
+                    if (g == Ranks.GRIP) GripTestButton()
+                    else if (top.size == 1) Text("Rank one more exercise for this muscle to average two.", color = Sub, fontSize = 11.sp,
                         modifier = Modifier.padding(start = 22.dp))
                 }
             }
@@ -216,8 +217,9 @@ fun HomeRankCard() {
                     Text("Grip", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Sub, modifier = Modifier.weight(1f))
                     Text("Not ranked yet", fontSize = 13.sp, color = Sub)
                 }
-                Text("Log a Grip Dynamometer Test to rank your grip and colour your hands. (Turn the Grip rank off in Settings.)",
+                Text("Do a Grip Dynamometer Test to rank your grip and colour your hands. (Turn the Grip rank off in Settings.)",
                     color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp))
+                GripTestButton()
             }
             Spacer(10)
             Text("Colour key", fontWeight = FontWeight.Bold)
@@ -233,6 +235,15 @@ fun HomeRankCard() {
             Text("Uncoloured muscles have no ranked exercise yet.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
         }
     }
+}
+
+/** Home, under Grip: straight into a 1 Rep Max mode dynamometer test. */
+@Composable
+private fun GripTestButton() {
+    val id = StandardsData.all.firstOrNull { it.flat }?.id ?: return
+    Text("🏆 Test your grip (1 Rep Max mode) ›", color = StarGold, fontSize = 14.sp, fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(start = 22.dp, top = 4.dp).clip(RoundedCornerShape(8.dp))
+            .clickable { OneRm.add(id); Nav.go(Route.OneRmTest(id)) }.padding(vertical = 4.dp))
 }
 
 // ---------------- Exercise page ----------------
