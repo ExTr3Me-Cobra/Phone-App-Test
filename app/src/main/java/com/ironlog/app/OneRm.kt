@@ -118,6 +118,12 @@ object OneRm {
     }
 
     fun clear() { exerciseId = null; rows.clear() }
+
+    /** The test so far as a workout, so ticking a set shows rank-ups and rank-downs exactly like a workout does. */
+    fun liveWorkout(id: String) = Workout(
+        id = "onerm-$startedAt", routineId = null, name = "1RM test", start = startedAt, end = null,
+        items = listOf(WorkoutItem(id, rows.toList(), 180)), bodyweight = Store.profile.value.bodyweight, test = true,
+    )
 }
 
 /** The 1 Rep Max mode button on the Workout tab: darker and more serious than the others. */
@@ -294,7 +300,11 @@ fun OneRmTestScreen(id: String) {
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
                             Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(if (s.done) Green else Card2)
-                                .clickable { OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done) }.padding(vertical = 12.dp),
+                                .clickable {
+                                    OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
+                                    val live = OneRm.liveWorkout(id)
+                                    if (!s.done) Ranks.onSetDone(live, id) else Ranks.onSetUndone(context, live, id)
+                                }.padding(vertical = 12.dp),
                             contentAlignment = Alignment.Center,
                         ) { Text("✓", fontWeight = FontWeight.Bold) }
                         Text("✕", color = Sub, modifier = Modifier.clickable { OneRm.rows.removeAt(i); refresh++ }.padding(8.dp))
