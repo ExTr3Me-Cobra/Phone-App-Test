@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -145,7 +146,7 @@ fun OneRmListScreen() {
     }
     Column(Modifier.fillMaxSize()) {
         TopBar("1 Rep Max")
-        LazyColumn(Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)) {
+        LazyColumn(Modifier.fillMaxSize().navigationBarsPadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)) {
             item {
                 Text("Pick an exercise to test your true one-rep max (or max reps for bodyweight moves). " +
                     "Your result sets your rank for it – later workouts only change it if they beat it.", color = Sub, fontSize = 14.sp)
@@ -211,7 +212,7 @@ fun OneRmTestScreen(id: String) {
     androidx.activity.compose.BackHandler { confirmLeave = true }
     Column(Modifier.fillMaxSize()) {
         TopBar("1RM: ${e.name}", action = "Finish") { finishTest(context, id)?.let { error = it } }
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ExerciseThumb(e, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
