@@ -36,9 +36,22 @@ import androidx.compose.ui.unit.sp
 /** One exercise's rank: a chart of where your number sits among comparable lifters, and exactly who they are. */
 @Composable
 fun RankDetailScreen(id: String) {
+    val e = Store.exercise(id) ?: run { Nav.back(); return }
+    Column(Modifier.fillMaxSize()) {
+        TopBar(e.name)
+        Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            RankDetailBody(id)
+            Spacer(30)
+        }
+    }
+}
+
+/** The rank, chart, levels and who you're compared with – on the rank screen and on an exercise's page. */
+@Composable
+fun RankDetailBody(id: String) {
     val p by Store.profile.collectAsState()
     val workouts by Store.workouts.collectAsState()
-    val e = Store.exercise(id) ?: run { Nav.back(); return }
     val info = Standards.info(id)
     val fit = Standards.fit(id, p)
     val lv = Standards.levels(id, p)
@@ -47,15 +60,11 @@ fun RankDetailScreen(id: String) {
     val flat = info?.flat == true
     fun fmt(v: Double) = if (reps) "${v.toInt()} reps" else Units.weightU(Math.round(v).toDouble())
 
-    Column(Modifier.fillMaxSize()) {
-        TopBar(e.name)
-        if (info == null || fit == null || lv == null) {
-            Text("No rank data for this exercise with your current profile.", color = Sub, modifier = Modifier.padding(16.dp))
-            return
-        }
-        Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            // Your rank
-            Text(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    if (info == null || fit == null || lv == null) {
+        Text("No rank data for this exercise with your current profile.", color = Sub)
+        return
+    }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (r != null) Row(verticalAlignment = Alignment.CenterVertically) {
                 RankBadge(r.tier, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
@@ -161,7 +170,5 @@ fun RankDetailScreen(id: String) {
                         ". Workouts since then only count if they beat it."
                 } ?: "Your rank uses your best in the 30 days up to the last time you did this exercise.", color = Sub, fontSize = 12.sp)
             }
-            Spacer(30)
-        }
     }
 }
