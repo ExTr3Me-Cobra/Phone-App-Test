@@ -17,7 +17,7 @@ OUT = os.path.join(HERE, '..', 'app', 'src', 'main', 'assets', 'exercises.json')
 MUSCLES = {'abdominals', 'abductors', 'adductors', 'biceps', 'calves', 'chest', 'forearms', 'glutes', 'hamstrings',
            'lats', 'lower back', 'middle back', 'neck', 'quadriceps', 'shoulders', 'traps', 'triceps',
            'rotator cuff', 'serratus', 'grip', 'hip flexors', 'shins'}
-assert MUSCLES == set(GROUPS), MUSCLES ^ set(GROUPS)
+assert MUSCLES - {'grip'} == set(GROUPS), (MUSCLES - {'grip'}) ^ set(GROUPS)  # grip = the forearms' finger flexors
 EQ = {'barbell': 'Barbell', 'dumbbell': 'Dumbbell', 'cable': 'Cable', 'machine': 'Machine', 'kettlebells': 'Kettlebell',
       'body only': 'Bodyweight', None: 'Other', 'other': 'Other', 'bands': 'Bands', 'medicine ball': 'Medicine Ball',
       'exercise ball': 'Exercise Ball', 'foam roll': 'Foam Roll', 'e-z curl bar': 'EZ Bar'}
@@ -180,6 +180,8 @@ for e in out:
                 refs.update(r)
     detail = {h: r05(v) for h, v in detail.items() if r05(v) >= .05}
     e['m'] = detail
+    # Grip is part of the forearms group.
+    e['p'] = list(dict.fromkeys('forearms' if g == 'grip' else g for g in e['p']))
     # Secondary groups and their weights follow from the detailed muscles (busiest head of each group).
     gw = {}
     for h, v in detail.items():

@@ -52,16 +52,27 @@ data class Exercise(
         .put("m", JSONObject().apply { detail.forEach { (k, v) -> put(k, v.toDouble()) } }).put("r", JSONArray(refs))
 
     companion object {
-        fun fromJson(o: JSONObject, custom: Boolean) = Exercise(
-            id = o.getString("i"), name = o.getString("n"), equipment = o.optString("e", "Other"),
-            type = runCatching { ExType.valueOf(o.getString("t")) }.getOrDefault(ExType.WEIGHT),
-            primary = o.optJSONArray("p").strings(), secondary = o.optJSONArray("s").strings(),
-            category = o.optString("c", "strength"), instructions = o.optJSONArray("h").strings(), custom = custom,
-            hidden = o.optInt("x", 0) == 1,
-            secondaryWeights = o.optJSONArray("w")?.let { a -> List(a.length()) { a.getDouble(it).toFloat() } } ?: emptyList(),
-            detail = o.optJSONObject("m")?.let { m -> m.keys().asSequence().associateWith { m.getDouble(it).toFloat() } } ?: emptyMap(),
-            refs = o.optJSONArray("r").strings(),
-        )
+        fun fromJson(o: JSONObject, custom: Boolean): Exercise {
+            // Grip used to be its own group; it's now the forearms' finger flexors. Old saved exercises are moved over.
+            fun g(m: String) = if (m == "grip") "forearms" else m
+            val primary = o.optJSONArray("p").strings().map(::g).distinct()
+            val sec = o.optJSONArray("s").strings()
+            val w = o.optJSONArray("w")?.let { a -> List(a.length()) { a.getDouble(it).toFloat() } } ?: emptyList()
+            val merged = LinkedHashMap<String, Float>()
+            sec.forEachIndexed { i, m -> val k = g(m); if (k !in primary) merged[k] = maxOf(merged[k] ?: 0f, w.getOrNull(i) ?: 0.3f) }
+            return Exercise(
+                id = o.getString("i"), name = o.getString("n"), equipment = o.optString("e", "Other"),
+                type = runCatching { ExType.valueOf(o.getString("t")) }.getOrDefault(ExType.WEIGHT),
+                primary = primary, secondary = merged.keys.toList(),
+                category = o.optString("c", "strength"), instructions = o.optJSONArray("h").strings(), custom = custom,
+                hidden = o.optInt("x", 0) == 1,
+                secondaryWeights = if (w.isEmpty()) emptyList() else merged.values.toList(),
+                detail = o.optJSONObject("m")?.let { m ->
+                    m.keys().asSequence().associate { k -> (if (k == "grip (finger flexors)") "forearms (finger flexors)" else k) to m.getDouble(k).toFloat() }
+                } ?: emptyMap(),
+                refs = o.optJSONArray("r").strings(),
+            )
+        }
     }
 }
 

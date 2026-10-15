@@ -180,7 +180,7 @@ fun HomeRankCard() {
                         modifier = Modifier.padding(start = 22.dp))
                 }
             }
-            // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, grip).
+            // Muscle groups with rankable exercises that you don't have a rank for yet (e.g. calves, forearms).
             val rankedGroups = Ranks.groupRanks(ranks, profile.picksNow).keys
             Muscles.groups.keys.filter { g -> g !in rankedGroups }.forEach { g ->
                 val rankable = StandardsData.all.filter { !it.ai || Standards.mode(profile) == Standards.Mode.AI }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }

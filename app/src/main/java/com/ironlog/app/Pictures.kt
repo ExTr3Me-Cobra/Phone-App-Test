@@ -220,7 +220,7 @@ object Pictures {
     }
 
     private fun muscleName(m: String) = when (m) {
-        "grip (finger flexors)" -> "finger flexors of the forearm (grip)"
+        "forearms (finger flexors)" -> "finger flexors of the forearm (grip)"
         "serratus (serratus anterior)" -> "serratus anterior"
         else -> m
     }

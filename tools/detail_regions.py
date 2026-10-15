@@ -74,7 +74,7 @@ def build():
     add(F, 'forearms (brachioradialis)', cut(fo, leftof((152, 352), (130, 455)), above(425)))
     add(F, 'forearms (wrist flexors)', cut(fo, rightof((152, 352), (130, 455))))
     add(F, 'forearms (wrist flexors)', cut(fo, leftof((152, 352), (130, 455)), below(425)))
-    add(F, 'grip (finger flexors)', f['grip'][0])
+    add(F, 'forearms (finger flexors)', f['grip'][0])
     ab = f['abdominals'][0]
     add(F, 'abs (upper)', cut(ab, above(397)))  # navel / lowest tendinous line
     add(F, 'abs (lower)', cut(ab, below(397)))
@@ -117,7 +117,7 @@ def build():
     add(B, 'triceps (lateral head)', cut(tr, leftof(*L2), above(342)))
     add(B, 'triceps (medial head)', cut(tr, below(342)))
     add(B, 'forearms (wrist extensors)', b['forearms'][0])
-    add(B, 'grip (finger flexors)', b['grip'][0])
+    add(B, 'forearms (finger flexors)', b['grip'][0])
     add(B, 'glutes (maximus)', b['glutes'][0])
     add(B, 'abductors (glute medius)', b['abductors'][0])
     h = b['hamstrings'][0]

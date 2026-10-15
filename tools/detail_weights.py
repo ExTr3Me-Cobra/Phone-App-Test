@@ -76,8 +76,8 @@ GROUPS = {
     'shoulders': ['shoulders (front delt)', 'shoulders (side delt)', 'shoulders (rear delt)'],
     'biceps': ['biceps (long head)', 'biceps (short head)', 'brachialis'],
     'triceps': ['triceps (long head)', 'triceps (lateral head)', 'triceps (medial head)'],
-    'forearms': ['forearms (brachioradialis)', 'forearms (wrist flexors)', 'forearms (wrist extensors)'],
-    'grip': ['grip (finger flexors)'],
+    # Grip is part of the forearms: the finger flexors that do the gripping are forearm muscles.
+    'forearms': ['forearms (brachioradialis)', 'forearms (wrist flexors)', 'forearms (wrist extensors)', 'forearms (finger flexors)'],
     'abdominals': ['abs (upper)', 'abs (lower)', 'obliques'],
     'serratus': ['serratus (serratus anterior)'],
     'hip flexors': ['hip flexors (iliopsoas)'],
@@ -224,7 +224,8 @@ DEFAULT_HEADS = {
     'biceps': ({BL: 1, BS: .95, BR: .8}, ['Oliveira 2009', 'Kleiber 2015']),
     'triceps': ({TLO: .8, TLA: 1, TME: 1}, ['Kholinne 2018']),
     'forearms': ({FBR: .55, FFL: 1, FEX: .6}, ['Mogk 2003']),
-    'grip': ({'grip (finger flexors)': 1}, []),
+    # "grip" in the rules = the finger flexors (in the forearms group).
+    'grip': ({'forearms (finger flexors)': 1}, []),
     'abdominals': ({UA: 1, LA: .9, OB: .7}, ['Escamilla 2006', 'Lehman 2001']),
     'serratus': ({'serratus (serratus anterior)': 1}, []),
     'hip flexors': ({IL: 1}, []),
