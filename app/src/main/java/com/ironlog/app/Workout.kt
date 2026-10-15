@@ -205,17 +205,23 @@ fun ActiveWorkoutScreen() {
                 if (ex != null) {
                     val prev = remember(workouts, ex.id) { Stats.previous(ex.id, workouts) }
                     val cols = columnsFor(ex.type, true)
-                    // 👑 on the ticked set that set a new best est. 1-rep max (moves to a later set that beats it).
-                    val bestBefore = remember(workouts, ex.id, w.id) {
-                        workouts.filter { it.id != w.id && it.end != null }.flatMap { o -> o.items.filter { it.exerciseId == ex.id }.flatMap { it.sets } }
-                            .filter { it.done && !it.warmup }.maxOfOrNull { Stats.e1rm(it.weight, it.reps) } ?: 0.0
+                    // 👑 on the ticked set that set a new best (moves to a later set that beats it): est. 1-rep max for
+                    // weight & reps; for other exercises, only when they're ranked (★), by the number they're ranked on.
+                    val profileNow = Store.profile.collectAsState().value
+                    val ranked = Standards.covers(ex.id, profileNow)
+                    fun setValue(s: DoneSet): Double = when {
+                        !s.done || s.warmup -> 0.0
+                        ranked -> Standards.bestValue(ex.id, listOf(s))
+                        ex.type == ExType.WEIGHT -> Stats.e1rm(s.weight, s.reps)
+                        else -> 0.0
                     }
-                    val crown = if (ex.type != ExType.WEIGHT) -1 else {
+                    val bestBefore = remember(workouts, ex.id, w.id, ranked) {
+                        workouts.filter { it.id != w.id && it.end != null }.flatMap { o -> o.items.filter { it.exerciseId == ex.id }.flatMap { it.sets } }
+                            .maxOfOrNull(::setValue) ?: 0.0
+                    }
+                    val crown = run {
                         var best = bestBefore; var at = -1
-                        item.sets.forEachIndexed { n, s ->
-                            val v = if (s.done && !s.warmup) Stats.e1rm(s.weight, s.reps) else 0.0
-                            if (v > best) { best = v; at = n }
-                        }
+                        item.sets.forEachIndexed { n, s -> val v = setValue(s); if (v > best) { best = v; at = n } }
                         at
                     }
                     TableHeader(cols + ("✓" to 0.8f))
