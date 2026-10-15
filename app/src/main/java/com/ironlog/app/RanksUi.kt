@@ -289,7 +289,7 @@ fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
                     else "Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
                     modifier = Modifier.padding(top = 6.dp))
                 Text(
-                    "Your best in the 30 days up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else if (info.flat) "best squeeze ${Units.weightU(r.value)}" else "est. 1-rep max ${Units.weightU(r.value)}",
+                    "Your best in the 24 hours up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else if (info.flat) "best squeeze ${Units.weightU(r.value)}" else "est. 1-rep max ${Units.weightU(r.value)}",
                     color = Sub, fontSize = 13.sp,
                 )
                 Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
@@ -445,7 +445,7 @@ private fun RankDownView(c: Ranks.Celebration) {
             Spacer(6)
             Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
             Spacer(6)
-            Text(c.note ?: "Your best from the last 30 days is now lower than your old record.", color = Sub, fontSize = 13.sp,
+            Text(c.note ?: "Your best from your latest session is now lower than your old record.", color = Sub, fontSize = 13.sp,
                 textAlign = TextAlign.Center, modifier = Modifier.width(280.dp))
             Spacer(18)
             Text("Tap to continue", color = Sub, fontSize = 12.sp)

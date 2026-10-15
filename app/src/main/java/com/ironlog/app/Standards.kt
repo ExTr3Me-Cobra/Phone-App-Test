@@ -255,12 +255,12 @@ object Ranks {
         val tier get() = Tier.of(percentile)
     }
 
-    /** A best is protected this long: a weaker session within 30 days of it doesn't lower your rank. */
-    const val HOLD_MS = 30L * 24 * 60 * 60 * 1000
+    /** A best is protected this long: a weaker session within 24 hours of it doesn't lower your rank. */
+    const val HOLD_MS = 24L * 60 * 60 * 1000
 
     /**
-     * Each ranked exercise: the best of your sessions in the 30 days up to the last time you did it.
-     * So a weaker session can only lower a rank once your better one is more than 30 days older,
+     * Each ranked exercise: the best of your sessions in the 24 hours up to the last time you did it.
+     * So a weaker session can only lower a rank once your better one is more than 24 hours older,
      * and skipping an exercise changes nothing.
      */
     fun all(workouts: List<Workout>, p: Profile): Map<String, Ranked> {

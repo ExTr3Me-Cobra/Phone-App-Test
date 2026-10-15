@@ -168,7 +168,7 @@ fun RankDetailBody(id: String) {
                 Text(r?.testedAt?.let {
                     "Your rank is set by your 1 Rep Max test on " + java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.getDefault()).format(java.util.Date(it)) +
                         ". Workouts since then only count if they beat it."
-                } ?: "Your rank uses your best in the 30 days up to the last time you did this exercise.", color = Sub, fontSize = 12.sp)
+                } ?: "Your rank uses your best in the 24 hours up to the last time you did this exercise.", color = Sub, fontSize = 12.sp)
             }
     }
 }
