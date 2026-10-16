@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -430,8 +431,9 @@ fun ExerciseDetailScreen(id: String) {
 
             // Progress chart
             SectionTitle("Progress")
-            Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                metrics.forEach { m -> FilterChip(metric == m, { metric = m }, { Text(m.label, fontSize = 12.sp) }) }
+            // One scrollable line of chips: a chip that doesn't fit must not squash its text into a tall column.
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                metrics.forEach { m -> FilterChip(metric == m, { metric = m }, { Text(m.label, fontSize = 12.sp, maxLines = 1, softWrap = false) }) }
             }
             val pts = sessions.mapNotNull { s -> Stats.value(metric, s.sets)?.let { s.workout.start to it } }
             LineChart(pts) { Units.metric(metric, it) }

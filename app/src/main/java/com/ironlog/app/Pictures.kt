@@ -453,6 +453,7 @@ fun ExercisePicture(e: Exercise, modifier: Modifier) {
             }
         }
         BodyMapView(BodyMap.levelsFor(e), Modifier.padding(top = if (img != null) 12.dp else 0.dp).fillMaxWidth().height(320.dp).background(Color.Black))
+        HeatKey(Modifier.background(Color.Black).padding(bottom = 8.dp))
     }
 }
 

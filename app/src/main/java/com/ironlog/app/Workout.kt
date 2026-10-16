@@ -511,14 +511,20 @@ fun Heatmap(load: Map<String, Float>, title: String) {
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color.Black).padding(12.dp)) {
         Text(title, color = Color.White, fontWeight = FontWeight.Bold)
         BodyMapView(load, Modifier.fillMaxWidth().height(340.dp))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
-            Text("Not worked", color = Sub, fontSize = 12.sp)
-            HSpacer(6)
-            (0..8).forEach { i ->
-                Box(Modifier.height(12.dp).fillMaxWidth(0.035f).background(Color(BodyMap.heat(i / 8f))))
-            }
-            HSpacer(6)
-            Text("Hardest", color = Sub, fontSize = 12.sp)
+        HeatKey()
+    }
+}
+
+/** The colour key under a muscle-work heatmap: not worked → hardest. */
+@Composable
+fun HeatKey(modifier: Modifier = Modifier) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = modifier.fillMaxWidth().padding(top = 6.dp)) {
+        Text("Not worked", color = Sub, fontSize = 12.sp)
+        HSpacer(6)
+        (0..8).forEach { i ->
+            Box(Modifier.height(12.dp).fillMaxWidth(0.035f).background(Color(BodyMap.heat(i / 8f))))
         }
+        HSpacer(6)
+        Text("Hardest", color = Sub, fontSize = 12.sp)
     }
 }

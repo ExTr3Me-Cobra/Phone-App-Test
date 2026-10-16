@@ -352,15 +352,16 @@
  {
   "exercise": "Close-Grip Dumbbell Press",
   "anchor": "Dumbbell Bench Press",
-  "pct": 92.5,
+  "pct": null,
   "votes": {
    "Claude": 82.5,
    "ChatGPT": 110.0,
    "Gemini": 95.0,
    "Grok": 90.0
   },
-  "why": "4 AIs agree (3+ within 20% of the median)",
-  "confidence": 6
+  "why": "4 AIs agree (3+ within 20% of the median); dropped: it is one dumbbell held in both hands, but the AIs were asked about it as one per hand",
+  "confidence": 6,
+  "dropped_pct": 92.5
  },
  {
   "exercise": "One Arm Floor Press",

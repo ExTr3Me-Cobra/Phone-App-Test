@@ -132,6 +132,34 @@ DUMBBELL = {'Dumbbell Bench Press', 'Dumbbell Row', 'Dumbbell Fly', 'Dumbbell La
 
 report = []
 
+# Full, unambiguous names for each Strength Level standard, as shown in the app (equipment and how it's done).
+LIFT_NAME = {
+    'Arnold Press': 'Dumbbell Arnold Press', 'Barbell Calf Raise': 'Barbell Standing Calf Raise', 'Bench Press': 'Barbell Bench Press',
+    'Bent Over Row': 'Barbell Bent Over Row', 'Box Squat': 'Barbell Box Squat', 'Cable Crunch': 'Kneeling Cable Crunch',
+    'Cable Fly': 'Cable Chest Fly', 'Calf Raise': 'Machine Standing Calf Raise', 'Chin Ups': 'Chin-Ups (bodyweight)',
+    'Clean and Jerk': 'Barbell Clean and Jerk', 'Close Grip Bench Press': 'Barbell Close-Grip Bench Press',
+    'Concentration Curl': 'Dumbbell Concentration Curl', 'Deadlift': 'Barbell Deadlift', 'Decline Bench Press': 'Barbell Decline Bench Press',
+    'Deficit Deadlift': 'Barbell Deficit Deadlift', 'Dips': 'Dips (bodyweight)', 'Dumbbell Calf Raise': 'Dumbbell Standing Calf Raise',
+    'Dumbbell Curl': 'Dumbbell Bicep Curl', 'Dumbbell Fly': 'Dumbbell Chest Fly', 'Dumbbell Row': 'One-Arm Dumbbell Row',
+    'Dumbbell Tricep Extension': 'Dumbbell Overhead Tricep Extension (one dumbbell, both hands)', 'Face Pull': 'Cable Face Pull',
+    'Front Squat': 'Barbell Front Squat', 'Goblet Squat': 'Goblet Squat (one dumbbell or kettlebell)', 'Good Morning': 'Barbell Good Morning',
+    'Grip Dynamometer': 'Hand Grip Dynamometer', 'Hack Squat': 'Machine Hack Squat', 'Hammer Curl': 'Dumbbell Hammer Curl',
+    'Handstand Push Ups': 'Handstand Push-Ups (bodyweight)', 'Hang Clean': 'Barbell Hang Clean', 'Hip Abduction': 'Machine Hip Abduction',
+    'Hip Adduction': 'Machine Hip Adduction', 'Hip Thrust': 'Barbell Hip Thrust', 'Incline Bench Press': 'Barbell Incline Bench Press',
+    'Inverted Row': 'Inverted Row (bodyweight)', 'Lat Pulldown': 'Cable Lat Pulldown', 'Leg Extension': 'Machine Leg Extension',
+    'Leg Press': 'Sled Leg Press', 'Lying Leg Curl': 'Machine Lying Leg Curl', 'Lying Tricep Extension': 'Barbell Lying Tricep Extension (skull crusher)',
+    'Machine Fly': 'Machine Chest Fly (pec deck)', 'Muscle Ups': 'Muscle-Ups (bodyweight)', 'Overhead Squat': 'Barbell Overhead Squat',
+    'Power Clean': 'Barbell Power Clean', 'Power Snatch': 'Barbell Power Snatch', 'Preacher Curl': 'Barbell Preacher Curl',
+    'Pull Ups': 'Pull-Ups (bodyweight)', 'Push Press': 'Barbell Push Press', 'Push Ups': 'Push-Ups (bodyweight)', 'Rack Pull': 'Barbell Rack Pull',
+    'Reverse Dumbbell Fly': 'Dumbbell Reverse Fly', 'Romanian Deadlift': 'Barbell Romanian Deadlift', 'Seated Calf Raise': 'Machine Seated Calf Raise',
+    'Seated Leg Curl': 'Machine Seated Leg Curl', 'Seated Shoulder Press': 'Barbell Seated Overhead Press',
+    'Shoulder Press': 'Barbell Standing Overhead Press', 'Sit Ups': 'Sit-Ups (bodyweight)', 'Sled Press Calf Raise': 'Sled Leg Press Calf Raise',
+    'Snatch': 'Barbell Snatch', 'Squat': 'Barbell Back Squat', 'Stiff Leg Deadlift': 'Barbell Stiff-Leg Deadlift', 'Sumo Deadlift': 'Barbell Sumo Deadlift',
+    'Tricep Pushdown': 'Cable Tricep Pushdown (bar)', 'Tricep Rope Pushdown': 'Cable Tricep Rope Pushdown', 'Upright Row': 'Barbell Upright Row',
+    'Wrist Curl': 'Barbell Wrist Curl', 'Zercher Squat': 'Barbell Zercher Squat',
+}
+def full(lift): return LIFT_NAME.get(lift, lift)
+
 # Left out entirely.
 EXCLUDE = {'Kettlebell Swing': 'no matching exercise', 'Dumbbell Romanian Deadlift': 'unclear if per dumbbell or both'}
 # Usable but less certain data: these rank only as estimates (silver-blue ★, All on mode).
@@ -373,9 +401,9 @@ for name, lift, k, same in DERIVED:
     if reps != (e['t'] == 'BODYWEIGHT'): report.append(f'{name}: logged differently from {lift} – skipped'); continue
     rows = lambda sex: [[bw] + v for bw, v in tables[sex].items()] if sex in tables else None
     how = 'the same' if abs(k - 1) < 0.04 else f'{k:g}×'
-    note = f'Ranked with the "{lift}" standard ({how}' + (' per dumbbell' if e['e'] == 'Dumbbell' and k < 0.6 else '') + ').'
+    note = f'Ranked with the "{full(lift)}" standard ({how}' + (' per dumbbell' if e['e'] == 'Dumbbell' and k < 0.6 else '') + ').'
     entries.append({'i': e['i'], 'lift': lift, 'm': rows('male'), 'f': rows('female'), 'r': reps,
-                    'd': e['e'] == 'Dumbbell' and lift not in ('Goblet Squat', 'Dumbbell Tricep Extension'), 'note': note, 'k': k,
+                    'd': e['e'] in ('Dumbbell', 'Kettlebell') and lift not in ('Goblet Squat', 'Dumbbell Tricep Extension'), 'note': note, 'k': k,
                     'a': None if same and not (APPROX.get(lift) or SOURCE_APPROX.get(lift))
                     else (APPROX.get(lift) or SOURCE_APPROX.get(lift) or 'A similar exercise\'s standard, scaled – an estimate.')})
     have.add(e['i']); derived += 1
@@ -394,9 +422,9 @@ for x in json.load(open(os.path.join(HERE, 'standards', 'ai', 'final.json'))):
     tables = tables_by_lift[x['anchor']][0]; pct = x['pct']
     rows = lambda sex: [[bw] + v for bw, v in tables[sex].items()] if sex in tables else None
     entries.append({'i': e['i'], 'lift': x['anchor'], 'm': rows('male'), 'f': rows('female'), 'r': False,
-                    'd': False, 'k': round(pct / 100, 4), 'ai': True,
-                    'note': f'AI estimate: about {pct:g}% of your {x["anchor"]} 1-rep max (median of Claude, ChatGPT, Gemini and Grok).',
-                    'a': f'No published data for this exercise: ranked as about {pct:g}% of the "{x["anchor"]}" standard, from AI estimates.'})
+                    'd': x['anchor'] in DUMBBELL and e['e'] in ('Dumbbell', 'Kettlebell'), 'k': round(pct / 100, 4), 'ai': True,
+                    'note': f'AI estimate: about {pct:g}% of your {full(x["anchor"])} 1-rep max (median of Claude, ChatGPT, Gemini and Grok).',
+                    'a': f'No published data for this exercise: ranked as about {pct:g}% of the "{full(x["anchor"])}" standard, from AI estimates.'})
     have.add(e['i']); ai_n += 1
 print('AI estimates:', ai_n)
 # Grip dynamometer: everyone aged 20-39 (not just lifters), by sex only – body weight and age aren't used.
@@ -416,6 +444,7 @@ for e in entries:
     if n in ONE_LEG:
         e['ul'] = True
         e['note'] = 'Ranked on the two-legged standing calf raise standard: your one-leg lift is converted to the two-leg load it matches (body weight + 2 × your one-leg load).'
+for e in entries: e['ln'] = full(e['lift'])
 json.dump(entries, open(ASSET, 'w'), separators=(',', ':'))
 json.dump(coverage, open(os.path.join(HERE, 'standards', 'coverage.json'), 'w'), indent=1)
 open(os.path.join(HERE, 'standards', 'report.txt'), 'w').write('\n'.join(report) + '\n')

@@ -76,7 +76,7 @@ object Standards {
             else -> "age ${p.age} (standards × ${"%.2f".format(ageFactor(p.age))})"
         }
         val compared = "Compared with $sex at your body weight of ${Units.weightU(bw)} ($near), $age. " +
-            "Source: Strength Level \"${s.lift}\"" + (if (own == null) (if (p.male) ", women's table scaled for men." else ", men's table scaled for women.") else ".") + (s.note?.let { " $it" } ?: "")
+            "Source: Strength Level \"${s.liftName}\"" + (if (own == null) (if (p.male) ", women's table scaled for men." else ", men's table scaled for women.") else ".") + (s.note?.let { " $it" } ?: "")
         return Fit(rows, own == null, problems, compared)
     }
 

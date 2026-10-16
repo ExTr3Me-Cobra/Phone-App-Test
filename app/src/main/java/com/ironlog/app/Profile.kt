@@ -350,7 +350,7 @@ fun RankModeChoice(p: Profile) {
             Triple("off", "Off", "No ranks, badges, stars or rank-up pop-ups anywhere."),
             Triple("accurate", "Accurate only", "Only exercises where the data closely fits your body weight, age and sex are ranked (gold ★)."),
             Triple("all", "All on", "Also ranks exercises as estimates where the data doesn't fit you exactly (blue ★)."),
-            Triple("ai", "All on + AI", "Also ranks 31 exercises with no published data, as AI estimates (purple ★): a % of a similar lift, agreed by 4 AIs. Least accurate."),
+            Triple("ai", "All on + AI", "Also ranks 30 exercises with no published data, as AI estimates (purple ★): a % of a similar lift, agreed by 4 AIs. Least accurate."),
         ).forEach { (key, label, desc) ->
             Row(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.rankMode == key) Blue.copy(alpha = 0.15f) else Card)

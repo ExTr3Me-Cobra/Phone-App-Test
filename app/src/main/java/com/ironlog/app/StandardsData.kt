@@ -24,6 +24,8 @@ object StandardsData {
         val flat: Boolean = false,
         /** One leg of a two-leg body-weight move: ranked on the two-leg table after converting your load. */
         val oneLeg: Boolean = false,
+        /** The standard's full name (equipment and style), e.g. "Barbell Wrist Curl". */
+        val liftName: String = lift,
     )
 
     @Volatile var all: List<Std> = emptyList()
@@ -44,7 +46,7 @@ object StandardsData {
                 }
                 fun str(k: String) = if (!o.has(k) || o.isNull(k)) null else o.getString(k)
                 Std(o.getString("i"), o.getString("lift"), rows("m"), rows("f"), o.getBoolean("r"), o.getBoolean("d"),
-                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false), o.optBoolean("u", false), o.optBoolean("ul", false))
+                    str("note"), o.optDouble("k", 1.0), str("a"), o.optBoolean("ai", false), o.optBoolean("u", false), o.optBoolean("ul", false), str("ln") ?: o.getString("lift"))
             }
         }.getOrDefault(emptyList())
     }
