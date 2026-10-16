@@ -121,7 +121,10 @@ object Nav {
         if (r is Route.OneRmTest) OneRmFx.enteringTest = true
         keys += next++; stack += r
     }
-    fun back() { if (stack.size > 1) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) } }
+    fun back() {
+        // Leaving 1 Rep Max by throwing it away leaves a few embers behind.
+        if (stack.size > 1 && top == Route.OneRmList && extraAnims() && (OneRmFx.leave == 0 || OneRmFx.leave == 2)) LeaveTrail.fire(OneRmFx.leave == 0)
+        if (stack.size > 1) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) } }
     fun home(tab: Int) { closed += keys; keys.clear(); keys += next++; stack.clear(); stack += Route.Tabs(tab) }
     fun replace(r: Route) { if (stack.isNotEmpty()) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) }; keys += next++; stack += r }
 }
@@ -203,6 +206,7 @@ private fun Root() {
               }
             }
           }
+          LeaveTrail.Overlay()
         }
         val active by Store.active.collectAsState()
         if (active != null && route != Route.Active) ResumeBar()

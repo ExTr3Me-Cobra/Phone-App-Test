@@ -138,7 +138,7 @@ object OneRmFx {
             arrival = o.optInt("arrival").coerceIn(ARRIVAL.indices)
             tick = o.optInt("tick").coerceIn(TICK.indices)
             shine = o.optInt("shine").coerceIn(SHINE.indices)
-            listQuake = o.optBoolean("quake")
+            listQuake = false // the earthquake test switch was removed (the fire landing openings include one)
             testQuake = o.optBoolean("testQuake")
             leave = o.optInt("leave").coerceIn(LEAVE.indices)
         }
@@ -160,11 +160,11 @@ object OneRmFx {
     fun leaving(i: Int = leave): ContentTransform = when (i) {
         1 -> (slideInHorizontally(tween(300, easing = FastOutSlowInEasing)) { -it / 8 } + fadeIn(tween(240))) togetherWith
             (slideOutHorizontally(tween(260, easing = FastOutSlowInEasing)) { it / 3 } + fadeOut(tween(200)))
-        2 -> fadeIn(tween(150)) togetherWith slideOutVertically(tween(320, easing = FastOutLinearInEasing)) { it }
+        2 -> fadeIn(tween(80)) togetherWith slideOutVertically(tween(160, easing = FastOutLinearInEasing)) { it }
         3 -> fadeIn(tween(220)) togetherWith fadeOut(tween(220))
         4 -> fadeIn(tween(200)) togetherWith (scaleOut(tween(260), targetScale = 0.6f) + fadeOut(tween(240)))
         // Thrown upward: flung off the top, speeding up as it goes.
-        else -> fadeIn(tween(120)) togetherWith (slideOutVertically(tween(340, easing = FastOutLinearInEasing)) { -it } + scaleOut(tween(340), targetScale = 0.92f))
+        else -> fadeIn(tween(60)) togetherWith (slideOutVertically(tween(170, easing = FastOutLinearInEasing)) { -it } + scaleOut(tween(170), targetScale = 0.92f))
     }
 
     fun trans(i: Int): ContentTransform = when (i) {
@@ -570,13 +570,6 @@ fun OneRmFxSettings() {
         FxPicker("Leaving 1 Rep Max", OneRmFx.LEAVE, OneRmFx.leave) { OneRmFx.leave = it; OneRmFx.save(); preview(6) }
         FxPicker("Ticking a set", OneRmFx.TICK, OneRmFx.tick) { OneRmFx.tick = it; OneRmFx.save(); preview(3) }
         FxPicker("Gold buttons", OneRmFx.SHINE, OneRmFx.shine) { OneRmFx.shine = it; OneRmFx.save(); preview(4) }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                androidx.compose.material3.Text("Earthquake on open (test)", fontSize = 14.sp)
-                androidx.compose.material3.Text("Every exercise in the 1 Rep Max list rattles violently when it opens.", color = Sub, fontSize = 12.sp)
-            }
-            androidx.compose.material3.Switch(OneRmFx.listQuake, { OneRmFx.listQuake = it; OneRmFx.save(); preview(5) })
-        }
     }
 }
 
@@ -615,6 +608,7 @@ private fun FxStage(mode: Int, play: Int) {
     var screen by remember { mutableIntStateOf(0) } // 0 Workout tab, 1 1RM list, 2 test
     var ticked by remember { mutableStateOf(false) }
     val quake = remember { Animatable(1f) }
+    val trailP = remember { Animatable(1f) }
     val density = androidx.compose.ui.platform.LocalDensity.current.density
     LaunchedEffect(play) {
         ticked = false
@@ -630,7 +624,10 @@ private fun FxStage(mode: Int, play: Int) {
                 if (OneRmFx.testQuake) launch { quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
                 fx.play(OneRmFx.arrival, haptic, 200, density)
             }
-            6 -> { screen = 2; delay(450); screen = 1 }
+            6 -> {
+                screen = 1; delay(450); screen = 0
+                if (OneRmFx.leave == 0 || OneRmFx.leave == 2) { trailP.snapTo(0f); trailP.animateTo(1f, tween(900, easing = androidx.compose.animation.core.LinearEasing)) }
+            }
             7 -> { screen = 2; quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
             2 -> { screen = 2; delay(150); fx.play(OneRmFx.arrival, haptic, 0, density) }
             3 -> { screen = 2; delay(300); ticked = true; tick.play(OneRmFx.tick, haptic) }
@@ -644,7 +641,7 @@ private fun FxStage(mode: Int, play: Int) {
             when {
                 targetState == 1 && initialState == 0 -> OneRmFx.enter()
                 targetState == 2 && initialState == 1 -> OneRmFx.openTest()
-                targetState == 1 && initialState == 2 -> OneRmFx.leaving().apply { targetContentZIndex = -1f }
+                targetState == 0 && initialState == 1 -> OneRmFx.leaving().apply { targetContentZIndex = -1f }
                 else -> EnterTransition.None togetherWith ExitTransition.None
             }
         }, label = "stage") { s ->
@@ -668,6 +665,7 @@ private fun FxStage(mode: Int, play: Int) {
             }
         }
         FxOverlay(fx)
+        Box(Modifier.fillMaxSize().drawWithContent { trail(trailP.value, OneRmFx.leave == 0, LeaveTrail.MOVE / 900f) })
     }
 }
 
@@ -700,5 +698,52 @@ private fun MockGoldButton() {
         .background(Brush.horizontalGradient(listOf(Color(0xFF2A0E0E), Color(0xFF1A1A1A))))
         .heatFire(heat).glint(heat).emberBorder(heat, 1.5.dp, gold, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
         androidx.compose.material3.Text("1 REP MAX MODE", color = gold, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
+    }
+}
+
+// ---------------- Embers left behind by a screen that's thrown away ----------------
+
+/** Fired when you leave 1 Rep Max with "Thrown upward" or "Dropped out the bottom". */
+object LeaveTrail {
+    var trigger by mutableIntStateOf(0)
+    var up = true
+    private const val TOTAL = 900
+    const val MOVE = 170
+    fun fire(up: Boolean) { this.up = up; trigger++ }
+
+    @Composable
+    fun Overlay() {
+        val p = remember { Animatable(1f) }
+        LaunchedEffect(trigger) {
+            if (trigger == 0) return@LaunchedEffect
+            p.snapTo(0f); p.animateTo(1f, tween(TOTAL, easing = androidx.compose.animation.core.LinearEasing))
+        }
+        Box(Modifier.fillMaxSize().drawWithContent { trail(p.value, up, MOVE / TOTAL.toFloat()) })
+    }
+}
+
+/**
+ * Sparse twinkling embers dropped along the edge of a screen as it flies off: each one appears where the edge was,
+ * drifts a little and twinkles out. [p] runs 0–1 over the whole effect; the screen moves during the first [move].
+ */
+private fun DrawScope.trail(p: Float, up: Boolean, move: Float) {
+    if (p <= 0f || p >= 1f) return
+    val w = size.width; val h = size.height
+    for (i in 0 until 30) {
+        val born = rnd(i, 31f) * move
+        if (p < born) continue
+        val age = (p - born) / (1f - move)
+        if (age >= 1f) continue
+        val t = born / move
+        val e = t * t // the edge speeds up as the screen flies off
+        val edge = if (up) h * (1f - e) else h * e
+        val x = rnd(i, 32f) * w + kotlin.math.sin(age * 6f + i) * 6.dp.toPx()
+        val y = edge + (if (up) -1f else 1f) * (rnd(i, 33f) * 18.dp.toPx()) - age * 26.dp.toPx()
+        val twinkle = 0.45f + 0.55f * kotlin.math.abs(kotlin.math.sin(age * 22f + i * 3.1f))
+        val a = (1f - age) * twinkle
+        val col = if (rnd(i, 34f) < 0.55f) FireGold else FireOrange
+        val r = (1.4f + rnd(i, 35f) * 2f).dp.toPx()
+        drawCircle(col.copy(alpha = a * 0.3f), radius = r * 3f, center = Offset(x, y))
+        drawCircle(col.copy(alpha = a), radius = r, center = Offset(x, y))
     }
 }
