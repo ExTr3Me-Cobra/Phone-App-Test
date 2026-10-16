@@ -69,11 +69,15 @@ fun ShareScreen() {
     var pickOverall by rememberSaveable { mutableStateOf(true) }
     var pickGroups by rememberSaveable { mutableStateOf(false) }
     var pickExercise by rememberSaveable { mutableStateOf(false) }
-    var exId by rememberSaveable { mutableStateOf<String?>(null) }
-    var exMenu by remember { mutableStateOf(false) }
+    // The exercises, one picture each (kept as one line per exercise id so it survives rotation).
+    var exSaved by rememberSaveable { mutableStateOf("") }
+    val exIds = exSaved.split("\n").filter { it.isNotEmpty() }
+    fun setExIds(l: List<String>) { exSaved = l.joinToString("\n") }
+    val exList = exIds.mapNotNull { id -> ranked.firstOrNull { it.exercise.id == id } }.ifEmpty { listOfNotNull(ranked.firstOrNull()) }
+    var exMenu by remember { mutableStateOf(-1) }
     var busy by remember { mutableStateOf(false) }
-    val ex = ranked.firstOrNull { it.exercise.id == exId } ?: ranked.firstOrNull()
-    val layers = mapOf("overall" to rememberGraphicsLayer(), "groups" to rememberGraphicsLayer(), "exercise" to rememberGraphicsLayer())
+    // Each preview's drawing, by its place in the list of pictures.
+    val layers = remember { mutableMapOf<Int, androidx.compose.ui.graphics.layer.GraphicsLayer>() }
 
     Column(Modifier.fillMaxSize()) {
         TopBar("Share")
@@ -101,40 +105,61 @@ fun ShareScreen() {
             Pick(pickOverall, "Overall rank + heatmap") { pickOverall = it }
             Pick(pickGroups, "Muscle group ranks") { pickGroups = it }
             Pick(pickExercise, "An exercise's rank + where you sit chart") { pickExercise = it }
-            if (pickExercise && ex != null) Box(Modifier.padding(start = 48.dp)) {
-                GreyButton(ex.exercise.name + "  ▾") { exMenu = true }
-                DropdownMenu(exMenu, { exMenu = false }) {
-                    ranked.forEach { r ->
-                        DropdownMenuItem({
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                RankBadge(r.tier, 20.dp)
-                                Text("  " + r.exercise.name, Modifier.weight(1f, fill = false))
-                                Text("  " + r.tier.label, color = Color(r.tier.color), fontSize = 12.sp)
+            if (pickExercise) Column(Modifier.padding(start = 48.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                exList.forEachIndexed { i, ex ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f, fill = false)) {
+                            GreyButton(ex.exercise.name + "  ▾") { exMenu = i }
+                            DropdownMenu(exMenu == i, { exMenu = -1 }) {
+                                ranked.forEach { r ->
+                                    DropdownMenuItem({
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            RankBadge(r.tier, 20.dp)
+                                            Text("  " + r.exercise.name, Modifier.weight(1f, fill = false))
+                                            Text("  " + r.tier.label, color = Color(r.tier.color), fontSize = 12.sp)
+                                        }
+                                    }, {
+                                        setExIds(exList.map { it.exercise.id }.toMutableList().also { l -> l[i] = r.exercise.id })
+                                        exMenu = -1
+                                    })
+                                }
                             }
-                        }, { exId = r.exercise.id; exMenu = false })
+                        }
+                        if (exList.size > 1) Text("✕", color = Sub, fontSize = 18.sp, modifier = Modifier.clip(RoundedCornerShape(6.dp))
+                            .clickable { setExIds(exList.map { it.exercise.id }.filterIndexed { j, _ -> j != i }) }.padding(10.dp))
                     }
                 }
+                if (exList.size < ranked.size) Text("+  Add another exercise", color = Blue, fontWeight = FontWeight.Medium,
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable {
+                        val have = exList.map { it.exercise.id }
+                        // The next best-ranked one you haven't added yet.
+                        val next = ranked.firstOrNull { it.exercise.id !in have } ?: return@clickable
+                        setExIds(have + next.exercise.id)
+                    }.padding(vertical = 8.dp, horizontal = 4.dp))
             }
-            val picked = listOfNotNull("overall".takeIf { pickOverall }, "groups".takeIf { pickGroups }, "exercise".takeIf { pickExercise })
+            // (kind, exercise) for each picture.
+            val picked = listOfNotNull("overall".takeIf { pickOverall }, "groups".takeIf { pickGroups }).map { it to null } +
+                (if (pickExercise) exList.map { "exercise" to it.exercise.id } else emptyList())
             Text(if (picked.size == 1) "Preview" else "Preview (${picked.size} pictures)", fontWeight = FontWeight.Bold, fontSize = 17.sp,
                 modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
-            picked.forEachIndexed { i, what ->
-                val layer = layers.getValue(what)
+            picked.forEachIndexed { i, (what, id) -> androidx.compose.runtime.key(i, what, id) {
+                val layer = rememberGraphicsLayer()
+                layers[i] = layer
                 // Each picture is exactly what's drawn here.
                 Box(Modifier.fillMaxWidth().padding(top = if (i > 0) 12.dp else 0.dp).drawWithContent {
                     layer.record { this@drawWithContent.drawContent() }
                     drawLayer(layer)
                 }) {
-                    ShareCard(ranks, profile, overall, what, ex?.exercise?.id)
+                    ShareCard(ranks, profile, overall, what, id)
                 }
-            }
+            } }
             Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 fun make(then: suspend (List<Bitmap>) -> Unit) {
                     if (busy) return
                     busy = true
                     scope.launch {
                         runCatching {
-                            val bmps = picked.map { layers.getValue(it).toImageBitmap().asAndroidBitmap().copy(Bitmap.Config.ARGB_8888, false) }
+                            val bmps = picked.indices.map { layers.getValue(it).toImageBitmap().asAndroidBitmap().copy(Bitmap.Config.ARGB_8888, false) }
                             then(bmps)
                         }.onFailure { Toast.makeText(context, "Couldn't make the picture: ${it.message}", Toast.LENGTH_LONG).show() }
                         busy = false
