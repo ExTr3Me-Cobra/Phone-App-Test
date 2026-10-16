@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,9 +65,8 @@ fun ShareScreen() {
     val ranks = remember(workouts, profile, exercises) { Ranks.all(workouts, profile) }
     val overall = Ranks.overallOf(ranks, profile)
     val ranked = ranks.values.sortedByDescending { it.percentile }
-    var withOverall by rememberSaveable { mutableStateOf(true) }
-    var withGroups by rememberSaveable { mutableStateOf(false) }
-    var withExercise by rememberSaveable { mutableStateOf(false) }
+    // One thing per picture: "overall", "groups" or "exercise".
+    var what by rememberSaveable { mutableStateOf("overall") }
     var exId by rememberSaveable { mutableStateOf<String?>(null) }
     var exMenu by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
@@ -86,15 +86,15 @@ fun ShareScreen() {
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("What goes on the picture", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            @Composable fun Tick(label: String, on: Boolean, set: (Boolean) -> Unit) =
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { set(!on) }, verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(on, set)
+            @Composable fun Pick(key: String, label: String) =
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { what = key }, verticalAlignment = Alignment.CenterVertically) {
+                    androidx.compose.material3.RadioButton(what == key, { what = key })
                     Text(label)
                 }
-            Tick("Overall rank + heatmap", withOverall) { withOverall = it }
-            Tick("Muscle group ranks", withGroups) { withGroups = it }
-            Tick("An exercise's rank + where you sit chart", withExercise) { withExercise = it }
-            if (withExercise && ex != null) Box(Modifier.padding(start = 48.dp)) {
+            Pick("overall", "Overall rank + heatmap")
+            Pick("groups", "Muscle group ranks")
+            Pick("exercise", "An exercise's rank + where you sit chart")
+            if (what == "exercise" && ex != null) Box(Modifier.padding(start = 48.dp)) {
                 GreyButton(ex.exercise.name + "  ▾") { exMenu = true }
                 DropdownMenu(exMenu, { exMenu = false }) {
                     ranked.forEach { r ->
@@ -108,16 +108,14 @@ fun ShareScreen() {
                     }
                 }
             }
-            val any = withOverall || withGroups || (withExercise && ex != null)
             Text("Preview", fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
-            if (!any) Text("Tick at least one thing above.", color = Sub)
-            else {
+            run {
                 // The picture is exactly what's drawn here.
                 Box(Modifier.fillMaxWidth().drawWithContent {
                     layer.record { this@drawWithContent.drawContent() }
                     drawLayer(layer)
                 }) {
-                    ShareCard(ranks, profile, overall, withOverall, withGroups, if (withExercise) ex?.exercise?.id else null)
+                    ShareCard(ranks, profile, overall, what, ex?.exercise?.id)
                 }
                 Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     fun make(then: suspend (Bitmap) -> Unit) {
@@ -150,53 +148,72 @@ fun ShareScreen() {
     }
 }
 
-/** The picture itself: the parts you ticked, stacked, with the Loadout logo at the bottom. */
+/** The picture itself: a 9:16 card (story-sized) with the one thing you picked, and the Loadout logo at the bottom. */
 @Composable
-private fun ShareCard(ranks: Map<String, Ranks.Ranked>, profile: Profile, overall: Double, withOverall: Boolean, withGroups: Boolean, exerciseId: String?) {
-    Column(Modifier.fillMaxWidth().background(Color(0xFF0B0B0D)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        if (withOverall) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
-            val t = Tier.of(overall)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RankBadge(t, 84.dp)
-                HSpacer(12)
-                Column {
-                    Text("Overall rank", color = Sub, fontSize = 13.sp)
-                    Text(t.label, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(t.color))
-                    Text(topLabel(overall), fontSize = 15.sp)
+private fun ShareCard(ranks: Map<String, Ranks.Ranked>, profile: Profile, overall: Double, what: String, exerciseId: String?) {
+    Column(Modifier.fillMaxWidth().aspectRatio(9f / 16f).background(Color(0xFF0B0B0D)).padding(16.dp)) {
+        // Whatever's picked fills the space; if it's ever too tall, it shrinks to fit rather than being cut off.
+        FitInside(Modifier.weight(1f).fillMaxWidth()) {
+            Column(Modifier.fillMaxWidth()) {
+                when (what) {
+                    "groups" -> Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Muscle ranks", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
+                            val tier = Tier.of(v.first)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
+                                HSpacer(8)
+                                // The rank always fits; a long muscle name shrinks a little instead of being cut off.
+                                NameText(androidx.compose.ui.text.AnnotatedString(titleCase(g)), Modifier.weight(1f), fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold, maxLines = 1, minScale = 0.6f)
+                                HSpacer(6)
+                                RankBadge(tier, 22.dp)
+                                HSpacer(4)
+                                Text(rankText(v.first), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color), maxLines = 1, softWrap = false)
+                            }
+                        }
+                    }
+                    "exercise" -> if (exerciseId != null) {
+                        val e = Store.exercise(exerciseId)
+                        val panels = rankPanels(exerciseId, share = true)
+                        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            panels.firstOrNull { it.key == "header" }?.content?.invoke()
+                            panels.firstOrNull { it.key == "chart" }?.let { pn -> Box(Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0xFF0B0B0D))) { pn.content() } }
+                        }
+                    }
+                    else -> Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
+                        val t = Tier.of(overall)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RankBadge(t, 84.dp)
+                            HSpacer(12)
+                            Column {
+                                Text("Overall rank", color = Sub, fontSize = 13.sp)
+                                Text(t.label, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(t.color))
+                                Text(topLabel(overall), fontSize = 15.sp)
+                            }
+                        }
+                        RankHeatmap(ranks, profile)
+                    }
                 }
             }
-            RankHeatmap(ranks, profile)
         }
-        if (withGroups) Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Muscle ranks", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
-                val tier = Tier.of(v.first)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
-                    HSpacer(8)
-                    Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
-                    RankBadge(tier, 22.dp)
-                    HSpacer(4)
-                    Text(rankText(v.first), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color), maxLines = 1, softWrap = false)
-                }
-            }
+        Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            Image(painterResource(R.drawable.ic_launcher_fg), null, Modifier.size(64.dp))
+            Text("Loadout", fontWeight = FontWeight.Bold, fontSize = 26.sp)
         }
-        if (exerciseId != null) {
-            val e = Store.exercise(exerciseId)
-            val panels = rankPanels(exerciseId, share = true)
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                panels.firstOrNull { it.key == "header" }?.content?.invoke()
-                // The chart sits on its own darker card inside.
-                panels.firstOrNull { it.key == "chart" }?.let { pn -> Box(Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0xFF0B0B0D))) { pn.content() } }
-            }
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
-            Image(painterResource(R.drawable.ic_launcher_fg), null, Modifier.size(34.dp))
-            Text("Loadout", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-        }
+    }
+}
+
+/** Centres its content; if the content is taller than the space, it's scaled down to fit (never cropped). */
+@Composable
+private fun FitInside(modifier: Modifier, content: @Composable () -> Unit) = androidx.compose.ui.layout.Layout(content, modifier) { ms, c ->
+    val p = ms.first().measure(c.copy(minHeight = 0, maxHeight = androidx.compose.ui.unit.Constraints.Infinity))
+    val s = if (p.height > c.maxHeight) c.maxHeight.toFloat() / p.height else 1f
+    layout(c.maxWidth, c.maxHeight) {
+        p.placeWithLayer((c.maxWidth - p.width) / 2, (c.maxHeight - p.height) / 2) { scaleX = s; scaleY = s }
     }
 }
 
