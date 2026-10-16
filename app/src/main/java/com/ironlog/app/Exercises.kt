@@ -282,6 +282,9 @@ fun ExerciseDetailScreen(id: String) {
     var topMenu by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
     val linkTo = pendingLink[e.id]
+    // Ranked and unranked exercise pages each keep their own panel order; your rank mode decides which this one uses.
+    val ranked = Standards.covers(e.id, profile) && Standards.levels(e.id, profile) != null
+    val layoutKey = if (ranked) "detail.ranked" else "detail.unranked"
     Column(Modifier.fillMaxSize()) {
         Box {
             TopBar("Exercise", action = "⋮") { topMenu = true }
@@ -296,6 +299,10 @@ fun ExerciseDetailScreen(id: String) {
                     if (profile.devUnlocked) DropdownMenuItem({ Text("Developer: move history to another exercise…") }, {
                         topMenu = false
                         Nav.go(Route.Picker("Move \"${e.name}\" history to", false) { ids -> ids.firstOrNull()?.takeIf { it != e.id }?.let { pendingMove[e.id] = it } })
+                    })
+                    DropdownMenuItem({ Text("Restore default panel layout") }, {
+                        topMenu = false
+                        Store.setProfile(Store.profile.value.let { it.copy(layouts = it.layouts - layoutKey) })
                     })
                     if (e.custom) DropdownMenuItem({ Text("Delete exercise", color = Red) }, { topMenu = false; deleting = true })
                 }
@@ -338,7 +345,6 @@ fun ExerciseDetailScreen(id: String) {
         }, { deleting = false }, "Delete")
         // Hold any panel to move it. Ranked exercises share one order, unranked ones another; which one an exercise
         // uses follows your rank mode, so switching modes in Settings switches its layout too.
-        val ranked = Standards.covers(e.id, profile) && Standards.levels(e.id, profile) != null
         val rankList = if (ranked) rankPanels(e.id, title = true, prefix = "rank.", wrap = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) else emptyList()
         val panels = listOf(
             Panel("picture", "Picture") {
@@ -488,9 +494,9 @@ fun ExerciseDetailScreen(id: String) {
             },
         )
         PanelColumn(
-            if (ranked) "detail.ranked" else "detail.unranked", panels, Modifier.fillMaxSize(),
+            layoutKey, panels, Modifier.fillMaxSize(),
             bottom = {
-                Text("Tip: hold any panel and drag to move it – every ${if (ranked) "ranked" else "unranked"} exercise follows.",
+                Text("Tip: hold any panel to pick it up and move it – every ${if (ranked) "ranked" else "unranked"} exercise follows. ⋮ → Restore default panel layout undoes it.",
                     color = Sub, fontSize = 12.sp, modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp))
                 Spacer(40)
             },
