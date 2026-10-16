@@ -396,6 +396,7 @@ private fun DrawScope.tickEffect(kind: Int, c: Offset, half: Float, b: Float, k:
         18 -> {
             drawCircle(Color.White.copy(alpha = (1f - b) * 0.8f), radius = half * (1f + b * 5f), center = c, style = Stroke(10.dp.toPx() * (1f - b)))
             drawCircle(FireGold.copy(alpha = (1f - b) * 0.5f), radius = half * (1f + b * 3f), center = c)
+            sparkBurst(c, half, b)
         }
         19, 22 -> lava(c, half, b)
         21 -> anvil(c, half, b)
@@ -661,6 +662,28 @@ private fun DrawScope.anvil(c: Offset, half: Float, b: Float) {
         val pos = at(b); val prev = at((b - 0.05f).coerceAtLeast(0f))
         val col = androidx.compose.ui.graphics.lerp(Color(0xFFFFF4D0), FireOrange, b)
         drawLine(col.copy(alpha = 1f - b), prev, pos, strokeWidth = 2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+    }
+}
+
+/** An explosion of sparks: white-hot streaks flung out in every direction, cooling to gold and orange as they fly and drop. */
+private fun DrawScope.sparkBurst(c: Offset, half: Float, b: Float) {
+    for (i in 0 until 40) {
+        val ang = (i * 2.0 * Math.PI / 40 + (rnd(i, 71f) - 0.5f) * 0.35).toFloat()
+        val speed = half * (5f + rnd(i, 72f) * 8f)
+        val g = half * 6f
+        // Fast out, slowing down (ease-out), with a little gravity.
+        val e = 1f - (1f - b) * (1f - b)
+        fun at(t: Float): Offset {
+            val et = 1f - (1f - t) * (1f - t)
+            return Offset(c.x + kotlin.math.cos(ang) * speed * et, c.y + kotlin.math.sin(ang) * speed * et + g * t * t)
+        }
+        val pos = at(b)
+        val tail = at((b - 0.12f).coerceAtLeast(0f))
+        val life = (1f - b) * (0.6f + 0.4f * rnd(i, 73f))
+        val col = androidx.compose.ui.graphics.lerp(Color(0xFFFFF4D0), if (rnd(i, 74f) < 0.5f) FireGold else FireOrange, (e * 1.4f).coerceAtMost(1f))
+        drawLine(col.copy(alpha = life * 0.45f), tail, pos, strokeWidth = 4.5.dp.toPx() * (1f - b * 0.6f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        drawLine(col.copy(alpha = life), tail, pos, strokeWidth = 1.8.dp.toPx() * (1f - b * 0.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        drawCircle(Color(0xFFFFF4D0).copy(alpha = life), radius = 1.6.dp.toPx() * (1f - b * 0.5f), center = pos)
     }
 }
 
