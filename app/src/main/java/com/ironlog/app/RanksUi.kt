@@ -138,13 +138,15 @@ fun HomeRankCard() {
             }
         }
         // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
+        // Every muscle of a ranked group is coloured with that group's rank (the hands only by the Grip rank when it's on).
         val muscles = remember(ranks, profile) {
             val groups = Ranks.groupRanks(ranks, profile.picksNow)
-            val m = Ranks.muscles(ranks).filterValues { !(profile.gripRank && Standards.isFlat(it.exercise.id)) }
-                .mapValues { (m, r) -> groups[Muscles.group(m)]?.first ?: r.percentile }.toMutableMap()
-            m.remove(Ranks.HANDS)
-            if (profile.gripRank) groups[Ranks.GRIP]?.let { m[Ranks.HANDS] = it.first } // hands: only from the dynamometer
-            else groups["forearms"]?.let { f -> Muscles.groups["forearms"].orEmpty().forEach { h -> m[h] = f.first } } // forearms rank covers forearms and hands
+            val m = HashMap<String, Double>()
+            for ((g, v) in groups) {
+                if (g == Ranks.GRIP) continue
+                Muscles.groups[g].orEmpty().forEach { h -> if (!(profile.gripRank && h == Ranks.HANDS)) m[h] = v.first }
+            }
+            if (profile.gripRank) groups[Ranks.GRIP]?.let { m[Ranks.HANDS] = it.first }
             m
         }
         val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
