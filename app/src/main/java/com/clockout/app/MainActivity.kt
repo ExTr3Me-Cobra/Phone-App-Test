@@ -1,5 +1,7 @@
 package com.clockout.app
 
+import kotlinx.coroutines.launch
+
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -108,6 +110,7 @@ private fun Screen() {
     var editing by remember { mutableStateOf<Ring?>(null) }
     var adding by remember { mutableStateOf(false) }
     var scan by remember { mutableStateOf<Scan?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
     LaunchedEffect(Unit) {
         while (true) {
             val before = now.toLocalDate()
@@ -125,35 +128,19 @@ private fun Screen() {
         reading = true
         message = null
         scan = null
-        val image = runCatching { InputImage.fromFilePath(context, uri) }.getOrElse {
-            reading = false
-            message = "Couldn't open that picture (${it.javaClass.simpleName}: ${it.message})."
-            return
-        }
         val photo = thumbnail(context, uri)
-        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS).process(image)
-            .addOnSuccessListener { text ->
-                reading = false
-                rawText = text.text
-                scan = try {
-                    val mode = Store.settings.value.decimal
-                    var found = RingReader.read(text, mode)
-                    var other = false
-                    // Nothing in the chosen time style: see if the picture uses the other one.
-                    if (found.isEmpty()) {
-                        RingReader.read(text, !mode).takeIf { it.isNotEmpty() }?.let { found = it; other = true }
-                    }
-                    val ignore = Store.settings.value.ignoreCodes
-                    Scan(found.filter { it.code.uppercase() !in ignore }, text.text, if (other) !mode else mode, other, photo)
-                } catch (e: Throwable) {
-                    Crash.note(context, e)
-                    Scan(emptyList(), text.text, Store.settings.value.decimal, false, photo, error = "${e.javaClass.simpleName}: ${e.message}")
-                }
+        scope.launch {
+            val r = runCatching { Ocr.read(context, uri, Store.settings.value) }
+            reading = false
+            r.onSuccess { res ->
+                rawText = res.raw
+                val ignore = Store.settings.value.ignoreCodes
+                scan = Scan(res.rings.filter { it.code.uppercase() !in ignore }, res.raw, res.decimal, res.switched, photo)
+            }.onFailure {
+                Crash.note(context, it)
+                scan = Scan(emptyList(), "", Store.settings.value.decimal, false, photo, error = "${it.javaClass.simpleName}: ${it.message}")
             }
-            .addOnFailureListener {
-                reading = false
-                scan = Scan(emptyList(), "", Store.settings.value.decimal, false, photo, error = it.message ?: "unknown error")
-            }
+        }
     }
 
     val photoFile = remember { File(context.cacheDir, "photos").apply { mkdirs() }.let { File(it, "rings.jpg") } }

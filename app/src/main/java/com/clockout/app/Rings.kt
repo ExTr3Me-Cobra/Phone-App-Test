@@ -121,10 +121,16 @@ object RingReader {
         val times = mutableListOf<Found>()
         val codes = mutableListOf<Found>()
         val paired = mutableListOf<Ring>()
-        for (block in text.textBlocks) for (line in block.lines) {
+        // The details panel sits under the table, and its time lines often have no label of their own
+        // (the photo cuts it off), so everything from the panel's first line down is left out.
+        val allLines = text.textBlocks.flatMap { it.lines }
+        val panelTop = allLines.filter { PANEL.containsMatchIn(it.text) }
+            .mapNotNull { it.boundingBox?.let { b -> b.top - b.height() * 0.3f } }.minOrNull()
+        for (line in allLines) {
             val t = line.text
             if (PANEL.containsMatchIn(t)) continue
             val box: Rect = line.boundingBox ?: Rect()
+            if (panelTop != null && box.exactCenterY() > panelTop) continue
             val y = box.exactCenterY()
             val h = box.height().toFloat().coerceAtLeast(1f)
             val lineTimes = timesIn(t, decimal, day)
