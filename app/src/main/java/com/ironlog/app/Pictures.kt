@@ -218,6 +218,7 @@ object Pictures {
 
     /** Your own picture from the gallery or camera. */
     fun import(c: Context, id: String, uri: Uri) {
+        keepAiOriginal(id)
         val bmp = ImageDecoder.decodeBitmap(ImageDecoder.createSource(c.contentResolver, uri)) { d, info, _ ->
             val s = (maxOf(info.size.width, info.size.height) / 1024).coerceAtLeast(1)
             d.setTargetSize(info.size.width / s, info.size.height / s)
@@ -227,11 +228,24 @@ object Pictures {
         setOwn(listOf(Store.imageName(id)), true)
     }
 
-    /** Removes an exercise's picture; it goes to the Recycle Bin. */
+    /** Where the AI picture you replaced with your own photo is kept, so removing your photo brings it back. */
+    private fun aiDir() = File(Store.imagesDir().parentFile, "ai_originals").apply { mkdirs() }
+
+    /** Before your own photo replaces an AI picture saved on the phone, keep a copy of that AI picture. */
+    fun keepAiOriginal(id: String) {
+        val cur = Store.imageFile(id)
+        if (cur.exists() && !isOwn(id)) runCatching { cur.copyTo(File(aiDir(), cur.name), true) }
+    }
+
+    /** Removes your own photo (it goes to the Recycle Bin) and puts the AI picture back. */
     fun remove(id: String) {
         Store.exercise(id)?.let { RecycleBin.picture(it) }
         setOwn(listOf(Store.imageName(id)), false)
         Store.imageFile(id).delete()
+        // The AI picture it replaced (if one was made on this phone); otherwise the built-in one shows again.
+        File(aiDir(), Store.imageName(id)).takeIf { it.exists() }?.let { f ->
+            if (!f.renameTo(Store.imageFile(id))) { f.copyTo(Store.imageFile(id), true); f.delete() }
+        }
         Store.imageChanged()
     }
 

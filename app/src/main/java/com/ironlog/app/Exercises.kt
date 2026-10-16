@@ -357,7 +357,7 @@ fun ExerciseDetailScreen(id: String) {
                                     menu = false; gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                                 })
                                 DropdownMenuItem({ Text("Take a photo") }, { menu = false; camFile.delete(); camera.launch(camUri) })
-                                if (hasImage) DropdownMenuItem({ Text("Remove picture", color = Red) }, { menu = false; Pictures.remove(e.id) })
+                                if (hasImage && remember(version) { Pictures.isOwn(e.id) }) DropdownMenuItem({ Text("Remove picture", color = Red) }, { menu = false; Pictures.remove(e.id) })
                             }
                         }
                         if (profile.devAi) GreyButton(if (busy) "Generating…" else "✨ AI picture", Modifier.weight(1f), Blue) {

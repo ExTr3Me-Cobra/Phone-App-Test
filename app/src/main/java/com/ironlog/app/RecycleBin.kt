@@ -154,7 +154,7 @@ object RecycleBin {
                     val id = d.getString("exerciseId")
                     val e = Store.exercise(id) ?: return "The exercise this picture belongs to no longer exists."
                     // A picture it has now goes to the bin in its place.
-                    if (Store.imageFile(id).exists()) picture(e)
+                    if (Store.imageFile(id).exists()) { if (Pictures.isOwn(id)) picture(e) else Pictures.keepAiOriginal(id) }
                     putPictureBack(item, id, d.optBoolean("own"))
                     null
                 }
