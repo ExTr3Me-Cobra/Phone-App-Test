@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 fun HomeScreen() {
     val workouts by Store.workouts.collectAsState()
     Column(Modifier.fillMaxSize()) {
-        TopBar("Home", back = false, lead = "?", onLead = { Nav.go(Route.RankHelp) })
+        TopBar("Home", back = false, lead = "?", onLead = { Nav.go(Route.RankHelp) }, action = "Share") { Nav.go(Route.Share) }
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
             item { HomeRankCard() }
             item {
@@ -87,15 +87,30 @@ fun HomeScreen() {
                         Spacer(12)
                         BigButton("Go to Workout") { Nav.home(1) }
                     }
-                } else SectionTitle("Workouts")
+                } else {
+                    // Tap to show your 10 most recent workouts (closed each time the app starts).
+                    var open by homeWorkoutsOpen
+                    Row(Modifier.fillMaxWidth().clickable { open = !open }, verticalAlignment = Alignment.CenterVertically) {
+                        SectionTitle("Workouts (${workouts.size})", Modifier.weight(1f))
+                        Text(if (open) "▴" else "▾", color = Blue, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 20.dp))
+                    }
+                }
             }
-            items(workouts, key = { it.id }) { w -> WorkoutCard(w) }
+            if (homeWorkoutsOpen.value) {
+                items(workouts.sortedByDescending { it.start }.take(10), key = { it.id }) { w -> WorkoutCard(w) }
+                item {
+                    GreyButton("See All Workouts", Modifier.padding(16.dp, 8.dp).fillMaxWidth()) { Nav.go(Route.AllWorkouts) }
+                }
+            }
         }
     }
 }
 
+/** Home's Workouts drop-down: starts closed every time the app opens, and stays as you left it while it's open. */
+private val homeWorkoutsOpen = mutableStateOf(false)
+
 @Composable
-private fun WorkoutCard(w: Workout) {
+fun WorkoutCard(w: Workout) {
     Column(
         Modifier.padding(horizontal = 16.dp, vertical = 6.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card)
             .clickable { Nav.go(Route.WorkoutDetail(w.id)) }.padding(16.dp),

@@ -85,6 +85,8 @@ sealed interface Route {
     data class RankDetail(val id: String) : Route
     data object OneRmList : Route
     data object RankHelp : Route
+    data object AllWorkouts : Route
+    data object Share : Route
     data class OneRmTest(val id: String) : Route
 }
 
@@ -187,6 +189,8 @@ private fun Root() {
                 is Route.RankDetail -> RankDetailScreen(route.id)
                 Route.OneRmList -> OneRmListScreen()
                 Route.RankHelp -> RankHelpScreen()
+                Route.AllWorkouts -> AllWorkoutsScreen()
+                Route.Share -> ShareScreen()
                 is Route.OneRmTest -> OneRmTestScreen(route.id)
             }
           }

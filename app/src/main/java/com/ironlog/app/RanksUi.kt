@@ -139,27 +139,7 @@ fun HomeRankCard() {
         }
         // Each ranked muscle is coloured by its group's rank: the average of your top two exercises for it (as in the list below).
         // Every muscle of a ranked group is coloured with that group's rank (the hands only by the Grip rank when it's on).
-        val muscles = remember(ranks, profile) {
-            val groups = Ranks.groupRanks(ranks, profile.picksNow)
-            val m = HashMap<String, Double>()
-            for ((g, v) in groups) {
-                if (g == Ranks.GRIP) continue
-                Muscles.groups[g].orEmpty().forEach { h -> if (!(profile.gripRank && h == Ranks.HANDS)) m[h] = v.first }
-            }
-            if (profile.gripRank) groups[Ranks.GRIP]?.let { m[Ranks.HANDS] = it.first }
-            m
-        }
-        val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
-        val levels = muscles.mapValues { (it.value / 100).toFloat().coerceAtLeast(0.01f) }
-        BodyMapView(levels, Modifier.padding(top = 10.dp).fillMaxWidth().height(300.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black),
-            colors = colors)
-        // Every rank colour in order, blended: Wood 1 on the left to Legend on the right.
-        Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp))
-            .background(androidx.compose.ui.graphics.Brush.horizontalGradient(Tier.entries.map { Color(it.color) })))
-        Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
-            Text("Wood", color = Sub, fontSize = 11.sp, modifier = Modifier.weight(1f))
-            Text("Legend", color = Sub, fontSize = 11.sp)
-        }
+        RankHeatmap(ranks, profile)
         Text(
             if (open) "Hide muscle ranks & colour key ▴" else "Show muscle ranks & colour key ▾",
             color = Blue, fontSize = 15.sp, modifier = Modifier.fillMaxWidth().clickable { open = !open }.padding(vertical = 10.dp),
@@ -239,6 +219,32 @@ fun HomeRankCard() {
             }
             Text("Uncoloured muscles have no ranked exercise yet.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
         }
+    }
+}
+
+/** Every muscle of a ranked group coloured with that group's rank, with the Wood → Legend colour bar under it. */
+@Composable
+fun RankHeatmap(ranks: Map<String, Ranks.Ranked>, profile: Profile) {
+    val muscles = remember(ranks, profile) {
+        val groups = Ranks.groupRanks(ranks, profile.picksNow)
+        val m = HashMap<String, Double>()
+        for ((g, v) in groups) {
+            if (g == Ranks.GRIP) continue
+            Muscles.groups[g].orEmpty().forEach { h -> if (!(profile.gripRank && h == Ranks.HANDS)) m[h] = v.first }
+        }
+        if (profile.gripRank) groups[Ranks.GRIP]?.let { m[Ranks.HANDS] = it.first }
+        m
+    }
+    val colors = muscles.mapValues { Tier.of(it.value).color.toInt() }
+    val levels = muscles.mapValues { (it.value / 100).toFloat().coerceAtLeast(0.01f) }
+    BodyMapView(levels, Modifier.padding(top = 10.dp).fillMaxWidth().height(300.dp).clip(RoundedCornerShape(10.dp)).background(Color.Black),
+        colors = colors)
+    // Every rank colour in order, blended: Wood 1 on the left to Legend on the right.
+    Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp))
+        .background(androidx.compose.ui.graphics.Brush.horizontalGradient(Tier.entries.map { Color(it.color) })))
+    Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+        Text("Wood", color = Sub, fontSize = 11.sp, modifier = Modifier.weight(1f))
+        Text("Legend", color = Sub, fontSize = 11.sp)
     }
 }
 

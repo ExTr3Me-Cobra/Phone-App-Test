@@ -58,7 +58,7 @@ fun RankDetailScreen(id: String) {
  * and on an exercise's page. [prefix] keeps the keys apart from the page's own panels; [wrap] pads each one.
  */
 @Composable
-fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Modifier = Modifier): List<Panel> {
+fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Modifier = Modifier, share: Boolean = false): List<Panel> {
     val p by Store.profile.collectAsState()
     val workouts by Store.workouts.collectAsState()
     val info = Standards.info(id)
@@ -157,7 +157,7 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                         Text("● ${fmt(px)} – stronger than ${pc.toInt()}% · ${t.label}", color = Color(t.color), fontSize = 13.sp)
                     } else if (mine != null && r != null) Text("● You: ${fmt(mine)} – stronger than ${r.percentile.toInt()}%", color = myColor, fontSize = 13.sp)
                     else Text("● You: No record on file", color = myColor, fontSize = 13.sp)
-                    Text("Drag sideways on the chart to check any point.", color = Sub, fontSize = 11.sp)
+                    if (!share) Text("Drag sideways on the chart to check any point.", color = Sub, fontSize = 11.sp)
                 }
             }
         },
