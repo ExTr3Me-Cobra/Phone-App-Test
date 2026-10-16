@@ -205,6 +205,13 @@ for e in out:
 names_after = {e['n'] for e in out}
 ALL_SET = REPS_ONLY | TIMED_ONLY | WEIGHTED | WEIGHT_TIME
 assert not ALL_SET - names_after, ALL_SET - names_after
+# No em dashes anywhere in the app: "x—y—z" becomes "x, y, z" and " — " becomes ", ".
+def no_em(v):
+    if isinstance(v, str): return v.replace(' — ', ', ').replace('—', ', ')
+    if isinstance(v, list): return [no_em(x) for x in v]
+    if isinstance(v, dict): return {k: no_em(x) for k, x in v.items()}
+    return v
+out = no_em(out)
 json.dump(out, open(OUT, 'w'), separators=(',', ':'), ensure_ascii=False)
 print('hidden:', sum(1 for e in out if e.get('x')), ' renamed:', len(RENAME), ' shown:', sum(1 for e in out if not e.get('x')))
 from collections import Counter
