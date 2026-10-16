@@ -365,14 +365,30 @@ fun OneRmTestScreen(id: String) {
     androidx.activity.compose.BackHandler { leave() }
     // The test screen itself has no transitions or effects: it's a plain working screen.
     val haptic = LocalHapticFeedback.current
-    OneRmFx.enteringTest = false
+    // Opening a test plays the same opening as 1 Rep Max (fire, embers, and the earthquake rattling each panel).
+    val fx = remember { FxState() }
+    val quake = remember { Animatable(1f) }
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
+    LaunchedEffect(Unit) {
+        val entering = OneRmFx.enteringTest
+        OneRmFx.enteringTest = false
+        if (!entering || !extraAnims()) return@LaunchedEffect
+        OneRmFx.entryEffect()?.let { (k, at) -> launch { fx.play(k, haptic, at, density) } }
+        OneRmFx.entryQuake()?.let { at ->
+            quake.snapTo(0f)
+            kotlinx.coroutines.delay(at)
+            launch { repeat(4) { haptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
+            quake.animateTo(1f, tween(1100))
+        }
+    }
+    val rattle = { quake.value }
     val heat = rememberHeat()
     val tickScope = androidx.compose.runtime.rememberCoroutineScope()
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().fxShake(fx)) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.quakeRattle(rattle, 0), verticalAlignment = Alignment.CenterVertically) {
                 ExerciseThumb(e, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
                     NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -382,7 +398,7 @@ fun OneRmTestScreen(id: String) {
             }
 
             // Warm-up plan
-            Section("Warm-up plan", Blue) {
+            Section("Warm-up plan", Blue, Modifier.quakeRattle(rattle, 1)) {
                 // Kept to the minimum that does the job: get warm, wake the muscles up, then a few ramp-up sets.
                 Bullet("2–3 minutes of easy movement to get warm (a brisk walk, bike or rower).")
                 notes?.prep?.firstOrNull { !it.contains(Regex("min\\b|cardio|bike|rowing|row\\b|walk|jog", RegexOption.IGNORE_CASE)) }?.let { Bullet(it) }
@@ -405,19 +421,20 @@ fun OneRmTestScreen(id: String) {
                     Bullet("Rest about 3 minutes before each heavy single.")
                 }
             }
-            notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green) { f.forEach { Bullet(it) } } }
-            Section("Safety", Red) {
+            notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green, Modifier.quakeRattle(rattle, 2)) { f.forEach { Bullet(it) } } }
+            Section("Safety", Red, Modifier.quakeRattle(rattle, 3)) {
                 notes?.safety?.forEach { Bullet(it) }
                 Bullet("Stop straight away for sharp or joint pain, dizziness, or if your form breaks down – a missed or ugly rep doesn't count.")
                 Bullet("Don't test when you're injured, ill, or very tired. Leave a few days between max tests on the same lift.")
             }
 
             // Attempts
-            Text(if (squeeze) "Your squeezes" else if (reps) "Your sets" else "Your sets & attempts", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text(if (squeeze) "Your squeezes" else if (reps) "Your sets" else "Your sets & attempts", fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                modifier = Modifier.quakeRattle(rattle, 4))
             Text(if (squeeze) "Enter each reading and tick it. Your best squeeze counts." else if (reps) "Tick a set when it's done. Your best set counts." else
                 "Tick each set when it's done. The 1 Rep Max calculation is more accurate the higher the weight and the lower the max reps you can do with it.",
-                color = Sub, fontSize = 13.sp)
-            Row {
+                color = Sub, fontSize = 13.sp, modifier = Modifier.quakeRattle(rattle, 5))
+            Row(Modifier.quakeRattle(rattle, 6)) {
                 Text("SET", Modifier.weight(0.6f), color = Sub, fontSize = 12.sp)
                 if (!reps) Text(if (squeeze) "SQUEEZE (${Units.w})" else Units.w.uppercase(), Modifier.weight(1.4f), color = Sub, fontSize = 12.sp)
                 Text(if (squeeze) "HAND" else "REPS", Modifier.weight(1.2f), color = Sub, fontSize = 12.sp)
@@ -433,7 +450,7 @@ fun OneRmTestScreen(id: String) {
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
-                Row(Modifier.tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.quakeRattle(rattle, 7 + i).tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -456,7 +473,7 @@ fun OneRmTestScreen(id: String) {
                     }
                 }
             }
-            GreyButton("+ Add set", textColor = Blue) {
+            GreyButton("+ Add set", Modifier.quakeRattle(rattle, 20).fillMaxWidth(), textColor = Blue) {
                 val last = OneRm.rows.lastOrNull()
                 OneRm.rows += last?.copy(done = false) ?: DoneSet(reps = if (reps) null else 1)
                 refresh++
@@ -466,7 +483,7 @@ fun OneRmTestScreen(id: String) {
             val ready = OneRm.rows.any { it.done }
             val finishPress = rememberPress(0.93f)
             Row(
-                Modifier.pressScale(finishPress).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
+                Modifier.quakeRattle(rattle, 21).pressScale(finishPress).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
                     .then(if (ready) Modifier.heatFire(heat).glint(heat).emberBorder(heat, 2.dp, gold, RoundedCornerShape(12.dp))
                         else Modifier.border(1.5.dp, gold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)))
                     .pressClick(finishPress) { finishTest(context, id)?.let { error = it } }.padding(16.dp),
@@ -475,6 +492,7 @@ fun OneRmTestScreen(id: String) {
             Spacer(300)
         }
     }
+    FxOverlay(fx)
     }
     if (confirmLeave) AlertDialog(
         onDismissRequest = { confirmLeave = false },

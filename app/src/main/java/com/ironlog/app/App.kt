@@ -123,7 +123,7 @@ object Nav {
     }
     fun back() {
         // Leaving 1 Rep Max by throwing it away leaves a few embers behind.
-        if (stack.size > 1 && top == Route.OneRmList && extraAnims() && (OneRmFx.leave == 0 || OneRmFx.leave == 2)) LeaveTrail.fire(OneRmFx.leave == 0)
+        if (stack.size > 1 && isOneRm(top) && extraAnims() && (OneRmFx.leave == 0 || OneRmFx.leave == 2)) LeaveTrail.fire(OneRmFx.leave == 0)
         if (stack.size > 1) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) } }
     fun home(tab: Int) { closed += keys; keys.clear(); keys += next++; stack.clear(); stack += Route.Tabs(tab) }
     fun replace(r: Route) { if (stack.isNotEmpty()) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) }; keys += next++; stack += r }
@@ -267,7 +267,7 @@ fun closeScreen() {
     LaunchedEffect(k) { if (Nav.topKey == k) Nav.back() }
 }
 
-private fun isOneRm(r: Route) = r is Route.OneRmTest || r == Route.OneRmList
+fun isOneRm(r: Route) = r is Route.OneRmTest || r == Route.OneRmList
 
 private fun screenTransition(from: Screen, to: Screen): ContentTransform {
     val ease = FastOutSlowInEasing
@@ -279,9 +279,11 @@ private fun screenTransition(from: Screen, to: Screen): ContentTransform {
             fadeIn(tween(200, easing = ease)) togetherWith fadeOut(tween(140))
         // Into 1 Rep Max: the new screen drops in from slightly too big, like a plate hitting the floor.
         // Leaving a 1 Rep Max screen: the chosen exit (thrown upward by default), never any shaking or fire.
-        to.depth < from.depth && from.route == Route.OneRmList -> OneRmFx.leaving()
+        to.depth < from.depth && isOneRm(from.route) -> OneRmFx.leaving()
         // Into 1 Rep Max from elsewhere: the chosen opening. From its list into a test: the chosen test opening.
         to.depth > from.depth && to.route == Route.OneRmList && !isOneRm(from.route) -> OneRmFx.enter()
+        // A test opens the same way.
+        to.depth > from.depth && to.route is Route.OneRmTest -> OneRmFx.enter()
         // Forward: slides in from the right over the old one, which drifts left and dims.
         to.depth > from.depth ->
             (slideInHorizontally(tween(300, easing = ease)) { it / 3 } + fadeIn(tween(220))) togetherWith
@@ -292,7 +294,7 @@ private fun screenTransition(from: Screen, to: Screen): ContentTransform {
                 (slideOutHorizontally(tween(260, easing = ease)) { it / 3 } + fadeOut(tween(200)))
         // Swapped in place (e.g. Finish → Summary): fade through.
         else -> fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(160))
-    }.apply { targetContentZIndex = if (to.depth >= from.depth) 1f else if (from.route == Route.OneRmList) -1f else 0f }
+    }.apply { targetContentZIndex = if (to.depth >= from.depth) 1f else if (isOneRm(from.route)) -1f else 0f }
 }
 
 @Composable
