@@ -51,18 +51,22 @@ fun HomeScreen() {
             item { HomeRankCard() }
             item {
                 val profile by Store.profile.collectAsState()
-                val all = profile.homeAllTime
-                val weekAgo = System.currentTimeMillis() - 7L * 24 * 3600 * 1000
-                val shown = if (all) workouts else workouts.filter { it.start >= weekAgo }
+                val range = profile.homeRange
+                val since = when (range) {
+                    "all" -> Long.MIN_VALUE
+                    "today" -> java.time.LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    else -> System.currentTimeMillis() - 7L * 24 * 3600 * 1000
+                }
+                val shown = workouts.filter { it.start >= since }
                 var calendar by remember { mutableStateOf(false) }
                 Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Tap to switch between this week and all time (remembered).
+                        // Tap to switch between today, this week and all time (remembered).
                         Row(Modifier.clip(RoundedCornerShape(16.dp)).background(Card2)) {
-                            listOf(false to "This week", true to "All time").forEach { (v, label) ->
-                                Text(label, fontSize = 13.sp, color = if (all == v) Color.White else Sub,
-                                    modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(if (all == v) Blue else Color.Transparent)
-                                        .clickable { Store.setProfile(profile.copy(homeAllTime = v)) }.padding(horizontal = 12.dp, vertical = 6.dp))
+                            listOf("today" to "Today", "week" to "This week", "all" to "All time").forEach { (v, label) ->
+                                Text(label, fontSize = 13.sp, color = if (range == v) Color.White else Sub,
+                                    modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(if (range == v) Blue else Color.Transparent)
+                                        .clickable { Store.setProfile(profile.copy(homeRange = v)) }.padding(horizontal = 12.dp, vertical = 6.dp))
                             }
                         }
                         androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))

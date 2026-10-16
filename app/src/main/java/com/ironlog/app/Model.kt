@@ -144,8 +144,8 @@ data class Profile(
     val devUnlocked: Boolean = false,
     /** Developer: show the AI picture tools and picture packs. */
     val devAi: Boolean = false,
-    /** Home stats show all time instead of this week. */
-    val homeAllTime: Boolean = false,
+    /** Home stats cover "today", "week" (the last 7 days) or "all" time. */
+    val homeRange: String = "week",
     /** Finished the first-run welcome (biometrics + intro). */
     val onboarded: Boolean = false,
     /** Where your data is kept: "" = not chosen yet, "local" = this phone only, "google" = also backed up to your Google account. */
@@ -224,7 +224,7 @@ object Json {
         .put("male", p.male).put("kg", p.kg).put("model", p.imageModel) // the API key is kept apart (never backed up)
         .put("quality", p.imageQuality).put("rest", p.defaultRest)
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
-        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("homeAll", p.homeAllTime).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort).put("grip", p.gripRank)
+        .put("dev", p.devUnlocked).put("devAi", p.devAi).put("range", p.homeRange).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort).put("grip", p.gripRank)
         .put("gp", JSONObject(p.groupPicks.mapValues { JSONArray(it.value) } as Map<*, *>))
         .put("lay", JSONObject(p.layouts.mapValues { JSONArray(it.value) } as Map<*, *>))
     fun profile(o: JSONObject) = Profile(
@@ -233,7 +233,7 @@ object Json {
         o.optString("quality", "medium"), o.optInt("rest", 90),
         o.optString("restSound", ""), o.optBoolean("restVibrate", true),
         o.optString("rankMode", "accurate").ifBlank { "accurate" },
-        o.optBoolean("dev"), o.optBoolean("devAi"), o.optBoolean("homeAll"), o.optBoolean("onb"), o.optString("bk"), false, // "Everyone" mode was removed
+        o.optBoolean("dev"), o.optBoolean("devAi"), o.optString("range", if (o.optBoolean("homeAll")) "all" else "week"), o.optBoolean("onb"), o.optString("bk"), false, // "Everyone" mode was removed
         groupPicks = o.optJSONObject("gp")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
         exerciseSort = o.optString("sort", "az").ifBlank { "az" },
         gripRank = o.optBoolean("grip", true),

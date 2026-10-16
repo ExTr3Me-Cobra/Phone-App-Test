@@ -95,7 +95,10 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                 val curve = remember(lv.toList(), xMax) { (0..80).map { i -> val x = xMax * i / 80; x to (Standards.percentile(id, x, p) ?: 0.0) } }
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(12.dp)) {
                     Text("Where you sit", fontWeight = FontWeight.Bold)
-                    Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else if (flat) "Across: best squeeze.  Up: % of ${if (p.male) "men" else "women"} aged 20–39 you beat." else if (oneLeg) "Across: two-leg equivalent load (body weight + 2 × your one-leg est. max).  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
+                    Text(if (reps) "Across: reps." else if (flat) "Across: best squeeze." else if (oneLeg) "Across: two-leg equivalent load (body weight + 2 × your one-leg est. max)." else "Across: est. 1-rep max.",
+                        color = Sub, fontSize = 12.sp)
+                    Text(if (flat) "Up: % of ${if (p.male) "men" else "women"} aged 20–39 that you beat."
+                        else "Up: % of people with your age, gender, and weight who lift weights that you beat.",
                         color = Sub, fontSize = 12.sp)
                     val line = Color.White
                     val myColor = r?.let { Color(it.tier.color) } ?: StarGold
