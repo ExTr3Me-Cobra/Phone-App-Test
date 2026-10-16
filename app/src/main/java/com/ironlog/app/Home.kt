@@ -181,7 +181,7 @@ fun WorkoutDetailScreen(id: String) {
                 }) {
                     ExerciseThumb(ex, 44.dp)
                     HSpacer(12)
-                    Text(starredName(ex), color = Blue, fontSize = 17.sp)
+                    NameText(starredName(ex), color = Blue, fontSize = 17.sp)
                 }
                 item.sets.forEachIndexed { n, s ->
                     Row(Modifier.fillMaxWidth().background(if (n % 2 == 1) Card else Bg).padding(horizontal = 8.dp, vertical = 8.dp)) {

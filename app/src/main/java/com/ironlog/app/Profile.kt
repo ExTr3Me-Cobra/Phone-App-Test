@@ -385,7 +385,7 @@ fun RankModeChoice(p: Profile) {
                 androidx.compose.material3.RadioButton(p.rankMode == key, { set(key) })
                 Column(Modifier.weight(1f)) {
                     Text(label, fontWeight = FontWeight.Medium)
-                    Text(desc, color = Sub, fontSize = 13.sp)
+                    Text(stars(desc), color = Sub, fontSize = 13.sp)
                 }
             }
         }

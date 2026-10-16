@@ -46,7 +46,7 @@ fun RankDetailScreen(id: String) {
         // Hold any panel to move it; the order is the same on every exercise's rank screen.
         PanelColumn(
             "rank", rankPanels(id), Modifier.fillMaxSize().navigationBarsPadding(), Modifier.padding(16.dp), spacing = 12.dp,
-            top = { Text(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+            top = { NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
             bottom = { Text("Tip: hold any panel and drag to move it – every rank screen follows.", color = Sub, fontSize = 12.sp); Spacer(30) },
         )
     }

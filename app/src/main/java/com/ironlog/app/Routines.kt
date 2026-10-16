@@ -224,7 +224,7 @@ fun ExerciseHeader(ex: Exercise?, modifier: Modifier = Modifier, noClick: () -> 
         Box(Modifier.clickable { open() }) { ExerciseThumb(ex, 48.dp) }
         HSpacer(14)
         Column(Modifier.weight(1f).clickable { open() }) {
-            Text(starredName(ex), color = Blue, fontSize = 18.sp, fontWeight = FontWeight.Medium)
+            NameText(starredName(ex), color = Blue, fontSize = 18.sp, fontWeight = FontWeight.Medium)
             if (ex?.custom == true) { Spacer(4); Chip("Custom") }
         }
         trailing?.invoke()

@@ -489,7 +489,7 @@ fun SummaryScreen(id: String) {
                         RankBadge(Tier.of(pct), 48.dp)
                         HSpacer(12)
                         Column {
-                            Text(starredName(e), color = Blue, fontWeight = FontWeight.Medium)
+                            NameText(starredName(e), color = Blue, fontWeight = FontWeight.Medium)
                             Text(rankText(pct), color = Color(Tier.of(pct).color))
                         }
                     }

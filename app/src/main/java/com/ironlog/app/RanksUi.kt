@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -89,7 +91,7 @@ fun starredName(e: Exercise?, missing: String = "Missing exercise"): AnnotatedSt
         append(e?.name ?: missing)
         if (star != Standards.Star.NONE) withStyle(
             SpanStyle(color = starColor(star), fontSize = 0.7.em),
-        ) { append("  ★") }
+        ) { append("\u00A0\u00A0★") }
     }
 }
 
@@ -113,11 +115,11 @@ fun HomeRankCard() {
             Text("Your rank", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
                 when {
-                    profile.bodyweight == null -> "Add your body weight (and age) in Settings, then log an exercise marked ★ to get ranked against other lifters."
+                    profile.bodyweight == null -> stars("Add your body weight (and age) in Settings, then log an exercise marked ★ to get ranked against other lifters.")
                     Standards.mode(profile) == Standards.Mode.ACCURATE && StandardsData.all.none { Standards.covers(it.id, profile) } ->
-                        "The published data doesn't cover your exact body weight/age closely enough for Accurate-only ranks. " +
-                            "Switch Ranks to \"All on\" in Settings to rank anyway."
-                    else -> "Log an exercise marked ★ to get ranked against other lifters your size, age and sex."
+                        AnnotatedString("The published data doesn't cover your exact body weight/age closely enough for Accurate-only ranks. " +
+                            "Switch Ranks to \"All on\" in Settings to rank anyway.")
+                    else -> stars("Log an exercise marked ★ to get ranked against other lifters your size, age and sex.")
                 },
                 color = Sub, fontSize = 14.sp,
             )
@@ -146,8 +148,10 @@ fun HomeRankCard() {
         Reveal(open) { Column {
             Text("Each muscle group's rank is the average of two ranked exercises; your top two unless you choose (tap ✎). " +
                 "These directly influence your overall rank.", color = Sub, fontSize = 12.sp)
-            Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
+            Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEachIndexed { gi, (g, v) ->
                 val (pct, top) = v
+                // A line between muscle groups.
+                if (gi > 0) androidx.compose.material3.HorizontalDivider(Modifier.padding(top = 10.dp), color = Card2)
                 val tier = Tier.of(pct)
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -155,21 +159,27 @@ fun HomeRankCard() {
                         HSpacer(8)
                         // The rank is measured first and always fits on one line; a long muscle name shortens with "…" instead.
                         Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                            Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1,
-                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                            NameText(AnnotatedString(titleCase(g)), Modifier.weight(1f, fill = false), fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                                maxLines = 1, minScale = 0.72f)
                             Text("  ✎", color = Blue, fontSize = 15.sp, maxLines = 1, softWrap = false, modifier = Modifier.clickable { picking = g }.padding(horizontal = 4.dp))
                         }
                         RankBadge(tier, 22.dp)
                         HSpacer(4)
                         Text(rankText(pct), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color), maxLines = 1, softWrap = false)
                     }
+                    // The group's exercises hang under it, joined by a line in the group's colour.
+                    Column(Modifier.padding(start = 6.dp, top = 4.dp).fillMaxWidth().drawBehind {
+                        drawLine(Color(tier.color).copy(alpha = 0.5f), androidx.compose.ui.geometry.Offset(0f, 4.dp.toPx()),
+                            androidx.compose.ui.geometry.Offset(0f, size.height - 4.dp.toPx()), 2.dp.toPx())
+                    }) {
                     top.forEach { r ->
                         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
-                            .padding(start = 22.dp, top = 3.dp, bottom = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(starredName(r.exercise), color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                            .padding(start = 16.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            NameText(starredName(r.exercise), color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
                             Text(rankText(r.percentile), fontSize = 13.sp, color = Color(r.tier.color), maxLines = 1, softWrap = false)
                             Text(" ›", color = Sub, fontSize = 16.sp)
                         }
+                    }
                     }
                     if (g == Ranks.GRIP) GripTestButton()
                     else if (top.size == 1) Text("Rank one more exercise for this muscle to average two.", color = Sub, fontSize = 11.sp,
@@ -183,6 +193,7 @@ fun HomeRankCard() {
                 if (rankable.isEmpty()) return@forEach
                 val forYou = rankable.filter { Standards.covers(it.id, profile) }
                 if (forYou.isEmpty()) return@forEach // nothing for this muscle is ranked in your mode: leave it off
+                androidx.compose.material3.HorizontalDivider(Modifier.padding(top = 10.dp), color = Card2)
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Card2))
@@ -191,12 +202,13 @@ fun HomeRankCard() {
                         Text("Not ranked yet", fontSize = 13.sp, color = Sub)
                     }
                     Text(
-                        "Log " + forYou.take(3).joinToString(", ") { it.name } + (if (forYou.size > 3) " or another ★ exercise" else "") + " to rank it.",
+                        stars("Log " + forYou.take(3).joinToString(", ") { it.name } + (if (forYou.size > 3) " or another ★ exercise" else "") + " to rank it."),
                         color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp),
                     )
                 }
             }
             if (profile.gripRank && Ranks.GRIP !in rankedGroups) Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                androidx.compose.material3.HorizontalDivider(Modifier.padding(bottom = 8.dp), color = Card2)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Card2))
                     HSpacer(8)
@@ -422,7 +434,7 @@ private fun GroupPickDialog(group: String, candidates: List<Ranks.Ranked>, profi
                         if (on) chosen.remove(r.exercise.id) else { if (chosen.size >= 2) chosen.removeAt(0); chosen.add(r.exercise.id) }
                     }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.material3.Checkbox(on, null)
-                        Text(starredName(r.exercise), fontSize = 14.sp, modifier = Modifier.weight(1f))
+                        NameText(starredName(r.exercise), fontSize = 14.sp, modifier = Modifier.weight(1f))
                         Text(rankText(r.percentile), fontSize = 12.sp, color = Color(r.tier.color), maxLines = 1, softWrap = false)
                     }
                 }
@@ -430,5 +442,54 @@ private fun GroupPickDialog(group: String, candidates: List<Ranks.Ranked>, profi
         },
         confirmButton = { androidx.compose.material3.TextButton(onClick = { save(chosen.toList()); onDone() }, enabled = chosen.isNotEmpty()) { Text("Save") } },
         dismissButton = { androidx.compose.material3.TextButton(onClick = { save(emptyList()); onDone() }) { Text("Use my top two") } },
+    )
+}
+
+/** Text with every ★ coloured: blue after "blue", purple after "purple", otherwise gold. */
+fun stars(s: String): AnnotatedString = buildAnnotatedString {
+    var i = 0
+    while (i < s.length) {
+        val j = s.indexOf('★', i)
+        if (j < 0) { append(s.substring(i)); break }
+        append(s.substring(i, j))
+        val before = s.substring(maxOf(0, j - 10), j).lowercase()
+        val c = when { "blue" in before -> StarEstimate; "purple" in before -> StarAi; else -> StarGold }
+        withStyle(SpanStyle(color = c)) { append("★") }
+        i = j + 1
+    }
+}
+
+/**
+ * An exercise (or muscle) name that never leaves its ★ alone on a line: if it's only a little too long for one
+ * line it shrinks slightly to fit; if it really needs more lines, the lines are balanced to about the same length.
+ */
+@Composable
+fun NameText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontSize: androidx.compose.ui.unit.TextUnit = androidx.compose.ui.unit.TextUnit.Unspecified,
+    fontWeight: FontWeight? = null,
+    maxLines: Int = Int.MAX_VALUE,
+    minScale: Float = 0.88f,
+) {
+    val style = androidx.compose.material3.LocalTextStyle.current
+    val base = if (fontSize != androidx.compose.ui.unit.TextUnit.Unspecified) fontSize else style.fontSize
+    var scale by remember(text, base) { androidx.compose.runtime.mutableFloatStateOf(1f) }
+    var wrap by remember(text, base) { mutableStateOf(false) }
+    var ready by remember(text, base) { mutableStateOf(false) }
+    Text(
+        text, modifier.drawWithContent { if (ready || AppText.active) drawContent() },
+        color = color, fontSize = base * scale, fontWeight = fontWeight,
+        maxLines = if (wrap) maxLines else 1, softWrap = wrap,
+        overflow = if (wrap) androidx.compose.ui.text.style.TextOverflow.Ellipsis else androidx.compose.ui.text.style.TextOverflow.Clip,
+        style = style.copy(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading),
+        onTextLayout = { r ->
+            when {
+                wrap || !r.hasVisualOverflow -> ready = true
+                scale > minScale + 0.001f -> scale = (scale - 0.03f).coerceAtLeast(minScale)
+                else -> { scale = 1f; wrap = true }
+            }
+        },
     )
 }

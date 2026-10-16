@@ -227,7 +227,7 @@ fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () ->
             ExerciseThumb(e, 60.dp)
             HSpacer(16)
             Column(Modifier.weight(1f)) {
-                Text(starredName(e), fontSize = 17.sp, maxLines = 2)
+                NameText(starredName(e), fontSize = 17.sp, maxLines = 2)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(e.mainMuscle, color = Sub, fontSize = 15.sp)
                     if (e.custom) { HSpacer(8); Chip("Custom") }
@@ -416,7 +416,7 @@ fun ExerciseDetailScreen(id: String) {
             },
             Panel("name", "Name & equipment") {
                 Column(Modifier.fillMaxWidth()) {
-                    Text(starredName(e), fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
+                    NameText(starredName(e), fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
                     Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
                     Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
                 }

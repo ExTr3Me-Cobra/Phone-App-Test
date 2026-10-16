@@ -76,9 +76,9 @@ fun ShareScreen() {
     Column(Modifier.fillMaxSize()) {
         TopBar("Share")
         if (Standards.mode(profile) == Standards.Mode.OFF || overall == null || ranked.isEmpty()) {
-            Text(
+            Text(stars(
                 if (Standards.mode(profile) == Standards.Mode.OFF) "Ranks are off. Turn them on in Settings to share your ranks."
-                else "Nothing to share yet – log an exercise marked ★ to get a rank first.",
+                else "Nothing to share yet – log an exercise marked ★ to get a rank first."),
                 color = Sub, modifier = Modifier.padding(16.dp),
             )
             return@Column
@@ -187,7 +187,7 @@ private fun ShareCard(ranks: Map<String, Ranks.Ranked>, profile: Profile, overal
             val panels = rankPanels(exerciseId, share = true)
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 panels.firstOrNull { it.key == "header" }?.content?.invoke()
                 // The chart sits on its own darker card inside.
                 panels.firstOrNull { it.key == "chart" }?.let { pn -> Box(Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0xFF0B0B0D))) { pn.content() } }

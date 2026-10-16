@@ -227,7 +227,7 @@ fun OneRmListScreen() {
                 ) {
                     ExerciseThumb(e, 48.dp)
                     Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                        Text(starredName(e), fontWeight = FontWeight.Medium)
+                        NameText(starredName(e), fontWeight = FontWeight.Medium)
                         Text((if (n == 0) "Not done yet" else "Done $n time${if (n == 1) "" else "s"}") +
                             (r?.testedAt?.let { " · tested" } ?: ""), color = Sub, fontSize = 12.sp)
                     }
@@ -248,7 +248,7 @@ fun OneRmListScreen() {
                         else message = "${Store.exercise(id)?.name} can't be ranked for you, so there's nothing to test it against. Pick one with a ★."
                     })
                 }
-                message?.let { Text(it, color = Red, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp)) }
+                message?.let { Text(stars(it), color = Red, fontSize = 13.sp, modifier = Modifier.padding(top = 8.dp)) }
             }
         }
     }
@@ -293,7 +293,7 @@ fun OneRmTestScreen(id: String) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ExerciseThumb(e, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
-                    Text(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(if (r != null) "Now: ${r.tier.label} (${topLabel(r.percentile)}) · ${fmt(r.value)}" else "Not ranked yet", color = Sub, fontSize = 13.sp)
                     Text(e.weightHint(), color = Sub, fontSize = 12.sp)
                 }
