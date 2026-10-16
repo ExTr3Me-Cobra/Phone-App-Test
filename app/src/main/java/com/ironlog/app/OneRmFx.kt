@@ -607,7 +607,10 @@ fun Modifier.quakeRattle(q: () -> Float, i: Int) = graphicsLayer {
 
 /**
  * Molten cracks splitting outward from a ✓: jagged lines that tear out fast, glow white-gold to orange, then cool to
- * dark red and fade. [k] runs 0–1; [reach] stretches them.
+ * dark red and fade. [k] runs 0–1; [reach] stretches them; [seed] gives each hit its own pattern.
+ *
+ * No two cracks ever cross: each one keeps to its own slice of the circle around the button (its main line in the
+ * middle of the slice, its side cracks in the edges of it), and only ever moves outward.
  */
 fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, seed: Float = 0f) {
     val grow = (k / 0.16f).coerceAtMost(1f)
@@ -616,33 +619,40 @@ fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, 
     val hot = androidx.compose.ui.graphics.lerp(FireGold, FireOrange, (cool * 2f).coerceAtMost(1f))
     val core = androidx.compose.ui.graphics.lerp(Color(0xFFFFF4D0), FireRed, cool)
     val total = half * 7f * reach
-    // Each hit has its own pattern: how many cracks, which way they point, how they zig-zag and branch.
     val n = 7 + (rnd(1, 40f + seed) * 5f).toInt()
-    val turn = rnd(2, 39f + seed) * 6.2832f
+    val slice = (2.0 * Math.PI / n).toFloat()
+    val turn = rnd(2, 39f + seed) * slice
+    fun at(ang: Float, r: Float) = Offset(c.x + kotlin.math.cos(ang) * r, c.y + kotlin.math.sin(ang) * r)
+    fun line(p: Offset, q: Offset, w: Float, alpha: Float) {
+        drawLine(FireOrange.copy(alpha = 0.35f * alpha), p, q, strokeWidth = (9.dp.toPx() * w).coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        drawLine(hot.copy(alpha = alpha), p, q, strokeWidth = (4.dp.toPx() * w).coerceAtLeast(1.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        drawLine(core.copy(alpha = alpha), p, q, strokeWidth = (1.6.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+    }
     for (branch in 0 until n) {
-        var ang = (turn + branch * 2.0 * Math.PI / n + (rnd(branch, 41f + seed) - 0.5f) * 0.7f).toFloat()
-        var p = c
-        var used = 0f
+        val mid = turn + branch * slice
         val len = total * (0.55f + 0.45f * rnd(branch, 42f + seed))
         val show = len * grow
-        for (seg in 0 until 7) {
-            if (used >= show) break
-            val segLen = (len / 7f) * (0.7f + 0.6f * rnd(branch * 10 + seg, 43f + seed))
-            val l = minOf(segLen, show - used)
-            ang += (rnd(branch * 10 + seg, 44f + seed) - 0.5f) * 0.9f
-            val q = Offset(p.x + kotlin.math.cos(ang) * l, p.y + kotlin.math.sin(ang) * l)
-            val w = (1f - used / len) // thinner further out
-            drawLine(FireOrange.copy(alpha = 0.35f * a), p, q, strokeWidth = (9.dp.toPx() * w).coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            drawLine(hot.copy(alpha = a), p, q, strokeWidth = (4.dp.toPx() * w).coerceAtLeast(1.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            drawLine(core.copy(alpha = a), p, q, strokeWidth = (1.6.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
-            // A small side crack now and then.
-            if (rnd(branch * 10 + seg, 45f + seed) < 0.35f) {
-                val sa = ang + (if (rnd(branch * 10 + seg, 46f + seed) < 0.5f) 0.9f else -0.9f)
-                val sl = l * 0.6f
-                val r2 = Offset(q.x + kotlin.math.cos(sa) * sl, q.y + kotlin.math.sin(sa) * sl)
-                drawLine(hot.copy(alpha = a * 0.8f), q, r2, strokeWidth = (2.5.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        val start = half * 0.85f
+        // The main line zig-zags, but only within the middle 40% of its slice.
+        val steps = 7
+        var prevR = start
+        var prev = at(mid, start)
+        for (seg in 1..steps) {
+            val r = start + (len - start) * seg / steps
+            if (prevR - start >= show) break
+            val wobble = (rnd(branch * 10 + seg, 44f + seed) - 0.5f) * slice * 0.4f
+            val rr = minOf(r, start + show)
+            val q = at(mid + wobble, rr)
+            val w = 1f - (prevR - start) / len
+            line(prev, q, w, a)
+            // Now and then a short side crack into the edge of this slice (never past it, never back inward).
+            if (rnd(branch * 10 + seg, 45f + seed) < 0.4f && rr < start + show) {
+                val side = if (rnd(branch * 10 + seg, 46f + seed) < 0.5f) 1f else -1f
+                val sideAng = mid + side * slice * (0.3f + 0.12f * rnd(branch * 10 + seg, 47f + seed))
+                val sideR = rr + (len - start) / steps * (0.35f + 0.4f * rnd(branch * 10 + seg, 48f + seed))
+                line(q, at(sideAng, sideR), w * 0.6f, a * 0.85f)
             }
-            p = q; used += l
+            prev = q; prevR = r
         }
     }
     // The impact glow at the centre.
