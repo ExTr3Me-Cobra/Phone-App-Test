@@ -445,7 +445,7 @@ private fun GroupPickDialog(group: String, candidates: List<Ranks.Ranked>, profi
     )
 }
 
-/** Text with every ★ coloured: blue after "blue", purple after "purple", otherwise gold. */
+/** Text whose ★ is coloured only where it names a colour ("gold ★", "blue ★", "purple ★"); general mentions stay plain. */
 fun stars(s: String): AnnotatedString = buildAnnotatedString {
     var i = 0
     while (i < s.length) {
@@ -453,8 +453,9 @@ fun stars(s: String): AnnotatedString = buildAnnotatedString {
         if (j < 0) { append(s.substring(i)); break }
         append(s.substring(i, j))
         val before = s.substring(maxOf(0, j - 10), j).lowercase()
-        val c = when { "blue" in before -> StarEstimate; "purple" in before -> StarAi; else -> StarGold }
-        withStyle(SpanStyle(color = c)) { append("★") }
+        // Only a star named by its colour gets that colour; a star talked about in general stays plain.
+        val c = when { "gold" in before -> StarGold; "blue" in before -> StarEstimate; "purple" in before -> StarAi; else -> null }
+        if (c != null) withStyle(SpanStyle(color = c)) { append("★") } else append("★")
         i = j + 1
     }
 }
