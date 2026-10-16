@@ -1,6 +1,10 @@
 package com.ironlog.app
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -84,8 +88,21 @@ fun RankDetailBody(id: String) {
                 Text(if (reps) "Across: reps.  Up: % of ${Standards.groupLabel(p)} you beat." else if (flat) "Across: best squeeze.  Up: % of ${if (p.male) "men" else "women"} aged 20–39 you beat." else if (oneLeg) "Across: two-leg equivalent load (body weight + 2 × your one-leg est. max).  Up: % of ${Standards.groupLabel(p)} you beat." else "Across: est. 1-rep max.  Up: % of ${Standards.groupLabel(p)} you beat.",
                     color = Sub, fontSize = 12.sp)
                 val line = Color.White
-                val myColor = r?.let { Color(it.tier.color) } ?: Blue
-                Canvas(Modifier.fillMaxWidth().height(230.dp).padding(top = 8.dp)) {
+                val myColor = r?.let { Color(it.tier.color) } ?: StarGold
+                val youX = mine ?: 0.0 // no record yet: your line sits at zero
+                val youPct = r?.percentile ?: 0.0
+                // Drag sideways on the chart to read any point; let go and it snaps back to you.
+                var probe by remember(id) { mutableStateOf<Double?>(null) }
+                Canvas(Modifier.fillMaxWidth().height(230.dp).padding(top = 8.dp).pointerInput(id, xMax) {
+                    fun xAt(px: Float): Double {
+                        val left = 34.dp.toPx(); val right = size.width - 6.dp.toPx()
+                        return ((px - left) / (right - left) * xMax).coerceIn(0.0, xMax)
+                    }
+                    detectHorizontalDragGestures(
+                        onDragStart = { o -> probe = xAt(o.x) },
+                        onDragEnd = { probe = null }, onDragCancel = { probe = null },
+                    ) { change, _ -> change.consume(); probe = xAt(change.position.x) }
+                }) {
                     val left = 34.dp.toPx(); val bottom = size.height - 22.dp.toPx(); val top = 6.dp.toPx(); val right = size.width - 6.dp.toPx()
                     fun px(x: Double) = (left + (right - left) * (x / xMax)).toFloat()
                     fun py(pct: Double) = (bottom - (bottom - top) * (pct / 100)).toFloat()
@@ -108,15 +125,29 @@ fun RankDetailBody(id: String) {
                         drawCircle(line, 4.dp.toPx(), Offset(px(v), py(Standards.percentile(id, v, p) ?: Standards.LEVEL_PCT[k])))
                         drawContext.canvas.nativeCanvas.drawText(fmt(v).substringBefore(" "), px(v) - 10.dp.toPx(), size.height - 4.dp.toPx(), text)
                     }
-                    // You.
-                    if (mine != null && r != null) {
-                        drawLine(myColor, Offset(px(mine), top), Offset(px(mine), bottom), 2.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f)))
-                        drawCircle(myColor, 7.dp.toPx(), Offset(px(mine), py(r.percentile)))
-                        drawCircle(Color.Black, 3.dp.toPx(), Offset(px(mine), py(r.percentile)))
+                    // You (a faint ghost while you drag).
+                    val youAlpha = if (probe != null) 0.35f else 1f
+                    drawLine(myColor.copy(alpha = youAlpha), Offset(px(youX), top), Offset(px(youX), bottom), 2.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f)))
+                    drawCircle(myColor.copy(alpha = youAlpha), 7.dp.toPx(), Offset(px(youX), py(youPct)))
+                    drawCircle(Color.Black.copy(alpha = youAlpha), 3.dp.toPx(), Offset(px(youX), py(youPct)))
+                    // The line you're dragging.
+                    probe?.let { x ->
+                        val pc = Standards.percentile(id, x, p) ?: 0.0
+                        val c = Color(Tier.of(pc).color)
+                        drawLine(c, Offset(px(x), top), Offset(px(x), bottom), 2.dp.toPx())
+                        drawCircle(c, 7.dp.toPx(), Offset(px(x), py(pc)))
+                        drawCircle(Color.Black, 3.dp.toPx(), Offset(px(x), py(pc)))
                     }
                 }
-                if (mine != null) Text("● You: ${fmt(mine)} – stronger than ${r!!.percentile.toInt()}%", color = myColor, fontSize = 13.sp)
+                val px = probe
+                if (px != null) {
+                    val pc = Standards.percentile(id, px, p) ?: 0.0
+                    val t = Tier.of(pc)
+                    Text("● ${fmt(px)} – stronger than ${pc.toInt()}% · ${t.label}", color = Color(t.color), fontSize = 13.sp)
+                } else if (mine != null && r != null) Text("● You: ${fmt(mine)} – stronger than ${r.percentile.toInt()}%", color = myColor, fontSize = 13.sp)
+                else Text("● You: No record on file", color = myColor, fontSize = 13.sp)
+                Text("Drag sideways on the chart to check any point.", color = Sub, fontSize = 11.sp)
             }
 
             // The numbers behind it.

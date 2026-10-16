@@ -418,7 +418,7 @@ fun ExerciseDetailScreen(id: String) {
             // Ranking
             // With a rank: the full rank details (chart, levels, who you're compared with); otherwise the short card that says why.
             val ranked = remember(workouts, profile, e.id) { Ranks.all(workouts, profile)[e.id] }
-            if (ranked != null) Column(Modifier.padding(16.dp).fillMaxWidth()) {
+            if (ranked != null || (Standards.covers(e.id, profile) && Standards.levels(e.id, profile) != null)) Column(Modifier.padding(16.dp).fillMaxWidth()) {
                 Text("Your rank", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                 RankDetailBody(e.id)
             } else if (Standards.covers(e.id)) ExerciseRankCard(e, profile, workouts)
