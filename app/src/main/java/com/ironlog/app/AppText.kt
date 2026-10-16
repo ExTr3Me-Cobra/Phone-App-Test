@@ -69,7 +69,7 @@ object AppText {
 
     private fun save() = Store.writeFile(FILE, JSONObject().put("on", on).put("edits", export()).toString())
 
-    fun setOn(v: Boolean) { on = v; paused = false; save() }
+    fun turn(v: Boolean) { on = v; paused = false; save() }
 
     fun set(original: String, now: String) {
         if (now == original) edits.remove(original) else edits[original] = now

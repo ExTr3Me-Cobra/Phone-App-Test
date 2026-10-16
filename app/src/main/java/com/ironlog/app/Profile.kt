@@ -278,7 +278,7 @@ fun SettingsScreen() {
                             "(everywhere that exact text appears). Pause it from the pill at the top to tap around normally.",
                             color = Sub, fontSize = 13.sp)
                     }
-                    androidx.compose.material3.Switch(AppText.on, { AppText.setOn(it) })
+                    androidx.compose.material3.Switch(AppText.on, { AppText.turn(it) })
                 }
                 if (AppText.on || AppText.edits.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     GreyButton("Export Modified App Text (${AppText.edits.size})", Modifier.weight(1.6f)) { exportText.launch("loadout-modified-app-text.json") }
