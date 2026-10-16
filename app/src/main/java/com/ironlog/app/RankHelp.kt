@@ -64,7 +64,6 @@ fun RankHelpScreen() {
                 Point("Weight & reps", "Your estimated 1-rep max, using the Wathen formula. Reps above 20 count as 20. A heavier set with fewer reps gives the most accurate estimate.")
                 Point("Bodyweight moves", "The most reps in one set (push-ups, pull-ups, dips, sit-ups…).")
                 Point("Dynamometer", "Your best single squeeze.")
-                Point("One-leg calf raise", "Turned into the two-leg load it matches (body weight + vest on one leg).")
                 Point("Never counted", "Warm-up sets (W). A set logged at 0 lb counts as 1 lb so it still gets a rank.")
                 Para("Read each exercise's How to log so you enter the weight the way the data expects (total bar weight, per dumbbell, stack weight…).")
             }
