@@ -278,7 +278,7 @@ fun PanelColumn(
 }
 
 /**
- * Hold still on a panel, then drag. Watches the touch before the panel's own buttons, chart or scrolling do, so a
+ * Hold still on a panel (twice the usual long-press time), then drag. Watches the touch before the panel's own buttons, chart or scrolling do, so a
  * tap, a swipe or a chart drag works as usual, and once the hold is recognised nothing inside the panel reacts.
  * [onStart] returns false to ignore the hold.
  */
@@ -288,7 +288,7 @@ private fun Modifier.holdToMove(key: Any, onStart: (Offset) -> Boolean, onMove: 
             val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
             var last = down.position
             // Lifting or moving before the hold time means it's a tap, scroll or swipe: leave it alone.
-            val cancelled = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+            val cancelled = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis * 2) { // twice the usual hold, so it only starts on purpose
                 while (true) {
                     val c = awaitPointerEvent(PointerEventPass.Initial).changes.firstOrNull { it.id == down.id }
                     if (c == null || !c.pressed || c.isConsumed || (c.position - down.position).getDistance() > viewConfiguration.touchSlop) break
