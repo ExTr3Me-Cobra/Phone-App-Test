@@ -98,6 +98,13 @@ object OneRm {
         JSONArray(Store.readFile("onerm_list.json") ?: "[]").let { a -> List(a.length()) { a.getString(it) } }
     }.getOrDefault(emptyList())
     fun add(id: String) { if (id !in added()) Store.writeFile("onerm_list.json", JSONArray(added() + id).toString()) }
+    /** Info cards (Warm-up plan, Form, Safety) you've folded up; remembered between tests and app restarts. */
+    fun folded(): Set<String> = runCatching {
+        JSONArray(Store.readFile("onerm_folded.json") ?: "[]").let { a -> List(a.length()) { a.getString(it) }.toSet() }
+    }.getOrDefault(emptySet())
+    fun setFolded(title: String, folded: Boolean) =
+        Store.writeFile("onerm_folded.json", JSONArray((if (folded) folded() + title else folded() - title).toList()).toString())
+
     fun remove(id: String) {
         Store.exercise(id)?.let { RecycleBin.oneRm(it) }
         Store.writeFile("onerm_list.json", JSONArray(added() - id).toString())
@@ -253,10 +260,11 @@ fun OneRmListScreen() {
             }
         }
         // Test: the whole list rattles like an earthquake when it opens (developer setting).
-        val quake = remember { Animatable(if (OneRmFx.listQuake) 0f else 1f) }
+        val quakeOn = OneRmFx.listQuake && extraAnims()
+        val quake = remember { Animatable(if (quakeOn) 0f else 1f) }
         val quakeHaptic = LocalHapticFeedback.current
         LaunchedEffect(Unit) {
-            if (OneRmFx.listQuake) {
+            if (quakeOn) {
                 kotlinx.coroutines.delay(150)
                 launch { repeat(4) { quakeHaptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
                 quake.animateTo(1f, tween(1100))
@@ -355,6 +363,7 @@ fun OneRmTestScreen(id: String) {
     val heat = rememberHeat()
     // The arrival effect picked in developer settings (1 Rep Max animations).
     LaunchedEffect(Unit) {
+        if (!extraAnims()) return@LaunchedEffect
         when (OneRmFx.arrival) {
             1 -> { // Earthquake
                 kotlinx.coroutines.delay(200)
@@ -478,7 +487,7 @@ fun OneRmTestScreen(id: String) {
                 val rowFlash = remember(k) { Animatable(0f) }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
-                    if (s.done && !seen) {
+                    if (s.done && !seen && extraAnims()) {
                         if (OneRmFx.tick != 6) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         when (OneRmFx.tick) {
                             1 -> { // Pop + gold burst
@@ -591,16 +600,22 @@ fun OneRmTestScreen(id: String) {
     )
 }
 
+/** A 1 Rep Max info card that folds up when you tap its title; open by default, and it stays the way you leave it. */
 @Composable
-private fun Section(title: String, color: Color, content: @Composable () -> Unit) = Column(
-    Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp),
-    verticalArrangement = Arrangement.spacedBy(6.dp),
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        androidx.compose.foundation.layout.Box(Modifier.size(width = 4.dp, height = 18.dp).background(color))
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(start = 8.dp))
+private fun Section(title: String, color: Color, content: @Composable () -> Unit) {
+    var open by remember(title) { mutableStateOf(title !in OneRm.folded()) }
+    val turn by androidx.compose.animation.core.animateFloatAsState(if (open) 0f else -90f, tween(200), label = "fold")
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Row(Modifier.fillMaxWidth().clickable { open = !open; OneRm.setFolded(title, !open) }, verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.foundation.layout.Box(Modifier.size(width = 4.dp, height = 18.dp).background(color))
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(start = 8.dp).weight(1f))
+            Text("▾", color = color, fontSize = 18.sp, modifier = Modifier.graphicsLayer { rotationZ = turn })
+        }
+        Reveal(open) { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { content() } }
     }
-    content()
 }
 
 @Composable
@@ -637,7 +652,7 @@ class Heat(private val sweepState: androidx.compose.runtime.State<Float>, privat
 
 @Composable
 fun rememberHeat(): Heat {
-    val style = OneRmFx.shine // 0 glint + ember, 1 ember only, 2 fast glint, 3 none
+    val style = if (extraAnimsNow) OneRmFx.shine else 3 // 0 glint + ember, 1 ember only, 2 fast glint, 3 none, 4 flame flicker
     val t = rememberInfiniteTransition(label = "heat")
     val sweep = t.animateFloat(
         -0.3f, 1.3f,

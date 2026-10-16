@@ -200,6 +200,18 @@ fun SettingsScreen() {
             Text("Plays at alarm volume, so you hear it even when your phone is on vibrate.", color = Sub, fontSize = 12.sp)
 
             Spacer(8)
+            Text("Animations", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Row(Modifier.fillMaxWidth().clickable { set(p.copy(extraAnims = !p.extraAnims)) }, verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Extra animations")
+                    Text(if (p.extraAnims) "Sliding screens, buttons that press in, 1 Rep Max effects and the ring when you finish a set."
+                        else "Off: screens switch straight away and effects are skipped. Rank-up and rank-down pop-ups still show.",
+                        color = Sub, fontSize = 12.sp)
+                }
+                androidx.compose.material3.Switch(p.extraAnims, { set(p.copy(extraAnims = it)) })
+            }
+
+            Spacer(8)
             Text("Ranks", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             RankModeChoice(p)
 

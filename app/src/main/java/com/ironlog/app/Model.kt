@@ -160,6 +160,8 @@ data class Profile(
     val gripRank: Boolean = true,
     /** Panel order you set by holding and dragging: "detail.ranked", "detail.unranked" (exercise pages) and "rank" (rank screen). */
     val layouts: Map<String, List<String>> = emptyMap(),
+    /** Extra animations (slides, press effects, 1 Rep Max effects, set rings). Off = plain screen changes. Rank pop-ups stay. */
+    val extraAnims: Boolean = true,
 ) {
     /** Picks are remembered separately for each ranking mode (Accurate only / All on × Lifters / Everyone). */
     val pickMode get() = "$rankMode/${if (compareAll) "everyone" else "lifters"}|"
@@ -226,6 +228,7 @@ object Json {
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
         .put("dev", p.devUnlocked).put("devAi", p.devAi).put("range", p.homeRange).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort).put("grip", p.gripRank)
         .put("gp", JSONObject(p.groupPicks.mapValues { JSONArray(it.value) } as Map<*, *>))
+        .put("xa", p.extraAnims)
         .put("lay", JSONObject(p.layouts.mapValues { JSONArray(it.value) } as Map<*, *>))
     fun profile(o: JSONObject) = Profile(
         o.optDoubleOrNull("bw"), o.optIntOrNull("h"), o.optIntOrNull("age"), o.optBoolean("male", true),
@@ -237,6 +240,7 @@ object Json {
         groupPicks = o.optJSONObject("gp")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
         exerciseSort = o.optString("sort", "az").ifBlank { "az" },
         gripRank = o.optBoolean("grip", true),
+        extraAnims = o.optBoolean("xa", true),
         layouts = o.optJSONObject("lay")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
     )
 

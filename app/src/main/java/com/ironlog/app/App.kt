@@ -256,6 +256,8 @@ private fun isOneRm(r: Route) = r is Route.OneRmTest || r == Route.OneRmList
 
 private fun screenTransition(from: Screen, to: Screen): ContentTransform {
     val ease = FastOutSlowInEasing
+    // Extra animations off: screens just switch.
+    if (!extraAnims()) return androidx.compose.animation.EnterTransition.None togetherWith androidx.compose.animation.ExitTransition.None
     return when {
         // Tabs: a quick cross-fade.
         from.route is Route.Tabs && to.route is Route.Tabs ->

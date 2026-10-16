@@ -1,5 +1,11 @@
 package com.ironlog.app
 
+import kotlinx.coroutines.launch
+
+import androidx.compose.runtime.rememberCoroutineScope
+
+import androidx.compose.ui.draw.drawBehind
+
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.offset
@@ -362,8 +368,16 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
             }
         }
         var del by remember { mutableStateOf(false) }
+        // Finishing a set sends a small green ring out from the ✓.
+        val ring = remember { androidx.compose.animation.core.Animatable(0f) }
+        val ringScope = rememberCoroutineScope()
         Box(
-            Modifier.weight(0.8f).clip(RoundedCornerShape(10.dp)).background(if (s.done) Green else Card2)
+            Modifier.weight(0.8f).drawBehind {
+                val b = ring.value
+                if (b > 0f && b < 1f) drawCircle(Green.copy(alpha = 1f - b), radius = size.minDimension / 2 * (1f + b * 1.8f),
+                    center = androidx.compose.ui.geometry.Offset(size.width / 2, size.height / 2),
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx() * (1.5f - b)))
+            }.clip(RoundedCornerShape(10.dp)).background(if (s.done) Green else Card2)
                 .combinedClickableCompat(
                     onClick = {
                         if (!s.done) {
@@ -378,6 +392,9 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                                 )
                             }
                             Store.active.value?.let { Ranks.onSetDone(it, ex.id) }
+                            if (extraAnims()) ringScope.launch {
+                                ring.snapTo(0f); ring.animateTo(1f, androidx.compose.animation.core.tween(480, easing = androidx.compose.animation.core.FastOutSlowInEasing))
+                            }
                             if (rest > 0) Rest.start(context, rest) else Rest.stop(context)
                         } else {
                             Workouts.updateSet(i, n) { it.copy(done = false) }
