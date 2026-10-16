@@ -129,6 +129,12 @@ fun PickerScreen(req: Route.Picker?) {
 
     Column(Modifier.fillMaxSize()) {
         TopBar(req?.title ?: "Exercises", action = "Create") { Nav.go(Route.EditExercise(null)) }
+        // While choosing: stays at the top as you scroll.
+        if (req != null) Text(
+            "Read Proper Form and How to log (tap ⓘ Info) before choosing, to make sure it's truly the exercise you're looking for and your ranks stay accurate.",
+            color = Sub, fontSize = 12.sp, lineHeight = 16.sp,
+            modifier = Modifier.fillMaxWidth().background(Card).padding(horizontal = 16.dp, vertical = 8.dp),
+        )
         Row(
             Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -403,7 +409,7 @@ fun ExerciseDetailScreen(id: String) {
                 Text("⚖", fontSize = 18.sp)
                 HSpacer(10)
                 Column {
-                    Text("What weight to log", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text("How to log", fontWeight = FontWeight.Medium, fontSize = 14.sp)
                     Text(e.weightHint(), color = Sub, fontSize = 14.sp)
                 }
             }

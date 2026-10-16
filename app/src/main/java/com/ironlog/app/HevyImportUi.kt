@@ -76,8 +76,9 @@ fun HevyMatchScreen() {
                     Text("Match exercises", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(
                         "Only match an exercise to the exact same Loadout exercise – same movement, equipment and grip. " +
-                            "A close-but-different match gives you wrong ranks, because your Hevy numbers get compared " +
-                            "against the wrong lift. If there's no exact match, add it as a custom exercise.",
+                            "Before you pick one, read its Proper Form and How to log (tap ⓘ Info) to be sure it's truly the same exercise. " +
+                            "Choose carefully: a close-but-different match breaks the ranking system, because your Hevy numbers get " +
+                            "compared against the wrong lift. If there's no exact match, add it as a custom exercise.",
                         fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(top = 6.dp),
                     )
                     Text(
