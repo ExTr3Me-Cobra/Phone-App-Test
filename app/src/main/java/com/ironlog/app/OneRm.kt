@@ -97,7 +97,10 @@ object OneRm {
         JSONArray(Store.readFile("onerm_list.json") ?: "[]").let { a -> List(a.length()) { a.getString(it) } }
     }.getOrDefault(emptyList())
     fun add(id: String) { if (id !in added()) Store.writeFile("onerm_list.json", JSONArray(added() + id).toString()) }
-    fun remove(id: String) = Store.writeFile("onerm_list.json", JSONArray(added() - id).toString())
+    fun remove(id: String) {
+        Store.exercise(id)?.let { RecycleBin.oneRm(it) }
+        Store.writeFile("onerm_list.json", JSONArray(added() - id).toString())
+    }
 
     // The test in progress (kept while you look at other screens).
     var exerciseId: String? = null

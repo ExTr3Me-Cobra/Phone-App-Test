@@ -340,7 +340,7 @@ fun ExerciseDetailScreen(id: String) {
                 { pendingMove.remove(e.id) }, "Move",
             )
         }
-        if (deleting) ConfirmText("Delete \"${e.name}\"? Past workouts keep their numbers.", {
+        if (deleting) ConfirmText("Delete \"${e.name}\"? Past workouts keep their numbers. It goes to the Recycle Bin (Settings) for 30 days.", {
             deleting = false; Store.deleteCustomExercise(e.id); Nav.back()
         }, { deleting = false }, "Delete")
         // Hold any panel to move it. Ranked exercises share one order, unranked ones another; which one an exercise

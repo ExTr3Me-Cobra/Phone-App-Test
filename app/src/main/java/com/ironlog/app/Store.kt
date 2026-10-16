@@ -62,6 +62,7 @@ object Store {
         _profile.value = p.copy(apiKey = savedKey ?: p.apiKey)
         // Older versions kept the key inside profile.json; move it to the never-backed-up folder.
         if (savedKey == null && p.apiKey.isNotEmpty()) setProfile(_profile.value)
+        RecycleBin.init()
     }
 
     /** Small app files (e.g. remembered import choices). */
@@ -95,6 +96,7 @@ object Store {
     /** Puts a built-in exercise back the way it came. */
     fun resetExercise(id: String) {
         val o = original[id] ?: return
+        overrides[id]?.let { RecycleBin.edits(it) }
         overrides = overrides - id
         write("overrides.json", JSONArray(overrides.values.map { it.toJson() }).toString())
         _exercises.value = _exercises.value + (id to o)
@@ -106,7 +108,9 @@ object Store {
         write("custom.json", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }).toString())
     }
 
-    fun deleteCustomExercise(id: String) {
+    /** Deletes your own exercise; it (and its picture) goes to the Recycle Bin unless [toBin] is false. */
+    fun deleteCustomExercise(id: String, toBin: Boolean = true) {
+        if (toBin) _exercises.value[id]?.let { RecycleBin.exercise(it) }
         _exercises.value = _exercises.value - id
         write("custom.json", JSONArray(_exercises.value.values.filter { it.custom }.map { it.toJson() }).toString())
         imageFile(id).delete()
@@ -165,7 +169,10 @@ object Store {
         setRoutines(list)
     }
 
-    fun deleteRoutine(id: String) = setRoutines(_routines.value.filter { it.id != id })
+    fun deleteRoutine(id: String) {
+        _routines.value.firstOrNull { it.id == id }?.let { RecycleBin.routine(it) }
+        setRoutines(_routines.value.filter { it.id != id })
+    }
 
     fun setRoutines(list: List<Routine>) {
         _routines.value = list
@@ -183,7 +190,10 @@ object Store {
         setWorkouts(list)
     }
 
-    fun deleteWorkout(id: String) = setWorkouts(_workouts.value.filter { it.id != id })
+    fun deleteWorkout(id: String) {
+        workout(id)?.let { RecycleBin.workout(it) }
+        setWorkouts(_workouts.value.filter { it.id != id })
+    }
 
     private fun setWorkouts(list: List<Workout>) {
         _workouts.value = list

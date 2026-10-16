@@ -128,7 +128,7 @@ object HevyImport {
     fun discardCreated(keep: Set<String> = emptySet()) {
         val used = Store.workouts.value.flatMap { w -> w.items.map { it.exerciseId } }.toSet() +
             Store.routines.value.flatMap { r -> r.items.map { it.exerciseId } } + keep
-        createdNow.filter { it !in used }.forEach { Store.deleteCustomExercise(it) }
+        createdNow.filter { it !in used }.forEach { Store.deleteCustomExercise(it, toBin = false) }
         createdNow.clear()
     }
 

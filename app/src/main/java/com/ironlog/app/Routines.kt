@@ -177,7 +177,7 @@ fun WorkoutTab() {
     }
     aiFor?.let { r -> GenDialog("AI pictures: ${r.name}", r.items.map { it.exerciseId }.distinct()) { aiFor = null } }
     deleting?.let { r ->
-        ConfirmText("Delete \"${r.name}\"? Your logged workouts stay.", { Store.deleteRoutine(r.id); deleting = null }, { deleting = null }, "Delete")
+        ConfirmText("Delete \"${r.name}\"? Your logged workouts stay. It goes to the Recycle Bin (Settings) for 30 days.", { Store.deleteRoutine(r.id); deleting = null }, { deleting = null }, "Delete")
     }
 }
 

@@ -108,6 +108,8 @@ object Workouts {
     }
 
     fun discard(c: Context) {
+        // Kept in the Recycle Bin if any set was ticked.
+        Store.active.value?.takeIf { w -> w.items.any { i -> i.sets.any { it.done } } }?.let { RecycleBin.discarded(it) }
         Rest.stop(c)
         WorkoutService.stop(c)
         Store.setActive(null)
@@ -272,7 +274,7 @@ fun ActiveWorkoutScreen() {
         )
     }
     if (confirmDiscard) ConfirmText(
-        "Throw away this workout? Nothing from it will be saved.",
+        "Throw away this workout? It won't be saved, but if you ticked any sets it waits in the Recycle Bin (Settings) for 30 days.",
         { confirmDiscard = false; Workouts.discard(context); Nav.home(1) }, { confirmDiscard = false }, "Discard",
     )
 }

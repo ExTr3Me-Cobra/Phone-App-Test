@@ -210,6 +210,7 @@ object Pictures {
         org.json.JSONArray(Store.readFile(OWN) ?: "[]").let { a -> List(a.length()) { a.getString(it) }.toSet() }
     }.getOrDefault(emptySet())
     fun isOwn(id: String) = Store.imageName(id) in own()
+    fun markOwn(id: String, mine: Boolean) = setOwn(listOf(Store.imageName(id)), mine)
     private fun setOwn(names: Collection<String>, mine: Boolean) {
         val now = own().let { if (mine) it + names else it - names.toSet() }
         Store.writeFile(OWN, org.json.JSONArray(now.sorted()).toString())
@@ -226,7 +227,9 @@ object Pictures {
         setOwn(listOf(Store.imageName(id)), true)
     }
 
+    /** Removes an exercise's picture; it goes to the Recycle Bin. */
     fun remove(id: String) {
+        Store.exercise(id)?.let { RecycleBin.picture(it) }
         setOwn(listOf(Store.imageName(id)), false)
         Store.imageFile(id).delete()
         Store.imageChanged()

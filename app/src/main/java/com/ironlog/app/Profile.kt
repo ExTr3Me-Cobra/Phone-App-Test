@@ -230,6 +230,10 @@ fun SettingsScreen() {
                 GreyButton("Restore", Modifier.weight(1f)) { import.launch(arrayOf("application/zip", "application/json", "*/*")) }
             }
             Spacer(4)
+            Text("Recycle Bin", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Deleted routines, workouts, exercises and pictures wait here for 30 days, so you can put them back.", color = Sub, fontSize = 13.sp)
+            RecycleBinButton()
+            Spacer(4)
             Text("Import from the Hevy app", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text("Bring in your workout history from the Hevy app. In Hevy: Profile → Settings → Export & Import Data → " +
                 "Export Workouts, then pick that .csv file here. You'll match each Hevy exercise to a Loadout exercise and can turn your " +

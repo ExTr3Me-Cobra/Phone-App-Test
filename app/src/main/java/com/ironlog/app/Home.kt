@@ -194,7 +194,7 @@ fun WorkoutDetailScreen(id: String) {
             Spacer(30)
         }
     }
-    if (deleting) ConfirmText("Delete this workout from your history?", {
+    if (deleting) ConfirmText("Delete this workout from your history? It goes to the Recycle Bin (Settings) for 30 days.", {
         deleting = false; Store.deleteWorkout(w.id); Nav.back()
     }, { deleting = false }, "Delete")
 }
