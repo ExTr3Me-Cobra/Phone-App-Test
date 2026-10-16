@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -201,15 +202,17 @@ fun RankDetailBody(id: String) {
                     else "Strength Level \"${info.liftName}\"" + if (info.factor != 1.0) " × ${"%.2f".format(info.factor)} for this variation" else "")
                 if (info.perDumbbell) Line("Weight", if (Store.exercise(id)?.equipment == "Kettlebell") "per kettlebell" else "per dumbbell")
                 }
-                Text(fit.compared, color = Sub, fontSize = 12.sp)
-                if (!fit.exact) {
-                    Text("Why it's an estimate:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                    fit.problems.forEach { Text("• $it", color = Sub, fontSize = 12.sp) }
+                // The full explanation, folded away under the Data row.
+                var details by remember(id) { mutableStateOf(false) }
+                Text(if (details) "Details: ▴" else "Details: ▾", color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                    modifier = Modifier.clickable { details = !details }.padding(vertical = 2.dp))
+                if (details) {
+                    Text(fit.compared, color = Sub, fontSize = 12.sp)
+                    if (!fit.exact) {
+                        Text("Why it's an estimate:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        fit.problems.forEach { Text("• $it", color = Sub, fontSize = 12.sp) }
+                    }
                 }
-                Text(r?.testedAt?.let {
-                    "Your rank is set by your 1 Rep Max test on " + java.text.SimpleDateFormat("MMM d, yyyy", java.util.Locale.getDefault()).format(java.util.Date(it)) +
-                        ". Workouts since then only count if they beat it."
-                } ?: "Your rank uses your best in the 24 hours up to the last time you did this exercise.", color = Sub, fontSize = 12.sp)
             }
 
             // The set your rank comes from.
