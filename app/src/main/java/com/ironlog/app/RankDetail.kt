@@ -201,12 +201,11 @@ fun RankDetailBody(id: String) {
                     // Show the conversion step by step, so the body weight that's added is visible.
                     val vest = (set.weight ?: 0.0).coerceAtLeast(0.0)
                     val n = set.reps ?: 1
-                    val oneMax = Stats.e1rm(bw + vest, n)
+                    val two = Standards.twoLegLoad(vest, bw)
                     Text("How it's counted:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                    Text("• Your calf lifted your body weight ${Units.weightU(bw)} + vest ${Units.weightU(vest)} = ${Units.weightU(bw + vest)} on one leg", color = Sub, fontSize = 13.sp)
-                    if (n > 1) Text("• $n reps of that ≈ a one-leg 1-rep max of ${Units.weightU(oneMax)}", color = Sub, fontSize = 13.sp)
-                    Text("• On two legs each calf takes half of (body weight + load), so the same calves would lift 2 × ${Units.weightU(oneMax)} − ${Units.weightU(bw)} = ${fmt(r!!.value)} on two legs", color = Sub, fontSize = 13.sp)
-                    Text("That two-leg equivalent is what's on the chart and the levels above.", color = Sub, fontSize = 13.sp)
+                    Text("• On one leg, your calf carried your body weight + vest: ${Units.weightU(bw)} + ${Units.weightU(vest)} = ${Units.weightU(bw + vest)}", color = Sub, fontSize = 13.sp)
+                    Text("• The same work per calf on two legs is a ${Units.weightU(two)} two-leg calf raise (body weight + 2 × vest)", color = Sub, fontSize = 13.sp)
+                    Text("• ${Units.weightU(two)} × $n " + (if (n == 1) "rep is your 1-rep max" else "reps ≈ a ${fmt(r!!.value)} 1-rep max") + ", scored like the two-leg version", color = Sub, fontSize = 13.sp)
                 } else if (!reps && !flat && (set.reps ?: 1) > 1) Text("Est. 1-rep max from this set: ${fmt(r!!.value)}", color = Sub, fontSize = 13.sp)
             }
     }

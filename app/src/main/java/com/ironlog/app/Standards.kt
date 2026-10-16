@@ -216,16 +216,14 @@ object Standards {
     fun isOneLeg(id: String) = table[id]?.oneLeg == true
 
     /**
-     * One-leg set -> the two-leg load it matches. On one leg that leg lifts your body weight + the vest;
-     * on two legs each leg lifts half of (body weight + vest). So matching per-leg strength means
-     * two-leg load = 2 × (one-leg est. 1-rep max of body weight + vest) − body weight.
+     * One-leg set -> the two-leg set it matches, then scored exactly like the two-leg version.
+     * On one leg the calf carries body weight + vest. On two legs each calf carries half of (body weight + load),
+     * so the same work per calf is a two-leg load of body weight + 2 × vest, for the same reps.
      */
+    fun twoLegLoad(vest: Double, bw: Double) = bw + 2 * vest.coerceAtLeast(0.0)
     private fun oneLegValue(s: DoneSet): Double {
         val bw = Store.profile.value.bodyweight ?: return 0.0
-        val reps = s.reps ?: return 0.0
-        if (reps <= 0) return 0.0
-        val total = Stats.e1rm(bw + (s.weight ?: 0.0).coerceAtLeast(0.0), reps)
-        return (2 * total - bw).coerceAtLeast(1.0)
+        return Stats.e1rm(twoLegLoad(s.weight ?: 0.0, bw), s.reps)
     }
 
     /** A set logged at 0 lb (or with no weight) counts as 1 lb for ranking, so it still gets a rank. */
