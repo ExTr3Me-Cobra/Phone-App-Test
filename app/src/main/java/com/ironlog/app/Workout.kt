@@ -120,7 +120,7 @@ object Workouts {
 fun ActiveWorkoutScreen() {
     val w = Store.active.collectAsState().value
     val context = LocalContext.current
-    if (w == null) { LaunchedEffect(Unit) { Nav.back() }; return }
+    if (w == null) { closeScreen(); return }
     val workouts by Store.workouts.collectAsState()
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(500) } }
@@ -447,7 +447,7 @@ private val CHEERS = listOf("Great job! 💪", "Workout complete! 🔥", "Nice w
 
 @Composable
 fun SummaryScreen(id: String) {
-    val w = Store.workouts.collectAsState().value.firstOrNull { it.id == id } ?: return Nav.back()
+    val w = Store.workouts.collectAsState().value.firstOrNull { it.id == id } ?: return closeScreen()
     val history by Store.workouts.collectAsState()
     val profile by Store.profile.collectAsState()
     val cheer = remember(id) { CHEERS.random() }

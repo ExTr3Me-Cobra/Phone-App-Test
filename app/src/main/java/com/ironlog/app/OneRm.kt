@@ -40,6 +40,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.math.roundToInt
@@ -135,11 +155,13 @@ object OneRm {
 @Composable
 fun OneRmButton(modifier: Modifier = Modifier) {
     val gold = Color(0xFFC9A94E)
+    val press = rememberPress(0.94f)
+    val heat = rememberHeat()
     Row(
-        modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+        Modifier.pressScale(press).then(modifier).fillMaxWidth().clip(RoundedCornerShape(12.dp))
             .background(Brush.horizontalGradient(listOf(Color(0xFF2A0E0E), Color(0xFF1A1A1A))))
-            .border(1.5.dp, gold, RoundedCornerShape(12.dp))
-            .clickable { Nav.go(Route.OneRmList) }.padding(horizontal = 16.dp, vertical = 14.dp),
+            .glint(heat).emberBorder(heat, 1.5.dp, gold, RoundedCornerShape(12.dp))
+            .pressClick(press) { Nav.go(Route.OneRmList) }.padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text("🏆", fontSize = 26.sp)
@@ -195,9 +217,10 @@ fun OneRmListScreen() {
             items(shown, key = { it.first }) { (id, n) ->
                 val e = Store.exercise(id)!!
                 val r = ranks[id]
+                val press = rememberPress(0.96f)
                 Row(
-                    Modifier.padding(vertical = 4.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
-                        .clickable { Nav.go(Route.OneRmTest(id)) }.padding(10.dp),
+                    Modifier.animateItem().padding(vertical = 4.dp).pressScale(press).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
+                        .pressClick(press) { Nav.go(Route.OneRmTest(id)) }.padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     ExerciseThumb(e, 48.dp)
@@ -233,7 +256,7 @@ fun OneRmListScreen() {
 fun OneRmTestScreen(id: String) {
     val p by Store.profile.collectAsState()
     val workouts by Store.workouts.collectAsState()
-    val e = Store.exercise(id) ?: run { Nav.back(); return }
+    val e = Store.exercise(id) ?: run { closeScreen(); return }
     val context = LocalContext.current
     val reps = Standards.isReps(id)
     val squeeze = Standards.isFlat(id)
@@ -250,7 +273,19 @@ fun OneRmTestScreen(id: String) {
     // Leaving with a ticked set asks first (the test isn't saved until you finish it).
     fun leave() { if (OneRm.rows.any { it.done }) confirmLeave = true else { OneRm.clear(); Nav.back() } }
     androidx.activity.compose.BackHandler { leave() }
-    Column(Modifier.fillMaxSize()) {
+    // Arrival: the screen lands with a jolt and a red flash fading from the edges.
+    val haptic = LocalHapticFeedback.current
+    val jolt = remember { Animatable(0f) }
+    val flash = remember { Animatable(0f) }
+    val heat = rememberHeat()
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(230)
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        launch { flash.snapTo(0.75f); flash.animateTo(0f, tween(650)) }
+        jolt.animateTo(0f, keyframes { durationMillis = 380; 14f at 40; -11f at 100; 7f at 170; -4f at 240; 2f at 310 })
+    }
+    Box(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().graphicsLayer { translationY = jolt.value }) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -306,7 +341,20 @@ fun OneRmTestScreen(id: String) {
             }
             OneRm.rows.forEachIndexed { i, s ->
                 val k = "$id:$i:$refresh"
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Ticking a set slams the tick down and rattles the row.
+                val stamp = remember(k) { Animatable(1f) }
+                val shake = remember(k) { Animatable(0f) }
+                var seen by remember(k) { mutableStateOf(s.done) }
+                LaunchedEffect(k, s.done) {
+                    if (s.done && !seen) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
+                        shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 })
+                    }
+                    seen = s.done
+                }
+                val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
+                Row(Modifier.graphicsLayer { translationX = shake.value }, verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -317,7 +365,8 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(if (s.done) Green else Card2)
+                            Modifier.weight(1f).graphicsLayer { scaleX = stamp.value; scaleY = stamp.value }
+                                .clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
                                     val live = OneRm.liveWorkout(id)
@@ -335,13 +384,27 @@ fun OneRmTestScreen(id: String) {
                 refresh++
             }
             error?.let { Text(it, color = Red) }
+            // Once a set is in, the button heats up: the glint sweeps across and the border glows.
+            val ready = OneRm.rows.any { it.done }
+            val finishPress = rememberPress(0.93f)
             Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E)).border(1.5.dp, gold, RoundedCornerShape(12.dp))
-                    .clickable { finishTest(context, id)?.let { error = it } }.padding(16.dp),
+                Modifier.pressScale(finishPress).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
+                    .then(if (ready) Modifier.glint(heat).emberBorder(heat, 2.dp, gold, RoundedCornerShape(12.dp))
+                        else Modifier.border(1.5.dp, gold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)))
+                    .pressClick(finishPress) { finishTest(context, id)?.let { error = it } }.padding(16.dp),
                 horizontalArrangement = Arrangement.Center,
             ) { Text("FINISH TEST", color = gold, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp, letterSpacing = 1.5.sp) }
             Spacer(300)
         }
+    }
+    // The red flash: dark at the edges, clear in the middle; it never blocks a tap.
+    Box(Modifier.fillMaxSize().drawWithContent {
+        val a = flash.value
+        if (a > 0f) drawRect(Brush.radialGradient(
+            listOf(Color.Transparent, Color(0xFF8B0000).copy(alpha = a * 0.5f), Color(0xFF3A0000).copy(alpha = a)),
+            center = Offset(size.width / 2, size.height / 2), radius = maxOf(size.width, size.height) * 0.75f,
+        ))
+    })
     }
     if (confirmLeave) AlertDialog(
         onDismissRequest = { confirmLeave = false },
@@ -388,4 +451,42 @@ private fun finishTest(c: Context, id: String): String? {
     Nav.back()
     Nav.go(Route.RankDetail(id))
     return null
+}
+
+/** The 1 Rep Max mode's "heat": a glint of light that sweeps across now and then, and a slow ember glow. */
+class Heat(private val sweepState: androidx.compose.runtime.State<Float>, private val emberState: androidx.compose.runtime.State<Float>) {
+    val sweep get() = sweepState.value
+    val ember get() = emberState.value
+}
+
+@Composable
+fun rememberHeat(): Heat {
+    val t = rememberInfiniteTransition(label = "heat")
+    val sweep = t.animateFloat(
+        -0.3f, 1.3f,
+        infiniteRepeatable(keyframes { durationMillis = 3400; -0.3f at 0; 1.3f at 1000 using FastOutSlowInEasing; 1.3f at 3400 }),
+        label = "glint",
+    )
+    val ember = t.animateFloat(0.55f, 1f, infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "ember")
+    return Heat(sweep, ember)
+}
+
+/** A diagonal band of gold light crossing the surface, like light catching a polished plate. */
+fun Modifier.glint(h: Heat) = drawWithContent {
+    drawContent()
+    val x = h.sweep * (size.width + size.height) - size.height
+    drawRect(Brush.linearGradient(
+        listOf(Color.Transparent, Color(0x55FFE7A3), Color.Transparent),
+        start = Offset(x, 0f), end = Offset(x + size.height * 1.2f, size.height),
+    ))
+}
+
+/** A border that glows brighter and dimmer with the ember (drawn, so the glow never recomposes the screen). */
+fun Modifier.emberBorder(h: Heat, width: androidx.compose.ui.unit.Dp, color: Color, shape: androidx.compose.ui.graphics.Shape) = drawWithContent {
+    drawContent()
+    val w = width.toPx()
+    val outline = shape.createOutline(androidx.compose.ui.geometry.Size(size.width - w, size.height - w), layoutDirection, this)
+    translate(w / 2, w / 2) {
+        drawOutline(outline, color.copy(alpha = h.ember), style = androidx.compose.ui.graphics.drawscope.Stroke(w))
+    }
 }

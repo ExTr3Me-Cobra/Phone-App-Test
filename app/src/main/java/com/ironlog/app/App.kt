@@ -7,6 +7,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +66,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -169,31 +184,18 @@ private fun Root() {
             .nestedScroll(hideOnScroll),
     ) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
-          saved.SaveableStateProvider(key) {
-            when (route) {
-                is Route.Tabs -> when (route.tab) {
-                    0 -> HomeScreen()
-                    1 -> WorkoutTab()
-                    else -> ProfileScreen()
-                }
-                is Route.RoutineView -> RoutineViewScreen(route.id)
-                is Route.RoutineEdit -> RoutineEditScreen(route.id)
-                is Route.Picker -> PickerScreen(route)
-                is Route.ExerciseDetail -> ExerciseDetailScreen(route.id)
-                is Route.EditExercise -> EditExerciseScreen(route.id)
-                Route.Active -> ActiveWorkoutScreen()
-                is Route.Summary -> SummaryScreen(route.id)
-                is Route.WorkoutDetail -> WorkoutDetailScreen(route.id)
-                Route.Settings -> SettingsScreen()
-                Route.Library -> PickerScreen(null)
-                Route.HevyMatch -> HevyMatchScreen()
-                is Route.RankDetail -> RankDetailScreen(route.id)
-                Route.OneRmList -> OneRmListScreen()
-                Route.RankHelp -> RankHelpScreen()
-                Route.AllWorkouts -> AllWorkoutsScreen()
-                is Route.ExerciseHistory -> ExerciseHistoryScreen(route.id)
-                Route.Share -> ShareScreen()
-                is Route.OneRmTest -> OneRmTestScreen(route.id)
+          // Each screen change slides (forward in, back out), tabs cross-fade, and 1 Rep Max screens slam in.
+          AnimatedContent(
+            Screen(key, route, Nav.stack.size),
+            Modifier.fillMaxSize(),
+            transitionSpec = { screenTransition(initialState, targetState) },
+            contentKey = { it.key },
+            label = "screen",
+          ) { sc ->
+            CompositionLocalProvider(LocalScreenKey provides sc.key) {
+              Box(Modifier.fillMaxSize().background(Bg)) {
+                saved.SaveableStateProvider(sc.key) { RouteScreen(sc.route) }
+              }
             }
           }
         }
@@ -204,6 +206,73 @@ private fun Root() {
     Onboarding()
     RankUpOverlay()
     WipedScreen()
+}
+
+@Composable
+private fun RouteScreen(route: Route) {
+    when (route) {
+        is Route.Tabs -> when (route.tab) {
+            0 -> HomeScreen()
+            1 -> WorkoutTab()
+            else -> ProfileScreen()
+        }
+        is Route.RoutineView -> RoutineViewScreen(route.id)
+        is Route.RoutineEdit -> RoutineEditScreen(route.id)
+        is Route.Picker -> PickerScreen(route)
+        is Route.ExerciseDetail -> ExerciseDetailScreen(route.id)
+        is Route.EditExercise -> EditExerciseScreen(route.id)
+        Route.Active -> ActiveWorkoutScreen()
+        is Route.Summary -> SummaryScreen(route.id)
+        is Route.WorkoutDetail -> WorkoutDetailScreen(route.id)
+        Route.Settings -> SettingsScreen()
+        Route.Library -> PickerScreen(null)
+        Route.HevyMatch -> HevyMatchScreen()
+        is Route.RankDetail -> RankDetailScreen(route.id)
+        Route.OneRmList -> OneRmListScreen()
+        Route.RankHelp -> RankHelpScreen()
+        Route.AllWorkouts -> AllWorkoutsScreen()
+        is Route.ExerciseHistory -> ExerciseHistoryScreen(route.id)
+        Route.Share -> ShareScreen()
+        is Route.OneRmTest -> OneRmTestScreen(route.id)
+    }
+}
+
+/** The screen on show: its key, where it goes, and how deep it is (to tell going forward from going back). */
+private data class Screen(val key: Long, val route: Route, val depth: Int)
+
+/** The key of the screen a composable is part of. */
+val LocalScreenKey = staticCompositionLocalOf { -1L }
+
+/** Closes this screen when what it shows is gone – unless it's already on its way out (sliding away after Back). */
+@Composable
+fun closeScreen() {
+    val k = LocalScreenKey.current
+    LaunchedEffect(k) { if (Nav.topKey == k) Nav.back() }
+}
+
+private fun isOneRm(r: Route) = r is Route.OneRmTest || r == Route.OneRmList
+
+private fun screenTransition(from: Screen, to: Screen): ContentTransform {
+    val ease = FastOutSlowInEasing
+    return when {
+        // Tabs: a quick cross-fade.
+        from.route is Route.Tabs && to.route is Route.Tabs ->
+            fadeIn(tween(200, easing = ease)) togetherWith fadeOut(tween(140))
+        // Into 1 Rep Max: the new screen drops in from slightly too big, like a plate hitting the floor.
+        to.depth > from.depth && isOneRm(to.route) ->
+            (scaleIn(tween(320, easing = EaseOutBack), initialScale = 1.14f) + fadeIn(tween(160))) togetherWith
+                (scaleOut(tween(260), targetScale = 0.9f) + fadeOut(tween(220)))
+        // Forward: slides in from the right over the old one, which drifts left and dims.
+        to.depth > from.depth ->
+            (slideInHorizontally(tween(300, easing = ease)) { it / 3 } + fadeIn(tween(220))) togetherWith
+                (slideOutHorizontally(tween(300, easing = ease)) { -it / 8 } + fadeOut(tween(260)))
+        // Back: the reverse.
+        to.depth < from.depth ->
+            (slideInHorizontally(tween(300, easing = ease)) { -it / 8 } + fadeIn(tween(240))) togetherWith
+                (slideOutHorizontally(tween(260, easing = ease)) { it / 3 } + fadeOut(tween(200)))
+        // Swapped in place (e.g. Finish → Summary): fade through.
+        else -> fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(160))
+    }.apply { targetContentZIndex = if (to.depth >= from.depth) 1f else 0f }
 }
 
 @Composable
@@ -235,15 +304,21 @@ private fun BottomBar(tab: Int) {
 
 @Composable
 private fun RowScope.TabItem(label: String, icon: String, selected: Boolean, onClick: () -> Unit) {
+    val press = rememberPress(0.9f)
+    // The highlight fades and the icon pops a little when a tab is picked.
+    val glow by androidx.compose.animation.animateColorAsState(if (selected) Blue.copy(alpha = 0.18f) else Color.Transparent, tween(220), label = "tab")
+    val tint by androidx.compose.animation.animateColorAsState(if (selected) Blue else Color.White, tween(220), label = "tabText")
+    val pop by androidx.compose.animation.core.animateFloatAsState(if (selected) 1.08f else 1f,
+        androidx.compose.animation.core.spring(dampingRatio = 0.45f, stiffness = androidx.compose.animation.core.Spring.StiffnessMedium), label = "tabPop")
     Column(
-        Modifier.weight(1f).clickable(onClick = onClick).padding(vertical = 4.dp),
+        Modifier.weight(1f).pressScale(press).pressClick(press, onClick = onClick).padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            Modifier.clip(RoundedCornerShape(16.dp)).background(if (selected) Blue.copy(alpha = 0.18f) else Color.Transparent)
+            Modifier.graphicsLayer { scaleX = pop; scaleY = pop }.clip(RoundedCornerShape(16.dp)).background(glow)
                 .padding(horizontal = 18.dp, vertical = 2.dp),
-        ) { Text(icon, fontSize = 20.sp, color = if (selected) Blue else Color.White) }
-        Text(label, fontSize = 12.sp, color = if (selected) Blue else Color.White)
+        ) { Text(icon, fontSize = 20.sp, color = tint) }
+        Text(label, fontSize = 12.sp, color = tint)
     }
 }
 
@@ -277,8 +352,10 @@ fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: 
 
 @Composable
 fun BigButton(text: String, color: Color = Blue, modifier: Modifier = Modifier.fillMaxWidth(), onClick: () -> Unit) {
+    val press = rememberPress()
     Button(
-        onClick = onClick, modifier = modifier.height(50.dp), shape = RoundedCornerShape(10.dp),
+        onClick = onClick, modifier = Modifier.pressScale(press).then(modifier).height(50.dp), shape = RoundedCornerShape(10.dp),
+        interactionSource = press.source,
         colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
     ) { Text(text, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false) }
@@ -286,8 +363,10 @@ fun BigButton(text: String, color: Color = Blue, modifier: Modifier = Modifier.f
 
 @Composable
 fun GreyButton(text: String, modifier: Modifier = Modifier.fillMaxWidth(), textColor: Color = Color.White, onClick: () -> Unit) {
+    val press = rememberPress()
     Button(
-        onClick = onClick, modifier = modifier.height(46.dp), shape = RoundedCornerShape(10.dp),
+        onClick = onClick, modifier = Modifier.pressScale(press).then(modifier).height(46.dp), shape = RoundedCornerShape(10.dp),
+        interactionSource = press.source,
         colors = ButtonDefaults.buttonColors(containerColor = Card2, contentColor = textColor),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
     ) { Text(text, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, softWrap = false) }

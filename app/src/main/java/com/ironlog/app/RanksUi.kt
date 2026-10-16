@@ -144,7 +144,7 @@ fun HomeRankCard() {
             if (open) "Hide muscle ranks & colour key ▴" else "Show muscle ranks & colour key ▾",
             color = Blue, fontSize = 15.sp, modifier = Modifier.fillMaxWidth().clickable { open = !open }.padding(vertical = 10.dp),
         )
-        if (open) {
+        Reveal(open) { Column {
             Text("Your muscles", fontWeight = FontWeight.Bold)
             Text("Each muscle's rank is the average of two ranked exercises – your top two unless you choose (tap ✎). " +
                 "Tap an exercise to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
@@ -218,7 +218,7 @@ fun HomeRankCard() {
                 }
             }
             Text("Uncoloured muscles have no ranked exercise yet.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
-        }
+        } }
     }
 }
 

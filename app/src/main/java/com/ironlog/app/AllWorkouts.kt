@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,7 +50,7 @@ fun AllWorkoutsScreen() {
 /** One exercise's full history, laid out like All Workouts: one card per workout it was in. */
 @Composable
 fun ExerciseHistoryScreen(id: String) {
-    val e = Store.exercise(id) ?: run { Nav.back(); return }
+    val e = Store.exercise(id) ?: run { closeScreen(); return }
     val workouts by Store.workouts.collectAsState()
     val sessions = remember(workouts, id) { Stats.sessions(id, workouts) }
     val byWorkout = sessions.associateBy { it.workout.id }
@@ -125,7 +126,7 @@ fun WorkoutPages(title: String, workouts: List<Workout>, volume: (Workout) -> Do
             if (shown.isEmpty()) item {
                 Text(if (workouts.isEmpty()) "No workouts yet." else "No workouts match the filter.", color = Sub, modifier = Modifier.padding(16.dp))
             }
-            items(shown.drop(at * PER_PAGE).take(PER_PAGE), key = { it.id }) { w -> card(w) }
+            items(shown.drop(at * PER_PAGE).take(PER_PAGE), key = { it.id }) { w -> Box(Modifier.animateItem()) { card(w) } }
             if (pages > 1) item {
                 Row(Modifier.fillMaxWidth().padding(16.dp, 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     PageButton("‹ Prev", at > 0) { page = at - 1 }
@@ -139,16 +140,25 @@ fun WorkoutPages(title: String, workouts: List<Workout>, volume: (Workout) -> Do
 }
 
 @Composable
-private fun PageButton(text: String, enabled: Boolean, onClick: () -> Unit) = Text(
-    text, color = if (enabled) Color.White else Sub.copy(alpha = 0.4f), fontWeight = FontWeight.Medium,
-    modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Card).clickable(enabled = enabled, onClick = onClick)
-        .padding(horizontal = 16.dp, vertical = 10.dp),
-)
+private fun PageButton(text: String, enabled: Boolean, onClick: () -> Unit) {
+    val press = rememberPress(0.92f)
+    Text(
+        text, color = if (enabled) Color.White else Sub.copy(alpha = 0.4f), fontWeight = FontWeight.Medium,
+        modifier = Modifier.pressScale(press).clip(RoundedCornerShape(10.dp)).background(Card).pressClick(press, enabled, onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+    )
+}
 
 /** A full-width grey button that opens and closes a list, with an arrow showing which way it goes. */
 @Composable
-fun DropDownButton(text: String, open: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) =
-    Box(modifier.fillMaxWidth().height(46.dp).clip(RoundedCornerShape(10.dp)).background(Card2).clickable(onClick = onClick)) {
+fun DropDownButton(text: String, open: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val press = rememberPress()
+    // The arrow turns over as the list opens.
+    val turn by androidx.compose.animation.core.animateFloatAsState(if (open) 180f else 0f, androidx.compose.animation.core.tween(260), label = "arrow")
+    Box(Modifier.pressScale(press).then(modifier).fillMaxWidth().height(46.dp).clip(RoundedCornerShape(10.dp)).background(Card2)
+        .pressClick(press, onClick = onClick)) {
         Text(text, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, modifier = Modifier.align(Alignment.Center))
-        Text(if (open) "▲" else "▼", color = Blue, fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp))
+        Text("▼", color = Blue, fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+            .graphicsLayer { rotationZ = turn })
     }
+}

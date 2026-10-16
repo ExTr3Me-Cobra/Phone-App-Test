@@ -79,7 +79,7 @@ fun HomeScreen() {
                         StatBox("Time", Units.duration(shown.sumOf { (it.end ?: it.start) - it.start }), Modifier.weight(1f))
                         StatBox("Volume", "${Units.weight(shown.sumOf { Stats.volume(it) })} ${Units.w}", Modifier.weight(1f))
                     }
-                    if (calendar) WorkoutCalendar(workouts)
+                    Reveal(calendar) { WorkoutCalendar(workouts) }
                 }
                 val exerciseCount = Store.exercises.collectAsState().value.values.count { !it.hidden }
                 GreyButton("💪  Exercises ($exerciseCount)", Modifier.padding(horizontal = 16.dp).fillMaxWidth()) { Nav.go(Route.Library) }
@@ -99,8 +99,8 @@ fun HomeScreen() {
                 }
             }
             if (homeWorkoutsOpen.value) {
-                items(workouts.sortedByDescending { it.start }.take(10), key = { it.id }) { w -> WorkoutCard(w) }
-                item {
+                items(workouts.sortedByDescending { it.start }.take(10), key = { it.id }) { w -> Box(Modifier.animateItem()) { WorkoutCard(w) } }
+                item(key = "seeAll") {
                     GreyButton("See All Workouts", Modifier.padding(16.dp, 8.dp).fillMaxWidth()) { Nav.go(Route.AllWorkouts) }
                 }
             }
@@ -113,9 +113,10 @@ private val homeWorkoutsOpen = mutableStateOf(false)
 
 @Composable
 fun WorkoutCard(w: Workout) {
+    val press = rememberPress(0.97f)
     Column(
-        Modifier.padding(horizontal = 16.dp, vertical = 6.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card)
-            .clickable { Nav.go(Route.WorkoutDetail(w.id)) }.padding(16.dp),
+        Modifier.padding(horizontal = 16.dp, vertical = 6.dp).pressScale(press).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card)
+            .pressClick(press) { Nav.go(Route.WorkoutDetail(w.id)) }.padding(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -142,7 +143,7 @@ fun WorkoutCard(w: Workout) {
 
 @Composable
 fun WorkoutDetailScreen(id: String) {
-    val w = Store.workouts.collectAsState().value.firstOrNull { it.id == id } ?: return Nav.back()
+    val w = Store.workouts.collectAsState().value.firstOrNull { it.id == id } ?: return closeScreen()
     var menu by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize()) {

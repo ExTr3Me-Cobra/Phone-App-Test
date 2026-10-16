@@ -36,7 +36,7 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun HevyMatchScreen() {
-    val plan = HevyImport.pending ?: run { Nav.back(); return }
+    val plan = HevyImport.pending ?: run { closeScreen(); return }
     val choices = HevyImport.choices
     val picks = HevyImport.routinePicks
     var asking by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) } // still open after reading an exercise

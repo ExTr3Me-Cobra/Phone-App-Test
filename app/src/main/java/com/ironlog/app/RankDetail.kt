@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
 /** One exercise's rank: a chart of where your number sits among comparable lifters, and exactly who they are. */
 @Composable
 fun RankDetailScreen(id: String) {
-    val e = Store.exercise(id) ?: run { Nav.back(); return }
+    val e = Store.exercise(id) ?: run { closeScreen(); return }
     Column(Modifier.fillMaxSize()) {
         TopBar(e.name)
         // Hold any panel to move it; the order is the same on every exercise's rank screen.
@@ -224,13 +224,13 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                     var details by remember(id) { mutableStateOf(false) }
                     Text(if (details) "Details: ▴" else "Details: ▾", color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Medium,
                         modifier = Modifier.clickable { details = !details }.padding(vertical = 2.dp))
-                    if (details) {
+                    Reveal(details) { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(fit.compared, color = Sub, fontSize = 12.sp)
                         if (!fit.exact) {
                             Text("Why it's an estimate:", fontSize = 13.sp, fontWeight = FontWeight.Medium)
                             fit.problems.forEach { Text("• $it", color = Sub, fontSize = 12.sp) }
                         }
-                    }
+                    } }
                 }
             }
         },

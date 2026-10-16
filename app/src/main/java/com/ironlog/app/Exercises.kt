@@ -254,7 +254,7 @@ private val pendingMove = androidx.compose.runtime.mutableStateMapOf<String, Str
 @Composable
 fun ExerciseDetailScreen(id: String) {
     val all by Store.exercises.collectAsState()
-    val e = all[id] ?: return Nav.back()
+    val e = all[id] ?: return closeScreen()
     val workouts by Store.workouts.collectAsState()
     val profile by Store.profile.collectAsState()
     val version by Store.imageVersion.collectAsState()
@@ -470,9 +470,11 @@ fun ExerciseDetailScreen(id: String) {
                     // Like Completed Workouts on Home: your 10 most recent, then the full list.
                     var open by rememberSaveable(e.id) { mutableStateOf(false) }
                     DropDownButton("🕘  History (${sessions.size})", open, Modifier.padding(16.dp, 10.dp, 16.dp, 6.dp)) { open = !open }
-                    if (open) {
-                        sessions.reversed().take(10).forEach { s -> SessionCard(e, s) }
-                        GreyButton("See All History", Modifier.padding(16.dp, 8.dp).fillMaxWidth()) { Nav.go(Route.ExerciseHistory(e.id)) }
+                    Reveal(open) {
+                        Column {
+                            sessions.reversed().take(10).forEach { s -> SessionCard(e, s) }
+                            GreyButton("See All History", Modifier.padding(16.dp, 8.dp).fillMaxWidth()) { Nav.go(Route.ExerciseHistory(e.id)) }
+                        }
                     }
                 }
             },
@@ -485,7 +487,7 @@ fun ExerciseDetailScreen(id: String) {
                         Text("Proper Form", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
                         Text(if (formOpen) "▴" else "▾", color = Blue, fontSize = 18.sp)
                     }
-                    if (formOpen) e.instructions.forEachIndexed { i, s -> Text("${i + 1}. $s", modifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)) }
+                    Reveal(formOpen) { Column { e.instructions.forEachIndexed { i, s -> Text("${i + 1}. $s", modifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)) } } }
                 }
             },
         )
@@ -503,8 +505,9 @@ fun ExerciseDetailScreen(id: String) {
 /** One workout's sets of exercise [e]: tap to open the whole workout. */
 @Composable
 fun SessionCard(e: Exercise, s: Stats.Session) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(10.dp)).background(Card)
-        .clickable { Nav.go(Route.WorkoutDetail(s.workout.id)) }.padding(12.dp)) {
+    val press = rememberPress(0.97f)
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).pressScale(press).clip(RoundedCornerShape(10.dp)).background(Card)
+        .pressClick(press) { Nav.go(Route.WorkoutDetail(s.workout.id)) }.padding(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(Units.date(s.workout.start), fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
             Text(if (s.workout.test) "1 Rep Max test" else s.workout.name, color = Sub, fontSize = 13.sp, maxLines = 1)

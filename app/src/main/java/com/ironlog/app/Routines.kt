@@ -186,7 +186,7 @@ fun WorkoutTab() {
 @Composable
 fun RoutineViewScreen(id: String) {
     val routines by Store.routines.collectAsState()
-    val r = routines.firstOrNull { it.id == id } ?: return Nav.back()
+    val r = routines.firstOrNull { it.id == id } ?: return closeScreen()
     val context = LocalContext.current
     var ai by remember { mutableStateOf(false) }
     if (ai) GenDialog("AI pictures: ${r.name}", r.items.map { it.exerciseId }.distinct()) { ai = false }
@@ -293,7 +293,7 @@ private fun PlanRowView(t: ExType, n: Int, s: PlanSet) {
 
 @Composable
 fun RoutineEditScreen(id: String?) {
-    val draft = Drafts.routine ?: return Nav.back()
+    val draft = Drafts.routine ?: return closeScreen()
     var restFor by remember { mutableStateOf<Int?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     fun update(change: (Routine) -> Routine) { Drafts.routine = change(Drafts.routine ?: draft) }
