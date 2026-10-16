@@ -37,8 +37,9 @@ import kotlin.math.abs
 @Composable
 fun LineChart(all: List<Pair<Long, Double>>, label: (Double) -> String) {
     // How far back to show: a number (1–99) and a unit, each on its own scroll wheel.
-    var count by androidx.compose.runtime.saveable.rememberSaveable { mutableIntStateOf(3) }
-    var unit by androidx.compose.runtime.saveable.rememberSaveable { mutableIntStateOf(1) } // 0 weeks, 1 months, 2 years
+    // Remembered for every exercise, and kept when the app closes.
+    var count by ChartRange.count
+    var unit by ChartRange.unit // 0 weeks, 1 months, 2 years
     val since = remember(count, unit) {
         val today = java.time.LocalDate.now()
         when (unit) { 0 -> today.minusWeeks(count.toLong()); 2 -> today.minusYears(count.toLong()); else -> today.minusMonths(count.toLong()) }
@@ -60,8 +61,8 @@ fun LineChart(all: List<Pair<Long, Double>>, label: (Double) -> String) {
                 } else Text("Nothing logged in this time.", color = Sub, fontSize = 14.sp)
             }
             Text("Last", color = Sub, fontSize = 13.sp, modifier = Modifier.padding(end = 6.dp))
-            Wheel((1..99).map { "$it" }, count - 1, Modifier.width(52.dp)) { count = it + 1 }
-            Wheel(listOf("Week", "Month", "Year").map { if (count == 1) it else it + "s" }, unit, Modifier.width(84.dp)) { unit = it }
+            Wheel((1..99).map { "$it" }, count - 1, Modifier.width(52.dp)) { count = it + 1; ChartRange.save() }
+            Wheel(listOf("Week", "Month", "Year").map { if (count == 1) it else it + "s" }, unit, Modifier.width(84.dp)) { unit = it; ChartRange.save() }
         }
         if (points.isEmpty()) return@Column
         val minV = points.minOf { it.second }
@@ -140,4 +141,17 @@ fun Wheel(items: List<String>, selected: Int, modifier: Modifier = Modifier, onP
             }
         }
     }
+}
+
+/** How far back progress charts show; the same for every exercise and kept between app launches. */
+object ChartRange {
+    private const val FILE = "chart_range.json"
+    val count = androidx.compose.runtime.mutableIntStateOf(3)
+    val unit = androidx.compose.runtime.mutableIntStateOf(1)
+    fun load() = runCatching {
+        val o = org.json.JSONObject(Store.readFile(FILE) ?: return@runCatching)
+        count.intValue = o.optInt("count", 3).coerceIn(1, 99)
+        unit.intValue = o.optInt("unit", 1).coerceIn(0, 2)
+    }
+    fun save() = Store.writeFile(FILE, org.json.JSONObject().put("count", count.intValue).put("unit", unit.intValue).toString())
 }

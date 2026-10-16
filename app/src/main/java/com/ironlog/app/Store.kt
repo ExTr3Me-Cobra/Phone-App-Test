@@ -65,6 +65,7 @@ object Store {
         RecycleBin.init()
         AppText.load()
         OneRmFx.load()
+        ChartRange.load()
     }
 
     /** Small app files (e.g. remembered import choices). */
