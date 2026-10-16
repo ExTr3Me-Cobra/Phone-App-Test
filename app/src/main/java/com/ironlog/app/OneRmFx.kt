@@ -309,21 +309,21 @@ class TickFx {
         fun cracks(ms: Int) = launch { crack.snapTo(0f); crack.animateTo(1f, tween(ms, easing = androidx.compose.animation.core.LinearEasing)) }
         fun jolt(px: Float) = screen?.let { s -> launch { s.jolt.animateTo(0f, keyframes { durationMillis = 360; px at 30; -px * 0.7f at 90; px * 0.45f at 160; -px * 0.25f at 230; px * 0.1f at 300 }) } }
         when (kind) {
-            16 -> { launch { heavy() }; launch { stampDown(1.9f) }; launch { rattle(320, 12f) }; jolt(10f); cracks(1300).join() }
+            16 -> { launch { heavy() }; launch { stampDown(1.9f) }; launch { rattle(320, 12f) }; jolt(10f); cracks(650).join() }
             17 -> {
                 launch { heavy() }; launch { stamp.snapTo(2.6f); stamp.animateTo(1f, tween(130, easing = FastOutLinearInEasing)) }
-                delay(110); jolt(16f); launch { rattle(380, 16f) }; cracks(1400); burstOut(800)
+                delay(110); jolt(16f); launch { rattle(380, 16f) }; cracks(700); burstOut(800)
             }
-            18 -> { launch { heavy() }; launch { stampDown(1.7f) }; jolt(12f); launch { rowFlash.snapTo(0.5f); rowFlash.animateTo(0f, tween(500)) }; cracks(1300); burstOut(650) }
+            18 -> { launch { heavy() }; launch { stampDown(1.7f) }; jolt(12f); launch { rowFlash.snapTo(0.5f); rowFlash.animateTo(0f, tween(500)) }; cracks(650); burstOut(650) }
             19 -> { launch { heavy() }; launch { stampDown(1.6f) }; launch { rattle(300, 10f) }; burstOut(1100) }
             20 -> {
                 launch { heavy() }; launch { stamp.snapTo(0.6f); stamp.animateTo(1f, spring(dampingRatio = 0.3f, stiffness = 500f)) }
-                jolt(24f); launch { rattle(500, 22f) }; cracks(1200).join()
+                jolt(24f); launch { rattle(500, 22f) }; cracks(600).join()
             }
             21 -> { launch { heavy() }; launch { stampDown(1.5f) }; launch { rowFlash.snapTo(0.4f); rowFlash.animateTo(0f, tween(350)) }; burstOut(900) }
             22 -> {
                 launch { heavy() }; launch { stampDown(2.0f) }; jolt(18f); launch { rattle(420, 16f) }
-                cracks(1500); burstOut(1300)
+                cracks(750); burstOut(1300)
             }
             1 -> { launch { stamp.snapTo(1.3f); stamp.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 600f)) }; burstOut(480) }
             2 -> { spin.snapTo(0f); spin.animateTo(360f, tween(450, easing = FastOutSlowInEasing)); spin.snapTo(0f) }
