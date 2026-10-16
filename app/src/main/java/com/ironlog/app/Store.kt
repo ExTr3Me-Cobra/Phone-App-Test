@@ -64,6 +64,7 @@ object Store {
         if (savedKey == null && p.apiKey.isNotEmpty()) setProfile(_profile.value)
         RecycleBin.init()
         AppText.load()
+        OneRmFx.load()
     }
 
     /** Small app files (e.g. remembered import choices). */

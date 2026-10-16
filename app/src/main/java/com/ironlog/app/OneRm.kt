@@ -52,6 +52,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.geometry.Offset
@@ -325,16 +327,58 @@ fun OneRmTestScreen(id: String) {
     // Arrival: the screen lands with a jolt and a red flash fading from the edges.
     val haptic = LocalHapticFeedback.current
     val jolt = remember { Animatable(0f) }
+    val sway = remember { Animatable(0f) }
     val flash = remember { Animatable(0f) }
+    val white = remember { Animatable(0f) }
+    val ring = remember { Animatable(0f) }
     val heat = rememberHeat()
+    // The arrival effect picked in developer settings (1 Rep Max animations).
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(230)
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-        launch { flash.snapTo(0.75f); flash.animateTo(0f, tween(650)) }
-        jolt.animateTo(0f, keyframes { durationMillis = 380; 14f at 40; -11f at 100; 7f at 170; -4f at 240; 2f at 310 })
+        when (OneRmFx.arrival) {
+            1 -> { // Earthquake
+                kotlinx.coroutines.delay(200)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                launch { flash.snapTo(0.5f); flash.animateTo(0f, tween(900)) }
+                launch { jolt.animateTo(0f, keyframes { durationMillis = 700; 18f at 50; -16f at 120; 13f at 200; -10f at 290; 7f at 390; -4f at 500; 2f at 600 }) }
+                sway.animateTo(0f, keyframes { durationMillis = 700; -20f at 60; 18f at 140; -14f at 230; 10f at 330; -6f at 440; 3f at 560 })
+            }
+            2 -> { // Heartbeat
+                kotlinx.coroutines.delay(180)
+                repeat(2) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    flash.snapTo(0.85f); flash.animateTo(0f, tween(320))
+                    kotlinx.coroutines.delay(90)
+                }
+            }
+            3 -> { // Gold shockwave
+                kotlinx.coroutines.delay(230)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                launch { flash.snapTo(0.35f); flash.animateTo(0f, tween(500)) }
+                ring.snapTo(0f); ring.animateTo(1f, tween(750, easing = FastOutSlowInEasing))
+            }
+            4 -> { // Red vignette breathe
+                flash.animateTo(0.9f, tween(450)); flash.animateTo(0f, tween(1000))
+            }
+            5 -> { // Lightning
+                kotlinx.coroutines.delay(200)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                white.snapTo(0.85f)
+                launch { jolt.animateTo(0f, keyframes { durationMillis = 220; 8f at 40; -5f at 110; 2f at 170 }) }
+                white.animateTo(0f, tween(260))
+                kotlinx.coroutines.delay(60)
+                white.snapTo(0.4f); white.animateTo(0f, tween(180))
+            }
+            6 -> {}
+            else -> { // Jolt + red flash
+                kotlinx.coroutines.delay(230)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                launch { flash.snapTo(0.75f); flash.animateTo(0f, tween(650)) }
+                jolt.animateTo(0f, keyframes { durationMillis = 380; 14f at 40; -11f at 100; 7f at 170; -4f at 240; 2f at 310 })
+            }
+        }
     }
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().graphicsLayer { translationY = jolt.value }) {
+    Column(Modifier.fillMaxSize().graphicsLayer { translationY = jolt.value; translationX = sway.value }) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -393,17 +437,38 @@ fun OneRmTestScreen(id: String) {
                 // Ticking a set slams the tick down and rattles the row.
                 val stamp = remember(k) { Animatable(1f) }
                 val shake = remember(k) { Animatable(0f) }
+                val spin = remember(k) { Animatable(0f) }
+                val burst = remember(k) { Animatable(0f) }
+                val rowFlash = remember(k) { Animatable(0f) }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
                     if (s.done && !seen) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
-                        shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 })
+                        if (OneRmFx.tick != 6) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        when (OneRmFx.tick) {
+                            1 -> { // Pop + gold burst
+                                launch { stamp.snapTo(1.3f); stamp.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 600f)) }
+                                burst.snapTo(0f); burst.animateTo(1f, tween(480, easing = FastOutSlowInEasing))
+                            }
+                            2 -> { spin.snapTo(0f); spin.animateTo(360f, tween(450, easing = FastOutSlowInEasing)); spin.snapTo(0f) } // Flip
+                            3 -> { // Slam + red row flash
+                                stamp.snapTo(2.2f); stamp.animateTo(1f, tween(140, easing = FastOutLinearInEasing))
+                                rowFlash.snapTo(0.55f); rowFlash.animateTo(0f, tween(450))
+                            }
+                            4 -> { burst.snapTo(0f); burst.animateTo(1f, tween(650)) } // Green glow
+                            5 -> shake.animateTo(0f, keyframes { durationMillis = 450; 18f at 40; -16f at 100; 13f at 170; -10f at 250; 6f at 330; -3f at 400 })
+                            6 -> {}
+                            else -> { // Stamp + rattle
+                                launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
+                                shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 })
+                            }
+                        }
                     }
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
-                Row(Modifier.graphicsLayer { translationX = shake.value }, verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.graphicsLayer { translationX = shake.value }.drawBehind {
+                    if (rowFlash.value > 0f) drawRoundRect(Red.copy(alpha = rowFlash.value), cornerRadius = androidx.compose.ui.geometry.CornerRadius(10.dp.toPx()))
+                }, verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -414,7 +479,16 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).graphicsLayer { scaleX = stamp.value; scaleY = stamp.value }
+                            Modifier.weight(1f).graphicsLayer { scaleX = stamp.value; scaleY = stamp.value; rotationY = spin.value; cameraDistance = 12f * density }
+                                .drawBehind {
+                                    val b = burst.value
+                                    if (b > 0f && b < 1f) {
+                                        val c = Offset(size.width / 2, size.height / 2)
+                                        if (OneRmFx.tick == 4) drawCircle(Green.copy(alpha = 0.55f * (1f - b)), radius = size.minDimension / 2 * (1f + b * 2.2f), center = c)
+                                        else drawCircle(gold.copy(alpha = 1f - b), radius = size.minDimension / 2 * (1f + b * 1.8f), center = c,
+                                            style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx() * (1.5f - b)))
+                                    }
+                                }
                                 .clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
@@ -453,6 +527,12 @@ fun OneRmTestScreen(id: String) {
             listOf(Color.Transparent, Color(0xFF8B0000).copy(alpha = a * 0.5f), Color(0xFF3A0000).copy(alpha = a)),
             center = Offset(size.width / 2, size.height / 2), radius = maxOf(size.width, size.height) * 0.75f,
         ))
+        // Gold shockwave: a ring racing out from the middle.
+        val r = ring.value
+        if (r > 0f && r < 1f) drawCircle(gold.copy(alpha = 1f - r), radius = r * maxOf(size.width, size.height) * 0.8f,
+            center = Offset(size.width / 2, size.height / 2), style = androidx.compose.ui.graphics.drawscope.Stroke((28f * (1f - r) + 2f) * density))
+        // Lightning: a white flash.
+        if (white.value > 0f) drawRect(Color.White.copy(alpha = white.value))
     })
     }
     if (confirmLeave) AlertDialog(
@@ -510,14 +590,20 @@ class Heat(private val sweepState: androidx.compose.runtime.State<Float>, privat
 
 @Composable
 fun rememberHeat(): Heat {
+    val style = OneRmFx.shine // 0 glint + ember, 1 ember only, 2 fast glint, 3 none
     val t = rememberInfiniteTransition(label = "heat")
     val sweep = t.animateFloat(
         -0.3f, 1.3f,
-        infiniteRepeatable(keyframes { durationMillis = 3400; -0.3f at 0; 1.3f at 1000 using FastOutSlowInEasing; 1.3f at 3400 }),
+        infiniteRepeatable(keyframes {
+            durationMillis = if (style == 2) 1400 else 3400
+            -0.3f at 0; 1.3f at (if (style == 2) 550 else 1000) using FastOutSlowInEasing; 1.3f at (if (style == 2) 1400 else 3400)
+        }),
         label = "glint",
     )
     val ember = t.animateFloat(0.55f, 1f, infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "ember")
-    return Heat(sweep, ember)
+    val off = androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(-1f) }
+    val steady = androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(0.85f) }
+    return Heat(if (style == 0 || style == 2) sweep else off, if (style <= 1) ember else steady)
 }
 
 /** A diagonal band of gold light crossing the surface, like light catching a polished plate. */

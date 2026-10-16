@@ -285,6 +285,8 @@ fun SettingsScreen() {
                     GreyButton("Undo all", Modifier.weight(1f), Red) { AppText.clear(); textMsg = "All text changes undone." }
                 }
                 textMsg?.let { androidx.compose.material3.Text(it, color = Blue) }
+                Spacer(8)
+                OneRmFxSettings()
                 Row(Modifier.fillMaxWidth().clickable { set(p.copy(devAi = !p.devAi)) }, verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("AI picture tools")

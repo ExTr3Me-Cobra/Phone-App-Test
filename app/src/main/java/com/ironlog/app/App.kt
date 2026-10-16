@@ -261,9 +261,7 @@ private fun screenTransition(from: Screen, to: Screen): ContentTransform {
         from.route is Route.Tabs && to.route is Route.Tabs ->
             fadeIn(tween(200, easing = ease)) togetherWith fadeOut(tween(140))
         // Into 1 Rep Max: the new screen drops in from slightly too big, like a plate hitting the floor.
-        to.depth > from.depth && isOneRm(to.route) ->
-            (scaleIn(tween(320, easing = EaseOutBack), initialScale = 1.14f) + fadeIn(tween(160))) togetherWith
-                (scaleOut(tween(260), targetScale = 0.9f) + fadeOut(tween(220)))
+        to.depth > from.depth && isOneRm(to.route) -> OneRmFx.enter()
         // Forward: slides in from the right over the old one, which drifts left and dims.
         to.depth > from.depth ->
             (slideInHorizontally(tween(300, easing = ease)) { it / 3 } + fadeIn(tween(220))) togetherWith
