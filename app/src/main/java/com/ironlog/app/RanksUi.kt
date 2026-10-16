@@ -201,6 +201,7 @@ fun HomeRankCard() {
                 val rankable = StandardsData.all.filter { (!it.ai || Standards.mode(profile) == Standards.Mode.AI) && !(profile.gripRank && it.flat) }.mapNotNull { Store.exercise(it.id) }.filter { g in it.primary && !it.hidden }
                 if (rankable.isEmpty()) return@forEach
                 val forYou = rankable.filter { Standards.covers(it.id, profile) }
+                if (forYou.isEmpty()) return@forEach // nothing for this muscle is ranked in your mode: leave it off
                 Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Card2))
@@ -209,12 +210,7 @@ fun HomeRankCard() {
                         Text("Not ranked yet", fontSize = 13.sp, color = Sub)
                     }
                     Text(
-                        when {
-                            forYou.isNotEmpty() -> "Log " + forYou.take(3).joinToString(", ") { it.name } + (if (forYou.size > 3) " or another ★ exercise" else "") + " to rank it."
-                            Standards.mode(profile) == Standards.Mode.ACCURATE -> "Only estimate data so far (" + rankable.take(2).joinToString(", ") { it.name } +
-                                ") – switch Ranks to All on in Settings to rank it."
-                            else -> "No exercise for it can be ranked with your current details."
-                        },
+                        "Log " + forYou.take(3).joinToString(", ") { it.name } + (if (forYou.size > 3) " or another ★ exercise" else "") + " to rank it.",
                         color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp),
                     )
                 }
@@ -257,69 +253,6 @@ private fun GripTestButton() {
 
 // ---------------- Exercise page ----------------
 
-@Composable
-fun ExerciseRankCard(e: Exercise, profile: Profile, workouts: List<Workout>) {
-    val mode = Standards.mode(profile)
-    if (mode == Standards.Mode.OFF) return
-    val info = Standards.info(e.id) ?: return
-    val fit = Standards.fit(e.id, profile)
-    val r = remember(workouts, profile, e.id) { Ranks.all(workouts, profile)[e.id] }
-    var details by remember { mutableStateOf(false) }
-    Column(Modifier.padding(16.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(16.dp)) {
-        Text(buildAnnotatedString {
-            append("Your rank ")
-            val star = Standards.star(e.id, profile)
-            if (star != Standards.Star.NONE) withStyle(SpanStyle(color = starColor(star))) { append("★") }
-        }, fontWeight = FontWeight.Bold)
-        when {
-            fit == null -> Text("Add your body weight (and age) in Settings to see where you rank.", color = Sub)
-            Standards.isAi(e.id) && mode != Standards.Mode.AI -> {
-                Text("No published data for this exercise. It can only be ranked as an AI estimate:", color = Sub)
-                Text("Switch Ranks to \"All on + AI\" in Settings to rank it with a purple ★.", color = Sub, fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 4.dp))
-            }
-            mode == Standards.Mode.ACCURATE && !fit.exact -> {
-                Text("Not ranked in Accurate-only mode:", color = Sub)
-                fit.problems.forEach { Text("• $it", color = Sub, fontSize = 13.sp) }
-                Text("Switch Ranks to \"All on\" in Settings to rank it anyway as an estimate.", color = Sub, fontSize = 13.sp,
-                    modifier = Modifier.padding(top = 4.dp))
-            }
-            r == null -> Text("Log this exercise to get your rank.", color = Sub)
-            else -> {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RankBadge(r.tier, 64.dp)
-                    HSpacer(12)
-                    Column {
-                        Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
-                        Text("(${topLabel(r.percentile)})")
-                    }
-                }
-                Text(if (info.flat) "Stronger than about ${r.percentile.toInt()}% of ${if (profile.male) "men" else "women"} aged 20–39 – everyone, not just lifters."
-                    else "Stronger than about ${r.percentile.toInt()}% of ${Standards.who(profile)} who lift.", fontSize = 15.sp,
-                    modifier = Modifier.padding(top = 6.dp))
-                Text(
-                    "Your best in the 24 hours up to your last session: " + if (info.reps) "${r.value.toInt()} reps" else if (info.flat) "best squeeze ${Units.weightU(r.value)}" else if (info.oneLeg) "two-leg equivalent ${Units.weightU(r.value)}" else "est. 1-rep max ${Units.weightU(r.value)}",
-                    color = Sub, fontSize = 13.sp,
-                )
-                Box(Modifier.padding(top = 8.dp).fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
-                    Box(Modifier.fillMaxWidth((r.percentile / 100).toFloat()).height(8.dp).background(Color(r.tier.color)))
-                }
-                Text("See the chart and who you're compared with ›", color = Blue, fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 10.dp).clickable { Nav.go(Route.RankDetail(e.id)) })
-            }
-        }
-        if (fit != null) {
-            Text(if (details) "Who you're compared with ▴" else "Who you're compared with ▾", color = Blue, fontSize = 13.sp,
-                modifier = Modifier.padding(top = 8.dp).clickable { details = !details })
-            if (details) {
-                Text(fit.compared, color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
-                if (!fit.exact && mode >= Standards.Mode.ALL) fit.problems.forEach {
-                    Text("• $it", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 2.dp))
-                }
-            }
-        }
-    }
-}
 
 // ---------------- Rank-up celebration ----------------
 
