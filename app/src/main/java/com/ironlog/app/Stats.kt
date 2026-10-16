@@ -8,10 +8,15 @@ import kotlin.math.roundToInt
 
 /** Numbers worked out from logged sets. Weights are pounds. */
 object Stats {
-    /** Estimated one-rep max (Epley), from sets of up to 12 reps. */
+    /**
+     * Estimated 1-rep max from a set: Wathen (1994), 1RM = 100 × w / (48.8 + 53.8 × e^(−0.075 × reps)).
+     * In comparisons against tested maxes it is the most accurate (or tied most accurate) on every lift studied
+     * (bench, squat, deadlift, arm curl), and unlike Epley or Brzycki it doesn't run away at high reps. Reps over 20 count as 20.
+     */
     fun e1rm(w: Double?, r: Int?): Double {
         if (w == null || r == null || w <= 0 || r <= 0) return 0.0
-        return if (r == 1) w else w * (1 + minOf(r, 12) / 30.0)
+        if (r == 1) return w
+        return 100 * w / (48.8 + 53.8 * kotlin.math.exp(-0.075 * minOf(r, 20)))
     }
 
     enum class Metric(val label: String, val unit: String) {

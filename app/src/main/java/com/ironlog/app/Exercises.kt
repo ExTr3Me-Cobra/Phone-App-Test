@@ -479,17 +479,24 @@ fun MusclesCard(e: Exercise) {
     var sources by remember { mutableStateOf(false) }
     Column(Modifier.padding(16.dp, 8.dp).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp)) {
         Text("Muscles worked", fontWeight = FontWeight.Bold)
-        e.muscles.entries.sortedByDescending { it.value }.forEach { (m, v) ->
+        // Each muscle's share of the total work, adding up to exactly 100% (largest-remainder rounding).
+        val list = e.muscles.entries.sortedByDescending { it.value }
+        val total = list.sumOf { it.value.toDouble() }.takeIf { it > 0 } ?: 1.0
+        val raw = list.map { it.value / total * 100 }
+        val shares = raw.map { kotlin.math.floor(it).toInt() }.toIntArray()
+        raw.indices.sortedByDescending { raw[it] - shares[it] }.take(100 - shares.sum()).forEach { shares[it]++ }
+        val top = shares.maxOrNull()?.coerceAtLeast(1) ?: 1
+        list.forEachIndexed { i, (m, v) ->
             Row(Modifier.fillMaxWidth().padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(Muscles.label(m), Modifier.weight(1f), fontSize = 14.sp)
                 Box(Modifier.width(70.dp).height(8.dp).clip(RoundedCornerShape(4.dp)).background(Card2)) {
-                    Box(Modifier.fillMaxWidth(v.coerceIn(0f, 1f)).fillMaxHeight().background(Color(BodyMap.heat(v))))
+                    Box(Modifier.fillMaxWidth((shares[i].toFloat() / top).coerceIn(0f, 1f)).fillMaxHeight().background(Color(BodyMap.heat(v))))
                 }
-                Text("${(v * 100).roundToInt()}%", Modifier.width(48.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End, fontSize = 14.sp)
+                Text("${shares[i]}%", Modifier.width(48.dp), textAlign = androidx.compose.ui.text.style.TextAlign.End, fontSize = 14.sp)
             }
         }
         Text(
-            if (e.edited || e.custom) "Your numbers." else "Estimates from EMG and training studies of this kind of movement, compared with the main muscle (100%).",
+            if (e.edited || e.custom) "Your numbers, as each muscle's share of the total work (adds up to 100%)." else "Each muscle's share of the total work (adds up to 100%), estimated from EMG and training studies of this kind of movement.",
             color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp),
         )
         if (e.refs.isNotEmpty() && !e.edited && !e.custom) {
