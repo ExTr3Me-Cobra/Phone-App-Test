@@ -446,7 +446,7 @@ fun ExercisePicture(e: Exercise, modifier: Modifier) {
                 Image(bmp, e.name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
                 // A small note on AI-made pictures (your own photos don't get it).
                 if (remember(e.id, version) { !Pictures.isOwn(e.id) }) androidx.compose.material3.Text(
-                    "AI generated image. May be inaccurate", color = Color(0xFFF2EFE8), fontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp),
+                    "AI generated image.\nMay be inaccurate", textAlign = androidx.compose.ui.text.style.TextAlign.End, lineHeight = androidx.compose.ui.unit.TextUnit(10f, androidx.compose.ui.unit.TextUnitType.Sp), color = Color(0xFFF2EFE8), fontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp),
                     style = androidx.compose.ui.text.TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color(0x99000000), androidx.compose.ui.geometry.Offset(0f, 1f), 3f)),
                     modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
                 )

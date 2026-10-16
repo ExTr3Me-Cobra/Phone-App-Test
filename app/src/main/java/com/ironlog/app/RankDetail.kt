@@ -125,9 +125,18 @@ fun RankDetailBody(id: String) {
                 Text("The levels for you", fontWeight = FontWeight.Bold)
                 Standards.LEVEL_NAMES.forEachIndexed { k, name ->
                     val reached = mine != null && mine >= lv[k]
-                    Row {
-                        Text((if (reached) "✓ " else "   ") + name, Modifier.weight(1f), color = if (reached) Color.White else Sub)
-                        Text("beats ${(Standards.percentile(id, lv[k], p) ?: Standards.LEVEL_PCT[k]).toInt()}%", Modifier.width(90.dp), color = Sub, fontSize = 13.sp)
+                    val pct = Standards.percentile(id, lv[k], p) ?: Standards.LEVEL_PCT[k]
+                    val tier = Tier.of(pct)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text((if (reached) "✓ " else "   ") + name, color = if (reached) Color.White else Sub)
+                            // The rank this level puts you at.
+                            Row(Modifier.padding(start = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+                                RankBadge(tier, 18.dp)
+                                Text(" " + tier.label, color = Color(tier.color), fontSize = 12.sp)
+                            }
+                        }
+                        Text("beats ${pct.toInt()}%", Modifier.width(90.dp), color = Sub, fontSize = 13.sp)
                         Text(fmt(lv[k]), Modifier.width(80.dp), fontWeight = FontWeight.Medium)
                     }
                 }

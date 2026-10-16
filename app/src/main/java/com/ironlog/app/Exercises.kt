@@ -453,8 +453,14 @@ fun ExerciseDetailScreen(id: String) {
             }
 
             if (e.instructions.isNotEmpty()) {
-                SectionTitle("How to do it")
-                e.instructions.forEachIndexed { i, s -> Text("${i + 1}. $s", modifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)) }
+                // Proper form: tap to open the step-by-step directions.
+                var formOpen by rememberSaveable(e.id) { mutableStateOf(false) }
+                Row(Modifier.padding(16.dp, 12.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
+                    .clickable { formOpen = !formOpen }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Proper Form", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                    Text(if (formOpen) "▴" else "▾", color = Blue, fontSize = 18.sp)
+                }
+                if (formOpen) e.instructions.forEachIndexed { i, s -> Text("${i + 1}. $s", modifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)) }
             }
             Spacer(40)
         }
