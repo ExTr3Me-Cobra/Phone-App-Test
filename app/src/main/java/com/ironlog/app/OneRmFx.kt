@@ -107,7 +107,9 @@ object OneRmFx {
         "Fire from below (bottom + up the sides)", "Flame wall rising", "Fire ring + earthquake", "Fire from below + embers")
     val TICK = listOf("Stamp + rattle", "Pop + gold burst", "Flip", "Slam + red row flash", "Green glow", "Hard shake", "None",
         "Fire ring burst", "Fire ring + stamp", "Ember pop", "Big flame burst", "Flip + fire ring",
-        "Flame pillar (fire shoots up)", "Fire swirl", "Ember fountain", "Scorch (row burns + fire ring)")
+        "Flame pillar (fire shoots up)", "Fire swirl", "Ember fountain", "Scorch (row burns + fire ring)",
+        "Molten cracks", "Meteor smash (cracks + fire ring + sparks)", "White-hot shockwave + cracks", "Lava splash",
+        "Ground pound (screen shakes + cracks)", "Anvil strike (spark fan + flash)", "Volcano (cracks + lava + pillar)")
     val SHINE = listOf("Gold glint + ember glow", "Ember glow only", "Fast glint", "None", "Flame flicker", "Fire glint (orange)", "Lava pulse",
         "Fire inside (flames rising from the bottom)", "Burning border (flames all round)", "Ember drift", "Inferno button (flames + embers + glint)")
 
@@ -294,9 +296,34 @@ class TickFx {
     private suspend fun stampDown(from: Float = 1.55f) { stamp.snapTo(from); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
     private suspend fun burstOut(ms: Int) { burst.snapTo(0f); burst.animateTo(1f, tween(ms, easing = FastOutSlowInEasing)) }
 
-    suspend fun play(kind: Int, haptic: HapticFeedback?) = coroutineScope {
+    /** Second layer for the heavy hits: 0–1 for cracks/flash, set alongside [burst]. */
+    val crack = Animatable(0f)
+
+    /** [screen] lets the heaviest hits shake the whole screen. */
+    suspend fun play(kind: Int, haptic: HapticFeedback?, screen: FxState? = null) = coroutineScope {
         if (kind != 6) haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
+        suspend fun heavy() { // a second thud just after the first, so it feels like a slam
+            delay(70); haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+        fun cracks(ms: Int) = launch { crack.snapTo(0f); crack.animateTo(1f, tween(ms, easing = androidx.compose.animation.core.LinearEasing)) }
+        fun jolt(px: Float) = screen?.let { s -> launch { s.jolt.animateTo(0f, keyframes { durationMillis = 360; px at 30; -px * 0.7f at 90; px * 0.45f at 160; -px * 0.25f at 230; px * 0.1f at 300 }) } }
         when (kind) {
+            16 -> { launch { heavy() }; launch { stampDown(1.9f) }; launch { rattle(320, 12f) }; jolt(10f); cracks(1300).join() }
+            17 -> {
+                launch { heavy() }; launch { stamp.snapTo(2.6f); stamp.animateTo(1f, tween(130, easing = FastOutLinearInEasing)) }
+                delay(110); jolt(16f); launch { rattle(380, 16f) }; cracks(1400); burstOut(800)
+            }
+            18 -> { launch { heavy() }; launch { stampDown(1.7f) }; jolt(12f); launch { rowFlash.snapTo(0.5f); rowFlash.animateTo(0f, tween(500)) }; cracks(1300); burstOut(650) }
+            19 -> { launch { heavy() }; launch { stampDown(1.6f) }; launch { rattle(300, 10f) }; burstOut(1100) }
+            20 -> {
+                launch { heavy() }; launch { stamp.snapTo(0.6f); stamp.animateTo(1f, spring(dampingRatio = 0.3f, stiffness = 500f)) }
+                jolt(24f); launch { rattle(500, 22f) }; cracks(1200).join()
+            }
+            21 -> { launch { heavy() }; launch { stampDown(1.5f) }; launch { rowFlash.snapTo(0.4f); rowFlash.animateTo(0f, tween(350)) }; burstOut(900) }
+            22 -> {
+                launch { heavy() }; launch { stampDown(2.0f) }; jolt(18f); launch { rattle(420, 16f) }
+                cracks(1500); burstOut(1300)
+            }
             1 -> { launch { stamp.snapTo(1.3f); stamp.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 600f)) }; burstOut(480) }
             2 -> { spin.snapTo(0f); spin.animateTo(360f, tween(450, easing = FastOutSlowInEasing)); spin.snapTo(0f) }
             3 -> { stamp.snapTo(2.2f); stamp.animateTo(1f, tween(140, easing = FastOutLinearInEasing)); rowFlash.snapTo(0.55f); rowFlash.animateTo(0f, tween(450)) }
@@ -342,8 +369,24 @@ fun Modifier.tickBox(t: TickFx, kind: Int) = graphicsLayer {
         13 -> fireRing(c, half * (1.25f + b * 0.9f), b * 0.999f, 16.dp.toPx() * (1f - b * 0.4f), spin = b * 6f)
         14 -> fountain(c, half, b)
         15 -> fireRing(c, half * (1f + b * 2.6f), b, 22.dp.toPx() * (1f - b * 0.3f))
+        17 -> { fireRing(c, half * (1f + b * 3.2f), b, 26.dp.toPx() * (1f - b * 0.3f)); sparks(c, half, b) }
+        18 -> {
+            drawCircle(Color.White.copy(alpha = (1f - b) * 0.8f), radius = half * (1f + b * 5f), center = c, style = Stroke(10.dp.toPx() * (1f - b)))
+            drawCircle(FireGold.copy(alpha = (1f - b) * 0.5f), radius = half * (1f + b * 3f), center = c)
+        }
+        19, 22 -> lava(c, half, b)
+        21 -> anvil(c, half, b)
+        16, 20 -> {}
         else -> drawCircle(Color(0xFFC9A94E).copy(alpha = 1f - b), radius = half * (1f + b * 1.8f), center = c, style = Stroke(3.dp.toPx() * (1.5f - b)))
     }
+    if (kind == 22 && b > 0f && b < 1f) flamePillar(c, half, b)
+}
+
+/** The heavy hits' cracks, drawn behind the ✓ (and far beyond it). */
+fun Modifier.tickCracks(t: TickFx, kind: Int) = drawBehind {
+    val k = t.crack.value
+    if (k <= 0f || k >= 1f || kind !in setOf(16, 17, 18, 20, 22)) return@drawBehind
+    moltenCracks(Offset(size.width / 2, size.height / 2), size.minDimension / 2, k, if (kind == 20) 1.4f else 1f)
 }
 
 // ---------------- Fire, in the 1 Rep Max red and gold ----------------
@@ -533,6 +576,78 @@ fun Modifier.quakeRattle(q: () -> Float, i: Int) = graphicsLayer {
     }
 }
 
+/**
+ * Molten cracks splitting outward from a ✓: jagged lines that tear out fast, glow white-gold to orange, then cool to
+ * dark red and fade. [k] runs 0–1; [reach] stretches them.
+ */
+fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f) {
+    val grow = (k / 0.16f).coerceAtMost(1f)
+    val cool = ((k - 0.25f) / 0.75f).coerceIn(0f, 1f)
+    val a = 1f - cool
+    val hot = androidx.compose.ui.graphics.lerp(FireGold, FireOrange, (cool * 2f).coerceAtMost(1f))
+    val core = androidx.compose.ui.graphics.lerp(Color(0xFFFFF4D0), FireRed, cool)
+    val total = half * 7f * reach
+    for (branch in 0 until 9) {
+        var ang = (branch * 2.0 * Math.PI / 9 + (rnd(branch, 41f) - 0.5f) * 0.5f).toFloat()
+        var p = c
+        var used = 0f
+        val len = total * (0.55f + 0.45f * rnd(branch, 42f))
+        val show = len * grow
+        for (seg in 0 until 7) {
+            if (used >= show) break
+            val segLen = (len / 7f) * (0.7f + 0.6f * rnd(branch * 10 + seg, 43f))
+            val l = minOf(segLen, show - used)
+            ang += (rnd(branch * 10 + seg, 44f) - 0.5f) * 0.9f
+            val q = Offset(p.x + kotlin.math.cos(ang) * l, p.y + kotlin.math.sin(ang) * l)
+            val w = (1f - used / len) // thinner further out
+            drawLine(FireOrange.copy(alpha = 0.35f * a), p, q, strokeWidth = (9.dp.toPx() * w).coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(hot.copy(alpha = a), p, q, strokeWidth = (4.dp.toPx() * w).coerceAtLeast(1.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawLine(core.copy(alpha = a), p, q, strokeWidth = (1.6.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            // A small side crack now and then.
+            if (rnd(branch * 10 + seg, 45f) < 0.35f) {
+                val sa = ang + (if (rnd(branch * 10 + seg, 46f) < 0.5f) 0.9f else -0.9f)
+                val sl = l * 0.6f
+                val r2 = Offset(q.x + kotlin.math.cos(sa) * sl, q.y + kotlin.math.sin(sa) * sl)
+                drawLine(hot.copy(alpha = a * 0.8f), q, r2, strokeWidth = (2.5.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            }
+            p = q; used += l
+        }
+    }
+    // The impact glow at the centre.
+    drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF4D0).copy(alpha = a), FireOrange.copy(alpha = 0.5f * a), Color.Transparent), center = c, radius = half * 2.4f),
+        radius = half * 2.4f, center = c)
+}
+
+/** Blobs of molten metal flung out of the ✓, arcing down with glowing streaks. */
+private fun DrawScope.lava(c: Offset, half: Float, b: Float) {
+    for (i in 0 until 20) {
+        val ang = (i * 2.0 * Math.PI / 20 + rnd(i, 51f) * 0.6).toFloat()
+        val speed = half * (3f + rnd(i, 52f) * 4f)
+        val g = half * 10f
+        fun at(t: Float) = Offset(c.x + kotlin.math.cos(ang) * speed * t, c.y + kotlin.math.sin(ang) * speed * t - half * 3f * t + g * t * t)
+        val pos = at(b); val prev = at((b - 0.06f).coerceAtLeast(0f))
+        val a = 1f - b
+        val col = androidx.compose.ui.graphics.lerp(FireGold, FireRed, b)
+        drawLine(FireOrange.copy(alpha = a * 0.6f), prev, pos, strokeWidth = 4.dp.toPx() * (1f - b * 0.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        drawCircle(col.copy(alpha = a), radius = (2.5f + rnd(i, 53f) * 3f).dp.toPx() * (1f - b * 0.4f), center = pos)
+    }
+    drawCircle(FireOrange.copy(alpha = (1f - b) * 0.6f), radius = half * (1f + b * 1.5f), center = c)
+}
+
+/** An anvil strike: a fan of white-hot sparks thrown up and out, with a flash. */
+private fun DrawScope.anvil(c: Offset, half: Float, b: Float) {
+    if (b < 0.25f) drawCircle(Color.White.copy(alpha = (1f - b / 0.25f) * 0.9f), radius = half * (1.2f + b * 6f), center = c)
+    for (i in 0 until 34) {
+        val ang = (-Math.PI / 2 + (rnd(i, 61f) - 0.5f) * 2.4).toFloat()
+        val speed = half * (4f + rnd(i, 62f) * 6f)
+        val g = half * 8f
+        fun at(t: Float) = Offset(c.x + kotlin.math.cos(ang) * speed * t, c.y + kotlin.math.sin(ang) * speed * t + g * t * t)
+        val pos = at(b); val prev = at((b - 0.05f).coerceAtLeast(0f))
+        val col = androidx.compose.ui.graphics.lerp(Color(0xFFFFF4D0), FireOrange, b)
+        drawLine(col.copy(alpha = 1f - b), prev, pos, strokeWidth = 2.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+    }
+}
+
 /** Sparks flying out from a ✓. */
 private fun DrawScope.sparks(c: Offset, half: Float, b: Float) {
     for (i in 0 until 18) {
@@ -630,7 +745,7 @@ private fun FxStage(mode: Int, play: Int) {
             }
             7 -> { screen = 2; quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
             2 -> { screen = 2; delay(150); fx.play(OneRmFx.arrival, haptic, 0, density) }
-            3 -> { screen = 2; delay(300); ticked = true; tick.play(OneRmFx.tick, haptic) }
+            3 -> { screen = 2; delay(300); ticked = true; tick.play(OneRmFx.tick, haptic, fx) }
             4 -> screen = 1
             5 -> { screen = 1; quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
         }
@@ -656,7 +771,7 @@ private fun FxStage(mode: Int, play: Int) {
                     Row(Modifier.fillMaxWidth().quakeRattle({ quake.value }, 3).tickRow(tick).padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.material3.Text("1", color = Sub, fontSize = 12.sp, modifier = Modifier.width(20.dp))
                         Box(Modifier.weight(1f).height(26.dp).padding(end = 6.dp).clip(RoundedCornerShape(6.dp)).background(Card2))
-                        Box(Modifier.size(width = 54.dp, height = 30.dp).tickBox(tick, OneRmFx.tick).clip(RoundedCornerShape(8.dp))
+                        Box(Modifier.size(width = 54.dp, height = 30.dp).tickCracks(tick, OneRmFx.tick).tickBox(tick, OneRmFx.tick).clip(RoundedCornerShape(8.dp))
                             .background(if (ticked) Color(0xFF34C759) else Card2), contentAlignment = Alignment.Center) {
                             androidx.compose.material3.Text("✓", fontWeight = FontWeight.Bold)
                         }

@@ -446,7 +446,7 @@ fun OneRmTestScreen(id: String) {
                 val tfx = remember(k) { TickFx() }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
-                    if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic) }
+                    if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic, fx) }
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
@@ -461,7 +461,7 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).tickBox(tfx, OneRmFx.tick).clip(RoundedCornerShape(10.dp)).background(tickColor)
+                            Modifier.weight(1f).tickCracks(tfx, OneRmFx.tick).tickBox(tfx, OneRmFx.tick).clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
                                     val live = OneRm.liveWorkout(id)
