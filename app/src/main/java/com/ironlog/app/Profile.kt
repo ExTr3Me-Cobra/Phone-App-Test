@@ -204,8 +204,10 @@ fun SettingsScreen() {
             Row(Modifier.fillMaxWidth().clickable { set(p.copy(extraAnims = !p.extraAnims)) }, verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("Extra animations")
-                    Text(if (p.extraAnims) "Sliding screens, buttons that press in, 1 Rep Max effects and the ring when you finish a set."
-                        else "Off: screens switch straight away and effects are skipped. Rank-up and rank-down pop-ups still show.",
+                    Text(if (p.extraAnims) "On: screens slide in and out, buttons and cards press in when tapped, drop-downs slide open, a green ring " +
+                            "pops when you finish a set, and 1 Rep Max mode has its fire landing, embers, earthquake, glowing gold buttons and set-tick shockwave."
+                        else "Off: screens switch instantly, buttons don't press in, drop-downs open instantly, and the set ring and all " +
+                            "1 Rep Max effects are skipped. Rank-up and rank-down pop-ups still show.",
                         color = Sub, fontSize = 12.sp)
                 }
                 androidx.compose.material3.Switch(p.extraAnims, { set(p.copy(extraAnims = it)) })
