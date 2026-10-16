@@ -380,6 +380,7 @@ fun OneRmTestScreen(id: String) {
         fx.play(OneRmFx.arrival, haptic, 200, density)
     }
     val rattle = { quake.value }
+    val tickScope = androidx.compose.runtime.rememberCoroutineScope()
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().fxShake(fx)) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
@@ -441,7 +442,8 @@ fun OneRmTestScreen(id: String) {
                 val tfx = remember(k) { TickFx() }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
-                    if (s.done && !seen && extraAnims()) tfx.play(OneRmFx.tick, haptic)
+                    // Runs in the screen's scope, so unticking straight away lets the effect finish instead of freezing it.
+                    if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic) }
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
