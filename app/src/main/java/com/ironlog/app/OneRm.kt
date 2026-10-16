@@ -271,9 +271,11 @@ fun OneRmListScreen() {
             OneRmFx.enteringList = false
             if (!entering || !extraAnims()) return@LaunchedEffect
             OneRmFx.entryEffect()?.let { (k, at) -> launch { listFx.play(k, quakeHaptic, at, density) } }
-            if (OneRmFx.listQuake) {
+            // The earthquake test, or an opening that includes one (it hits as the screen lands).
+            val shakeAt = OneRmFx.entryQuake()
+            if (OneRmFx.listQuake || shakeAt != null) {
                 quake.snapTo(0f)
-                kotlinx.coroutines.delay(150)
+                kotlinx.coroutines.delay(shakeAt ?: 150)
                 launch { repeat(4) { quakeHaptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
                 quake.animateTo(1f, tween(1100))
             }
@@ -364,6 +366,8 @@ fun OneRmTestScreen(id: String) {
     // The test screen itself has no transitions or effects: it's a plain working screen.
     val haptic = LocalHapticFeedback.current
     OneRmFx.enteringTest = false
+    val heat = rememberHeat()
+    val tickScope = androidx.compose.runtime.rememberCoroutineScope()
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize()) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
@@ -421,8 +425,15 @@ fun OneRmTestScreen(id: String) {
             }
             OneRm.rows.forEachIndexed { i, s ->
                 val k = "$id:$i:$refresh"
-                val tickColor = if (s.done) Green else Card2
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Ticking a set plays the effect picked in developer settings (it finishes even if you untick straight away).
+                val tfx = remember(k) { TickFx() }
+                var seen by remember(k) { mutableStateOf(s.done) }
+                LaunchedEffect(k, s.done) {
+                    if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic) }
+                    seen = s.done
+                }
+                val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
+                Row(Modifier.tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -433,7 +444,7 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(tickColor)
+                            Modifier.weight(1f).tickBox(tfx, OneRmFx.tick).clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
                                     val live = OneRm.liveWorkout(id)
@@ -451,10 +462,14 @@ fun OneRmTestScreen(id: String) {
                 refresh++
             }
             error?.let { Text(it, color = Red) }
+            // Once a set is in, the button heats up (the Gold buttons style from developer settings).
+            val ready = OneRm.rows.any { it.done }
+            val finishPress = rememberPress(0.93f)
             Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
-                    .border(1.5.dp, gold, RoundedCornerShape(12.dp))
-                    .clickable { finishTest(context, id)?.let { error = it } }.padding(16.dp),
+                Modifier.pressScale(finishPress).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
+                    .then(if (ready) Modifier.heatFire(heat).glint(heat).emberBorder(heat, 2.dp, gold, RoundedCornerShape(12.dp))
+                        else Modifier.border(1.5.dp, gold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)))
+                    .pressClick(finishPress) { finishTest(context, id)?.let { error = it } }.padding(16.dp),
                 horizontalArrangement = Arrangement.Center,
             ) { Text("FINISH TEST", color = gold, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp, letterSpacing = 1.5.sp) }
             Spacer(300)

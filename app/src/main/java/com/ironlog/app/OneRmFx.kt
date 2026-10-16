@@ -77,14 +77,14 @@ object OneRmFx {
         "Zoom punch", "Shutter (opens from the middle)", "Fade through black", "Whip in from the side", "None")
 
     /** Opening 1 Rep Max: a transition, and for the fire ones an effect timed to when the screen lands. */
-    private class Entry(val name: String, val trans: Int, val effect: Int = -1, val at: Long = 0)
+    private class Entry(val name: String, val trans: Int, val effect: Int = -1, val at: Long = 0, val quake: Boolean = false)
     private val entries = listOf(
         Entry("Slam (drop from too big)", 1), Entry("Drop from above (bounce)", 2), Entry("Rise from below", 4), Entry("Zoom punch", 5),
         Entry("Shutter (opens from the middle)", 6), Entry("Fade through black", 7), Entry("Whip in from the side", 8), Entry("None", 9),
-        Entry("Drop from above + fire landing + embers", 3, 13, 300), Entry("Drop from above + flame wall", 3, 11, 300),
+        Entry("Drop from above + fire landing + embers + earthquake", 3, 13, 300, true), Entry("Drop from above + flame wall", 3, 11, 300),
         Entry("Rise from below + fire from below", 4, 10, 0), Entry("Zoom punch + fire ring", 5, 7, 100),
         Entry("Fade through black + ember shower", 7, 8, 250), Entry("Ignite (inferno, then fade in)", 7, 9, 120),
-        Entry("Slam + fire ring", 1, 7, 280), Entry("Drop from above (bounce) + fire landing + embers", 2, 13, 260),
+        Entry("Slam + fire ring", 1, 7, 280), Entry("Drop from above (bounce) + fire landing + embers + earthquake", 2, 13, 260, true),
         Entry("Whip in + fire from below", 8, 10, 180),
     )
     val ENTRY = entries.map { it.name }
@@ -150,6 +150,8 @@ object OneRmFx {
     /** Going into 1 Rep Max. */
     fun enter(i: Int = entry): ContentTransform = trans(entries.getOrElse(i) { entries[0] }.trans)
     /** The effect (and when) that goes with an opening, if any. */
+    /** When (ms) the list should shake, if the opening includes an earthquake. */
+    fun entryQuake(i: Int = entry): Long? = entries.getOrNull(i)?.takeIf { it.quake }?.at
     fun entryEffect(i: Int = entry): Pair<Int, Long>? = entries.getOrNull(i)?.takeIf { it.effect >= 0 }?.let { it.effect to it.at }
     /** Going from the 1 Rep Max list into a test. */
     fun openTest(i: Int = testTrans): ContentTransform = trans(tests.getOrElse(i) { tests[0] }.trans)
@@ -566,6 +568,7 @@ fun OneRmFxSettings() {
         }
         FxPicker("Opening 1 Rep Max", OneRmFx.ENTRY, OneRmFx.entry) { OneRmFx.entry = it; OneRmFx.save(); preview(0) }
         FxPicker("Leaving 1 Rep Max", OneRmFx.LEAVE, OneRmFx.leave) { OneRmFx.leave = it; OneRmFx.save(); preview(6) }
+        FxPicker("Ticking a set", OneRmFx.TICK, OneRmFx.tick) { OneRmFx.tick = it; OneRmFx.save(); preview(3) }
         FxPicker("Gold buttons", OneRmFx.SHINE, OneRmFx.shine) { OneRmFx.shine = it; OneRmFx.save(); preview(4) }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -616,7 +619,11 @@ private fun FxStage(mode: Int, play: Int) {
     LaunchedEffect(play) {
         ticked = false
         when (mode) {
-            0 -> { screen = 0; delay(450); screen = 1; OneRmFx.entryEffect()?.let { (k, at) -> fx.play(k, haptic, at, density) } }
+            0 -> {
+                screen = 0; delay(450); screen = 1
+                OneRmFx.entryQuake()?.let { at -> launch { quake.snapTo(0f); delay(at); quake.animateTo(1f, tween(1100)) } }
+                OneRmFx.entryEffect()?.let { (k, at) -> fx.play(k, haptic, at, density) }
+            }
             1 -> {
                 screen = 1; delay(450); screen = 2
                 OneRmFx.testEffect()?.let { (k, at) -> launch { fx.play(k, haptic, at, density) } }
