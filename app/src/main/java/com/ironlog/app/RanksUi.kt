@@ -167,13 +167,13 @@ fun HomeRankCard() {
                         HSpacer(4)
                         Text(rankText(pct), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color), maxLines = 1, softWrap = false)
                     }
-                    // The group's exercises hang under it, joined by a line in the group's colour.
-                    Column(Modifier.padding(start = 6.dp, top = 4.dp).fillMaxWidth().drawBehind {
-                        drawLine(Color(tier.color).copy(alpha = 0.5f), androidx.compose.ui.geometry.Offset(0f, 4.dp.toPx()),
-                            androidx.compose.ui.geometry.Offset(0f, size.height - 4.dp.toPx()), 2.dp.toPx())
-                    }) {
+                    // The group's exercises hang under it; each has its own piece of the line on the left, in its rank colour.
+                    Column(Modifier.padding(start = 6.dp, top = 4.dp).fillMaxWidth()) {
                     top.forEach { r ->
-                        Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
+                        Row(Modifier.fillMaxWidth().drawBehind {
+                            drawLine(Color(r.tier.color).copy(alpha = 0.6f), androidx.compose.ui.geometry.Offset(0f, 3.dp.toPx()),
+                                androidx.compose.ui.geometry.Offset(0f, size.height - 3.dp.toPx()), 2.dp.toPx())
+                        }.clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
                             .padding(start = 16.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                             NameText(starredName(r.exercise), color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
                             Text(rankText(r.percentile), fontSize = 13.sp, color = Color(r.tier.color), maxLines = 1, softWrap = false)
