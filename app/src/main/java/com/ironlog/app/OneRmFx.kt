@@ -309,6 +309,8 @@ class TickFx {
 
     /** Second layer for the heavy hits: 0–1 for cracks/flash, set alongside [burst]. */
     val crack = Animatable(0f)
+    /** A fresh random pattern for the cracks every time a set is ticked. */
+    var seed = 0f
 
     /** [screen] lets the heaviest hits shake the whole screen. */
     suspend fun play(kind: Int, haptic: HapticFeedback?, screen: FxState? = null) = coroutineScope {
@@ -316,7 +318,7 @@ class TickFx {
         suspend fun heavy() { // a second thud just after the first, so it feels like a slam
             delay(70); haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
         }
-        fun cracks(ms: Int) = launch { crack.snapTo(0f); crack.animateTo(1f, tween(ms, easing = androidx.compose.animation.core.LinearEasing)) }
+        fun cracks(ms: Int) = launch { seed = kotlin.random.Random.nextFloat() * 1000f; crack.snapTo(0f); crack.animateTo(1f, tween(ms, easing = androidx.compose.animation.core.LinearEasing)) }
         fun jolt(px: Float) = screen?.let { s -> launch { s.jolt.animateTo(0f, keyframes { durationMillis = 360; px at 30; -px * 0.7f at 90; px * 0.45f at 160; -px * 0.25f at 230; px * 0.1f at 300 }) } }
         when (kind) {
             16 -> { launch { heavy() }; launch { stampDown(1.9f) }; launch { rattle(320, 12f) }; jolt(10f); cracks(650).join() }
@@ -384,14 +386,14 @@ fun TickOverlay(ticks: Collection<TickFx>, kind: Int, modifier: Modifier = Modif
                 addRoundRect(androidx.compose.ui.geometry.RoundRect(box, androidx.compose.ui.geometry.CornerRadius(10.dp.toPx())))
             }
             clipPath(hole, androidx.compose.ui.graphics.ClipOp.Difference) {
-                tickEffect(kind, box.center, box.minDimension / 2, b, k)
+                tickEffect(kind, box.center, box.minDimension / 2, b, k, t.seed)
             }
         }
     })
 }
 
-private fun DrawScope.tickEffect(kind: Int, c: Offset, half: Float, b: Float, k: Float) {
-    if (k > 0f && k < 1f && kind in setOf(16, 17, 18, 20, 22)) moltenCracks(c, half, k, if (kind == 20) 1.4f else 1f)
+private fun DrawScope.tickEffect(kind: Int, c: Offset, half: Float, b: Float, k: Float, seed: Float = 0f) {
+    if (k > 0f && k < 1f && kind in setOf(16, 17, 18, 20, 22)) moltenCracks(c, half, k, if (kind == 20) 1.4f else 1f, seed)
     if (b <= 0f || b >= 1f) return
     when (kind) {
         4 -> drawCircle(Color(0xFF34C759).copy(alpha = 0.55f * (1f - b)), radius = half * (1f + b * 2.2f), center = c)
@@ -607,32 +609,35 @@ fun Modifier.quakeRattle(q: () -> Float, i: Int) = graphicsLayer {
  * Molten cracks splitting outward from a ✓: jagged lines that tear out fast, glow white-gold to orange, then cool to
  * dark red and fade. [k] runs 0–1; [reach] stretches them.
  */
-fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f) {
+fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, seed: Float = 0f) {
     val grow = (k / 0.16f).coerceAtMost(1f)
     val cool = ((k - 0.25f) / 0.75f).coerceIn(0f, 1f)
     val a = 1f - cool
     val hot = androidx.compose.ui.graphics.lerp(FireGold, FireOrange, (cool * 2f).coerceAtMost(1f))
     val core = androidx.compose.ui.graphics.lerp(Color(0xFFFFF4D0), FireRed, cool)
     val total = half * 7f * reach
-    for (branch in 0 until 9) {
-        var ang = (branch * 2.0 * Math.PI / 9 + (rnd(branch, 41f) - 0.5f) * 0.5f).toFloat()
+    // Each hit has its own pattern: how many cracks, which way they point, how they zig-zag and branch.
+    val n = 7 + (rnd(1, 40f + seed) * 5f).toInt()
+    val turn = rnd(2, 39f + seed) * 6.2832f
+    for (branch in 0 until n) {
+        var ang = (turn + branch * 2.0 * Math.PI / n + (rnd(branch, 41f + seed) - 0.5f) * 0.7f).toFloat()
         var p = c
         var used = 0f
-        val len = total * (0.55f + 0.45f * rnd(branch, 42f))
+        val len = total * (0.55f + 0.45f * rnd(branch, 42f + seed))
         val show = len * grow
         for (seg in 0 until 7) {
             if (used >= show) break
-            val segLen = (len / 7f) * (0.7f + 0.6f * rnd(branch * 10 + seg, 43f))
+            val segLen = (len / 7f) * (0.7f + 0.6f * rnd(branch * 10 + seg, 43f + seed))
             val l = minOf(segLen, show - used)
-            ang += (rnd(branch * 10 + seg, 44f) - 0.5f) * 0.9f
+            ang += (rnd(branch * 10 + seg, 44f + seed) - 0.5f) * 0.9f
             val q = Offset(p.x + kotlin.math.cos(ang) * l, p.y + kotlin.math.sin(ang) * l)
             val w = (1f - used / len) // thinner further out
             drawLine(FireOrange.copy(alpha = 0.35f * a), p, q, strokeWidth = (9.dp.toPx() * w).coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
             drawLine(hot.copy(alpha = a), p, q, strokeWidth = (4.dp.toPx() * w).coerceAtLeast(1.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
             drawLine(core.copy(alpha = a), p, q, strokeWidth = (1.6.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
             // A small side crack now and then.
-            if (rnd(branch * 10 + seg, 45f) < 0.35f) {
-                val sa = ang + (if (rnd(branch * 10 + seg, 46f) < 0.5f) 0.9f else -0.9f)
+            if (rnd(branch * 10 + seg, 45f + seed) < 0.35f) {
+                val sa = ang + (if (rnd(branch * 10 + seg, 46f + seed) < 0.5f) 0.9f else -0.9f)
                 val sl = l * 0.6f
                 val r2 = Offset(q.x + kotlin.math.cos(sa) * sl, q.y + kotlin.math.sin(sa) * sl)
                 drawLine(hot.copy(alpha = a * 0.8f), q, r2, strokeWidth = (2.5.dp.toPx() * w).coerceAtLeast(1f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
