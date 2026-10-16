@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 fun HomeScreen() {
     val workouts by Store.workouts.collectAsState()
     Column(Modifier.fillMaxSize()) {
-        TopBar("Home", back = false)
+        TopBar("Home", back = false, lead = "?", onLead = { Nav.go(Route.RankHelp) })
         LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
             item { HomeRankCard() }
             item {

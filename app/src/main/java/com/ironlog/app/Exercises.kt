@@ -511,9 +511,19 @@ fun MusclesCard(e: Exercise) {
 
 // ---------------- Create / edit an exercise ----------------
 
-private class MuscleRow(val muscle: String, main: Boolean, pct: Int) {
+/** One muscle in the editor: [share] is its % of the exercise's total work (all shares add up to 100). */
+private class MuscleRow(val muscle: String, main: Boolean, share: Int) {
     var main by mutableStateOf(main)
-    var pct by mutableStateOf(pct)
+    var share by mutableStateOf(share)
+}
+
+/** Whole-number shares of the total that add up to exactly 100 (largest remainder). */
+private fun sharesOf(values: List<Float>): List<Int> {
+    val total = values.sum().takeIf { it > 0 } ?: return values.map { 0 }
+    val raw = values.map { it / total * 100 }
+    val out = raw.map { kotlin.math.floor(it).toInt() }.toIntArray()
+    raw.indices.sortedByDescending { raw[it] - out[it] }.take(100 - out.sum()).forEach { out[it]++ }
+    return out.toList()
 }
 
 /** Edit any exercise (built-in ones are saved as your version and can be reset), or create one. */
@@ -527,20 +537,24 @@ fun EditExerciseScreen(id: String?) {
     var directions by remember { mutableStateOf(existing?.instructions?.joinToString("\n") ?: "") }
     val rows = remember {
         mutableStateListOf<MuscleRow>().apply {
-            existing?.muscles?.entries?.sortedByDescending { it.value }?.forEach { (m, v) ->
-                val main = v >= 0.999f && Muscles.group(m) in existing.primary
-                add(MuscleRow(m, main, (v * 100).roundToInt().coerceIn(5, 100)))
-            }
+            val list = existing?.muscles?.entries?.sortedByDescending { it.value }.orEmpty()
+            val shares = sharesOf(list.map { it.value })
+            list.forEachIndexed { i, (m, v) -> add(MuscleRow(m, v >= 0.999f && Muscles.group(m) in existing!!.primary, shares[i])) }
         }
     }
     var adding by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    val levels = rows.associate { it.muscle to if (it.main) 1f else it.pct / 100f }
+    // Credits: the % not yet given to any muscle. Lowering a slider adds credits; raising one spends them.
+    val credits = 100 - rows.sumOf { it.share }
+    // How hard each muscle works compared with the busiest one (what the body map and ranks use).
+    val topShare = rows.maxOfOrNull { it.share }?.coerceAtLeast(1) ?: 1
+    val levels = rows.filter { it.share > 0 }.associate { it.muscle to it.share.toFloat() / topShare }
 
     Column(Modifier.fillMaxSize()) {
         TopBar(if (existing == null) "Create Exercise" else "Edit Exercise", action = "Save") {
             when {
                 name.isBlank() -> error = "Give it a name."
+                credits > 0 -> error = "You have $credits% credits left – give them to muscles so the total is 100%."
                 rows.none { it.main } -> error = "Mark at least one muscle as Main."
                 else -> {
                     // Groups (for the list filters and the line under the name) follow from the muscles.
@@ -570,21 +584,30 @@ fun EditExerciseScreen(id: String?) {
             BodyMapView(levels, Modifier.fillMaxWidth().height(280.dp).clip(RoundedCornerShape(12.dp)).background(Color.Black))
 
             Text("Muscles worked", fontWeight = FontWeight.Bold)
-            Text("Main muscles count 100%. For the others, set how hard they work compared with the main muscle. " +
-                "The main muscles' groups show under the exercise name and in the list filters.",
+            Text("Share out 100% between the muscles by how much of the work each one does. Lowering a slider gives you credits; " +
+                "raising one spends them. Mark the main muscles – their groups show under the name and in the list filters.",
                 color = Sub, fontSize = 13.sp)
+            Text(
+                when {
+                    credits > 0 -> "Credits: $credits% left to give"
+                    else -> "All 100% given out ✓"
+                },
+                color = if (credits > 0) Green else Sub, fontWeight = FontWeight.Bold, fontSize = 15.sp,
+            )
             rows.forEach { r ->
                 Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(horizontal = 12.dp, vertical = 6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(Muscles.label(r.muscle), Modifier.weight(1f), fontWeight = FontWeight.Medium)
-                        FilterChip(r.main, { r.main = !r.main; if (!r.main && r.pct >= 100) r.pct = 50 }, { Text("Main") })
+                        FilterChip(r.main, { r.main = !r.main }, { Text("Main") })
                         HSpacer(8)
-                        Text(if (r.main) "100%" else "${r.pct}%", modifier = Modifier.width(48.dp))
+                        Text("${r.share}%", modifier = Modifier.width(44.dp), fontWeight = FontWeight.Medium)
                         Text("✕", color = Sub, modifier = Modifier.clickable { rows.remove(r) }.padding(6.dp))
                     }
-                    if (!r.main) androidx.compose.material3.Slider(
-                        value = r.pct.toFloat(), onValueChange = { r.pct = (it / 5).roundToInt() * 5 },
-                        valueRange = 5f..100f, steps = 18,
+                    // Can't go past the credits you have, so the total never tops 100%.
+                    androidx.compose.material3.Slider(
+                        value = r.share.toFloat(),
+                        onValueChange = { r.share = it.roundToInt().coerceIn(0, r.share + (100 - rows.sumOf { x -> x.share })) },
+                        valueRange = 0f..100f,
                     )
                 }
             }
@@ -617,7 +640,8 @@ fun EditExerciseScreen(id: String?) {
                         Text(titleCase(g), color = Sub, fontSize = 13.sp, modifier = Modifier.padding(top = 10.dp))
                         options.forEach { m ->
                             Text(Muscles.label(m), fontSize = 17.sp, modifier = Modifier.fillMaxWidth().clickable {
-                                rows.add(MuscleRow(m, rows.none { it.main }, if (rows.none { it.main }) 100 else 30)); adding = false
+                                // A new muscle starts at 0% (or all of it, if it's the first) – give it credits with its slider.
+                                rows.add(MuscleRow(m, rows.none { it.main }, if (rows.isEmpty()) 100 else 0)); adding = false
                             }.padding(vertical = 8.dp))
                         }
                     }

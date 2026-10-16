@@ -84,6 +84,7 @@ sealed interface Route {
     data object HevyMatch : Route
     data class RankDetail(val id: String) : Route
     data object OneRmList : Route
+    data object RankHelp : Route
     data class OneRmTest(val id: String) : Route
 }
 
@@ -185,6 +186,7 @@ private fun Root() {
                 Route.HevyMatch -> HevyMatchScreen()
                 is Route.RankDetail -> RankDetailScreen(route.id)
                 Route.OneRmList -> OneRmListScreen()
+                Route.RankHelp -> RankHelpScreen()
                 is Route.OneRmTest -> OneRmTestScreen(route.id)
             }
           }
@@ -243,10 +245,13 @@ private fun RowScope.TabItem(label: String, icon: String, selected: Boolean, onC
 
 /** Top bar like the reference screens: back arrow, centred title, optional action. */
 @Composable
-fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: () -> Unit = { Nav.back() }, onAction: () -> Unit = {}) {
+fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: () -> Unit = { Nav.back() }, lead: String? = null, onLead: () -> Unit = {}, onAction: () -> Unit = {}) {
     Box(Modifier.fillMaxWidth().background(Card).statusBarsPadding().height(56.dp)) {
         if (back) Text(
             "←", fontSize = 26.sp, modifier = Modifier.align(Alignment.CenterStart).clickable(onClick = onBack).padding(horizontal = 16.dp),
+        ) else if (lead != null) Text(
+            lead, color = Blue, fontSize = 20.sp, fontWeight = FontWeight.Bold,
+            modifier = Modifier.align(Alignment.CenterStart).clickable(onClick = onLead).padding(horizontal = 18.dp, vertical = 8.dp),
         )
         // Long titles shrink to two lines and never run under the back arrow or the action.
         val side = maxOf(56, if (action != null) action.length * 10 + 36 else 0)

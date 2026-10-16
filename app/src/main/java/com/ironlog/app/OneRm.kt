@@ -98,8 +98,7 @@ object OneRm {
 
     /** Warm-up and attempt sets as (share of your best, reps, label). */
     val PLAN = listOf(
-        Triple(0.40, 5, "warm-up"), Triple(0.55, 3, "warm-up"), Triple(0.70, 2, "warm-up"),
-        Triple(0.80, 1, "warm-up"), Triple(0.87, 1, "warm-up"),
+        Triple(0.50, 5, "warm-up"), Triple(0.70, 3, "warm-up"), Triple(0.85, 1, "warm-up"),
         Triple(0.95, 1, "attempt 1"), Triple(1.00, 1, "attempt 2"),
     )
 
@@ -265,34 +264,27 @@ fun OneRmTestScreen(id: String) {
 
             // Warm-up plan
             Section("Warm-up plan", Blue) {
-                Bullet("5–10 minutes of easy cardio (bike, rower, brisk walk) until you're warm and lightly sweating.")
-                notes?.prep?.forEach { Bullet(it) }
+                // Kept to the minimum that does the job: get warm, wake the muscles up, then a few ramp-up sets.
+                Bullet("2–3 minutes of easy movement to get warm (a brisk walk, bike or rower).")
+                notes?.prep?.firstOrNull { !it.contains(Regex("min\\b|cardio|bike|rowing|row\\b|walk|jog", RegexOption.IGNORE_CASE)) }?.let { Bullet(it) }
                 if (squeeze) {
-                    Bullet("Open and close your hands 10–15 times and shake them out.")
                     Bullet("One practice squeeze with each hand at about half effort.")
-                    Bullet("Then 3 all-out squeezes with each hand, alternating hands, resting about a minute before using the same hand again.")
+                    Bullet("Then 3 all-out squeezes with each hand, resting about a minute before using the same hand again.")
                 } else if (reps) {
-                    Bullet(best?.let { "One easy set of about ${(it * 0.35).roundToInt().coerceAtLeast(1)} reps (a third of your best), then rest 3–5 minutes." }
-                        ?: "One easy set of a few reps, well short of failure, then rest 3–5 minutes.")
+                    Bullet(best?.let { "One easy set of about ${(it * 0.35).roundToInt().coerceAtLeast(1)} reps, then rest 2–3 minutes." }
+                        ?: "One easy set of a few reps, well short of failure, then rest 2–3 minutes.")
                     Bullet("Then one all-out set: strict reps only, stop at the first rep you can't do with good form.")
                 } else if (best != null && !Standards.isOneLeg(id)) {
                     Text("Based on your current best of about ${fmt(best)}:", color = Sub, fontSize = 13.sp)
-                    if (e.equipment == "Barbell") Bullet("Empty bar × 8–10")
                     OneRm.PLAN.forEach { (f, n, label) ->
                         Bullet("${Units.weightU(OneRm.loadable(best * f))} × $n  ($label, ${(f * 100).roundToInt()}%)")
                     }
-                    Bullet("Attempt 3 (optional): about ${Units.weightU(OneRm.loadable(best * 1.04))} – only if attempt 2 moved fast and clean.")
-                    Bullet("Rest 1–2 minutes between early warm-ups and 3–5 minutes before each heavy single.")
+                    Bullet("Optional attempt 3: about ${Units.weightU(OneRm.loadable(best * 1.04))}, only if attempt 2 moved fast and clean.")
+                    Bullet("Rest 1–2 minutes between warm-ups and about 3 minutes before each heavy single.")
                 } else {
-                    Bullet("No previous numbers yet: work up in small jumps – 5 reps light, 3 reps moderate, then singles – stopping when the bar slows a lot.")
-                    Bullet("Rest 3–5 minutes before each heavy single.")
+                    Bullet("No previous numbers yet: 5 easy reps, then 3 moderate, then singles in small jumps until the weight slows down a lot.")
+                    Bullet("Rest about 3 minutes before each heavy single.")
                 }
-            }
-            if (squeeze) Section("Form", Green) {
-                Bullet("Sit upright with your feet flat, upper arm against your side and elbow bent to 90°; wrist straight.")
-                Bullet("Set the handle so the middle of your fingers wraps it comfortably.")
-                Bullet("Squeeze as hard as you can for about 3 seconds – steady, no jerking or swinging the arm.")
-                Bullet("Read the peak value and enter it. Your single best squeeze from either hand counts.")
             }
             notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green) { f.forEach { Bullet(it) } } }
             Section("Safety", Red) {
