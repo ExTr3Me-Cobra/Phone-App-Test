@@ -384,6 +384,7 @@ fun OneRmTestScreen(id: String) {
     val rattle = { quake.value }
     val heat = rememberHeat()
     val tickScope = androidx.compose.runtime.rememberCoroutineScope()
+    val ticks = remember { androidx.compose.runtime.mutableStateListOf<TickFx>() }
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().fxShake(fx)) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
@@ -444,6 +445,7 @@ fun OneRmTestScreen(id: String) {
                 val k = "$id:$i:$refresh"
                 // Ticking a set plays the effect picked in developer settings (it finishes even if you untick straight away).
                 val tfx = remember(k) { TickFx() }
+                androidx.compose.runtime.DisposableEffect(tfx) { ticks += tfx; onDispose { ticks -= tfx } }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
                     if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic, fx) }
@@ -461,7 +463,7 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).tickCracks(tfx, OneRmFx.tick).tickBox(tfx, OneRmFx.tick).clip(RoundedCornerShape(10.dp)).background(tickColor)
+                            Modifier.weight(1f).tickBox(tfx).clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
                                     val live = OneRm.liveWorkout(id)
@@ -493,6 +495,7 @@ fun OneRmTestScreen(id: String) {
         }
     }
     FxOverlay(fx)
+    TickOverlay(ticks, OneRmFx.tick)
     }
     if (confirmLeave) AlertDialog(
         onDismissRequest = { confirmLeave = false },

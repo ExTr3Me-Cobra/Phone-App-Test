@@ -51,6 +51,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -130,20 +133,16 @@ object OneRmFx {
     var enteringTest = false
     private var loaded = false
 
+    /** The animations are fixed now (picked while testing): these are the ones the app uses. */
     fun load() {
         if (loaded) return
         loaded = true
-        runCatching {
-            val o = JSONObject(Store.readFile(FILE) ?: "{}")
-            entry = o.optInt("entry").coerceIn(ENTRY.indices)
-            testTrans = o.optInt("testTrans").coerceIn(TEST.indices)
-            arrival = o.optInt("arrival").coerceIn(ARRIVAL.indices)
-            tick = o.optInt("tick").coerceIn(TICK.indices)
-            shine = o.optInt("shine").coerceIn(SHINE.indices)
-            listQuake = false // the earthquake test switch was removed (the fire landing openings include one)
-            testQuake = o.optBoolean("testQuake")
-            leave = o.optInt("leave").coerceIn(LEAVE.indices)
-        }
+        entry = ENTRY.indexOf("Drop from above + fire landing + embers + earthquake").coerceAtLeast(0)
+        leave = LEAVE.indexOf("Dropped out the bottom").coerceAtLeast(0)
+        tick = TICK.indexOf("White-hot shockwave + cracks").coerceAtLeast(0)
+        shine = SHINE.indexOf("Gold glint + ember glow").coerceAtLeast(0)
+        listQuake = false
+        testQuake = false
     }
 
     fun save() = Store.writeFile(FILE, JSONObject().put("entry", entry).put("testTrans", testTrans).put("arrival", arrival)
@@ -289,6 +288,8 @@ class TickFx {
     val spin = Animatable(0f)
     val burst = Animatable(0f)
     val rowFlash = Animatable(0f)
+    /** Where the ✓ is on screen, for [TickOverlay]. */
+    var bounds: androidx.compose.ui.geometry.Rect? = null
     /** Orange instead of red for the row flash (scorch). */
     var scorch = false
 
@@ -353,13 +354,35 @@ fun Modifier.tickRow(t: TickFx) = graphicsLayer { translationX = t.shake.value }
     if (t.rowFlash.value > 0f) drawRoundRect((if (t.scorch) Color(0xFFFF6A00) else Color(0xFFFF453A)).copy(alpha = t.rowFlash.value), cornerRadius = androidx.compose.ui.geometry.CornerRadius(10.dp.toPx()))
 }
 
-fun Modifier.tickBox(t: TickFx, kind: Int) = graphicsLayer {
+/** The ✓ itself: it slams, bounces or flips. Its fire, cracks and sparks are drawn by [TickOverlay], on top of the screen. */
+fun Modifier.tickBox(t: TickFx) = graphicsLayer {
     scaleX = t.stamp.value; scaleY = t.stamp.value; rotationY = t.spin.value; cameraDistance = 12f * density
-}.drawBehind {
-    val b = t.burst.value
-    if (b <= 0f || b >= 1f) return@drawBehind
-    val c = Offset(size.width / 2, size.height / 2)
-    val half = size.minDimension / 2
+}.onGloballyPositioned { t.bounds = it.boundsInRoot() }
+
+/** Everything a ticked set throws out, drawn over the whole screen but never over the ✓ button. */
+@Composable
+fun TickOverlay(ticks: Collection<TickFx>, kind: Int, modifier: Modifier = Modifier.fillMaxSize()) {
+    var origin by remember { mutableStateOf(Offset.Zero) }
+    Box(modifier.onGloballyPositioned { origin = it.boundsInRoot().topLeft }.drawWithContent {
+        for (t in ticks) {
+            val r = t.bounds ?: continue
+            val box = r.translate(-origin)
+            val b = t.burst.value
+            val k = t.crack.value
+            if ((b <= 0f || b >= 1f) && (k <= 0f || k >= 1f)) continue
+            val hole = androidx.compose.ui.graphics.Path().apply {
+                addRoundRect(androidx.compose.ui.geometry.RoundRect(box, androidx.compose.ui.geometry.CornerRadius(10.dp.toPx())))
+            }
+            clipPath(hole, androidx.compose.ui.graphics.ClipOp.Difference) {
+                tickEffect(kind, box.center, box.minDimension / 2, b, k)
+            }
+        }
+    })
+}
+
+private fun DrawScope.tickEffect(kind: Int, c: Offset, half: Float, b: Float, k: Float) {
+    if (k > 0f && k < 1f && kind in setOf(16, 17, 18, 20, 22)) moltenCracks(c, half, k, if (kind == 20) 1.4f else 1f)
+    if (b <= 0f || b >= 1f) return
     when (kind) {
         4 -> drawCircle(Color(0xFF34C759).copy(alpha = 0.55f * (1f - b)), radius = half * (1f + b * 2.2f), center = c)
         7, 8, 11 -> fireRing(c, half * (1f + b * 2.4f), b, 18.dp.toPx() * (1f - b * 0.3f))
@@ -379,14 +402,7 @@ fun Modifier.tickBox(t: TickFx, kind: Int) = graphicsLayer {
         16, 20 -> {}
         else -> drawCircle(Color(0xFFC9A94E).copy(alpha = 1f - b), radius = half * (1f + b * 1.8f), center = c, style = Stroke(3.dp.toPx() * (1.5f - b)))
     }
-    if (kind == 22 && b > 0f && b < 1f) flamePillar(c, half, b)
-}
-
-/** The heavy hits' cracks, drawn behind the ✓ (and far beyond it). */
-fun Modifier.tickCracks(t: TickFx, kind: Int) = drawBehind {
-    val k = t.crack.value
-    if (k <= 0f || k >= 1f || kind !in setOf(16, 17, 18, 20, 22)) return@drawBehind
-    moltenCracks(Offset(size.width / 2, size.height / 2), size.minDimension / 2, k, if (kind == 20) 1.4f else 1f)
+    if (kind == 22) flamePillar(c, half, b)
 }
 
 // ---------------- Fire, in the 1 Rep Max red and gold ----------------
@@ -657,162 +673,6 @@ private fun DrawScope.sparks(c: Offset, half: Float, b: Float) {
         val pos = Offset(c.x + kotlin.math.cos(ang) * dist, c.y + kotlin.math.sin(ang) * dist - b * 10.dp.toPx())
         drawCircle(col.copy(alpha = (1f - b) * 0.35f), radius = 6.dp.toPx() * (1f - b * 0.5f), center = pos)
         drawCircle(col.copy(alpha = 1f - b), radius = 2.5.dp.toPx() * (1f - b * 0.5f), center = pos)
-    }
-}
-
-// ---------------- Developer settings, with a live preview ----------------
-
-@Composable
-fun OneRmFxSettings() {
-    OneRmFx.load()
-    val req = remember { androidx.compose.foundation.relocation.BringIntoViewRequester() }
-    LaunchedEffect(OneRmFx.jump) {
-        if (OneRmFx.jump) { delay(400); runCatching { req.bringIntoView() }; OneRmFx.jump = false }
-    }
-    // What the preview shows, and a counter that replays it.
-    var mode by remember { mutableIntStateOf(0) }
-    var play by remember { mutableIntStateOf(0) }
-    fun preview(m: Int) { mode = m; play++ }
-    Column(Modifier.bringIntoViewRequester(req), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        androidx.compose.material3.Text("1 Rep Max animations", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        androidx.compose.material3.Text("Pick one and it plays in the preview. Open 1 Rep Max to see it for real. (A test screen itself has no effects.)", color = Sub, fontSize = 13.sp)
-        FxStage(mode, play)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            GreyButton("▶ Replay", Modifier.weight(1f)) { play++ }
-            GreyButton("Open 1 Rep Max", Modifier.weight(1.4f), Blue) { Nav.go(Route.OneRmList) }
-        }
-        FxPicker("Opening 1 Rep Max", OneRmFx.ENTRY, OneRmFx.entry) { OneRmFx.entry = it; OneRmFx.save(); preview(0) }
-        FxPicker("Leaving 1 Rep Max", OneRmFx.LEAVE, OneRmFx.leave) { OneRmFx.leave = it; OneRmFx.save(); preview(6) }
-        FxPicker("Ticking a set", OneRmFx.TICK, OneRmFx.tick) { OneRmFx.tick = it; OneRmFx.save(); preview(3) }
-        FxPicker("Gold buttons", OneRmFx.SHINE, OneRmFx.shine) { OneRmFx.shine = it; OneRmFx.save(); preview(4) }
-    }
-}
-
-@Composable
-private fun FxPicker(label: String, options: List<String>, chosen: Int, onPick: (Int) -> Unit) {
-    var open by remember { mutableStateOf(false) }
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        androidx.compose.material3.Text(label, Modifier.weight(0.8f), fontSize = 14.sp)
-        Box(Modifier.weight(1.2f)) {
-            // The whole name shows: long ones shrink to fit, then shorten with "…".
-            val press = rememberPress()
-            Row(Modifier.pressScale(press).fillMaxWidth().height(46.dp).clip(RoundedCornerShape(10.dp)).background(Card2)
-                .pressClick(press) { open = true }.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                NameText(androidx.compose.ui.text.AnnotatedString(options[chosen.coerceIn(options.indices)]), Modifier.weight(1f),
-                    fontSize = 14.sp, fontWeight = FontWeight.Medium, maxLines = 2, minScale = 0.7f)
-                androidx.compose.material3.Text(" ▾", color = Blue, fontSize = 14.sp)
-            }
-            DropdownMenu(open, { open = false }) {
-                options.forEachIndexed { i, o ->
-                    DropdownMenuItem({ androidx.compose.material3.Text((if (i == chosen) "✓  " else "     ") + o) }, { onPick(i); open = false })
-                }
-            }
-        }
-    }
-}
-
-/**
- * A small mock phone screen that plays the chosen animation: 0 opening 1 Rep Max, 1 opening a test (with its effect),
- * 2 the test effect, 3 ticking a set, 4 the gold buttons, 5 the list earthquake.
- */
-@Composable
-private fun FxStage(mode: Int, play: Int) {
-    val haptic = LocalHapticFeedback.current
-    val fx = remember { FxState() }
-    val tick = remember { TickFx() }
-    var screen by remember { mutableIntStateOf(0) } // 0 Workout tab, 1 1RM list, 2 test
-    var ticked by remember { mutableStateOf(false) }
-    val quake = remember { Animatable(1f) }
-    val trailP = remember { Animatable(1f) }
-    val density = androidx.compose.ui.platform.LocalDensity.current.density
-    LaunchedEffect(play) {
-        ticked = false
-        when (mode) {
-            0 -> {
-                screen = 0; delay(450); screen = 1
-                OneRmFx.entryQuake()?.let { at -> launch { quake.snapTo(0f); delay(at); quake.animateTo(1f, tween(1100)) } }
-                OneRmFx.entryEffect()?.let { (k, at) -> fx.play(k, haptic, at, density) }
-            }
-            1 -> {
-                screen = 1; delay(450); screen = 2
-                OneRmFx.testEffect()?.let { (k, at) -> launch { fx.play(k, haptic, at, density) } }
-                if (OneRmFx.testQuake) launch { quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
-                fx.play(OneRmFx.arrival, haptic, 200, density)
-            }
-            6 -> {
-                screen = 1; delay(450); screen = 0
-                if (OneRmFx.leave == 0 || OneRmFx.leave == 2) { trailP.snapTo(0f); trailP.animateTo(1f, tween(900, easing = androidx.compose.animation.core.LinearEasing)) }
-            }
-            7 -> { screen = 2; quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
-            2 -> { screen = 2; delay(150); fx.play(OneRmFx.arrival, haptic, 0, density) }
-            3 -> { screen = 2; delay(300); ticked = true; tick.play(OneRmFx.tick, haptic, fx) }
-            4 -> screen = 1
-            5 -> { screen = 1; quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
-        }
-    }
-    Box(Modifier.fillMaxWidth().height(260.dp).clip(RoundedCornerShape(14.dp)).background(Color.Black)
-        .border(1.dp, Card2, RoundedCornerShape(14.dp))) {
-        AnimatedContent(screen, Modifier.fillMaxSize().fxShake(fx), transitionSpec = {
-            when {
-                targetState == 1 && initialState == 0 -> OneRmFx.enter()
-                targetState == 2 && initialState == 1 -> OneRmFx.openTest()
-                targetState == 0 && initialState == 1 -> OneRmFx.leaving().apply { targetContentZIndex = -1f }
-                else -> EnterTransition.None togetherWith ExitTransition.None
-            }
-        }, label = "stage") { s ->
-            when (s) {
-                0 -> MockScreen("Workout", Card) { MockBars(4) }
-                1 -> MockScreen("1 Rep Max", Color(0xFF2A0E0E)) {
-                    MockGoldButton()
-                    repeat(3) { r -> MockRow(Modifier.quakeRattle({ quake.value }, r)) }
-                }
-                else -> MockScreen("1RM: Bench Press", Color(0xFF2A0E0E)) {
-                    Column(Modifier.quakeRattle({ quake.value }, 0), verticalArrangement = Arrangement.spacedBy(8.dp)) { MockBars(2) }
-                    Row(Modifier.fillMaxWidth().quakeRattle({ quake.value }, 3).tickRow(tick).padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        androidx.compose.material3.Text("1", color = Sub, fontSize = 12.sp, modifier = Modifier.width(20.dp))
-                        Box(Modifier.weight(1f).height(26.dp).padding(end = 6.dp).clip(RoundedCornerShape(6.dp)).background(Card2))
-                        Box(Modifier.size(width = 54.dp, height = 30.dp).tickCracks(tick, OneRmFx.tick).tickBox(tick, OneRmFx.tick).clip(RoundedCornerShape(8.dp))
-                            .background(if (ticked) Color(0xFF34C759) else Card2), contentAlignment = Alignment.Center) {
-                            androidx.compose.material3.Text("✓", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-        }
-        FxOverlay(fx)
-        Box(Modifier.fillMaxSize().drawWithContent { trail(trailP.value, OneRmFx.leave == 0, LeaveTrail.MOVE / 900f) })
-    }
-}
-
-@Composable
-private fun MockScreen(title: String, bar: Color, content: @Composable () -> Unit) = Column(Modifier.fillMaxSize().background(Bg)) {
-    Box(Modifier.fillMaxWidth().height(34.dp).background(bar), contentAlignment = Alignment.Center) {
-        androidx.compose.material3.Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold,
-            color = if (bar == Card) Color.White else Color(0xFFC9A94E))
-    }
-    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { content() }
-}
-
-@Composable
-private fun MockBars(n: Int) = repeat(n) { i ->
-    Box(Modifier.fillMaxWidth(if (i % 2 == 0) 0.9f else 0.6f).height(14.dp).clip(RoundedCornerShape(4.dp)).background(Card2))
-}
-
-@Composable
-private fun MockRow(modifier: Modifier) = Row(modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Card).padding(8.dp),
-    verticalAlignment = Alignment.CenterVertically) {
-    Box(Modifier.size(26.dp).clip(RoundedCornerShape(6.dp)).background(Card2))
-    Box(Modifier.padding(start = 8.dp).fillMaxWidth(0.6f).height(12.dp).clip(RoundedCornerShape(4.dp)).background(Card2))
-}
-
-@Composable
-private fun MockGoldButton() {
-    val heat = rememberHeat()
-    val gold = Color(0xFFC9A94E)
-    Box(Modifier.fillMaxWidth().height(40.dp).clip(RoundedCornerShape(10.dp))
-        .background(Brush.horizontalGradient(listOf(Color(0xFF2A0E0E), Color(0xFF1A1A1A))))
-        .heatFire(heat).glint(heat).emberBorder(heat, 1.5.dp, gold, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
-        androidx.compose.material3.Text("1 REP MAX MODE", color = gold, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
     }
 }
 

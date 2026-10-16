@@ -101,10 +101,6 @@ fun WorkoutTab() {
             item {
                 if (Standards.mode(Store.profile.value) != Standards.Mode.OFF)
                     OneRmButton(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp))
-                // Developer: straight to the 1 Rep Max animation pickers.
-                if (Store.profile.value.devUnlocked) GreyButton("🛠  1 Rep Max animations (developer)", Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp).fillMaxWidth(), Red) {
-                    OneRmFx.jump = true; Nav.home(2)
-                }
                 SectionTitle("Quick Start")
                 GreyButton("+  Start Empty Freestyle Workout", Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                     // Pick the exercises first; the workout (and its timer) starts when you tap Start.
