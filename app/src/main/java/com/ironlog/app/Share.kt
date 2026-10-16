@@ -175,10 +175,10 @@ private fun ShareCard(ranks: Map<String, Ranks.Ranked>, profile: Profile, overal
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
                     HSpacer(8)
-                    Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     RankBadge(tier, 22.dp)
                     HSpacer(4)
-                    Text(rankText(v.first), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color))
+                    Text(rankText(v.first), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color), maxLines = 1, softWrap = false)
                 }
             }
         }

@@ -153,18 +153,21 @@ fun HomeRankCard() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
                         HSpacer(8)
-                        Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                        Text("  ✎", color = Blue, fontSize = 15.sp, modifier = Modifier.clickable { picking = g }.padding(horizontal = 4.dp))
-                        Box(Modifier.weight(1f))
+                        // The rank is measured first and always fits on one line; a long muscle name shortens with "…" instead.
+                        Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                            Text(titleCase(g), fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                            Text("  ✎", color = Blue, fontSize = 15.sp, maxLines = 1, softWrap = false, modifier = Modifier.clickable { picking = g }.padding(horizontal = 4.dp))
+                        }
                         RankBadge(tier, 22.dp)
                         HSpacer(4)
-                        Text(rankText(pct), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color))
+                        Text(rankText(pct), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(tier.color), maxLines = 1, softWrap = false)
                     }
                     top.forEach { r ->
                         Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { Nav.go(Route.RankDetail(r.exercise.id)) }
                             .padding(start = 22.dp, top = 3.dp, bottom = 3.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text(starredName(r.exercise), color = Sub, fontSize = 13.sp, modifier = Modifier.weight(1f))
-                            Text(rankText(r.percentile), fontSize = 13.sp, color = Color(r.tier.color))
+                            Text(rankText(r.percentile), fontSize = 13.sp, color = Color(r.tier.color), maxLines = 1, softWrap = false)
                             Text(" ›", color = Sub, fontSize = 16.sp)
                         }
                     }
@@ -420,7 +423,7 @@ private fun GroupPickDialog(group: String, candidates: List<Ranks.Ranked>, profi
                     }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.material3.Checkbox(on, null)
                         Text(starredName(r.exercise), fontSize = 14.sp, modifier = Modifier.weight(1f))
-                        Text(rankText(r.percentile), fontSize = 12.sp, color = Color(r.tier.color))
+                        Text(rankText(r.percentile), fontSize = 12.sp, color = Color(r.tier.color), maxLines = 1, softWrap = false)
                     }
                 }
             }
