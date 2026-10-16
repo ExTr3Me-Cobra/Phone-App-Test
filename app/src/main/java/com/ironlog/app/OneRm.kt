@@ -228,7 +228,9 @@ fun OneRmListScreen() {
             "leastTests" -> compareBy<Pair<String, Int>> { tests[it.first] ?: 0 }.then(byName)
             else -> compareByDescending<Pair<String, Int>> { it.second }.then(byName)
         })
-    Column(Modifier.fillMaxSize()) {
+    val listFx = remember { FxState() }
+    Box(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().fxShake(listFx)) {
         TopBar("1 Rep Max", action = "🔍") { searching = !searching; if (!searching) query = "" }
         if (searching) {
             androidx.compose.material3.OutlinedTextField(
@@ -259,11 +261,14 @@ fun OneRmListScreen() {
                 }
             }
         }
-        // Test: the whole list rattles like an earthquake when it opens (developer setting).
-        val quakeOn = OneRmFx.listQuake && extraAnims()
+        // Going into 1 Rep Max (not coming back from a test): the opening's effect, and the earthquake test if on.
+        val entering = remember { OneRmFx.enteringList.also { OneRmFx.enteringList = false } }
+        val quakeOn = entering && OneRmFx.listQuake && extraAnims()
         val quake = remember { Animatable(if (quakeOn) 0f else 1f) }
         val quakeHaptic = LocalHapticFeedback.current
+        val density = androidx.compose.ui.platform.LocalDensity.current.density
         LaunchedEffect(Unit) {
+            if (entering && extraAnims()) OneRmFx.entryEffect()?.let { (k, at) -> launch { listFx.play(k, quakeHaptic, at, density) } }
             if (quakeOn) {
                 kotlinx.coroutines.delay(150)
                 launch { repeat(4) { quakeHaptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
@@ -328,6 +333,8 @@ fun OneRmListScreen() {
             }
         }
     }
+    FxOverlay(listFx)
+    }
 }
 
 @Composable
@@ -351,79 +358,19 @@ fun OneRmTestScreen(id: String) {
     // Leaving with a ticked set asks first (the test isn't saved until you finish it).
     fun leave() { if (OneRm.rows.any { it.done }) confirmLeave = true else { OneRm.clear(); Nav.back() } }
     androidx.activity.compose.BackHandler { leave() }
-    // Arrival: the screen lands with a jolt and a red flash fading from the edges.
+    // Arrival effect (developer setting: When a test opens).
     val haptic = LocalHapticFeedback.current
-    val jolt = remember { Animatable(0f) }
-    val sway = remember { Animatable(0f) }
-    val flash = remember { Animatable(0f) }
-    val white = remember { Animatable(0f) }
-    val ring = remember { Animatable(0f) }
-    val fire = remember { Animatable(0f) }
-    val ember = remember { Animatable(0f) }
     val heat = rememberHeat()
-    // The arrival effect picked in developer settings (1 Rep Max animations).
+    // The effect picked in developer settings plays once, when you go into the test (not when you come back to it).
+    val fx = remember { FxState() }
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
     LaunchedEffect(Unit) {
-        if (!extraAnims()) return@LaunchedEffect
-        when (OneRmFx.arrival) {
-            1 -> { // Earthquake
-                kotlinx.coroutines.delay(200)
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                launch { flash.snapTo(0.5f); flash.animateTo(0f, tween(900)) }
-                launch { jolt.animateTo(0f, keyframes { durationMillis = 700; 18f at 50; -16f at 120; 13f at 200; -10f at 290; 7f at 390; -4f at 500; 2f at 600 }) }
-                sway.animateTo(0f, keyframes { durationMillis = 700; -20f at 60; 18f at 140; -14f at 230; 10f at 330; -6f at 440; 3f at 560 })
-            }
-            2 -> { // Heartbeat
-                kotlinx.coroutines.delay(180)
-                repeat(2) {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    flash.snapTo(0.85f); flash.animateTo(0f, tween(320))
-                    kotlinx.coroutines.delay(90)
-                }
-            }
-            3 -> { // Gold shockwave
-                kotlinx.coroutines.delay(230)
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                launch { flash.snapTo(0.35f); flash.animateTo(0f, tween(500)) }
-                ring.snapTo(0f); ring.animateTo(1f, tween(750, easing = FastOutSlowInEasing))
-            }
-            4 -> { // Red vignette breathe
-                flash.animateTo(0.9f, tween(450)); flash.animateTo(0f, tween(1000))
-            }
-            5 -> { // Lightning
-                kotlinx.coroutines.delay(200)
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                white.snapTo(0.85f)
-                launch { jolt.animateTo(0f, keyframes { durationMillis = 220; 8f at 40; -5f at 110; 2f at 170 }) }
-                white.animateTo(0f, tween(260))
-                kotlinx.coroutines.delay(60)
-                white.snapTo(0.4f); white.animateTo(0f, tween(180))
-            }
-            6 -> {}
-            7 -> { // Fire ring
-                kotlinx.coroutines.delay(220)
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                launch { flash.snapTo(0.4f); flash.animateTo(0f, tween(600)) }
-                fire.snapTo(0f); fire.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
-            }
-            8 -> { ember.snapTo(0f); ember.animateTo(1f, tween(1800)) } // Ember shower
-            9 -> { // Inferno
-                kotlinx.coroutines.delay(220)
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                launch { flash.snapTo(0.7f); flash.animateTo(0f, tween(900)) }
-                launch { ember.snapTo(0f); ember.animateTo(1f, tween(2000)) }
-                launch { jolt.animateTo(0f, keyframes { durationMillis = 420; 16f at 40; -12f at 110; 8f at 190; -4f at 270; 2f at 340 }) }
-                fire.snapTo(0f); fire.animateTo(1f, tween(1100, easing = FastOutSlowInEasing))
-            }
-            else -> { // Jolt + red flash
-                kotlinx.coroutines.delay(230)
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                launch { flash.snapTo(0.75f); flash.animateTo(0f, tween(650)) }
-                jolt.animateTo(0f, keyframes { durationMillis = 380; 14f at 40; -11f at 100; 7f at 170; -4f at 240; 2f at 310 })
-            }
-        }
+        if (!OneRmFx.enteringTest) return@LaunchedEffect
+        OneRmFx.enteringTest = false
+        if (extraAnims()) fx.play(OneRmFx.arrival, haptic, 200, density)
     }
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().graphicsLayer { translationY = jolt.value; translationX = sway.value }) {
+    Column(Modifier.fillMaxSize().fxShake(fx)) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -480,46 +427,14 @@ fun OneRmTestScreen(id: String) {
             OneRm.rows.forEachIndexed { i, s ->
                 val k = "$id:$i:$refresh"
                 // Ticking a set slams the tick down and rattles the row.
-                val stamp = remember(k) { Animatable(1f) }
-                val shake = remember(k) { Animatable(0f) }
-                val spin = remember(k) { Animatable(0f) }
-                val burst = remember(k) { Animatable(0f) }
-                val rowFlash = remember(k) { Animatable(0f) }
+                val tfx = remember(k) { TickFx() }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
-                    if (s.done && !seen && extraAnims()) {
-                        if (OneRmFx.tick != 6) haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        when (OneRmFx.tick) {
-                            1 -> { // Pop + gold burst
-                                launch { stamp.snapTo(1.3f); stamp.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 600f)) }
-                                burst.snapTo(0f); burst.animateTo(1f, tween(480, easing = FastOutSlowInEasing))
-                            }
-                            2 -> { spin.snapTo(0f); spin.animateTo(360f, tween(450, easing = FastOutSlowInEasing)); spin.snapTo(0f) } // Flip
-                            3 -> { // Slam + red row flash
-                                stamp.snapTo(2.2f); stamp.animateTo(1f, tween(140, easing = FastOutLinearInEasing))
-                                rowFlash.snapTo(0.55f); rowFlash.animateTo(0f, tween(450))
-                            }
-                            4 -> { burst.snapTo(0f); burst.animateTo(1f, tween(650)) } // Green glow
-                            5 -> shake.animateTo(0f, keyframes { durationMillis = 450; 18f at 40; -16f at 100; 13f at 170; -10f at 250; 6f at 330; -3f at 400 })
-                            6 -> {}
-                            7 -> { burst.snapTo(0f); burst.animateTo(1f, tween(700, easing = FastOutSlowInEasing)) } // Fire ring burst
-                            8 -> { // Fire ring + stamp
-                                launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
-                                launch { shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 }) }
-                                burst.snapTo(0f); burst.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
-                            }
-                            else -> { // Stamp + rattle
-                                launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
-                                shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 })
-                            }
-                        }
-                    }
+                    if (s.done && !seen && extraAnims()) tfx.play(OneRmFx.tick, haptic)
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
-                Row(Modifier.graphicsLayer { translationX = shake.value }.drawBehind {
-                    if (rowFlash.value > 0f) drawRoundRect(Red.copy(alpha = rowFlash.value), cornerRadius = androidx.compose.ui.geometry.CornerRadius(10.dp.toPx()))
-                }, verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -530,17 +445,7 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).graphicsLayer { scaleX = stamp.value; scaleY = stamp.value; rotationY = spin.value; cameraDistance = 12f * density }
-                                .drawBehind {
-                                    val b = burst.value
-                                    if (b > 0f && b < 1f) {
-                                        val c = Offset(size.width / 2, size.height / 2)
-                                        if (OneRmFx.tick >= 7) fireRing(c, size.minDimension / 2 * (1f + b * 2.4f), b, 18.dp.toPx() * (1f - b * 0.3f))
-                                        else if (OneRmFx.tick == 4) drawCircle(Green.copy(alpha = 0.55f * (1f - b)), radius = size.minDimension / 2 * (1f + b * 2.2f), center = c)
-                                        else drawCircle(gold.copy(alpha = 1f - b), radius = size.minDimension / 2 * (1f + b * 1.8f), center = c,
-                                            style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx() * (1.5f - b)))
-                                    }
-                                }
+                            Modifier.weight(1f).tickBox(tfx, OneRmFx.tick)
                                 .clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
@@ -572,24 +477,7 @@ fun OneRmTestScreen(id: String) {
             Spacer(300)
         }
     }
-    // The red flash: dark at the edges, clear in the middle; it never blocks a tap.
-    Box(Modifier.fillMaxSize().drawWithContent {
-        val a = flash.value
-        if (a > 0f) drawRect(Brush.radialGradient(
-            listOf(Color.Transparent, Color(0xFF8B0000).copy(alpha = a * 0.5f), Color(0xFF3A0000).copy(alpha = a)),
-            center = Offset(size.width / 2, size.height / 2), radius = maxOf(size.width, size.height) * 0.75f,
-        ))
-        // Gold shockwave: a ring racing out from the middle.
-        val r = ring.value
-        if (r > 0f && r < 1f) drawCircle(gold.copy(alpha = 1f - r), radius = r * maxOf(size.width, size.height) * 0.8f,
-            center = Offset(size.width / 2, size.height / 2), style = androidx.compose.ui.graphics.drawscope.Stroke((28f * (1f - r) + 2f) * density))
-        // Fire ring racing outward, and embers drifting up.
-        val f = fire.value
-        if (f > 0f && f < 1f) fireRing(Offset(size.width / 2, size.height / 2), f * maxOf(size.width, size.height) * 0.75f, f, 70.dp.toPx() * (1f - f * 0.4f))
-        embers(ember.value)
-        // Lightning: a white flash.
-        if (white.value > 0f) drawRect(Color.White.copy(alpha = white.value))
-    })
+    FxOverlay(fx)
     }
     if (confirmLeave) AlertDialog(
         onDismissRequest = { confirmLeave = false },
@@ -644,40 +532,48 @@ private fun finishTest(c: Context, id: String): String? {
     return null
 }
 
-/** The 1 Rep Max mode's "heat": a glint of light that sweeps across now and then, and a slow ember glow. */
-class Heat(private val sweepState: androidx.compose.runtime.State<Float>, private val emberState: androidx.compose.runtime.State<Float>) {
+/** The 1 Rep Max mode's "heat": a glint of light that sweeps across now and then, and a glowing border. */
+class Heat(private val sweepState: androidx.compose.runtime.State<Float>, private val emberState: androidx.compose.runtime.State<Float>,
+    val glintColor: Color = Color(0x55FFE7A3)) {
     val sweep get() = sweepState.value
     val ember get() = emberState.value
 }
 
+/** 0 glint + ember, 1 ember only, 2 fast glint, 3 none, 4 flame flicker, 5 fire glint (orange), 6 lava pulse. */
 @Composable
 fun rememberHeat(): Heat {
-    val style = if (extraAnimsNow) OneRmFx.shine else 3 // 0 glint + ember, 1 ember only, 2 fast glint, 3 none, 4 flame flicker
+    val style = if (extraAnimsNow) OneRmFx.shine else 3
     val t = rememberInfiniteTransition(label = "heat")
+    val fast = style == 2
     val sweep = t.animateFloat(
         -0.3f, 1.3f,
         infiniteRepeatable(keyframes {
-            durationMillis = if (style == 2) 1400 else 3400
-            -0.3f at 0; 1.3f at (if (style == 2) 550 else 1000) using FastOutSlowInEasing; 1.3f at (if (style == 2) 1400 else 3400)
+            durationMillis = if (fast) 1400 else 3400
+            -0.3f at 0; 1.3f at (if (fast) 550 else 1000) using FastOutSlowInEasing; 1.3f at (if (fast) 1400 else 3400)
         }),
         label = "glint",
     )
     val ember = t.animateFloat(0.55f, 1f, infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "ember")
+    val lava = t.animateFloat(0.3f, 1f, infiniteRepeatable(tween(550, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "lava")
     val off = androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(-1f) }
     val steady = androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(0.85f) }
     // Flame flicker: the border jumps between bright and dim like a flame.
     val flicker = t.animateFloat(0.4f, 1f, infiniteRepeatable(keyframes {
         durationMillis = 900; 0.5f at 0; 1f at 90; 0.65f at 170; 0.95f at 260; 0.45f at 380; 1f at 470; 0.7f at 600; 0.9f at 720; 0.5f at 900
     }), label = "flicker")
-    return Heat(if (style == 0 || style == 2) sweep else off, when (style) { 0, 1 -> ember; 4 -> flicker; else -> steady })
+    return Heat(
+        if (style == 0 || style == 2 || style == 5) sweep else off,
+        when (style) { 0, 1 -> ember; 4, 5 -> flicker; 6 -> lava; else -> steady },
+        if (style == 5) Color(0x77FF7A1A) else Color(0x55FFE7A3),
+    )
 }
 
-/** A diagonal band of gold light crossing the surface, like light catching a polished plate. */
+/** A diagonal band of light crossing the surface, like light catching a polished plate. */
 fun Modifier.glint(h: Heat) = drawWithContent {
     drawContent()
     val x = h.sweep * (size.width + size.height) - size.height
     drawRect(Brush.linearGradient(
-        listOf(Color.Transparent, Color(0x55FFE7A3), Color.Transparent),
+        listOf(Color.Transparent, h.glintColor, Color.Transparent),
         start = Offset(x, 0f), end = Offset(x + size.height * 1.2f, size.height),
     ))
 }

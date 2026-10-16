@@ -115,7 +115,12 @@ object Nav {
     val closed = mutableListOf<Long>()
     val top get() = stack.last()
     val topKey get() = keys.last()
-    fun go(r: Route) { keys += next++; stack += r }
+    fun go(r: Route) {
+        // Going into 1 Rep Max or a test (not coming back to it) plays their effects once.
+        if (r == Route.OneRmList && top != Route.OneRmList) OneRmFx.enteringList = true
+        if (r is Route.OneRmTest) OneRmFx.enteringTest = true
+        keys += next++; stack += r
+    }
     fun back() { if (stack.size > 1) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) } }
     fun home(tab: Int) { closed += keys; keys.clear(); keys += next++; stack.clear(); stack += Route.Tabs(tab) }
     fun replace(r: Route) { if (stack.isNotEmpty()) { closed += keys.removeAt(keys.lastIndex); stack.removeAt(stack.lastIndex) }; keys += next++; stack += r }
@@ -263,7 +268,9 @@ private fun screenTransition(from: Screen, to: Screen): ContentTransform {
         from.route is Route.Tabs && to.route is Route.Tabs ->
             fadeIn(tween(200, easing = ease)) togetherWith fadeOut(tween(140))
         // Into 1 Rep Max: the new screen drops in from slightly too big, like a plate hitting the floor.
-        to.depth > from.depth && isOneRm(to.route) -> OneRmFx.enter()
+        // Into 1 Rep Max from elsewhere: the chosen opening. From its list into a test: the chosen test opening.
+        to.depth > from.depth && to.route == Route.OneRmList && !isOneRm(from.route) -> OneRmFx.enter()
+        to.depth > from.depth && to.route is Route.OneRmTest && from.route == Route.OneRmList -> OneRmFx.openTest()
         // Forward: slides in from the right over the old one, which drifts left and dims.
         to.depth > from.depth ->
             (slideInHorizontally(tween(300, easing = ease)) { it / 3 } + fadeIn(tween(220))) togetherWith

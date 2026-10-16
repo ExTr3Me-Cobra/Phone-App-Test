@@ -1,10 +1,15 @@
 package com.ironlog.app
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOutBack
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -17,14 +22,24 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,24 +47,57 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 /** Developer: which animation 1 Rep Max mode uses for each moment, so you can try them and keep your favourites. */
 object OneRmFx {
     private const val FILE = "onerm_fx.json"
 
-    val ENTRY = listOf("Slam (drop from too big)", "Drop from above (bounce)", "Rise from below", "Zoom punch", "Shutter (opens from the middle)",
-        "Fade through black", "Whip in from the side", "None")
+    /** Plain screen transitions (used on their own for opening a test). */
+    val TRANS = listOf("Normal slide", "Slam (drop from too big)", "Drop from above (bounce)", "Drop hard (no bounce)", "Rise from below",
+        "Zoom punch", "Shutter (opens from the middle)", "Fade through black", "Whip in from the side", "None")
+
+    /** Opening 1 Rep Max: a transition, and for the fire ones an effect timed to when the screen lands. */
+    private class Entry(val name: String, val trans: Int, val effect: Int = -1, val at: Long = 0)
+    private val entries = listOf(
+        Entry("Slam (drop from too big)", 1), Entry("Drop from above (bounce)", 2), Entry("Rise from below", 4), Entry("Zoom punch", 5),
+        Entry("Shutter (opens from the middle)", 6), Entry("Fade through black", 7), Entry("Whip in from the side", 8), Entry("None", 9),
+        Entry("Drop from above + fire landing", 3, 10, 300), Entry("Drop from above + flame wall", 3, 11, 300),
+        Entry("Rise from below + fire from below", 4, 10, 0), Entry("Zoom punch + fire ring", 5, 7, 100),
+        Entry("Fade through black + ember shower", 7, 8, 250), Entry("Ignite (inferno, then fade in)", 7, 9, 120),
+        Entry("Slam + fire ring", 1, 7, 280), Entry("Drop from above (bounce) + fire landing", 2, 10, 260),
+        Entry("Whip in + fire from below", 8, 10, 180),
+    )
+    val ENTRY = entries.map { it.name }
+
+    /** Effects over the whole screen (opening a test, and the fire landings). */
     val ARRIVAL = listOf("Jolt + red flash", "Earthquake", "Heartbeat (double red pulse)", "Gold shockwave", "Red vignette breathe",
-        "Lightning flash", "None", "Fire ring", "Ember shower", "Inferno (fire ring + embers + jolt)")
+        "Lightning flash", "None", "Fire ring", "Ember shower", "Inferno (fire ring + embers + jolt)",
+        "Fire from below (bottom + up the sides)", "Flame wall rising", "Fire ring + earthquake", "Fire from below + embers")
     val TICK = listOf("Stamp + rattle", "Pop + gold burst", "Flip", "Slam + red row flash", "Green glow", "Hard shake", "None",
-        "Fire ring burst", "Fire ring + stamp")
-    val SHINE = listOf("Gold glint + ember glow", "Ember glow only", "Fast glint", "None", "Flame flicker")
+        "Fire ring burst", "Fire ring + stamp", "Ember pop", "Big flame burst", "Flip + fire ring")
+    val SHINE = listOf("Gold glint + ember glow", "Ember glow only", "Fast glint", "None", "Flame flicker", "Fire glint (orange)", "Lava pulse")
 
     var entry by mutableIntStateOf(0)
+    var testTrans by mutableIntStateOf(0)
     var arrival by mutableIntStateOf(0)
     var tick by mutableIntStateOf(0)
     var shine by mutableIntStateOf(0)
@@ -57,6 +105,9 @@ object OneRmFx {
     var listQuake by mutableStateOf(false)
     /** Set by the developer button on the Workout tab: Settings scrolls straight to these pickers. */
     var jump by mutableStateOf(false)
+    /** Set when you go into 1 Rep Max / into a test (not when you come back to them), so their effects play once. */
+    var enteringList = false
+    var enteringTest = false
     private var loaded = false
 
     fun load() {
@@ -65,6 +116,7 @@ object OneRmFx {
         runCatching {
             val o = JSONObject(Store.readFile(FILE) ?: "{}")
             entry = o.optInt("entry").coerceIn(ENTRY.indices)
+            testTrans = o.optInt("testTrans").coerceIn(TRANS.indices)
             arrival = o.optInt("arrival").coerceIn(ARRIVAL.indices)
             tick = o.optInt("tick").coerceIn(TICK.indices)
             shine = o.optInt("shine").coerceIn(SHINE.indices)
@@ -72,50 +124,332 @@ object OneRmFx {
         }
     }
 
-    fun save() = Store.writeFile(FILE, JSONObject().put("entry", entry).put("arrival", arrival).put("tick", tick).put("shine", shine).put("quake", listQuake).toString())
+    fun save() = Store.writeFile(FILE, JSONObject().put("entry", entry).put("testTrans", testTrans).put("arrival", arrival)
+        .put("tick", tick).put("shine", shine).put("quake", listQuake).toString())
 
-    /** Going into a 1 Rep Max screen. */
-    fun enter(): ContentTransform = when (entry) {
-        1 -> slideInVertically(spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessMediumLow)) { -it } togetherWith
-            fadeOut(tween(200))
-        2 -> (slideInVertically(tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(tween(200))) togetherWith
-            (scaleOut(tween(380), targetScale = 0.92f) + fadeOut(tween(300)))
-        3 -> (scaleIn(spring(dampingRatio = 0.45f, stiffness = Spring.StiffnessMedium), initialScale = 0.55f) + fadeIn(tween(120))) togetherWith
-            fadeOut(tween(150))
-        4 -> (expandVertically(tween(360, easing = FastOutSlowInEasing), expandFrom = Alignment.CenterVertically) + fadeIn(tween(200))) togetherWith
-            (shrinkVertically(tween(300), shrinkTowards = Alignment.CenterVertically) + fadeOut(tween(250)))
-        5 -> fadeIn(tween(260, delayMillis = 240)) togetherWith fadeOut(tween(200))
-        6 -> (slideInHorizontally(tween(220, easing = FastOutLinearInEasing)) { it } + scaleIn(tween(260), initialScale = 0.95f)) togetherWith
-            (slideOutHorizontally(tween(220, easing = FastOutLinearInEasing)) { -it / 2 } + fadeOut(tween(200)))
-        7 -> fadeIn(tween(0)) togetherWith fadeOut(tween(0))
-        else -> (scaleIn(tween(320, easing = EaseOutBack), initialScale = 1.14f) + fadeIn(tween(160))) togetherWith
+    /** Going into 1 Rep Max. */
+    fun enter(i: Int = entry): ContentTransform = trans(entries.getOrElse(i) { entries[0] }.trans)
+    /** The effect (and when) that goes with an opening, if any. */
+    fun entryEffect(i: Int = entry): Pair<Int, Long>? = entries.getOrNull(i)?.takeIf { it.effect >= 0 }?.let { it.effect to it.at }
+    /** Going from the 1 Rep Max list into a test. */
+    fun openTest(i: Int = testTrans): ContentTransform = trans(i)
+
+    fun trans(i: Int): ContentTransform = when (i) {
+        1 -> (scaleIn(tween(320, easing = EaseOutBack), initialScale = 1.14f) + fadeIn(tween(160))) togetherWith
             (scaleOut(tween(260), targetScale = 0.9f) + fadeOut(tween(220)))
+        2 -> slideInVertically(spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessMediumLow)) { -it } togetherWith fadeOut(tween(200))
+        3 -> slideInVertically(tween(300, easing = FastOutLinearInEasing)) { -it } togetherWith fadeOut(tween(250))
+        4 -> (slideInVertically(tween(380, easing = FastOutSlowInEasing)) { it } + fadeIn(tween(200))) togetherWith
+            (scaleOut(tween(380), targetScale = 0.92f) + fadeOut(tween(300)))
+        5 -> (scaleIn(spring(dampingRatio = 0.45f, stiffness = Spring.StiffnessMedium), initialScale = 0.55f) + fadeIn(tween(120))) togetherWith
+            fadeOut(tween(150))
+        6 -> (expandVertically(tween(360, easing = FastOutSlowInEasing), expandFrom = Alignment.CenterVertically) + fadeIn(tween(200))) togetherWith
+            (shrinkVertically(tween(300), shrinkTowards = Alignment.CenterVertically) + fadeOut(tween(250)))
+        7 -> fadeIn(tween(260, delayMillis = 240)) togetherWith fadeOut(tween(200))
+        8 -> (slideInHorizontally(tween(220, easing = FastOutLinearInEasing)) { it } + scaleIn(tween(260), initialScale = 0.95f)) togetherWith
+            (slideOutHorizontally(tween(220, easing = FastOutLinearInEasing)) { -it / 2 } + fadeOut(tween(200)))
+        9 -> EnterTransition.None togetherWith ExitTransition.None
+        else -> (slideInHorizontally(tween(300, easing = FastOutSlowInEasing)) { it / 3 } + fadeIn(tween(220))) togetherWith
+            (slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { -it / 8 } + fadeOut(tween(260)))
     }
 }
 
-/** Developer settings: a picker for each 1 Rep Max animation. */
+// ---------------- Whole-screen effects ----------------
+
+/** Everything a whole-screen effect moves or draws. Put [fxShake] on the screen and [FxOverlay] on top of it. */
+class FxState {
+    val jolt = Animatable(0f)
+    val sway = Animatable(0f)
+    val flash = Animatable(0f)
+    val white = Animatable(0f)
+    val ring = Animatable(0f)
+    val fire = Animatable(0f)
+    val ember = Animatable(0f)
+    val edges = Animatable(0f)
+    val wall = Animatable(0f)
+
+    private suspend fun quake(ms: Int, big: Float) = coroutineScope {
+        launch { jolt.animateTo(0f, keyframes { durationMillis = ms; big at ms / 14; -big * 0.9f at ms / 6; big * 0.7f at ms * 2 / 7; -big * 0.55f at ms * 2 / 5; big * 0.4f at ms * 5 / 9; -big * 0.2f at ms * 5 / 7; big * 0.1f at ms * 6 / 7 }) }
+        sway.animateTo(0f, keyframes { durationMillis = ms; -big at ms / 12; big at ms / 5; -big * 0.8f at ms / 3; big * 0.55f at ms * 3 / 7; -big * 0.35f at ms * 5 / 8; big * 0.15f at ms * 4 / 5 })
+    }
+    private suspend fun bump(px: Float) = jolt.animateTo(0f, keyframes { durationMillis = 380; px at 40; -px * 0.8f at 100; px * 0.5f at 170; -px * 0.3f at 240; px * 0.15f at 310 })
+
+    /** Plays effect [kind] (an index into [OneRmFx.ARRIVAL]) after [wait] ms. */
+    suspend fun play(kind: Int, haptic: HapticFeedback?, wait: Long, density: Float) = coroutineScope {
+        delay(wait)
+        fun buzz() = haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
+        val d = density
+        when (kind) {
+            1 -> { buzz(); launch { flash.snapTo(0.5f); flash.animateTo(0f, tween(900)) }; quake(700, 20f * d / 2.6f) }
+            2 -> repeat(2) { buzz(); flash.snapTo(0.85f); flash.animateTo(0f, tween(320)); delay(90) }
+            3 -> { buzz(); launch { flash.snapTo(0.35f); flash.animateTo(0f, tween(500)) }; ring.snapTo(0f); ring.animateTo(1f, tween(750, easing = FastOutSlowInEasing)) }
+            4 -> { flash.animateTo(0.9f, tween(450)); flash.animateTo(0f, tween(1000)) }
+            5 -> {
+                buzz(); white.snapTo(0.85f)
+                launch { jolt.animateTo(0f, keyframes { durationMillis = 220; 8f at 40; -5f at 110; 2f at 170 }) }
+                white.animateTo(0f, tween(260)); delay(60); white.snapTo(0.4f); white.animateTo(0f, tween(180))
+            }
+            6 -> {}
+            7 -> { buzz(); launch { flash.snapTo(0.4f); flash.animateTo(0f, tween(600)) }; fire.snapTo(0f); fire.animateTo(1f, tween(1000, easing = FastOutSlowInEasing)) }
+            8 -> { ember.snapTo(0f); ember.animateTo(1f, tween(1800)) }
+            9 -> {
+                buzz()
+                launch { flash.snapTo(0.7f); flash.animateTo(0f, tween(900)) }
+                launch { ember.snapTo(0f); ember.animateTo(1f, tween(2000)) }
+                launch { bump(16f) }
+                fire.snapTo(0f); fire.animateTo(1f, tween(1100, easing = FastOutSlowInEasing))
+            }
+            10 -> {
+                buzz()
+                launch { bump(14f * d / 2.6f) }
+                launch { flash.snapTo(0.35f); flash.animateTo(0f, tween(700)) }
+                edges.snapTo(0f); edges.animateTo(1f, tween(1400))
+            }
+            11 -> { buzz(); launch { flash.snapTo(0.3f); flash.animateTo(0f, tween(900)) }; wall.snapTo(0f); wall.animateTo(1f, tween(1300, easing = FastOutSlowInEasing)) }
+            12 -> {
+                buzz()
+                launch { quake(800, 22f * d / 2.6f) }
+                launch { flash.snapTo(0.5f); flash.animateTo(0f, tween(800)) }
+                fire.snapTo(0f); fire.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
+            }
+            13 -> {
+                buzz()
+                launch { bump(12f * d / 2.6f) }
+                launch { ember.snapTo(0f); ember.animateTo(1f, tween(2000)) }
+                edges.snapTo(0f); edges.animateTo(1f, tween(1400))
+            }
+            else -> { buzz(); launch { flash.snapTo(0.75f); flash.animateTo(0f, tween(650)) }; bump(14f) }
+        }
+    }
+}
+
+fun Modifier.fxShake(s: FxState) = graphicsLayer { translationY = s.jolt.value; translationX = s.sway.value }
+
+/** Draws the effects; never blocks a tap. */
+@Composable
+fun FxOverlay(s: FxState, modifier: Modifier = Modifier.fillMaxSize()) = Box(modifier.drawWithContent {
+    val c = Offset(size.width / 2, size.height / 2)
+    val big = maxOf(size.width, size.height)
+    val a = s.flash.value
+    if (a > 0f) drawRect(Brush.radialGradient(
+        listOf(Color.Transparent, Color(0xFF8B0000).copy(alpha = a * 0.5f), Color(0xFF3A0000).copy(alpha = a)), center = c, radius = big * 0.75f,
+    ))
+    val r = s.ring.value
+    if (r > 0f && r < 1f) drawCircle(Color(0xFFC9A94E).copy(alpha = 1f - r), radius = r * big * 0.8f, center = c,
+        style = Stroke((28f * (1f - r) + 2f) * density))
+    val f = s.fire.value
+    if (f > 0f && f < 1f) fireRing(c, f * big * 0.75f, f, (big / 12f) * (1f - f * 0.4f))
+    fireEdges(s.edges.value)
+    flameWall(s.wall.value)
+    embers(s.ember.value)
+    if (s.white.value > 0f) drawRect(Color.White.copy(alpha = s.white.value))
+})
+
+// ---------------- Ticking a set ----------------
+
+/** The ✓'s effect when a set is ticked. Put [tickRow] on the row and [tickBox] on the ✓. */
+class TickFx {
+    val stamp = Animatable(1f)
+    val shake = Animatable(0f)
+    val spin = Animatable(0f)
+    val burst = Animatable(0f)
+    val rowFlash = Animatable(0f)
+
+    private suspend fun rattle(ms: Int, px: Float) = shake.animateTo(0f, keyframes { durationMillis = ms; px at ms / 10; -px * 0.9f at ms / 4; px * 0.6f at ms * 9 / 20; -px * 0.35f at ms * 2 / 3; px * 0.12f at ms * 5 / 6 })
+    private suspend fun stampDown(from: Float = 1.55f) { stamp.snapTo(from); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
+    private suspend fun burstOut(ms: Int) { burst.snapTo(0f); burst.animateTo(1f, tween(ms, easing = FastOutSlowInEasing)) }
+
+    suspend fun play(kind: Int, haptic: HapticFeedback?) = coroutineScope {
+        if (kind != 6) haptic?.performHapticFeedback(HapticFeedbackType.LongPress)
+        when (kind) {
+            1 -> { launch { stamp.snapTo(1.3f); stamp.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 600f)) }; burstOut(480) }
+            2 -> { spin.snapTo(0f); spin.animateTo(360f, tween(450, easing = FastOutSlowInEasing)); spin.snapTo(0f) }
+            3 -> { stamp.snapTo(2.2f); stamp.animateTo(1f, tween(140, easing = FastOutLinearInEasing)); rowFlash.snapTo(0.55f); rowFlash.animateTo(0f, tween(450)) }
+            4 -> { burst.snapTo(0f); burst.animateTo(1f, tween(650)) }
+            5 -> rattle(450, 18f)
+            6 -> {}
+            7 -> burstOut(700)
+            8 -> { launch { stampDown() }; launch { rattle(300, 9f) }; burstOut(700) }
+            9 -> { launch { stamp.snapTo(1.35f); stamp.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 600f)) }; burstOut(800) }
+            10 -> { launch { stampDown(1.8f) }; launch { rowFlash.snapTo(0.35f); rowFlash.animateTo(0f, tween(600)) }; burstOut(900) }
+            11 -> { launch { spin.snapTo(0f); spin.animateTo(360f, tween(450, easing = FastOutSlowInEasing)); spin.snapTo(0f) }; burstOut(750) }
+            else -> { launch { stampDown() }; rattle(300, 9f) }
+        }
+    }
+}
+
+fun Modifier.tickRow(t: TickFx) = graphicsLayer { translationX = t.shake.value }.drawBehind {
+    if (t.rowFlash.value > 0f) drawRoundRect(Color(0xFFFF453A).copy(alpha = t.rowFlash.value), cornerRadius = androidx.compose.ui.geometry.CornerRadius(10.dp.toPx()))
+}
+
+fun Modifier.tickBox(t: TickFx, kind: Int) = graphicsLayer {
+    scaleX = t.stamp.value; scaleY = t.stamp.value; rotationY = t.spin.value; cameraDistance = 12f * density
+}.drawBehind {
+    val b = t.burst.value
+    if (b <= 0f || b >= 1f) return@drawBehind
+    val c = Offset(size.width / 2, size.height / 2)
+    val half = size.minDimension / 2
+    when (kind) {
+        4 -> drawCircle(Color(0xFF34C759).copy(alpha = 0.55f * (1f - b)), radius = half * (1f + b * 2.2f), center = c)
+        7, 8, 11 -> fireRing(c, half * (1f + b * 2.4f), b, 18.dp.toPx() * (1f - b * 0.3f))
+        9 -> sparks(c, half, b)
+        10 -> { fireRing(c, half * (1f + b * 4f), b, 30.dp.toPx() * (1f - b * 0.3f)); sparks(c, half, b) }
+        else -> drawCircle(Color(0xFFC9A94E).copy(alpha = 1f - b), radius = half * (1f + b * 1.8f), center = c, style = Stroke(3.dp.toPx() * (1.5f - b)))
+    }
+}
+
+// ---------------- Fire, in the 1 Rep Max red and gold ----------------
+
+private val FireGold = Color(0xFFFFD36A)
+private val FireOrange = Color(0xFFFF6A00)
+private val FireRed = Color(0xFFB30000)
+
+/** A repeatable 0–1 "random" number, so flames flicker the same way each frame step. */
+private fun rnd(i: Int, salt: Float = 0f): Float {
+    val v = kotlin.math.sin(i * 12.9898f + salt * 78.233f) * 43758.547f
+    return v - kotlin.math.floor(v)
+}
+
+/** One tongue of flame from [from] towards [to]: gold at the root, orange, fading to red at the tip. */
+private fun DrawScope.flame(from: Offset, to: Offset, width: Float, a: Float) = drawLine(
+    Brush.linearGradient(listOf(FireGold.copy(alpha = a), FireOrange.copy(alpha = 0.9f * a), FireRed.copy(alpha = 0f)), from, to),
+    from, to, strokeWidth = width.coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round,
+)
+
+/** A ring of fire at [radius] around [center], flickering outward over a hot glow; fades as [p] reaches 1. */
+fun DrawScope.fireRing(center: Offset, radius: Float, p: Float, flame: Float) {
+    val a = (1f - p).coerceIn(0f, 1f)
+    if (a <= 0f || radius <= 0f) return
+    val outer = radius + flame * 1.6f
+    drawCircle(
+        Brush.radialGradient(
+            0f to Color.Transparent,
+            ((radius - flame * 0.4f) / outer).coerceIn(0f, 0.98f) to Color.Transparent,
+            (radius / outer).coerceIn(0f, 0.99f) to FireOrange.copy(alpha = 0.45f * a),
+            1f to Color.Transparent,
+            center = center, radius = outer,
+        ),
+        radius = outer, center = center,
+    )
+    val n = 96
+    val step = (p * 30f).toInt().toFloat()
+    for (i in 0 until n) {
+        val ang = (i * 2.0 * Math.PI / n + p * 0.8).toFloat()
+        val h = flame * (0.35f + 0.65f * rnd(i, step))
+        val dx = kotlin.math.cos(ang); val dy = kotlin.math.sin(ang)
+        flame(Offset(center.x + dx * radius, center.y + dy * radius), Offset(center.x + dx * (radius + h), center.y + dy * (radius + h)), flame * 0.16f, a)
+    }
+    drawCircle(FireGold.copy(alpha = 0.8f * a), radius = radius, center = center, style = Stroke((flame * 0.12f).coerceAtLeast(2f)))
+}
+
+/** Fire blowing out along the bottom edge and climbing up both sides. [p] runs 0–1. */
+fun DrawScope.fireEdges(p: Float) {
+    if (p <= 0f || p >= 1f) return
+    val e = if (p < 0.2f) p / 0.2f else (1f - p) / 0.8f
+    val step = (p * 30f).toInt().toFloat()
+    val w = size.width; val h = size.height
+    val maxH = h * 0.16f
+    // Glow along the bottom and sides.
+    drawRect(Brush.verticalGradient(listOf(Color.Transparent, FireOrange.copy(alpha = 0.45f * e)), startY = h - maxH * 2.2f, endY = h),
+        topLeft = Offset(0f, h - maxH * 2.2f), size = androidx.compose.ui.geometry.Size(w, maxH * 2.2f))
+    // Bottom: a row of flames.
+    val gap = 7.dp.toPx()
+    var x = 0f; var i = 0
+    while (x <= w) {
+        val fh = maxH * e * (0.35f + 0.65f * rnd(i, step))
+        flame(Offset(x, h), Offset(x + (rnd(i, step + 1f) - 0.5f) * gap * 2f, h - fh), gap * 1.5f, e)
+        x += gap; i++
+    }
+    // Sides: the flames climb as p grows, shorter higher up.
+    val climb = h * (p * 1.7f).coerceAtMost(1f) * 0.85f
+    val sideW = w * 0.13f
+    var y = h; var j = 0
+    while (y >= h - climb) {
+        val up = (h - y) / climb.coerceAtLeast(1f)
+        val fw = sideW * e * (0.35f + 0.65f * rnd(j, step + 2f)) * (1f - up * 0.6f)
+        flame(Offset(0f, y), Offset(fw, y - gap * 0.8f), gap * 1.4f, e * (1f - up * 0.4f))
+        flame(Offset(w, y), Offset(w - fw * (0.8f + 0.4f * rnd(j, step + 3f)), y - gap * 0.8f), gap * 1.4f, e * (1f - up * 0.4f))
+        y -= gap; j++
+    }
+}
+
+/** A wall of flame sweeping up the screen from the bottom. [p] runs 0–1. */
+fun DrawScope.flameWall(p: Float) {
+    if (p <= 0f || p >= 1f) return
+    val a = if (p < 0.15f) p / 0.15f else (1f - p) / 0.85f
+    val line = size.height * (1.05f - p * 1.15f)
+    drawRect(Brush.verticalGradient(listOf(FireOrange.copy(alpha = 0.35f * a), FireRed.copy(alpha = 0.15f * a)), startY = line, endY = size.height),
+        topLeft = Offset(0f, line), size = androidx.compose.ui.geometry.Size(size.width, (size.height - line).coerceAtLeast(0f)))
+    val gap = 8.dp.toPx(); val maxH = size.height * 0.14f
+    val step = (p * 30f).toInt().toFloat()
+    var x = 0f; var i = 0
+    while (x <= size.width) {
+        val fh = maxH * (0.35f + 0.65f * rnd(i, step))
+        flame(Offset(x, line), Offset(x + (rnd(i, step + 1f) - 0.5f) * gap * 2f, line - fh), gap * 1.6f, a)
+        x += gap; i++
+    }
+}
+
+/** Glowing embers drifting up the screen and burning out. [p] runs 0–1. */
+fun DrawScope.embers(p: Float, count: Int = 80) {
+    if (p <= 0f || p >= 1f) return
+    for (i in 0 until count) {
+        val speed = 0.7f + rnd(i, 2f) * 0.9f
+        val x = rnd(i, 1f) * size.width + kotlin.math.sin(p * 9f + i) * 14f * density
+        val y = size.height * (1.05f + rnd(i, 3f) * 0.25f) - p * speed * size.height * 1.15f
+        val life = (1f - p) * (0.55f + 0.45f * rnd(i, (p * 25f).toInt().toFloat()))
+        val col = if (rnd(i, 4f) < 0.5f) FireGold else if (rnd(i, 5f) < 0.6f) FireOrange else FireRed
+        val r = (1.5f + rnd(i, 6f) * 3.5f) * density
+        drawCircle(col.copy(alpha = life * 0.35f), radius = r * 2.6f, center = Offset(x, y))
+        drawCircle(col.copy(alpha = life), radius = r, center = Offset(x, y))
+    }
+}
+
+/** Sparks flying out from a ✓. */
+private fun DrawScope.sparks(c: Offset, half: Float, b: Float) {
+    for (i in 0 until 18) {
+        val ang = (i * 2.0 * Math.PI / 18 + rnd(i, 7f)).toFloat()
+        val dist = half * (1f + b * (2f + 1.5f * rnd(i, 8f)))
+        val col = if (rnd(i, 9f) < 0.5f) FireGold else FireOrange
+        val pos = Offset(c.x + kotlin.math.cos(ang) * dist, c.y + kotlin.math.sin(ang) * dist - b * 10.dp.toPx())
+        drawCircle(col.copy(alpha = (1f - b) * 0.35f), radius = 6.dp.toPx() * (1f - b * 0.5f), center = pos)
+        drawCircle(col.copy(alpha = 1f - b), radius = 2.5.dp.toPx() * (1f - b * 0.5f), center = pos)
+    }
+}
+
+// ---------------- Developer settings, with a live preview ----------------
+
 @Composable
 fun OneRmFxSettings() {
     OneRmFx.load()
     val req = remember { androidx.compose.foundation.relocation.BringIntoViewRequester() }
-    androidx.compose.runtime.LaunchedEffect(OneRmFx.jump) {
-        if (OneRmFx.jump) { kotlinx.coroutines.delay(400); runCatching { req.bringIntoView() }; OneRmFx.jump = false }
+    LaunchedEffect(OneRmFx.jump) {
+        if (OneRmFx.jump) { delay(400); runCatching { req.bringIntoView() }; OneRmFx.jump = false }
     }
+    // What the preview shows, and a counter that replays it.
+    var mode by remember { mutableIntStateOf(0) }
+    var play by remember { mutableIntStateOf(0) }
+    fun preview(m: Int) { mode = m; play++ }
     Column(Modifier.bringIntoViewRequester(req), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        androidx.compose.material3.Text("1 Rep Max animations", fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-        androidx.compose.material3.Text("Try each one, then open 1 Rep Max mode to see it.", color = Sub, fontSize = 13.sp)
-        FxPicker("Opening 1 Rep Max", OneRmFx.ENTRY, OneRmFx.entry) { OneRmFx.entry = it; OneRmFx.save() }
-        FxPicker("When a test opens", OneRmFx.ARRIVAL, OneRmFx.arrival) { OneRmFx.arrival = it; OneRmFx.save() }
-        FxPicker("Ticking a set", OneRmFx.TICK, OneRmFx.tick) { OneRmFx.tick = it; OneRmFx.save() }
-        FxPicker("Gold buttons", OneRmFx.SHINE, OneRmFx.shine) { OneRmFx.shine = it; OneRmFx.save() }
+        androidx.compose.material3.Text("1 Rep Max animations", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        androidx.compose.material3.Text("Pick one and it plays in the preview. Open 1 Rep Max to see it for real.", color = Sub, fontSize = 13.sp)
+        FxStage(mode, play)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            GreyButton("▶ Replay", Modifier.weight(1f)) { play++ }
+            GreyButton("Open 1 Rep Max", Modifier.weight(1.4f), Blue) { Nav.go(Route.OneRmList) }
+        }
+        FxPicker("Opening 1 Rep Max", OneRmFx.ENTRY, OneRmFx.entry) { OneRmFx.entry = it; OneRmFx.save(); preview(0) }
+        FxPicker("Opening a test", OneRmFx.TRANS, OneRmFx.testTrans) { OneRmFx.testTrans = it; OneRmFx.save(); preview(1) }
+        FxPicker("When a test opens", OneRmFx.ARRIVAL, OneRmFx.arrival) { OneRmFx.arrival = it; OneRmFx.save(); preview(2) }
+        FxPicker("Ticking a set", OneRmFx.TICK, OneRmFx.tick) { OneRmFx.tick = it; OneRmFx.save(); preview(3) }
+        FxPicker("Gold buttons", OneRmFx.SHINE, OneRmFx.shine) { OneRmFx.shine = it; OneRmFx.save(); preview(4) }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 androidx.compose.material3.Text("Earthquake on open (test)", fontSize = 14.sp)
                 androidx.compose.material3.Text("Every exercise in the 1 Rep Max list rattles violently when it opens.", color = Sub, fontSize = 12.sp)
             }
-            androidx.compose.material3.Switch(OneRmFx.listQuake, { OneRmFx.listQuake = it; OneRmFx.save() })
+            androidx.compose.material3.Switch(OneRmFx.listQuake, { OneRmFx.listQuake = it; OneRmFx.save(); preview(5) })
         }
-        GreyButton("Open 1 Rep Max to try them", textColor = Blue) { Nav.go(Route.OneRmList) }
     }
 }
 
@@ -125,7 +459,7 @@ private fun FxPicker(label: String, options: List<String>, chosen: Int, onPick: 
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         androidx.compose.material3.Text(label, Modifier.weight(0.8f), fontSize = 14.sp)
         Box(Modifier.weight(1.2f)) {
-            GreyButton(options[chosen] + " ▾") { open = true }
+            GreyButton(options[chosen.coerceIn(options.indices)] + " ▾") { open = true }
             DropdownMenu(open, { open = false }) {
                 options.forEachIndexed { i, o ->
                     DropdownMenuItem({ androidx.compose.material3.Text((if (i == chosen) "✓  " else "     ") + o) }, { onPick(i); open = false })
@@ -135,69 +469,97 @@ private fun FxPicker(label: String, options: List<String>, chosen: Int, onPick: 
     }
 }
 
-// ---------------- Fire, in the 1 Rep Max red and gold ----------------
-
-private val FireGold = androidx.compose.ui.graphics.Color(0xFFFFD36A)
-private val FireOrange = androidx.compose.ui.graphics.Color(0xFFFF6A00)
-private val FireRed = androidx.compose.ui.graphics.Color(0xFFB30000)
-
-/** A repeatable 0–1 "random" number, so flames flicker the same way each frame step. */
-private fun rnd(i: Int, salt: Float = 0f): Float {
-    val v = kotlin.math.sin(i * 12.9898f + salt * 78.233f) * 43758.547f
-    return v - kotlin.math.floor(v)
-}
-
 /**
- * A ring of fire at [radius] around [center]: tongues of flame (gold at the root, orange, fading to red) flickering
- * outward, with a hot glow under them. [p] is how far through the effect we are (0–1); it fades as p reaches 1.
+ * A small mock phone screen that plays the chosen animation: 0 opening 1 Rep Max, 1 opening a test (with its effect),
+ * 2 the test effect, 3 ticking a set, 4 the gold buttons, 5 the list earthquake.
  */
-fun androidx.compose.ui.graphics.drawscope.DrawScope.fireRing(center: androidx.compose.ui.geometry.Offset, radius: Float, p: Float, flame: Float) {
-    val a = (1f - p).coerceIn(0f, 1f)
-    if (a <= 0f || radius <= 0f) return
-    val outer = radius + flame * 1.6f
-    // The glow.
-    drawCircle(
-        androidx.compose.ui.graphics.Brush.radialGradient(
-            0f to androidx.compose.ui.graphics.Color.Transparent,
-            ((radius - flame * 0.4f) / outer).coerceIn(0f, 1f) to androidx.compose.ui.graphics.Color.Transparent,
-            (radius / outer).coerceIn(0f, 1f) to FireOrange.copy(alpha = 0.45f * a),
-            1f to androidx.compose.ui.graphics.Color.Transparent,
-            center = center, radius = outer,
-        ),
-        radius = outer, center = center,
-    )
-    // The flames: each one flickers frame to frame.
-    val n = 96
-    val tick = (p * 30f).toInt()
-    for (i in 0 until n) {
-        val ang = (i * 2.0 * Math.PI / n + p * 0.8).toFloat()
-        val h = flame * (0.35f + 0.65f * rnd(i, tick.toFloat()))
-        val dx = kotlin.math.cos(ang); val dy = kotlin.math.sin(ang)
-        val start = androidx.compose.ui.geometry.Offset(center.x + dx * radius, center.y + dy * radius)
-        val end = androidx.compose.ui.geometry.Offset(center.x + dx * (radius + h), center.y + dy * (radius + h))
-        drawLine(
-            androidx.compose.ui.graphics.Brush.linearGradient(
-                listOf(FireGold.copy(alpha = a), FireOrange.copy(alpha = 0.9f * a), FireRed.copy(alpha = 0f)), start, end,
-            ),
-            start, end, strokeWidth = (flame * 0.16f).coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round,
-        )
+@Composable
+private fun FxStage(mode: Int, play: Int) {
+    val haptic = LocalHapticFeedback.current
+    val fx = remember { FxState() }
+    val tick = remember { TickFx() }
+    var screen by remember { mutableIntStateOf(0) } // 0 Workout tab, 1 1RM list, 2 test
+    var ticked by remember { mutableStateOf(false) }
+    val quake = remember { Animatable(1f) }
+    val density = androidx.compose.ui.platform.LocalDensity.current.density
+    LaunchedEffect(play) {
+        ticked = false
+        when (mode) {
+            0 -> { screen = 0; delay(450); screen = 1; OneRmFx.entryEffect()?.let { (k, at) -> fx.play(k, haptic, at, density) } }
+            1 -> { screen = 1; delay(450); screen = 2; fx.play(OneRmFx.arrival, haptic, 0, density) }
+            2 -> { screen = 2; delay(150); fx.play(OneRmFx.arrival, haptic, 0, density) }
+            3 -> { screen = 2; delay(300); ticked = true; tick.play(OneRmFx.tick, haptic) }
+            4 -> screen = 1
+            5 -> { screen = 1; quake.snapTo(0f); delay(150); quake.animateTo(1f, tween(1100)) }
+        }
     }
-    // A bright core line.
-    drawCircle(FireGold.copy(alpha = 0.8f * a), radius = radius, center = center,
-        style = androidx.compose.ui.graphics.drawscope.Stroke((flame * 0.12f).coerceAtLeast(2f)))
+    Box(Modifier.fillMaxWidth().height(260.dp).clip(RoundedCornerShape(14.dp)).background(Color.Black)
+        .border(1.dp, Card2, RoundedCornerShape(14.dp))) {
+        AnimatedContent(screen, Modifier.fillMaxSize().fxShake(fx), transitionSpec = {
+            when {
+                targetState == 1 && initialState == 0 -> OneRmFx.enter()
+                targetState == 2 && initialState == 1 -> OneRmFx.openTest()
+                else -> EnterTransition.None togetherWith ExitTransition.None
+            }
+        }, label = "stage") { s ->
+            when (s) {
+                0 -> MockScreen("Workout", Card) { MockBars(4) }
+                1 -> MockScreen("1 Rep Max", Color(0xFF2A0E0E)) {
+                    MockGoldButton()
+                    repeat(3) { r -> MockRow(Modifier.graphicsLayer {
+                        val q = quake.value
+                        if (q < 1f) {
+                            val amp = (1f - q) * (1f - q)
+                            translationX = kotlin.math.sin(q * 70f + r * 1.9f) * 18f * density * amp
+                            rotationZ = kotlin.math.sin(q * 60f + r) * 3.5f * amp
+                        }
+                    }) }
+                }
+                else -> MockScreen("1RM: Bench Press", Color(0xFF2A0E0E)) {
+                    MockBars(2)
+                    Row(Modifier.fillMaxWidth().tickRow(tick).padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        androidx.compose.material3.Text("1", color = Sub, fontSize = 12.sp, modifier = Modifier.width(20.dp))
+                        Box(Modifier.weight(1f).height(26.dp).padding(end = 6.dp).clip(RoundedCornerShape(6.dp)).background(Card2))
+                        Box(Modifier.size(width = 54.dp, height = 30.dp).tickBox(tick, OneRmFx.tick).clip(RoundedCornerShape(8.dp))
+                            .background(if (ticked) Color(0xFF34C759) else Card2), contentAlignment = Alignment.Center) {
+                            androidx.compose.material3.Text("✓", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+        FxOverlay(fx)
+    }
 }
 
-/** Glowing embers drifting up the screen and burning out. [p] runs 0–1. */
-fun androidx.compose.ui.graphics.drawscope.DrawScope.embers(p: Float, count: Int = 80) {
-    if (p <= 0f || p >= 1f) return
-    for (i in 0 until count) {
-        val speed = 0.7f + rnd(i, 2f) * 0.9f
-        val x = rnd(i, 1f) * size.width + kotlin.math.sin(p * 9f + i) * 14f * density
-        val y = size.height * (1.05f + rnd(i, 3f) * 0.25f) - p * speed * size.height * 1.15f
-        val life = (1f - p) * (0.55f + 0.45f * rnd(i, (p * 25f).toInt().toFloat()))
-        val c = if (rnd(i, 4f) < 0.5f) FireGold else if (rnd(i, 5f) < 0.6f) FireOrange else FireRed
-        val r = (1.5f + rnd(i, 6f) * 3.5f) * density
-        drawCircle(c.copy(alpha = life * 0.35f), radius = r * 2.6f, center = androidx.compose.ui.geometry.Offset(x, y))
-        drawCircle(c.copy(alpha = life), radius = r, center = androidx.compose.ui.geometry.Offset(x, y))
+@Composable
+private fun MockScreen(title: String, bar: Color, content: @Composable () -> Unit) = Column(Modifier.fillMaxSize().background(Bg)) {
+    Box(Modifier.fillMaxWidth().height(34.dp).background(bar), contentAlignment = Alignment.Center) {
+        androidx.compose.material3.Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold,
+            color = if (bar == Card) Color.White else Color(0xFFC9A94E))
+    }
+    Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { content() }
+}
+
+@Composable
+private fun MockBars(n: Int) = repeat(n) { i ->
+    Box(Modifier.fillMaxWidth(if (i % 2 == 0) 0.9f else 0.6f).height(14.dp).clip(RoundedCornerShape(4.dp)).background(Card2))
+}
+
+@Composable
+private fun MockRow(modifier: Modifier) = Row(modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Card).padding(8.dp),
+    verticalAlignment = Alignment.CenterVertically) {
+    Box(Modifier.size(26.dp).clip(RoundedCornerShape(6.dp)).background(Card2))
+    Box(Modifier.padding(start = 8.dp).fillMaxWidth(0.6f).height(12.dp).clip(RoundedCornerShape(4.dp)).background(Card2))
+}
+
+@Composable
+private fun MockGoldButton() {
+    val heat = rememberHeat()
+    val gold = Color(0xFFC9A94E)
+    Box(Modifier.fillMaxWidth().height(40.dp).clip(RoundedCornerShape(10.dp))
+        .background(Brush.horizontalGradient(listOf(Color(0xFF2A0E0E), Color(0xFF1A1A1A))))
+        .glint(heat).emberBorder(heat, 1.5.dp, gold, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+        androidx.compose.material3.Text("1 REP MAX MODE", color = gold, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
     }
 }
