@@ -262,14 +262,17 @@ fun OneRmListScreen() {
             }
         }
         // Going into 1 Rep Max (not coming back from a test): the opening's effect, and the earthquake test if on.
-        val entering = remember { OneRmFx.enteringList.also { OneRmFx.enteringList = false } }
-        val quakeOn = entering && OneRmFx.listQuake && extraAnims()
-        val quake = remember { Animatable(if (quakeOn) 0f else 1f) }
+        // (Read and cleared once the screen is really on, so an extra trial composition can't use it up.)
+        val quake = remember { Animatable(1f) }
         val quakeHaptic = LocalHapticFeedback.current
         val density = androidx.compose.ui.platform.LocalDensity.current.density
         LaunchedEffect(Unit) {
-            if (entering && extraAnims()) OneRmFx.entryEffect()?.let { (k, at) -> launch { listFx.play(k, quakeHaptic, at, density) } }
-            if (quakeOn) {
+            val entering = OneRmFx.enteringList
+            OneRmFx.enteringList = false
+            if (!entering || !extraAnims()) return@LaunchedEffect
+            OneRmFx.entryEffect()?.let { (k, at) -> launch { listFx.play(k, quakeHaptic, at, density) } }
+            if (OneRmFx.listQuake) {
+                quake.snapTo(0f)
                 kotlinx.coroutines.delay(150)
                 launch { repeat(4) { quakeHaptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
                 quake.animateTo(1f, tween(1100))
