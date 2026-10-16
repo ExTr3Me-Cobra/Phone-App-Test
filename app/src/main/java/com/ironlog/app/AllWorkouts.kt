@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,6 +43,24 @@ private const val PER_PAGE = 10
 @Composable
 fun AllWorkoutsScreen() {
     val workouts by Store.workouts.collectAsState()
+    WorkoutPages("All Workouts", workouts, { Stats.volume(it) }) { WorkoutCard(it) }
+}
+
+/** One exercise's full history, laid out like All Workouts: one card per workout it was in. */
+@Composable
+fun ExerciseHistoryScreen(id: String) {
+    val e = Store.exercise(id) ?: run { Nav.back(); return }
+    val workouts by Store.workouts.collectAsState()
+    val sessions = remember(workouts, id) { Stats.sessions(id, workouts) }
+    val byWorkout = sessions.associateBy { it.workout.id }
+    WorkoutPages("History: ${e.name}", sessions.map { it.workout }, { w ->
+        byWorkout[w.id]?.sets.orEmpty().sumOf { (it.weight ?: 0.0) * (it.reps ?: 0) }
+    }) { w -> byWorkout[w.id]?.let { SessionCard(e, it) } }
+}
+
+/** A list of workouts, 10 to a page, sortable by date or volume and filtered by kind (1 Rep Max test, routine, freestyle). */
+@Composable
+fun WorkoutPages(title: String, workouts: List<Workout>, volume: (Workout) -> Double, card: @Composable (Workout) -> Unit) {
     val routines by Store.routines.collectAsState()
     var sort by rememberSaveable { mutableStateOf("new") }
     var tests by rememberSaveable { mutableStateOf(true) }
@@ -63,8 +82,8 @@ fun AllWorkoutsScreen() {
         }.let { l ->
             when (sort) {
                 "old" -> l.sortedBy { it.start }
-                "most" -> l.sortedByDescending { Stats.volume(it) }
-                "least" -> l.sortedBy { Stats.volume(it) }
+                "most" -> l.sortedByDescending { volume(it) }
+                "least" -> l.sortedBy { volume(it) }
                 else -> l.sortedByDescending { it.start }
             }
         }
@@ -77,7 +96,7 @@ fun AllWorkoutsScreen() {
     val off = listOf(tests, fromRoutines, freestyle).count { !it }
 
     Column(Modifier.fillMaxSize()) {
-        TopBar("All Workouts")
+        TopBar(title)
         Row(Modifier.fillMaxWidth().padding(16.dp, 12.dp, 16.dp, 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(Modifier.weight(1f)) {
                 GreyButton("Sort: ${sorts.first { it.first == sort }.second} ▾") { sortMenu = true }
@@ -106,7 +125,7 @@ fun AllWorkoutsScreen() {
             if (shown.isEmpty()) item {
                 Text(if (workouts.isEmpty()) "No workouts yet." else "No workouts match the filter.", color = Sub, modifier = Modifier.padding(16.dp))
             }
-            items(shown.drop(at * PER_PAGE).take(PER_PAGE), key = { it.id }) { w -> WorkoutCard(w) }
+            items(shown.drop(at * PER_PAGE).take(PER_PAGE), key = { it.id }) { w -> card(w) }
             if (pages > 1) item {
                 Row(Modifier.fillMaxWidth().padding(16.dp, 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     PageButton("‹ Prev", at > 0) { page = at - 1 }
@@ -125,3 +144,11 @@ private fun PageButton(text: String, enabled: Boolean, onClick: () -> Unit) = Te
     modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Card).clickable(enabled = enabled, onClick = onClick)
         .padding(horizontal = 16.dp, vertical = 10.dp),
 )
+
+/** A full-width grey button that opens and closes a list, with an arrow showing which way it goes. */
+@Composable
+fun DropDownButton(text: String, open: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) =
+    Box(modifier.fillMaxWidth().height(46.dp).clip(RoundedCornerShape(10.dp)).background(Card2).clickable(onClick = onClick)) {
+        Text(text, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1, modifier = Modifier.align(Alignment.Center))
+        Text(if (open) "▲" else "▼", color = Blue, fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp))
+    }

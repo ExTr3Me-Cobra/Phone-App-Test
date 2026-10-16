@@ -95,13 +95,7 @@ fun HomeScreen() {
                     // Tap to show your 10 most recent workouts (closed each time the app starts).
                     var open by homeWorkoutsOpen
                     // Styled like the Exercises button, with an arrow showing it opens.
-                    Box(Modifier.padding(16.dp, 10.dp, 16.dp, 6.dp).fillMaxWidth().height(46.dp).clip(RoundedCornerShape(10.dp))
-                        .background(Card2).clickable { open = !open }) {
-                        Text("✅  Completed Workouts (${workouts.size})", fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1,
-                            modifier = Modifier.align(Alignment.Center))
-                        Text(if (open) "▲" else "▼", color = Blue, fontSize = 16.sp,
-                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp))
-                    }
+                    DropDownButton("✅  Completed Workouts (${workouts.size})", open, Modifier.padding(16.dp, 10.dp, 16.dp, 6.dp)) { open = !open }
                 }
             }
             if (homeWorkoutsOpen.value) {

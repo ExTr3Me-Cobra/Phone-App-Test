@@ -467,16 +467,12 @@ fun ExerciseDetailScreen(id: String) {
             },
             Panel("history", "History", visible = sessions.isNotEmpty()) {
                 Column(Modifier.fillMaxWidth()) {
-                    // History
-                    SectionTitle("History")
-                    sessions.reversed().take(30).forEach { s ->
-                        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
-                            Text(Units.date(s.workout.start), fontWeight = FontWeight.Medium)
-                            s.sets.forEachIndexed { i, set ->
-                                Text("${when { set.warmup -> "W"; set.failure -> "F"; else -> "${setNumber(s.sets.map { it.warmup }, i) + 1}" }}   ${Units.set(e.type, set)}",
-                                    color = when { set.warmup -> Orange; set.failure -> Red; else -> Sub })
-                            }
-                        }
+                    // Like Completed Workouts on Home: your 10 most recent, then the full list.
+                    var open by rememberSaveable(e.id) { mutableStateOf(false) }
+                    DropDownButton("🕘  History (${sessions.size})", open, Modifier.padding(16.dp, 10.dp, 16.dp, 6.dp)) { open = !open }
+                    if (open) {
+                        sessions.reversed().take(10).forEach { s -> SessionCard(e, s) }
+                        GreyButton("See All History", Modifier.padding(16.dp, 8.dp).fillMaxWidth()) { Nav.go(Route.ExerciseHistory(e.id)) }
                     }
                 }
             },
@@ -501,6 +497,22 @@ fun ExerciseDetailScreen(id: String) {
                 Spacer(40)
             },
         )
+    }
+}
+
+/** One workout's sets of exercise [e]: tap to open the whole workout. */
+@Composable
+fun SessionCard(e: Exercise, s: Stats.Session) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(10.dp)).background(Card)
+        .clickable { Nav.go(Route.WorkoutDetail(s.workout.id)) }.padding(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(Units.date(s.workout.start), fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+            Text(if (s.workout.test) "1 Rep Max test" else s.workout.name, color = Sub, fontSize = 13.sp, maxLines = 1)
+        }
+        s.sets.forEachIndexed { i, set ->
+            Text("${when { set.warmup -> "W"; set.failure -> "F"; else -> "${setNumber(s.sets.map { it.warmup }, i) + 1}" }}   ${Units.set(e.type, set)}",
+                color = when { set.warmup -> Orange; set.failure -> Red; else -> Sub })
+        }
     }
 }
 
