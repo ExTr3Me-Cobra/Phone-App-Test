@@ -387,7 +387,9 @@ fun Chip(text: String) = Text(
 fun StatBox(label: String, value: String, modifier: Modifier) {
     Column(modifier) {
         Text(label, color = Sub, fontSize = 13.sp)
-        Text(value, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+        // Always one line: a long value (e.g. a big volume) shrinks to fit instead of wrapping.
+        NameText(androidx.compose.ui.text.AnnotatedString(value), Modifier.padding(end = 4.dp), fontSize = 17.sp, fontWeight = FontWeight.Medium,
+            maxLines = 1, minScale = 0.5f)
     }
 }
 
