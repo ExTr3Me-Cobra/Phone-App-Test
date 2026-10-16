@@ -252,6 +252,16 @@ fun OneRmListScreen() {
                 }
             }
         }
+        // Test: the whole list rattles like an earthquake when it opens (developer setting).
+        val quake = remember { Animatable(if (OneRmFx.listQuake) 0f else 1f) }
+        val quakeHaptic = LocalHapticFeedback.current
+        LaunchedEffect(Unit) {
+            if (OneRmFx.listQuake) {
+                kotlinx.coroutines.delay(150)
+                launch { repeat(4) { quakeHaptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
+                quake.animateTo(1f, tween(1100))
+            }
+        }
         LazyColumn(Modifier.fillMaxSize().navigationBarsPadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)) {
             if (words.isEmpty()) item {
                 Text("Pick an exercise to test your true one-rep max (or max reps for bodyweight moves). " +
@@ -267,8 +277,17 @@ fun OneRmListScreen() {
                 val e = Store.exercise(id)!!
                 val r = ranks[id]
                 val press = rememberPress(0.96f)
+                val rowNo = shown.indexOfFirst { it.first == id }
                 Row(
-                    Modifier.animateItem().padding(vertical = 4.dp).pressScale(press).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
+                    Modifier.graphicsLayer {
+                        val q = quake.value
+                        if (q < 1f) {
+                            val amp = (1f - q) * (1f - q)
+                            translationX = kotlin.math.sin(q * 70f + rowNo * 1.9f) * 26f * density * amp
+                            translationY = kotlin.math.cos(q * 55f + rowNo * 2.7f) * 9f * density * amp
+                            rotationZ = kotlin.math.sin(q * 60f + rowNo) * 3.5f * amp
+                        }
+                    }.padding(vertical = 4.dp).pressScale(press).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
                         .pressClick(press) { Nav.go(Route.OneRmTest(id)) }.padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -331,6 +350,8 @@ fun OneRmTestScreen(id: String) {
     val flash = remember { Animatable(0f) }
     val white = remember { Animatable(0f) }
     val ring = remember { Animatable(0f) }
+    val fire = remember { Animatable(0f) }
+    val ember = remember { Animatable(0f) }
     val heat = rememberHeat()
     // The arrival effect picked in developer settings (1 Rep Max animations).
     LaunchedEffect(Unit) {
@@ -369,6 +390,21 @@ fun OneRmTestScreen(id: String) {
                 white.snapTo(0.4f); white.animateTo(0f, tween(180))
             }
             6 -> {}
+            7 -> { // Fire ring
+                kotlinx.coroutines.delay(220)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                launch { flash.snapTo(0.4f); flash.animateTo(0f, tween(600)) }
+                fire.snapTo(0f); fire.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
+            }
+            8 -> { ember.snapTo(0f); ember.animateTo(1f, tween(1800)) } // Ember shower
+            9 -> { // Inferno
+                kotlinx.coroutines.delay(220)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                launch { flash.snapTo(0.7f); flash.animateTo(0f, tween(900)) }
+                launch { ember.snapTo(0f); ember.animateTo(1f, tween(2000)) }
+                launch { jolt.animateTo(0f, keyframes { durationMillis = 420; 16f at 40; -12f at 110; 8f at 190; -4f at 270; 2f at 340 }) }
+                fire.snapTo(0f); fire.animateTo(1f, tween(1100, easing = FastOutSlowInEasing))
+            }
             else -> { // Jolt + red flash
                 kotlinx.coroutines.delay(230)
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -457,6 +493,12 @@ fun OneRmTestScreen(id: String) {
                             4 -> { burst.snapTo(0f); burst.animateTo(1f, tween(650)) } // Green glow
                             5 -> shake.animateTo(0f, keyframes { durationMillis = 450; 18f at 40; -16f at 100; 13f at 170; -10f at 250; 6f at 330; -3f at 400 })
                             6 -> {}
+                            7 -> { burst.snapTo(0f); burst.animateTo(1f, tween(700, easing = FastOutSlowInEasing)) } // Fire ring burst
+                            8 -> { // Fire ring + stamp
+                                launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
+                                launch { shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 }) }
+                                burst.snapTo(0f); burst.animateTo(1f, tween(700, easing = FastOutSlowInEasing))
+                            }
                             else -> { // Stamp + rattle
                                 launch { stamp.snapTo(1.55f); stamp.animateTo(1f, spring(dampingRatio = 0.32f, stiffness = 700f)) }
                                 shake.animateTo(0f, keyframes { durationMillis = 300; 9f at 30; -8f at 80; 5f at 140; -3f at 200; 1f at 250 })
@@ -484,7 +526,8 @@ fun OneRmTestScreen(id: String) {
                                     val b = burst.value
                                     if (b > 0f && b < 1f) {
                                         val c = Offset(size.width / 2, size.height / 2)
-                                        if (OneRmFx.tick == 4) drawCircle(Green.copy(alpha = 0.55f * (1f - b)), radius = size.minDimension / 2 * (1f + b * 2.2f), center = c)
+                                        if (OneRmFx.tick >= 7) fireRing(c, size.minDimension / 2 * (1f + b * 2.4f), b, 18.dp.toPx() * (1f - b * 0.3f))
+                                        else if (OneRmFx.tick == 4) drawCircle(Green.copy(alpha = 0.55f * (1f - b)), radius = size.minDimension / 2 * (1f + b * 2.2f), center = c)
                                         else drawCircle(gold.copy(alpha = 1f - b), radius = size.minDimension / 2 * (1f + b * 1.8f), center = c,
                                             style = androidx.compose.ui.graphics.drawscope.Stroke(3.dp.toPx() * (1.5f - b)))
                                     }
@@ -531,6 +574,10 @@ fun OneRmTestScreen(id: String) {
         val r = ring.value
         if (r > 0f && r < 1f) drawCircle(gold.copy(alpha = 1f - r), radius = r * maxOf(size.width, size.height) * 0.8f,
             center = Offset(size.width / 2, size.height / 2), style = androidx.compose.ui.graphics.drawscope.Stroke((28f * (1f - r) + 2f) * density))
+        // Fire ring racing outward, and embers drifting up.
+        val f = fire.value
+        if (f > 0f && f < 1f) fireRing(Offset(size.width / 2, size.height / 2), f * maxOf(size.width, size.height) * 0.75f, f, 70.dp.toPx() * (1f - f * 0.4f))
+        embers(ember.value)
         // Lightning: a white flash.
         if (white.value > 0f) drawRect(Color.White.copy(alpha = white.value))
     })
@@ -603,7 +650,11 @@ fun rememberHeat(): Heat {
     val ember = t.animateFloat(0.55f, 1f, infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "ember")
     val off = androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(-1f) }
     val steady = androidx.compose.runtime.remember { androidx.compose.runtime.mutableFloatStateOf(0.85f) }
-    return Heat(if (style == 0 || style == 2) sweep else off, if (style <= 1) ember else steady)
+    // Flame flicker: the border jumps between bright and dim like a flame.
+    val flicker = t.animateFloat(0.4f, 1f, infiniteRepeatable(keyframes {
+        durationMillis = 900; 0.5f at 0; 1f at 90; 0.65f at 170; 0.95f at 260; 0.45f at 380; 1f at 470; 0.7f at 600; 0.9f at 720; 0.5f at 900
+    }), label = "flicker")
+    return Heat(if (style == 0 || style == 2) sweep else off, when (style) { 0, 1 -> ember; 4 -> flicker; else -> steady })
 }
 
 /** A diagonal band of gold light crossing the surface, like light catching a polished plate. */

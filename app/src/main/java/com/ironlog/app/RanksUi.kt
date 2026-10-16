@@ -463,6 +463,7 @@ fun stars(s: String): AnnotatedString = buildAnnotatedString {
 /**
  * An exercise (or muscle) name that never leaves its ★ alone on a line: if it's only a little too long for one
  * line it shrinks slightly to fit; if it really needs more lines, the lines are balanced to about the same length.
+ * The size is worked out before the first frame is drawn, so nothing jumps or wiggles while it settles.
  */
 @Composable
 fun NameText(
@@ -476,21 +477,29 @@ fun NameText(
 ) {
     val style = androidx.compose.material3.LocalTextStyle.current
     val base = if (fontSize != androidx.compose.ui.unit.TextUnit.Unspecified) fontSize else style.fontSize
-    var scale by remember(text, base) { androidx.compose.runtime.mutableFloatStateOf(1f) }
-    var wrap by remember(text, base) { mutableStateOf(false) }
-    var ready by remember(text, base) { mutableStateOf(false) }
-    Text(
-        text, modifier.drawWithContent { if (ready || AppText.active) drawContent() },
-        color = color, fontSize = base * scale, fontWeight = fontWeight,
-        maxLines = if (wrap) maxLines else 1, softWrap = wrap,
-        overflow = if (wrap) androidx.compose.ui.text.style.TextOverflow.Ellipsis else androidx.compose.ui.text.style.TextOverflow.Clip,
-        style = style.copy(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading),
-        onTextLayout = { r ->
-            when {
-                wrap || !r.hasVisualOverflow -> ready = true
-                scale > minScale + 0.001f -> scale = (scale - 0.03f).coerceAtLeast(minScale)
-                else -> { scale = 1f; wrap = true }
+    val measurer = androidx.compose.ui.text.rememberTextMeasurer()
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier) {
+        val maxW = constraints.maxWidth
+        // 0 = doesn't fit on one line even at the smallest size: wrap instead.
+        val scale = remember(text, base, maxW, fontWeight) {
+            if (maxW == androidx.compose.ui.unit.Constraints.Infinity) 1f else {
+                var s = 1f
+                var fits = false
+                while (s >= minScale - 0.001f) {
+                    val r = measurer.measure(text, style.merge(androidx.compose.ui.text.TextStyle(fontSize = base * s, fontWeight = fontWeight)),
+                        maxLines = 1, softWrap = false, constraints = androidx.compose.ui.unit.Constraints(maxWidth = maxW))
+                    if (!r.hasVisualOverflow) { fits = true; break }
+                    s -= 0.03f
+                }
+                if (fits) s else 0f
             }
-        },
-    )
+        }
+        val wrap = scale == 0f
+        Text(
+            text, color = color, fontSize = if (wrap) base else base * scale, fontWeight = fontWeight,
+            maxLines = if (wrap) maxLines else 1, softWrap = wrap,
+            overflow = if (wrap) androidx.compose.ui.text.style.TextOverflow.Ellipsis else androidx.compose.ui.text.style.TextOverflow.Clip,
+            style = style.copy(lineBreak = androidx.compose.ui.text.style.LineBreak.Heading),
+        )
+    }
 }
