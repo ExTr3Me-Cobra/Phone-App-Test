@@ -336,141 +336,165 @@ fun ExerciseDetailScreen(id: String) {
         if (deleting) ConfirmText("Delete \"${e.name}\"? Past workouts keep their numbers.", {
             deleting = false; Store.deleteCustomExercise(e.id); Nav.back()
         }, { deleting = false }, "Delete")
-        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-            ExercisePicture(e, Modifier.fillMaxWidth())
-            Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(Modifier.weight(1f)) {
-                    GreyButton("📷 Your picture") { menu = true }
-                    DropdownMenu(menu, { menu = false }) {
-                        DropdownMenuItem({ Text("Choose from gallery") }, {
-                            menu = false; gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        })
-                        DropdownMenuItem({ Text("Take a photo") }, { menu = false; camFile.delete(); camera.launch(camUri) })
-                        if (hasImage) DropdownMenuItem({ Text("Remove picture", color = Red) }, { menu = false; Pictures.remove(e.id) })
+        // Hold any panel to move it. Ranked exercises share one order, unranked ones another; which one an exercise
+        // uses follows your rank mode, so switching modes in Settings switches its layout too.
+        val ranked = Standards.covers(e.id, profile) && Standards.levels(e.id, profile) != null
+        val rankList = if (ranked) rankPanels(e.id, title = true, prefix = "rank.", wrap = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) else emptyList()
+        val panels = listOf(
+            Panel("picture", "Picture") {
+                Column(Modifier.fillMaxWidth()) {
+                    ExercisePicture(e, Modifier.fillMaxWidth())
+                    Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(Modifier.weight(1f)) {
+                            GreyButton("📷 Your picture") { menu = true }
+                            DropdownMenu(menu, { menu = false }) {
+                                DropdownMenuItem({ Text("Choose from gallery") }, {
+                                    menu = false; gallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                })
+                                DropdownMenuItem({ Text("Take a photo") }, { menu = false; camFile.delete(); camera.launch(camUri) })
+                                if (hasImage) DropdownMenuItem({ Text("Remove picture", color = Red) }, { menu = false; Pictures.remove(e.id) })
+                            }
+                        }
+                        if (profile.devAi) GreyButton(if (busy) "Generating…" else "✨ AI picture", Modifier.weight(1f), Blue) {
+                            if (!busy) askAi = true
+                        }
                     }
-                }
-                if (profile.devAi) GreyButton(if (busy) "Generating…" else "✨ AI picture", Modifier.weight(1f), Blue) {
-                    if (!busy) askAi = true
-                }
-            }
-            if (askAi) {
-                val p = Store.profile.value
-                // Starts from the standard prompt every time the dialog opens; your edits apply to this picture only.
-                val original = remember(e.id, e.name, e.muscles, e.equipment) { Pictures.prompt(e) }
-                var promptText by remember { mutableStateOf(original) }
-                var useRef by remember { mutableStateOf(false) }
-                AlertDialog(
-                    onDismissRequest = { askAi = false },
-                    title = { Text("Make an AI picture?") },
-                    text = {
-                        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(
-                                if (p.apiKey.isBlank()) "First add your OpenAI API key in Settings."
-                                else "One picture of \"${e.name}\" at ${p.imageQuality} quality costs about $" +
-                                    "%.3f".format(Pictures.price(p.imageQuality)) + ", taken from your OpenAI API credit." +
-                                    if (hasImage) "\n\nIt replaces this exercise's current picture." else "",
-                            )
-                            if (p.apiKey.isNotBlank()) {
-                                OutlinedTextField(promptText, { promptText = it }, Modifier.fillMaxWidth().typing(),
-                                    label = { Text("Prompt (edit for this picture)") }, textStyle = androidx.compose.ui.text.TextStyle(fontSize = 13.sp))
-                                if (promptText != original) Text("Reset to original prompt", color = Blue, fontSize = 14.sp,
-                                    modifier = Modifier.clickable { promptText = original }.padding(vertical = 4.dp))
-                                if (hasImage) Row(Modifier.fillMaxWidth().clickable { useRef = !useRef }, verticalAlignment = Alignment.CenterVertically) {
-                                    androidx.compose.material3.Checkbox(useRef, { useRef = it })
-                                    Text("Send the current picture as a reference (ChatGPT edits it to match the prompt)", fontSize = 13.sp)
+                    if (askAi) {
+                        val p = Store.profile.value
+                        // Starts from the standard prompt every time the dialog opens; your edits apply to this picture only.
+                        val original = remember(e.id, e.name, e.muscles, e.equipment) { Pictures.prompt(e) }
+                        var promptText by remember { mutableStateOf(original) }
+                        var useRef by remember { mutableStateOf(false) }
+                        AlertDialog(
+                            onDismissRequest = { askAi = false },
+                            title = { Text("Make an AI picture?") },
+                            text = {
+                                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text(
+                                        if (p.apiKey.isBlank()) "First add your OpenAI API key in Settings."
+                                        else "One picture of \"${e.name}\" at ${p.imageQuality} quality costs about $" +
+                                            "%.3f".format(Pictures.price(p.imageQuality)) + ", taken from your OpenAI API credit." +
+                                            if (hasImage) "\n\nIt replaces this exercise's current picture." else "",
+                                    )
+                                    if (p.apiKey.isNotBlank()) {
+                                        OutlinedTextField(promptText, { promptText = it }, Modifier.fillMaxWidth().typing(),
+                                            label = { Text("Prompt (edit for this picture)") }, textStyle = androidx.compose.ui.text.TextStyle(fontSize = 13.sp))
+                                        if (promptText != original) Text("Reset to original prompt", color = Blue, fontSize = 14.sp,
+                                            modifier = Modifier.clickable { promptText = original }.padding(vertical = 4.dp))
+                                        if (hasImage) Row(Modifier.fillMaxWidth().clickable { useRef = !useRef }, verticalAlignment = Alignment.CenterVertically) {
+                                            androidx.compose.material3.Checkbox(useRef, { useRef = it })
+                                            Text("Send the current picture as a reference (ChatGPT edits it to match the prompt)", fontSize = 13.sp)
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                    },
-                    confirmButton = {
-                        if (p.apiKey.isNotBlank()) TextButton(onClick = {
-                            val usePrompt = promptText
-                            val withRef = useRef && hasImage
-                            askAi = false
-                            busy = true
-                            status = "Asking OpenAI for a picture – this takes up to a minute…"
-                            scope.launch {
-                                val r = Pictures.generate(e, Store.profile.value, usePrompt, withRef)
-                                busy = false
-                                status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
-                            }
-                        }) { Text("Yes, make it") }
-                    },
-                    dismissButton = { TextButton(onClick = { askAi = false }) { Text("Cancel") } },
-                )
-            }
-            if (busy) CircularProgressIndicator(Modifier.padding(horizontal = 16.dp))
-            status?.let { Text(it, color = Sub, modifier = Modifier.padding(horizontal = 16.dp)) }
-
-            Text(starredName(e), fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
-            Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
-            Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-            Row(Modifier.padding(16.dp, 4.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
-                Text("⚖", fontSize = 18.sp)
-                HSpacer(10)
-                Column {
-                    Text("How to log", fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                    Text(e.weightHint(), color = Sub, fontSize = 14.sp)
-                }
-            }
-            MusclesCard(e)
-
-            // Ranking
-            // With a rank: the full rank details (chart, levels, who you're compared with); otherwise the short card that says why.
-            val ranked = remember(workouts, profile, e.id) { Ranks.all(workouts, profile)[e.id] }
-            // Only exercises ranked in your current mode show anything about ranks.
-            if (Standards.covers(e.id, profile) && Standards.levels(e.id, profile) != null) Column(Modifier.padding(16.dp).fillMaxWidth()) {
-                Text("Your rank", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
-                RankDetailBody(e.id)
-            }
-
-            // Records
-            if (sessions.isNotEmpty()) {
-                SectionTitle("Personal Records")
-                metrics.forEach { m ->
-                    val best = sessions.mapNotNull { Stats.value(m, it.sets) }.maxOrNull()
-                    if (best != null) Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
-                        Text(m.label, Modifier.weight(1f))
-                        Text(Units.metric(m, best), fontWeight = FontWeight.Bold)
+                            },
+                            confirmButton = {
+                                if (p.apiKey.isNotBlank()) TextButton(onClick = {
+                                    val usePrompt = promptText
+                                    val withRef = useRef && hasImage
+                                    askAi = false
+                                    busy = true
+                                    status = "Asking OpenAI for a picture – this takes up to a minute…"
+                                    scope.launch {
+                                        val r = Pictures.generate(e, Store.profile.value, usePrompt, withRef)
+                                        busy = false
+                                        status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
+                                    }
+                                }) { Text("Yes, make it") }
+                            },
+                            dismissButton = { TextButton(onClick = { askAi = false }) { Text("Cancel") } },
+                        )
                     }
+                    if (busy) CircularProgressIndicator(Modifier.padding(horizontal = 16.dp))
+                    status?.let { Text(it, color = Sub, modifier = Modifier.padding(horizontal = 16.dp)) }
                 }
-            }
-
-            // Progress chart
-            SectionTitle("Progress")
-            // One scrollable line of chips: a chip that doesn't fit must not squash its text into a tall column.
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                metrics.forEach { m -> FilterChip(metric == m, { metric = m }, { Text(m.label, fontSize = 12.sp, maxLines = 1, softWrap = false) }) }
-            }
-            val pts = sessions.mapNotNull { s -> Stats.value(metric, s.sets)?.let { s.workout.start to it } }
-            LineChart(pts) { Units.metric(metric, it) }
-
-            // History
-            if (sessions.isNotEmpty()) {
-                SectionTitle("History")
-                sessions.reversed().take(30).forEach { s ->
-                    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
-                        Text(Units.date(s.workout.start), fontWeight = FontWeight.Medium)
-                        s.sets.forEachIndexed { i, set ->
-                            Text("${when { set.warmup -> "W"; set.failure -> "F"; else -> "${setNumber(s.sets.map { it.warmup }, i) + 1}" }}   ${Units.set(e.type, set)}",
-                                color = when { set.warmup -> Orange; set.failure -> Red; else -> Sub })
+            },
+            Panel("name", "Name & equipment") {
+                Column(Modifier.fillMaxWidth()) {
+                    Text(starredName(e), fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp, 8.dp, 16.dp, 4.dp))
+                    Text("Primary: " + e.primary.joinToString { titleCase(it) }, modifier = Modifier.padding(horizontal = 16.dp))
+                    Text("${e.equipment} · ${e.type.label}", color = Sub, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+                }
+            },
+            Panel("howto", "How to log") {
+                Column(Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(16.dp, 4.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
+                        Text("⚖", fontSize = 18.sp)
+                        HSpacer(10)
+                        Column {
+                            Text("How to log", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                            Text(e.weightHint(), color = Sub, fontSize = 14.sp)
                         }
                     }
                 }
-            }
-
-            if (e.instructions.isNotEmpty()) {
-                // Proper form: tap to open the step-by-step directions.
-                var formOpen by rememberSaveable(e.id) { mutableStateOf(false) }
-                Row(Modifier.padding(16.dp, 12.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
-                    .clickable { formOpen = !formOpen }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Proper Form", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
-                    Text(if (formOpen) "▴" else "▾", color = Blue, fontSize = 18.sp)
+            },
+            Panel("muscles", "Muscles worked") {
+                Column(Modifier.fillMaxWidth()) {
+                    MusclesCard(e)
                 }
-                if (formOpen) e.instructions.forEachIndexed { i, s -> Text("${i + 1}. $s", modifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)) }
-            }
-            Spacer(40)
-        }
+            },
+        ) + rankList + listOf(
+            Panel("records", "Personal Records", visible = sessions.isNotEmpty()) {
+                Column(Modifier.fillMaxWidth()) {
+                    // Records
+                    SectionTitle("Personal Records")
+                    metrics.forEach { m ->
+                        val best = sessions.mapNotNull { Stats.value(m, it.sets) }.maxOrNull()
+                        if (best != null) Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+                            Text(m.label, Modifier.weight(1f))
+                            Text(Units.metric(m, best), fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            },
+            Panel("progress", "Progress") {
+                Column(Modifier.fillMaxWidth()) {
+                    // Progress chart
+                    SectionTitle("Progress")
+                    // One scrollable line of chips: a chip that doesn't fit must not squash its text into a tall column.
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        metrics.forEach { m -> FilterChip(metric == m, { metric = m }, { Text(m.label, fontSize = 12.sp, maxLines = 1, softWrap = false) }) }
+                    }
+                    val pts = sessions.mapNotNull { s -> Stats.value(metric, s.sets)?.let { s.workout.start to it } }
+                    LineChart(pts) { Units.metric(metric, it) }
+                }
+            },
+            Panel("history", "History", visible = sessions.isNotEmpty()) {
+                Column(Modifier.fillMaxWidth()) {
+                    // History
+                    SectionTitle("History")
+                    sessions.reversed().take(30).forEach { s ->
+                        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clip(RoundedCornerShape(10.dp)).background(Card).padding(12.dp)) {
+                            Text(Units.date(s.workout.start), fontWeight = FontWeight.Medium)
+                            s.sets.forEachIndexed { i, set ->
+                                Text("${when { set.warmup -> "W"; set.failure -> "F"; else -> "${setNumber(s.sets.map { it.warmup }, i) + 1}" }}   ${Units.set(e.type, set)}",
+                                    color = when { set.warmup -> Orange; set.failure -> Red; else -> Sub })
+                            }
+                        }
+                    }
+                }
+            },
+            Panel("form", "Proper Form", visible = e.instructions.isNotEmpty()) {
+                Column(Modifier.fillMaxWidth()) {
+                    // Proper form: tap to open the step-by-step directions.
+                    var formOpen by rememberSaveable(e.id) { mutableStateOf(false) }
+                    Row(Modifier.padding(16.dp, 12.dp).fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(Card)
+                        .clickable { formOpen = !formOpen }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Proper Form", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                        Text(if (formOpen) "▴" else "▾", color = Blue, fontSize = 18.sp)
+                    }
+                    if (formOpen) e.instructions.forEachIndexed { i, s -> Text("${i + 1}. $s", modifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)) }
+                }
+            },
+        )
+        PanelColumn(
+            if (ranked) "detail.ranked" else "detail.unranked", panels, Modifier.fillMaxSize(),
+            bottom = {
+                Text("Tip: hold any panel and drag to move it – every ${if (ranked) "ranked" else "unranked"} exercise follows.",
+                    color = Sub, fontSize = 12.sp, modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp))
+                Spacer(40)
+            },
+        )
     }
 }
 
