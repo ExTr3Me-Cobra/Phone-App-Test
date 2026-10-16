@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -141,13 +140,13 @@ fun HomeRankCard() {
         // Every muscle of a ranked group is coloured with that group's rank (the hands only by the Grip rank when it's on).
         RankHeatmap(ranks, profile)
         Text(
-            if (open) "Hide muscle ranks & colour key ▴" else "Show muscle ranks & colour key ▾",
+            if (open) "Hide muscle group rankings ▴" else "Show muscle group rankings ▾",
             color = Blue, fontSize = 15.sp, modifier = Modifier.fillMaxWidth().clickable { open = !open }.padding(vertical = 10.dp),
         )
         Reveal(open) { Column {
             Text("Your muscles", fontWeight = FontWeight.Bold)
             Text("Each muscle's rank is the average of two ranked exercises – your top two unless you choose (tap ✎). " +
-                "Tap an exercise to see exactly who you're compared with.", color = Sub, fontSize = 12.sp)
+                "These directly influence your overall rank.", color = Sub, fontSize = 12.sp)
             Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
                 val (pct, top) = v
                 val tier = Tier.of(pct)

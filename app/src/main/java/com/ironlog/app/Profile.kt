@@ -22,7 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -92,6 +91,13 @@ fun SettingsScreen() {
     }
 
     var packMsg by remember { mutableStateOf<String?>(null) }
+    var textMsg by remember { mutableStateOf<String?>(null) }
+    val exportText = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) textMsg = runCatching {
+            context.contentResolver.openOutputStream(uri)!!.use { it.write(AppText.export().toString(1).toByteArray()) }
+            "Saved ${AppText.edits.size} text change${if (AppText.edits.size == 1) "" else "s"}."
+        }.getOrElse { "Couldn't save: ${it.message}" }
+    }
     val exportPics = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
             packMsg = "Exporting…"
@@ -264,6 +270,21 @@ fun SettingsScreen() {
             if (p.devUnlocked) {
                 Spacer(8)
                 Text("Developer settings", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Red)
+                // Edit any text in the app where it's shown, then export the changes to have them built in.
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        androidx.compose.material3.Text("Edit app text")
+                        androidx.compose.material3.Text("Every piece of text becomes a box you can type in. Changes show straight away " +
+                            "(everywhere that exact text appears). Pause it from the pill at the top to tap around normally.",
+                            color = Sub, fontSize = 13.sp)
+                    }
+                    androidx.compose.material3.Switch(AppText.on, { AppText.setOn(it) })
+                }
+                if (AppText.on || AppText.edits.isNotEmpty()) Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    GreyButton("Export Modified App Text (${AppText.edits.size})", Modifier.weight(1.6f)) { exportText.launch("loadout-modified-app-text.json") }
+                    GreyButton("Undo all", Modifier.weight(1f), Red) { AppText.clear(); textMsg = "All text changes undone." }
+                }
+                textMsg?.let { androidx.compose.material3.Text(it, color = Blue) }
                 Row(Modifier.fillMaxWidth().clickable { set(p.copy(devAi = !p.devAi)) }, verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("AI picture tools")

@@ -63,6 +63,7 @@ object Store {
         // Older versions kept the key inside profile.json; move it to the never-backed-up folder.
         if (savedKey == null && p.apiKey.isNotEmpty()) setProfile(_profile.value)
         RecycleBin.init()
+        AppText.load()
     }
 
     /** Small app files (e.g. remembered import choices). */

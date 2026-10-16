@@ -376,6 +376,12 @@ object Pictures {
                         })
                         zip.write(all.toString(1).toByteArray())
                         zip.closeEntry()
+                        // Your changes to the app's wording (developer: Edit app text), if any.
+                        if (AppText.edits.isNotEmpty()) {
+                            zip.putNextEntry(java.util.zip.ZipEntry("modified_app_text.json"))
+                            zip.write(AppText.export().toString(1).toByteArray())
+                            zip.closeEntry()
+                        }
                     }
                     for (f in part) {
                         zip.putNextEntry(java.util.zip.ZipEntry("pictures/" + f.name))
