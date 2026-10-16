@@ -156,8 +156,8 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                     if (px != null) {
                         val pc = Standards.percentile(id, px, p) ?: 0.0
                         val t = Tier.of(pc)
-                        Text("● ${fmt(px)} – stronger than ${pc.toInt()}% · ${t.label}", color = Color(t.color), fontSize = 13.sp)
-                    } else if (mine != null && r != null) Text("● You: ${fmt(mine)} – stronger than ${r.percentile.toInt()}%", color = myColor, fontSize = 13.sp)
+                        Text("● ${fmt(px)} – stronger than ${betterThan(pc)}% · ${t.label}", color = Color(t.color), fontSize = 13.sp)
+                    } else if (mine != null && r != null) Text("● You: ${fmt(mine)} – stronger than ${betterThan(r.percentile)}%", color = myColor, fontSize = 13.sp)
                     else Text("● You: No record on file", color = myColor, fontSize = 13.sp)
                     if (!share) Text("Drag sideways on the chart to check any point.", color = Sub, fontSize = 11.sp)
                 }
@@ -182,7 +182,7 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                                     Text(" " + tier.label, color = Color(tier.color), fontSize = 12.sp)
                                 }
                             }
-                            Text("beats ${pct.toInt()}%", Modifier.width(90.dp), color = Sub, fontSize = 13.sp)
+                            Text("beats ${betterThan(pct)}%", Modifier.width(90.dp), color = Sub, fontSize = 13.sp)
                             Text(fmt(lv[k]), Modifier.width(80.dp), fontWeight = FontWeight.Medium)
                         }
                     }

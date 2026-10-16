@@ -86,7 +86,7 @@ fun RankHelpScreen() {
                     val t = Tier.of(p)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(n, Modifier.width(110.dp), fontSize = 14.sp)
-                        Text("beats ${p.toInt()}%", Modifier.width(80.dp), color = Sub, fontSize = 13.sp)
+                        Text("beats ${betterThan(p)}%", Modifier.width(80.dp), color = Sub, fontSize = 13.sp)
                         RankBadge(t, 18.dp)
                         Text(" " + t.label, color = Color(t.color), fontSize = 13.sp)
                     }

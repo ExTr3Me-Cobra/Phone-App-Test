@@ -261,7 +261,12 @@ enum class Tier(val label: String, val badge: String, val color: Long) {
 }
 
 /** "top 47%" for a percentile (stronger than 53% of lifters). */
-fun topLabel(percentile: Double) = "Top ${(100 - percentile).toInt().coerceIn(1, 100)}%"
+fun topLabel(percentile: Double) = "Top ${topOf(percentile)}%"
+
+private fun topOf(percentile: Double) = (100 - percentile).toInt().coerceIn(1, 100)
+
+/** The "stronger than" %, always 100 minus the Top % so the two add up (rounds up when it's between two whole numbers). */
+fun betterThan(percentile: Double) = 100 - topOf(percentile)
 
 /** Your ranks from your logged workouts. */
 object Ranks {
