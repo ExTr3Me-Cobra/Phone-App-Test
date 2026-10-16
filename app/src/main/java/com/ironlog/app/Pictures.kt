@@ -204,6 +204,17 @@ object Pictures {
         Store.imageChanged()
     }
 
+    // ---- Which pictures are your own photos (no "AI generated" note); everything else is treated as AI-made. ----
+    private const val OWN = "own_photos.json"
+    private fun own(): Set<String> = runCatching {
+        org.json.JSONArray(Store.readFile(OWN) ?: "[]").let { a -> List(a.length()) { a.getString(it) }.toSet() }
+    }.getOrDefault(emptySet())
+    fun isOwn(id: String) = Store.imageName(id) in own()
+    private fun setOwn(names: Collection<String>, mine: Boolean) {
+        val now = own().let { if (mine) it + names else it - names.toSet() }
+        Store.writeFile(OWN, org.json.JSONArray(now.sorted()).toString())
+    }
+
     /** Your own picture from the gallery or camera. */
     fun import(c: Context, id: String, uri: Uri) {
         val bmp = ImageDecoder.decodeBitmap(ImageDecoder.createSource(c.contentResolver, uri)) { d, info, _ ->
@@ -212,9 +223,11 @@ object Pictures {
             d.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
         }
         save(id, bmp)
+        setOwn(listOf(Store.imageName(id)), true)
     }
 
     fun remove(id: String) {
+        setOwn(listOf(Store.imageName(id)), false)
         Store.imageFile(id).delete()
         Store.imageChanged()
     }
@@ -252,8 +265,37 @@ object Pictures {
         val fatal get() = code == 401 || code == 403 || (code == 429 && !rateLimited) || message?.contains("billing", true) == true
     }
 
-    /** Makes a picture with OpenAI and saves it. */
-    suspend fun generate(e: Exercise, p: Profile, promptText: String = prompt(e)): Result = withContext(Dispatchers.IO) {
+    /** The exercise's current picture as JPEG bytes (yours, or the one built into the app), or null. */
+    private fun currentBytes(id: String): ByteArray? = runCatching {
+        val f = Store.imageFile(id)
+        if (f.exists()) f.readBytes() else Store.bundledImage(id)?.use { it.readBytes() }
+    }.getOrNull()
+
+    /** The same picture request, sent with the exercise's current picture as a reference (OpenAI's image edit). */
+    private fun editRequest(p: Profile, prompt: String, image: ByteArray): HttpURLConnection {
+        val boundary = "----loadout" + System.currentTimeMillis()
+        val conn = (URL("https://api.openai.com/v1/images/edits").openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"; connectTimeout = 30_000; readTimeout = 240_000; doOutput = true
+            setRequestProperty("Authorization", "Bearer ${p.apiKey.trim()}")
+            setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+        }
+        conn.outputStream.use { os ->
+            fun field(name: String, value: String) =
+                os.write("--$boundary\r\nContent-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n".toByteArray())
+            field("model", p.imageModel.ifBlank { "gpt-image-1" })
+            field("prompt", prompt)
+            field("size", "1024x1024")
+            field("n", "1")
+            if (p.imageQuality.isNotBlank()) field("quality", p.imageQuality)
+            os.write("--$boundary\r\nContent-Disposition: form-data; name=\"image\"; filename=\"reference.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n".toByteArray())
+            os.write(image)
+            os.write("\r\n--$boundary--\r\n".toByteArray())
+        }
+        return conn
+    }
+
+    /** Makes a picture with OpenAI and saves it ([reference]: send the current picture along with the prompt). */
+    suspend fun generate(e: Exercise, p: Profile, promptText: String = prompt(e), reference: Boolean = false): Result = withContext(Dispatchers.IO) {
         if (p.apiKey.isBlank()) return@withContext Result(false, 401, "Add your OpenAI API key in Settings first.")
         val body = JSONObject()
             .put("model", p.imageModel.ifBlank { "gpt-image-1" })
@@ -266,15 +308,17 @@ object Pictures {
             body.put("output_format", "jpeg").put("output_compression", 80)
         }
         try {
-            val conn = (URL("https://api.openai.com/v1/images/generations").openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
-                connectTimeout = 30_000
-                readTimeout = 240_000
-                doOutput = true
-                setRequestProperty("Authorization", "Bearer ${p.apiKey.trim()}")
-                setRequestProperty("Content-Type", "application/json")
-            }
-            conn.outputStream.use { it.write(body.toString().toByteArray()) }
+            val ref = if (reference) currentBytes(e.id) ?: return@withContext Result(false, 0, "This exercise has no picture to use as a reference.") else null
+            val conn = if (ref != null) editRequest(p, promptText.ifBlank { prompt(e) }, ref) else
+                (URL("https://api.openai.com/v1/images/generations").openConnection() as HttpURLConnection).apply {
+                    requestMethod = "POST"
+                    connectTimeout = 30_000
+                    readTimeout = 240_000
+                    doOutput = true
+                    setRequestProperty("Authorization", "Bearer ${p.apiKey.trim()}")
+                    setRequestProperty("Content-Type", "application/json")
+                }
+            if (ref == null) conn.outputStream.use { it.write(body.toString().toByteArray()) }
             val code = conn.responseCode
             val text = (if (code in 200..299) conn.inputStream else conn.errorStream)?.bufferedReader()?.readText().orEmpty()
             if (code !in 200..299) {
@@ -289,6 +333,7 @@ object Pictures {
             }
             val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext Result(false, code, "Couldn't read the picture.")
             save(e.id, bmp)
+            setOwn(listOf(Store.imageName(e.id)), false)
             Result(true, code, null)
         } catch (t: Throwable) {
             Result(false, 0, "Couldn't reach OpenAI (${t.message ?: t.javaClass.simpleName}).")
@@ -301,7 +346,6 @@ object Pictures {
      */
     fun exportPack(c: Context, folder: Uri): Pair<Int, Int> {
         val files = Store.imagesDir().listFiles { f -> f.name.endsWith(".jpg") }?.sortedBy { it.name } ?: emptyList()
-        if (files.isEmpty()) return 0 to 0
         val parent = android.provider.DocumentsContract.buildDocumentUriUsingTree(
             folder, android.provider.DocumentsContract.getTreeDocumentId(folder),
         )
@@ -320,6 +364,16 @@ object Pictures {
                 ?: error("Couldn't create $name")
             c.contentResolver.openOutputStream(doc)!!.use { os ->
                 java.util.zip.ZipOutputStream(os).use { zip ->
+                    // The first file also carries every exercise as it is now (names, directions, muscles, ...) –
+                    // no routines, workouts or settings.
+                    if (i == 0) {
+                        zip.putNextEntry(java.util.zip.ZipEntry("exercises.json"))
+                        val all = org.json.JSONArray(Store.exercises.value.values.sortedBy { it.name.lowercase() }.map { ex ->
+                            ex.toJson().put("custom", ex.custom).put("edited", ex.edited).put("ownPhoto", isOwn(ex.id))
+                        })
+                        zip.write(all.toString(1).toByteArray())
+                        zip.closeEntry()
+                    }
                     for (f in part) {
                         zip.putNextEntry(java.util.zip.ZipEntry("pictures/" + f.name))
                         f.inputStream().use { it.copyTo(zip) }
@@ -342,6 +396,7 @@ object Pictures {
                         val name = File(e.name).name
                         if (!e.isDirectory && name.endsWith(".jpg") && name.matches(Regex("[A-Za-z0-9_-]+\\.jpg"))) {
                             File(Store.imagesDir(), name).outputStream().use { zip.copyTo(it) }
+                            setOwn(listOf(name), false)
                             n++
                         }
                         zip.closeEntry()
@@ -386,12 +441,16 @@ fun ExercisePicture(e: Exercise, modifier: Modifier) {
     LaunchedEffect(e.id, version) { img = withContext(Dispatchers.IO) { Pictures.load(e.id, version) } }
     androidx.compose.foundation.layout.Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         img?.let { bmp ->
-            Image(
-                bmp, e.name,
-                Modifier.padding(top = 16.dp).fillMaxWidth(0.85f).aspectRatio(1f)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp)).background(Color.White),
-                contentScale = ContentScale.Fit,
-            )
+            Box(Modifier.padding(top = 16.dp).fillMaxWidth(0.85f).aspectRatio(1f)
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp)).background(Color.White)) {
+                Image(bmp, e.name, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
+                // A small note on AI-made pictures (your own photos don't get it).
+                if (remember(e.id, version) { !Pictures.isOwn(e.id) }) androidx.compose.material3.Text(
+                    "AI generated image. May be inaccurate", color = Color(0xFFF2EFE8), fontSize = androidx.compose.ui.unit.TextUnit(9f, androidx.compose.ui.unit.TextUnitType.Sp),
+                    style = androidx.compose.ui.text.TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color(0x99000000), androidx.compose.ui.geometry.Offset(0f, 1f), 3f)),
+                    modifier = Modifier.align(Alignment.TopEnd).padding(6.dp),
+                )
+            }
         }
         BodyMapView(BodyMap.levelsFor(e), Modifier.padding(top = if (img != null) 12.dp else 0.dp).fillMaxWidth().height(320.dp).background(Color.Black))
     }

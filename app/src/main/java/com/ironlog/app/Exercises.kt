@@ -351,6 +351,7 @@ fun ExerciseDetailScreen(id: String) {
                 // Starts from the standard prompt every time the dialog opens; your edits apply to this picture only.
                 val original = remember(e.id, e.name, e.muscles, e.equipment) { Pictures.prompt(e) }
                 var promptText by remember { mutableStateOf(original) }
+                var useRef by remember { mutableStateOf(false) }
                 AlertDialog(
                     onDismissRequest = { askAi = false },
                     title = { Text("Make an AI picture?") },
@@ -367,17 +368,22 @@ fun ExerciseDetailScreen(id: String) {
                                     label = { Text("Prompt (edit for this picture)") }, textStyle = androidx.compose.ui.text.TextStyle(fontSize = 13.sp))
                                 if (promptText != original) Text("Reset to original prompt", color = Blue, fontSize = 14.sp,
                                     modifier = Modifier.clickable { promptText = original }.padding(vertical = 4.dp))
+                                if (hasImage) Row(Modifier.fillMaxWidth().clickable { useRef = !useRef }, verticalAlignment = Alignment.CenterVertically) {
+                                    androidx.compose.material3.Checkbox(useRef, { useRef = it })
+                                    Text("Send the current picture as a reference (ChatGPT edits it to match the prompt)", fontSize = 13.sp)
+                                }
                             }
                         }
                     },
                     confirmButton = {
                         if (p.apiKey.isNotBlank()) TextButton(onClick = {
                             val usePrompt = promptText
+                            val withRef = useRef && hasImage
                             askAi = false
                             busy = true
                             status = "Asking OpenAI for a picture – this takes up to a minute…"
                             scope.launch {
-                                val r = Pictures.generate(e, Store.profile.value, usePrompt)
+                                val r = Pictures.generate(e, Store.profile.value, usePrompt, withRef)
                                 busy = false
                                 status = if (r.ok) "Done! Saved as this exercise's picture." else r.message
                             }

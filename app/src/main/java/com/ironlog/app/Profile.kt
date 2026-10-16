@@ -99,7 +99,7 @@ fun SettingsScreen() {
                 packMsg = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                     runCatching {
                         val (pics, parts) = Pictures.exportPack(context, uri)
-                        if (pics == 0) "No pictures to export yet." else "Exported $pics pictures in $parts zip file${if (parts == 1) "" else "s"}."
+                        "Exported $pics pictures and every exercise's details in $parts zip file${if (parts == 1) "" else "s"}."
                     }.getOrElse { "Export failed: ${it.message}" }
                 }
             }

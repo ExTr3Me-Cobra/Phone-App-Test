@@ -219,7 +219,7 @@ object Store {
         .toString()
 
     /** Small settings files included in backups: Hevy match choices, the 1 Rep Max list. */
-    private val BACKUP_FILES = listOf("hevy_map.json", "onerm_list.json")
+    private val BACKUP_FILES = listOf("hevy_map.json", "onerm_list.json", "own_photos.json")
 
     /**
      * Full backup as a zip: backup.json (routines, workouts, your exercises, profile without the API key)
