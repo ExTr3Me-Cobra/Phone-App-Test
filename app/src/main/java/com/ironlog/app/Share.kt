@@ -195,7 +195,10 @@ private fun ShareCard(ranks: Map<String, Ranks.Ranked>, profile: Profile, overal
                                 Text(topLabel(overall), fontSize = 15.sp)
                             }
                         }
-                        RankHeatmap(ranks, profile)
+                        // In plain words, for whoever you share it with.
+                        Text("(Overall body rank is better than ${overall.toInt()}% of weight lifters with comparable sex, bodyweight, and age.)",
+                            color = Sub, fontSize = 12.sp, lineHeight = 16.sp, modifier = Modifier.padding(top = 8.dp))
+                        RankHeatmap(ranks, profile, checkpoints = true)
                     }
                 }
             }

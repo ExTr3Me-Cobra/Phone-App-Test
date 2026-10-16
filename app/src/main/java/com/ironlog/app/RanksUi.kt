@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -237,7 +239,7 @@ fun HomeRankCard() {
 
 /** Every muscle of a ranked group coloured with that group's rank, with the Wood → Legend colour bar under it. */
 @Composable
-fun RankHeatmap(ranks: Map<String, Ranks.Ranked>, profile: Profile) {
+fun RankHeatmap(ranks: Map<String, Ranks.Ranked>, profile: Profile, checkpoints: Boolean = false) {
     val muscles = remember(ranks, profile) {
         val groups = Ranks.groupRanks(ranks, profile.picksNow)
         val m = HashMap<String, Double>()
@@ -255,9 +257,39 @@ fun RankHeatmap(ranks: Map<String, Ranks.Ranked>, profile: Profile) {
     // Every rank colour in order, blended: Wood 1 on the left to Legend on the right.
     Box(Modifier.padding(top = 10.dp).fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp))
         .background(androidx.compose.ui.graphics.Brush.horizontalGradient(Tier.entries.map { Color(it.color) })))
-    Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
+    if (checkpoints) LevelMarks()
+    else Row(Modifier.fillMaxWidth().padding(top = 2.dp)) {
         Text("Wood", color = Sub, fontSize = 11.sp, modifier = Modifier.weight(1f))
         Text("Legend", color = Sub, fontSize = 11.sp)
+    }
+}
+
+/**
+ * Under the colour bar: tick marks at the five levels (Beginner … Elite) at the point on the bar where each sits,
+ * so anyone can tell roughly what a colour means. Labels alternate between two rows so they never collide.
+ */
+@Composable
+private fun LevelMarks() {
+    val sub = Sub
+    androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(40.dp)) {
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+            color = sub.toArgb(); textSize = 10.5.sp.toPx()
+        }
+        val row1 = 15.dp.toPx(); val row2 = 33.dp.toPx()
+        fun label(text: String, x: Float, y: Float, align: Int) {
+            val w = paint.measureText(text)
+            val left = when (align) { -1 -> x; 1 -> x - w; else -> (x - w / 2).coerceIn(0f, size.width - w) }
+            drawContext.canvas.nativeCanvas.drawText(text, left, y, paint)
+        }
+        // Wood and Legend at the two ends.
+        label("Wood", 0f, row2, -1)
+        label("Legend", size.width, row2, 1)
+        Standards.LEVEL_NAMES.forEachIndexed { i, name ->
+            val x = (Standards.LEVEL_PCT[i] / 100.0).toFloat() * size.width
+            val y = if (i % 2 == 0) row1 else row2
+            drawLine(sub.copy(alpha = 0.8f), Offset(x, 0f), Offset(x, y - 11.dp.toPx()), strokeWidth = 1.2.dp.toPx())
+            label(name, x, y, 0)
+        }
     }
 }
 
