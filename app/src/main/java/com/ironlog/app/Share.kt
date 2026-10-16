@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/** Home's Share: tick what goes on the picture, watch the preview change, then save it or send it as a JPG. */
+/** Home's Share: tick one, two or all three pictures, watch the previews change, then save them or send them together as JPGs. */
 @Composable
 fun ShareScreen() {
     val context = LocalContext.current
@@ -65,13 +65,15 @@ fun ShareScreen() {
     val ranks = remember(workouts, profile, exercises) { Ranks.all(workouts, profile) }
     val overall = Ranks.overallOf(ranks, profile)
     val ranked = ranks.values.sortedByDescending { it.percentile }
-    // One thing per picture: "overall", "groups" or "exercise".
-    var what by rememberSaveable { mutableStateOf("overall") }
+    // Each ticked thing becomes its own picture.
+    var pickOverall by rememberSaveable { mutableStateOf(true) }
+    var pickGroups by rememberSaveable { mutableStateOf(false) }
+    var pickExercise by rememberSaveable { mutableStateOf(false) }
     var exId by rememberSaveable { mutableStateOf<String?>(null) }
     var exMenu by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     val ex = ranked.firstOrNull { it.exercise.id == exId } ?: ranked.firstOrNull()
-    val layer = rememberGraphicsLayer()
+    val layers = mapOf("overall" to rememberGraphicsLayer(), "groups" to rememberGraphicsLayer(), "exercise" to rememberGraphicsLayer())
 
     Column(Modifier.fillMaxSize()) {
         TopBar("Share")
@@ -85,16 +87,21 @@ fun ShareScreen() {
         }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("What goes on the picture", fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            @Composable fun Pick(key: String, label: String) =
-                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { what = key }, verticalAlignment = Alignment.CenterVertically) {
-                    androidx.compose.material3.RadioButton(what == key, { what = key })
+            Text("Pictures to make", fontWeight = FontWeight.Bold, fontSize = 17.sp)
+            Text("Each one you tick is its own picture.", color = Sub, fontSize = 13.sp)
+            val count = listOf(pickOverall, pickGroups, pickExercise).count { it }
+            @Composable fun Pick(on: Boolean, label: String, set: (Boolean) -> Unit) {
+                // At least one always stays ticked.
+                val flip = { if (!on || count > 1) set(!on) }
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).clickable { flip() }, verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(on, { flip() })
                     Text(label)
                 }
-            Pick("overall", "Overall rank + heatmap")
-            Pick("groups", "Muscle group ranks")
-            Pick("exercise", "An exercise's rank + where you sit chart")
-            if (what == "exercise" && ex != null) Box(Modifier.padding(start = 48.dp)) {
+            }
+            Pick(pickOverall, "Overall rank + heatmap") { pickOverall = it }
+            Pick(pickGroups, "Muscle group ranks") { pickGroups = it }
+            Pick(pickExercise, "An exercise's rank + where you sit chart") { pickExercise = it }
+            if (pickExercise && ex != null) Box(Modifier.padding(start = 48.dp)) {
                 GreyButton(ex.exercise.name + "  ▾") { exMenu = true }
                 DropdownMenu(exMenu, { exMenu = false }) {
                     ranked.forEach { r ->
@@ -108,38 +115,45 @@ fun ShareScreen() {
                     }
                 }
             }
-            Text("Preview", fontWeight = FontWeight.Bold, fontSize = 17.sp, modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
-            run {
-                // The picture is exactly what's drawn here.
-                Box(Modifier.fillMaxWidth().drawWithContent {
+            val picked = listOfNotNull("overall".takeIf { pickOverall }, "groups".takeIf { pickGroups }, "exercise".takeIf { pickExercise })
+            Text(if (picked.size == 1) "Preview" else "Preview (${picked.size} pictures)", fontWeight = FontWeight.Bold, fontSize = 17.sp,
+                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
+            picked.forEachIndexed { i, what ->
+                val layer = layers.getValue(what)
+                // Each picture is exactly what's drawn here.
+                Box(Modifier.fillMaxWidth().padding(top = if (i > 0) 12.dp else 0.dp).drawWithContent {
                     layer.record { this@drawWithContent.drawContent() }
                     drawLayer(layer)
                 }) {
                     ShareCard(ranks, profile, overall, what, ex?.exercise?.id)
                 }
-                Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    fun make(then: suspend (Bitmap) -> Unit) {
-                        if (busy) return
-                        busy = true
-                        scope.launch {
-                            runCatching {
-                                val bmp = layer.toImageBitmap().asAndroidBitmap().copy(Bitmap.Config.ARGB_8888, false)
-                                then(bmp)
-                            }.onFailure { Toast.makeText(context, "Couldn't make the picture: ${it.message}", Toast.LENGTH_LONG).show() }
-                            busy = false
-                        }
+            }
+            Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                fun make(then: suspend (List<Bitmap>) -> Unit) {
+                    if (busy) return
+                    busy = true
+                    scope.launch {
+                        runCatching {
+                            val bmps = picked.map { layers.getValue(it).toImageBitmap().asAndroidBitmap().copy(Bitmap.Config.ARGB_8888, false) }
+                            then(bmps)
+                        }.onFailure { Toast.makeText(context, "Couldn't make the picture: ${it.message}", Toast.LENGTH_LONG).show() }
+                        busy = false
                     }
-                    GreyButton("⬇  Save to gallery", Modifier.weight(1f)) {
-                        make { bmp ->
-                            val ok = withContext(Dispatchers.IO) { ShareImage.save(context, bmp) }
-                            Toast.makeText(context, if (ok) "Saved to Pictures/Loadout" else "Couldn't save the picture", Toast.LENGTH_SHORT).show()
-                        }
+                }
+                GreyButton("⬇  Save to gallery", Modifier.weight(1f)) {
+                    make { bmps ->
+                        val saved = withContext(Dispatchers.IO) { bmps.count { ShareImage.save(context, it) } }
+                        Toast.makeText(context, when {
+                            saved == bmps.size && saved == 1 -> "Saved to Pictures/Loadout"
+                            saved == bmps.size -> "Saved $saved pictures to Pictures/Loadout"
+                            else -> "Couldn't save ${bmps.size - saved} of the pictures"
+                        }, Toast.LENGTH_SHORT).show()
                     }
-                    BigButton("Share", modifier = Modifier.weight(1f)) {
-                        make { bmp ->
-                            val f = withContext(Dispatchers.IO) { ShareImage.file(context, bmp) }
-                            ShareImage.send(context, f)
-                        }
+                }
+                BigButton("Share", modifier = Modifier.weight(1f)) {
+                    make { bmps ->
+                        val files = withContext(Dispatchers.IO) { ShareImage.files(context, bmps) }
+                        ShareImage.send(context, files)
                     }
                 }
             }
@@ -239,17 +253,23 @@ object ShareImage {
         }.getOrElse { r.delete(uri, null, null); false }
     }
 
-    fun file(context: Context, bmp: Bitmap): File {
+    /** One JPG per picture in the share folder; old ones are cleared first. */
+    fun files(context: Context, bmps: List<Bitmap>): List<File> {
         val dir = File(context.cacheDir, "share").apply { mkdirs() }
-        return File(dir, "Loadout.jpg").also { f -> f.outputStream().use { bmp.compress(Bitmap.CompressFormat.JPEG, 95, it) } }
+        dir.listFiles()?.forEach { it.delete() }
+        val stamp = System.currentTimeMillis()
+        return bmps.mapIndexed { i, bmp ->
+            File(dir, "Loadout_${stamp}_${i + 1}.jpg").also { f -> f.outputStream().use { bmp.compress(Bitmap.CompressFormat.JPEG, 95, it) } }
+        }
     }
 
-    /** Android's share menu with the JPG attached. */
-    fun send(context: Context, f: File) {
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", f)
-        val send = Intent(Intent.ACTION_SEND).setType("image/jpeg").putExtra(Intent.EXTRA_STREAM, uri)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        send.clipData = ClipData.newRawUri("Loadout", uri)
+    /** Android's share menu with every JPG attached, sent together. */
+    fun send(context: Context, files: List<File>) {
+        val uris = files.map { FileProvider.getUriForFile(context, "${context.packageName}.files", it) }
+        val send = if (uris.size == 1) Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_STREAM, uris[0])
+            else Intent(Intent.ACTION_SEND_MULTIPLE).putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+        send.setType("image/jpeg").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        send.clipData = ClipData.newRawUri("Loadout", uris[0]).apply { uris.drop(1).forEach { addItem(ClipData.Item(it)) } }
         context.startActivity(Intent.createChooser(send, "Share your ranks"))
     }
 }
