@@ -145,6 +145,16 @@ object OneRmFx {
         testQuake = false
     }
 
+    /**
+     * The 1 Rep Max set tick's vibration: the same two quick thuds (70 ms apart) as a normal set, at full strength.
+     */
+    fun slamBuzz(c: android.content.Context) {
+        runCatching {
+            val v = c.getSystemService(android.os.VibratorManager::class.java).defaultVibrator
+            v.vibrate(android.os.VibrationEffect.createWaveform(longArrayOf(0, 30, 40, 30), intArrayOf(0, 255, 0, 255), -1))
+        }
+    }
+
     fun save() = Store.writeFile(FILE, JSONObject().put("entry", entry).put("testTrans", testTrans).put("arrival", arrival)
         .put("tick", tick).put("shine", shine).put("quake", listQuake).put("testQuake", testQuake).put("leave", leave).toString())
 

@@ -371,6 +371,7 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
         // Finishing a set sends a small green ring out from the ✓.
         val ring = remember { androidx.compose.animation.core.Animatable(0f) }
         val ringScope = rememberCoroutineScope()
+        val setHaptic = androidx.compose.ui.platform.LocalHapticFeedback.current
         Box(
             Modifier.weight(0.8f).drawBehind {
                 val b = ring.value
@@ -392,6 +393,12 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
                                 )
                             }
                             Store.active.value?.let { Ranks.onSetDone(it, ex.id) }
+                            // Two quick thuds, like a 1 Rep Max set.
+                            ringScope.launch {
+                                setHaptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                kotlinx.coroutines.delay(70)
+                                setHaptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                            }
                             if (extraAnims()) ringScope.launch {
                                 ring.snapTo(0f); ring.animateTo(1f, androidx.compose.animation.core.tween(480, easing = androidx.compose.animation.core.FastOutSlowInEasing))
                             }

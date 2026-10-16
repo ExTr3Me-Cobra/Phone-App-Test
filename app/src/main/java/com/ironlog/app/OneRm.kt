@@ -448,7 +448,7 @@ fun OneRmTestScreen(id: String) {
                 androidx.compose.runtime.DisposableEffect(tfx) { ticks += tfx; onDispose { ticks -= tfx } }
                 var seen by remember(k) { mutableStateOf(s.done) }
                 LaunchedEffect(k, s.done) {
-                    if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic, fx) }
+                    if (s.done && !seen && extraAnims()) tickScope.launch { OneRmFx.slamBuzz(context); tfx.play(OneRmFx.tick, null, fx) }
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
