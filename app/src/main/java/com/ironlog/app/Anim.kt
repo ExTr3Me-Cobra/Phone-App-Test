@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 /** A tap target that sinks a little while your finger is on it and springs back when you let go. */
 class Press(val source: MutableInteractionSource, val scale: State<Float>)
 
-/** Settings → Extra animations. Off: plain screen changes and no press/1 Rep Max/set effects (rank pop-ups stay). */
+/** Settings → Extra animations. Off: no 1 Rep Max effects and no ring on finishing a set; everyday animations stay. */
 fun extraAnims() = Store.profile.value.extraAnims
 
 /** The same, read so a screen redraws when you flip the setting. */
@@ -35,9 +35,8 @@ val extraAnimsNow: Boolean
 fun rememberPress(pressed: Float = 0.96f): Press {
     val source = remember { MutableInteractionSource() }
     val down by source.collectIsPressedAsState()
-    val extra = extraAnimsNow
     val scale = animateFloatAsState(
-        if (down && extra) pressed else 1f,
+        if (down) pressed else 1f,
         if (down) tween(90) else spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
         label = "press",
     )
@@ -54,7 +53,6 @@ fun Modifier.pressClick(p: Press, enabled: Boolean = true, onClick: () -> Unit) 
 /** Shows or hides [content] by smoothly opening and closing downwards. */
 @Composable
 fun Reveal(visible: Boolean, content: @Composable () -> Unit) {
-    if (!extraAnimsNow) { if (visible) content(); return }
     AnimatedVisibility(
         visible,
         enter = expandVertically(tween(260)) + fadeIn(tween(220, delayMillis = 40)),

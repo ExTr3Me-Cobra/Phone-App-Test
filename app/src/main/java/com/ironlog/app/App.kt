@@ -273,19 +273,17 @@ fun isOneRm(r: Route) = r is Route.OneRmTest || r == Route.OneRmList
 
 private fun screenTransition(from: Screen, to: Screen): ContentTransform {
     val ease = FastOutSlowInEasing
-    // Extra animations off: screens just switch.
-    if (!extraAnims()) return androidx.compose.animation.EnterTransition.None togetherWith androidx.compose.animation.ExitTransition.None
     return when {
         // Tabs: a quick cross-fade.
         from.route is Route.Tabs && to.route is Route.Tabs ->
             fadeIn(tween(200, easing = ease)) togetherWith fadeOut(tween(140))
         // Into 1 Rep Max: the new screen drops in from slightly too big, like a plate hitting the floor.
         // Leaving a 1 Rep Max screen: the chosen exit (thrown upward by default), never any shaking or fire.
-        to.depth < from.depth && isOneRm(from.route) -> OneRmFx.leaving()
+        to.depth < from.depth && isOneRm(from.route) && extraAnims() -> OneRmFx.leaving()
         // Into 1 Rep Max from elsewhere: the chosen opening. From its list into a test: the chosen test opening.
-        to.depth > from.depth && to.route == Route.OneRmList && !isOneRm(from.route) -> OneRmFx.enter()
+        to.depth > from.depth && to.route == Route.OneRmList && !isOneRm(from.route) && extraAnims() -> OneRmFx.enter()
         // A test opens the same way.
-        to.depth > from.depth && to.route is Route.OneRmTest -> OneRmFx.enter()
+        to.depth > from.depth && to.route is Route.OneRmTest && extraAnims() -> OneRmFx.enter()
         // Forward: slides in from the right over the old one, which drifts left and dims.
         to.depth > from.depth ->
             (slideInHorizontally(tween(300, easing = ease)) { it / 3 } + fadeIn(tween(220))) togetherWith
@@ -296,7 +294,7 @@ private fun screenTransition(from: Screen, to: Screen): ContentTransform {
                 (slideOutHorizontally(tween(260, easing = ease)) { it / 3 } + fadeOut(tween(200)))
         // Swapped in place (e.g. Finish → Summary): fade through.
         else -> fadeIn(tween(240, delayMillis = 60)) togetherWith fadeOut(tween(160))
-    }.apply { targetContentZIndex = if (to.depth >= from.depth) 1f else if (isOneRm(from.route)) -1f else 0f }
+    }.apply { targetContentZIndex = if (to.depth >= from.depth) 1f else if (isOneRm(from.route) && extraAnims()) -1f else 0f }
 }
 
 @Composable
