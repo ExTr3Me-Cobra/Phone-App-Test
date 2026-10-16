@@ -283,7 +283,7 @@ fun DataChoice(p: Profile, showStatus: Boolean = true) {
                 Store.setProfile(Store.profile.value.copy(cloud = "local"))
                 // Ask Android to back up soon, so the empty backup replaces the old one.
                 runCatching { android.app.backup.BackupManager(context).dataChanged() }
-            }) { Text("Keep it on this phone", color = Red) }
+            }) { Text("Keep my data locally on my device", color = Red) }
         },
         dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmLocal = false }) { Text("Keep Google backup") } },
     )
@@ -312,7 +312,9 @@ fun DataChoice(p: Profile, showStatus: Boolean = true) {
         }
     }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Option("local", "📱", "Keep it on this phone", "Nothing leaves your phone.")
+        Option("local", "📱", "Keep my data locally on my device", "Nothing leaves your phone.")
+        if (showStatus) Text("📂 Open the folder where Loadout's data is stored", color = Blue, fontSize = 13.sp,
+            modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { DataFiles.open(context) }.padding(horizontal = 4.dp, vertical = 4.dp))
         Option("google", "☁️", "Back up to my Google account", "Restores automatically on a new phone or if you reinstall.")
         if (showStatus && p.cloud == "google") {
             Text("Make sure your data is backing up", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 6.dp))
