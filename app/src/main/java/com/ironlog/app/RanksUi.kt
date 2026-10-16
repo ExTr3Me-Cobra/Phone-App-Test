@@ -272,21 +272,30 @@ fun RankHeatmap(ranks: Map<String, Ranks.Ranked>, profile: Profile, checkpoints:
 @Composable
 private fun LevelMarks(top: Boolean) {
     val sub = Sub
-    androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(40.dp)) {
+    androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(28.dp)) {
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply { textSize = 10.5.sp.toPx() }
-        // Labels take turns between a row next to the bar and one further out, so neighbours never run into each other.
-        val near = if (top) 31.dp.toPx() else 15.dp.toPx()
-        val far = if (top) 13.dp.toPx() else 33.dp.toPx()
-        Standards.LEVEL_NAMES.forEachIndexed { i, name ->
-            val pct = Standards.LEVEL_PCT[i]
-            val x = (pct / 100.0).toFloat() * size.width
-            val y = if (i % 2 == 0) near else far
-            val text = if (top) Tier.of(pct).label else name
-            paint.color = if (top) Tier.of(pct).color.toInt() else sub.toArgb()
-            if (top) drawLine(sub.copy(alpha = 0.8f), Offset(x, y + 4.dp.toPx()), Offset(x, size.height), strokeWidth = 1.2.dp.toPx())
-            else drawLine(sub.copy(alpha = 0.8f), Offset(x, 0f), Offset(x, y - 11.dp.toPx()), strokeWidth = 1.2.dp.toPx())
-            val w = paint.measureText(text)
-            drawContext.canvas.nativeCanvas.drawText(text, (x - w / 2).coerceIn(0f, size.width - w), y, paint)
+        val gap = 6.dp.toPx()
+        val pcts = Standards.LEVEL_PCT
+        val texts = Standards.LEVEL_NAMES.indices.map { if (top) Tier.of(pcts[it]).label else Standards.LEVEL_NAMES[it] }
+        // All on one line: smaller text if they'd otherwise not fit side by side.
+        val total = texts.sumOf { paint.measureText(it).toDouble() }.toFloat() + gap * (texts.size - 1)
+        if (total > size.width) paint.textSize *= size.width / total
+        val w = texts.map { paint.measureText(it) }
+        val xs = pcts.indices.map { (pcts[it] / 100.0).toFloat() * size.width }
+        // Each word as close to its mark as it can be, nudged sideways so none touch.
+        val left = FloatArray(texts.size) { xs[it] - w[it] / 2 }
+        for (i in left.indices) left[i] = maxOf(left[i], if (i == 0) 0f else left[i - 1] + w[i - 1] + gap)
+        for (i in left.indices.reversed()) left[i] = minOf(left[i], if (i == left.lastIndex) size.width - w[i] else left[i + 1] - gap - w[i])
+        val fm = paint.fontMetrics
+        val baseline = if (top) size.height - 9.dp.toPx() - fm.descent else 9.dp.toPx() - fm.ascent
+        texts.indices.forEach { i ->
+            paint.color = if (top) Tier.of(pcts[i]).color.toInt() else sub.toArgb()
+            drawContext.canvas.nativeCanvas.drawText(texts[i], left[i], baseline, paint)
+            // The mark starts at its true spot on the bar and leans over to its word if the word had to move.
+            val to = xs[i].coerceIn(left[i] + 3.dp.toPx(), left[i] + w[i] - 3.dp.toPx())
+            val bar = if (top) size.height else 0f
+            val word = if (top) baseline + fm.descent + 1.dp.toPx() else baseline + fm.ascent - 1.dp.toPx()
+            drawLine(sub.copy(alpha = 0.8f), Offset(xs[i], bar), Offset(to, word), strokeWidth = 1.2.dp.toPx())
         }
     }
 }
