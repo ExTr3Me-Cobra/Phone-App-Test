@@ -1,6 +1,6 @@
 """Splits the traced muscle-group shapes (body_regions.py) into individual muscles/heads.
 Shapes are for the image-left side and are mirrored in the app (except the neck)."""
-import sys, os
+import sys, os, json
 sys.path.insert(0, os.path.dirname(__file__))
 from body_regions import FRONT, BACK, FC, BC
 
@@ -52,6 +52,16 @@ def cut(poly, *planes):
 
 
 def build():
+    # Outlines hand-drawn in the Body Map Editor win over the generated ones below.
+    edits = os.path.join(os.path.dirname(__file__), 'body_map_edits.json')
+    if os.path.exists(edits):
+        F, B = {}, {}
+        for name, sides in json.load(open(edits))['muscles'].items():
+            for side, polys in sides.items():
+                for poly in polys:
+                    if len(poly) >= 3:
+                        (F if side == 'front' else B).setdefault(name, []).append([(round(x, 1), round(y, 1)) for x, y in cr([tuple(q) for q in poly])])
+        return F, B
     F, B = {}, {}
     def add(d, name, poly):
         if len(poly) >= 3: d.setdefault(name, []).append([(round(x, 1), round(y, 1)) for x, y in poly])
