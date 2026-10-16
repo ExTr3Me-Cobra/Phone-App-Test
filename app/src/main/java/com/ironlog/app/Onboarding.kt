@@ -266,12 +266,34 @@ private fun ReadyPage() {
 /** "Keep on this phone" / "Back up to my Google account" – used in the welcome and in Settings. */
 @Composable
 fun DataChoice(p: Profile, showStatus: Boolean = true) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    // Leaving Google backup asks first: the copy in your Google account gets replaced with nothing.
+    var confirmLocal by remember { mutableStateOf(false) }
+    if (confirmLocal) androidx.compose.material3.AlertDialog(
+        onDismissRequest = { confirmLocal = false },
+        title = { Text("Switch to this phone only?") },
+        text = {
+            Text("Are you sure? Your Loadout data that's backed up to your Google account will be deleted the next time Android " +
+                "backs up, and nothing will be saved there from now on.\n\nIt will be your sole responsibility to keep a copy of " +
+                "your app data safe – use Settings → Backup → Save backup and keep that file somewhere other than this phone.")
+        },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = {
+                confirmLocal = false
+                Store.setProfile(Store.profile.value.copy(cloud = "local"))
+                // Ask Android to back up soon, so the empty backup replaces the old one.
+                runCatching { android.app.backup.BackupManager(context).dataChanged() }
+            }) { Text("Keep it on this phone", color = Red) }
+        },
+        dismissButton = { androidx.compose.material3.TextButton(onClick = { confirmLocal = false }) { Text("Keep Google backup") } },
+    )
     @Composable
     fun Option(value: String, icon: String, title: String, text: String) {
         val on = p.cloud == value
         Row(
             Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(if (on) Blue.copy(alpha = 0.18f) else Card)
                 .clickable {
+                    if (value == "local" && p.cloud == "google") { confirmLocal = true; return@clickable }
                     // Switching to Google starts the check over, so the green tick means a backup since then.
                     if (value == "google" && p.cloud != "google") CloudBackup.resetStatus()
                     Store.setProfile(Store.profile.value.copy(cloud = value))
