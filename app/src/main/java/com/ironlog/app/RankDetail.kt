@@ -81,7 +81,7 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                     RankBadge(r.tier, 64.dp)
                     Column(Modifier.padding(start = 12.dp)) {
                         Text(r.tier.label, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color(r.tier.color))
-                        Text("(${topLabel(r.percentile)})")
+                        Text(topLabel(r.percentile))
                         Text((if (reps) "Your best: " else if (flat) "Your best squeeze: " else if (oneLeg) "Your two-leg equivalent: " else "Your est. 1-rep max: ") + fmt(r.value), color = Sub, fontSize = 14.sp)
                     }
                 } else Text("Log this exercise to see where you sit.", color = Sub)
@@ -96,8 +96,8 @@ fun rankPanels(id: String, title: Boolean = false, prefix: String = "", wrap: Mo
                     Text("Where you sit", fontWeight = FontWeight.Bold)
                     Text(if (reps) "Across: reps." else if (flat) "Across: best squeeze." else if (oneLeg) "Across: two-leg equivalent load (body weight + 2 × your one-leg est. max)." else "Across: est. 1-rep max.",
                         color = Sub, fontSize = 12.sp)
-                    Text(if (flat) "Up: % of ${if (p.male) "men" else "women"} aged 20–39 that you beat."
-                        else "Up: % of people with your age, gender, and weight who lift weights that you beat.",
+                    Text(if (flat) "Up: est. % of ${if (p.male) "men" else "women"} aged 20–39 that you are stronger than with this particular exercise."
+                        else "Up: est. % of people with your bodyweight, sex, and age who lift weights that you are stronger than with this particular exercise.",
                         color = Sub, fontSize = 12.sp)
                     val line = Color.White
                     val myColor = r?.let { Color(it.tier.color) } ?: StarGold

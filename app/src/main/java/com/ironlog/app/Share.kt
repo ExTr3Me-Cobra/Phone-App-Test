@@ -162,7 +162,7 @@ private fun ShareCard(ranks: Map<String, Ranks.Ranked>, profile: Profile, overal
                 Column {
                     Text("Overall rank", color = Sub, fontSize = 13.sp)
                     Text(t.label, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(t.color))
-                    Text("(${topLabel(overall)})", fontSize = 15.sp)
+                    Text(topLabel(overall), fontSize = 15.sp)
                 }
             }
             RankHeatmap(ranks, profile)

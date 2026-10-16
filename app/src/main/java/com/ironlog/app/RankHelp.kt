@@ -54,9 +54,9 @@ fun RankHelpScreen() {
             HelpCard("3. The stars") {
                 Point("★ Gold", "Ranked from data that closely fits you and that exact exercise.", StarGold)
                 Point("★ Blue", "An estimate: a close variation of a lift with data, or data that doesn't fully fit you (e.g. your body weight is outside the published range).", StarEstimate)
-                Point("★ Purple", "AI estimate: no published data, so a percentage of a similar lift agreed by several AIs. Least accurate.", StarAi)
+                Point("★ Purple", "AI estimate: no published data, so a percentage of a similar lift, agreed by 4 separate AI models. Technically the least accurate of the three colored stars.", StarAi)
                 Point("No star", "Not ranked.")
-                Para("Settings → Ranks picks which of these count: Off, Accurate only (gold), All on (gold + blue) or All on + AI (adds purple).")
+                Para("Settings → Ranks picks which of these count: Off, Accurate only (gold), All on (gold + blue) or All on + AI (adds purple, recommended).")
             }
 
             HelpCard("4. How a set becomes a number") {
@@ -75,9 +75,9 @@ fun RankHelpScreen() {
 
             HelpCard("6. Muscle groups and your overall rank") {
                 Point("Muscle group rank", "The average of two ranked exercises for that muscle – your top two, or the two you pick with ✎.")
-                Point("Grip", "With Separate Grip rank on, Grip comes only from the Grip Dynamometer Test and colours your hands. Off, it's part of Forearms.")
+                Point("Grip", "With Separate Grip rank on, Grip is its own standalone muscle group, ranked only from the Grip Dynamometer Test (you need a dynamometer), and colors your hands. Off, it's part of Forearms.")
                 Point("Overall rank", "The average of all your ranked muscle groups. A group with no ranked exercise doesn't count yet.")
-                Point("Heatmap", "Each ranked group is coloured with its rank, front and back. Grey means not ranked yet.")
+                Point("Heatmap", "Each ranked group is colored with its rank, front and back. Grey means not ranked yet.")
             }
 
             HelpCard("7. The levels") {

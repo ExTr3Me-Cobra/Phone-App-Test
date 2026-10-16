@@ -163,7 +163,7 @@ private fun WelcomePage() {
 private fun AboutYouPage(p: Profile) {
     fun set(np: Profile) = Store.setProfile(np)
     Title("About you")
-    Body("Used to rank you against lifters like you. You can change it later in Settings.")
+    Body("Used to rank your exercises against established data from other people with very similar biometrics. You can change it later in Settings.")
 
     var unitsTick by remember { mutableStateOf(0) } // refreshes the weight box when units change
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -239,15 +239,15 @@ private fun RanksPage(p: Profile) {
     Text("A star after the name means it's ranked:", fontWeight = FontWeight.Medium)
     Text(buildAnnotatedString {
         withStyle(SpanStyle(color = StarGold, fontWeight = FontWeight.Bold)) { append("★ Gold") }
-        append(" – accurate: the data closely fits you.")
+        append(" – Ranked from data that fits your biometrics.")
     }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
     Text(buildAnnotatedString {
         withStyle(SpanStyle(color = StarEstimate, fontWeight = FontWeight.Bold)) { append("★ Blue") }
-        append(" – estimate: from a close variation, or data that doesn't fully fit you.")
+        append(" – Ranked from data that's estimated or closely fits your biometrics.")
     }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
     Text(buildAnnotatedString {
         withStyle(SpanStyle(color = StarAi, fontWeight = FontWeight.Bold)) { append("★ Purple") }
-        append(" – AI estimate: no published data, so AIs estimated it from a similar lift.")
+        append(" – Ranked from data created by AI, based off of real data, and independently agreed on by 4 separate AI models.")
     }, fontSize = 14.sp, color = Color(0xFFD1D1D6))
     Text("Show ranks", fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 4.dp))
     RankModeChoice(p)

@@ -131,7 +131,7 @@ fun HomeRankCard() {
             Column {
                 Text("Current overall rank", color = Sub, fontSize = 13.sp)
                 Text(t.label, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color(t.color))
-                Text("(${topLabel(overall)})", fontSize = 15.sp)
+                Text(topLabel(overall), fontSize = 15.sp)
                 val groupCount = Ranks.groupRanks(ranks, profile.picksNow).size
                 Text("Average of your $groupCount muscle group${if (groupCount == 1) "" else "s"}", color = Sub, fontSize = 12.sp)
             }
@@ -140,12 +140,11 @@ fun HomeRankCard() {
         // Every muscle of a ranked group is coloured with that group's rank (the hands only by the Grip rank when it's on).
         RankHeatmap(ranks, profile)
         Text(
-            if (open) "Hide muscle group rankings ▴" else "Show muscle group rankings ▾",
+            if (open) "Hide Muscle Group Rankings ▴" else "Show Muscle Group Rankings ▾",
             color = Blue, fontSize = 15.sp, modifier = Modifier.fillMaxWidth().clickable { open = !open }.padding(vertical = 10.dp),
         )
         Reveal(open) { Column {
-            Text("Your muscles", fontWeight = FontWeight.Bold)
-            Text("Each muscle's rank is the average of two ranked exercises – your top two unless you choose (tap ✎). " +
+            Text("Each muscle group's rank is the average of two ranked exercises; your top two unless you choose (tap ✎). " +
                 "These directly influence your overall rank.", color = Sub, fontSize = 12.sp)
             Ranks.groupRanks(ranks, profile.picksNow).entries.sortedByDescending { it.value.first }.forEach { (g, v) ->
                 val (pct, top) = v
@@ -201,22 +200,22 @@ fun HomeRankCard() {
                     Text("Grip", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Sub, modifier = Modifier.weight(1f))
                     Text("Not ranked yet", fontSize = 13.sp, color = Sub)
                 }
-                Text("Do a Grip Dynamometer Test to rank your grip and colour your hands. (Turn the Grip rank off in Settings.)",
+                Text("Do a Grip Dynamometer Test to rank your grip and color your hands. (Turn the Grip rank off in Settings.)",
                     color = Sub, fontSize = 11.sp, modifier = Modifier.padding(start = 22.dp))
                 GripTestButton()
             }
             Spacer(10)
-            Text("Colour key", fontWeight = FontWeight.Bold)
+            Text("Rank Guide", fontWeight = FontWeight.Bold)
             Tier.entries.reversed().forEach { tier ->
                 Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(14.dp).clip(RoundedCornerShape(3.dp)).background(Color(tier.color)))
                     HSpacer(8)
                     RankBadge(tier, 26.dp)
                     HSpacer(8)
-                    Text("${tier.label} (top ${tier.topPct}%)", fontSize = 14.sp)
+                    Text("${tier.label} (Top ${tier.topPct}%)", fontSize = 14.sp)
                 }
             }
-            Text("Uncoloured muscles have no ranked exercise yet.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
+            Text("Uncolored muscles have no ranked exercise yet.", color = Sub, fontSize = 12.sp, modifier = Modifier.padding(top = 6.dp))
         } }
     }
 }
@@ -328,7 +327,7 @@ fun RankUpOverlay() {
             })
             Spacer(8)
             Text(c.tier.label, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
-            Text("(${topLabel(c.percentile)})", color = Color.White, fontSize = 18.sp)
+            Text(topLabel(c.percentile), color = Color.White, fontSize = 18.sp)
             Spacer(6)
             Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
             c.note?.let { Spacer(6); Text(it, color = Color.White, fontSize = 15.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp)) }
@@ -388,7 +387,7 @@ private fun RankDownView(c: Ranks.Celebration) {
                 },
                 color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold,
             )
-            Text("(${topLabel(c.percentile)})", color = Color.White, fontSize = 18.sp)
+            Text(topLabel(c.percentile), color = Color.White, fontSize = 18.sp)
             Spacer(6)
             Text(c.title, color = Sub, fontSize = 16.sp, textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
             Spacer(6)

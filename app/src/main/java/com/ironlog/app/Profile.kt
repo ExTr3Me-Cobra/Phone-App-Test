@@ -126,7 +126,7 @@ fun SettingsScreen() {
         TopBar("Settings", back = false)
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("About you", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Text("Used to rank your lifts against other people your size.", color = Sub, fontSize = 13.sp)
+            Text("Used to rank your exercises against established data from other people with very similar biometrics.", color = Sub, fontSize = 13.sp)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 var bw by remember { mutableStateOf(p.bodyweight?.let { Units.weight(it) } ?: "") }
                 OutlinedTextField(bw, { t -> bw = t; set(p.copy(bodyweight = t.toDoubleOrNull()?.let(Units::fromShown))) },
@@ -150,7 +150,7 @@ fun SettingsScreen() {
                 FilterChip(p.male, { set(p.copy(male = true)) }, { Text("Male") })
                 FilterChip(!p.male, { set(p.copy(male = false)) }, { Text("Female") })
             }
-            Text("Strength tables use body weight, sex and age; height isn't part of them, so it's kept for your records.",
+            Text("Disclaimer: Height doesn't factor into the ranking system.",
                 color = Sub, fontSize = 12.sp)
 
             Spacer(10)
@@ -206,19 +206,19 @@ fun SettingsScreen() {
             Text(
                 buildAnnotatedString {
                     withStyle(SpanStyle(color = StarGold)) { append("★") }
-                    append(" ranked from data that fits your body weight, age and sex.   ")
+                    append(" Ranked from data that fits your biometrics\n")
                     withStyle(SpanStyle(color = StarEstimate)) { append("★") }
-                    append(" ranked as an estimate (All on).   ")
+                    append(" Ranked from data that's estimated or closely fits your biometrics\n")
                     withStyle(SpanStyle(color = StarAi)) { append("★") }
-                    append(" AI estimate (All on + AI).")
+                    append(" Ranked from data created by AI, based off of real data, and independently agreed on by 4 separate AI models to scale reasonably to your biometrics")
                 },
                 color = Sub, fontSize = 13.sp,
             )
             Row(Modifier.fillMaxWidth().clickable { set(p.copy(gripRank = !p.gripRank)) }, verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("Separate Grip rank")
-                    Text(if (p.gripRank) "Grip is ranked only from the Grip Dynamometer Test and colours your hands on Home."
-                        else "Off: no Grip rank – your forearms rank (including the dynamometer) colours your forearms and hands.",
+                    Text(if (p.gripRank) "Grip is ranked as its own standalone muscle group on the Home screen, requiring you to own a dynamometer, and perform a Grip Dynamometer Test."
+                        else "Off: no Grip rank – your forearms rank (including the dynamometer) colors your forearms and hands.",
                         color = Sub, fontSize = 12.sp)
                 }
                 androidx.compose.material3.Switch(p.gripRank, { set(p.copy(gripRank = it)) })
@@ -375,7 +375,7 @@ fun RankModeChoice(p: Profile) {
             Triple("off", "Off", "No ranks, badges, stars or rank-up pop-ups anywhere."),
             Triple("accurate", "Accurate only", "Only exercises where the data closely fits your body weight, age and sex are ranked (gold ★)."),
             Triple("all", "All on", "Also ranks exercises as estimates where the data doesn't fit you exactly (blue ★)."),
-            Triple("ai", "All on + AI", "Also ranks 30 exercises with no published data, as AI estimates (purple ★): a % of a similar lift, agreed by 4 AIs. Least accurate."),
+            Triple("ai", "All on + AI (Recommended)", "Also ranks 30 more exercises with no published data, as AI estimates (purple ★): a % of a similar lift, agreed by 4 separate AI models. Technically the least accurate of the three colored stars."),
         ).forEach { (key, label, desc) ->
             Row(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(if (p.rankMode == key) Blue.copy(alpha = 0.15f) else Card)
