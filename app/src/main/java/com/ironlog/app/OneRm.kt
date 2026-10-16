@@ -171,7 +171,7 @@ fun OneRmButton(modifier: Modifier = Modifier) {
     Row(
         Modifier.pressScale(press).then(modifier).fillMaxWidth().clip(RoundedCornerShape(12.dp))
             .background(Brush.horizontalGradient(listOf(Color(0xFF2A0E0E), Color(0xFF1A1A1A))))
-            .glint(heat).emberBorder(heat, 1.5.dp, gold, RoundedCornerShape(12.dp))
+            .heatFire(heat).glint(heat).emberBorder(heat, 1.5.dp, gold, RoundedCornerShape(12.dp))
             .pressClick(press) { Nav.go(Route.OneRmList) }.padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -364,16 +364,27 @@ fun OneRmTestScreen(id: String) {
     // The effect picked in developer settings plays once, when you go into the test (not when you come back to it).
     val fx = remember { FxState() }
     val density = androidx.compose.ui.platform.LocalDensity.current.density
+    // Earthquake test: the cards and sets rattle when the test opens.
+    val quake = remember { Animatable(1f) }
     LaunchedEffect(Unit) {
         if (!OneRmFx.enteringTest) return@LaunchedEffect
         OneRmFx.enteringTest = false
-        if (extraAnims()) fx.play(OneRmFx.arrival, haptic, 200, density)
+        if (!extraAnims()) return@LaunchedEffect
+        // The opening's own fire (if it has one) as the screen lands, plus the "When a test opens" effect.
+        OneRmFx.testEffect()?.let { (k, at) -> launch { fx.play(k, haptic, at, density) } }
+        if (OneRmFx.testQuake) launch {
+            quake.snapTo(0f); kotlinx.coroutines.delay(150)
+            launch { repeat(4) { haptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
+            quake.animateTo(1f, tween(1100))
+        }
+        fx.play(OneRmFx.arrival, haptic, 200, density)
     }
+    val rattle = { quake.value }
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().fxShake(fx)) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.quakeRattle(rattle, 0), verticalAlignment = Alignment.CenterVertically) {
                 ExerciseThumb(e, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
                     NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -383,7 +394,7 @@ fun OneRmTestScreen(id: String) {
             }
 
             // Warm-up plan
-            Section("Warm-up plan", Blue) {
+            Section("Warm-up plan", Blue, Modifier.quakeRattle(rattle, 1)) {
                 // Kept to the minimum that does the job: get warm, wake the muscles up, then a few ramp-up sets.
                 Bullet("2–3 minutes of easy movement to get warm (a brisk walk, bike or rower).")
                 notes?.prep?.firstOrNull { !it.contains(Regex("min\\b|cardio|bike|rowing|row\\b|walk|jog", RegexOption.IGNORE_CASE)) }?.let { Bullet(it) }
@@ -406,8 +417,8 @@ fun OneRmTestScreen(id: String) {
                     Bullet("Rest about 3 minutes before each heavy single.")
                 }
             }
-            notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green) { f.forEach { Bullet(it) } } }
-            Section("Safety", Red) {
+            notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green, Modifier.quakeRattle(rattle, 2)) { f.forEach { Bullet(it) } } }
+            Section("Safety", Red, Modifier.quakeRattle(rattle, 3)) {
                 notes?.safety?.forEach { Bullet(it) }
                 Bullet("Stop straight away for sharp or joint pain, dizziness, or if your form breaks down – a missed or ugly rep doesn't count.")
                 Bullet("Don't test when you're injured, ill, or very tired. Leave a few days between max tests on the same lift.")
@@ -434,7 +445,7 @@ fun OneRmTestScreen(id: String) {
                     seen = s.done
                 }
                 val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
-                Row(Modifier.tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.quakeRattle(rattle, 5 + i).tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -469,7 +480,7 @@ fun OneRmTestScreen(id: String) {
             val finishPress = rememberPress(0.93f)
             Row(
                 Modifier.pressScale(finishPress).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
-                    .then(if (ready) Modifier.glint(heat).emberBorder(heat, 2.dp, gold, RoundedCornerShape(12.dp))
+                    .then(if (ready) Modifier.heatFire(heat).glint(heat).emberBorder(heat, 2.dp, gold, RoundedCornerShape(12.dp))
                         else Modifier.border(1.5.dp, gold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)))
                     .pressClick(finishPress) { finishTest(context, id)?.let { error = it } }.padding(16.dp),
                 horizontalArrangement = Arrangement.Center,
@@ -490,11 +501,11 @@ fun OneRmTestScreen(id: String) {
 
 /** A 1 Rep Max info card that folds up when you tap its title; open by default, and it stays the way you leave it. */
 @Composable
-private fun Section(title: String, color: Color, content: @Composable () -> Unit) {
+private fun Section(title: String, color: Color, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     var open by remember(title) { mutableStateOf(title !in OneRm.folded()) }
     val turn by androidx.compose.animation.core.animateFloatAsState(if (open) 0f else -90f, tween(200), label = "fold")
     Column(
-        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp),
+        modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Row(Modifier.fillMaxWidth().clickable { open = !open; OneRm.setFolded(title, !open) }, verticalAlignment = Alignment.CenterVertically) {
@@ -534,10 +545,14 @@ private fun finishTest(c: Context, id: String): String? {
 
 /** The 1 Rep Max mode's "heat": a glint of light that sweeps across now and then, and a glowing border. */
 class Heat(private val sweepState: androidx.compose.runtime.State<Float>, private val emberState: androidx.compose.runtime.State<Float>,
-    val glintColor: Color = Color(0x55FFE7A3)) {
+    val glintColor: Color = Color(0x55FFE7A3), val fire: Int = -1, private val timeState: androidx.compose.runtime.State<Float>? = null) {
     val sweep get() = sweepState.value
     val ember get() = emberState.value
+    val time get() = timeState?.value ?: 0f
 }
+
+/** Real fire inside a gold button (the fire styles), drawn under its text. */
+fun Modifier.heatFire(h: Heat) = drawWithContent { buttonFire(h.fire, h.time); drawContent() }
 
 /** 0 glint + ember, 1 ember only, 2 fast glint, 3 none, 4 flame flicker, 5 fire glint (orange), 6 lava pulse. */
 @Composable
@@ -561,10 +576,12 @@ fun rememberHeat(): Heat {
     val flicker = t.animateFloat(0.4f, 1f, infiniteRepeatable(keyframes {
         durationMillis = 900; 0.5f at 0; 1f at 90; 0.65f at 170; 0.95f at 260; 0.45f at 380; 1f at 470; 0.7f at 600; 0.9f at 720; 0.5f at 900
     }), label = "flicker")
+    val time = t.animateFloat(0f, 1f, infiniteRepeatable(tween(1000, easing = androidx.compose.animation.core.LinearEasing)), label = "fire")
     return Heat(
-        if (style == 0 || style == 2 || style == 5) sweep else off,
-        when (style) { 0, 1 -> ember; 4, 5 -> flicker; 6 -> lava; else -> steady },
-        if (style == 5) Color(0x77FF7A1A) else Color(0x55FFE7A3),
+        if (style == 0 || style == 2 || style == 5 || style == 10) sweep else off,
+        when (style) { 0, 1 -> ember; 4, 5, 7, 8, 10 -> flicker; 6 -> lava; else -> steady },
+        if (style == 5 || style == 10) Color(0x77FF7A1A) else Color(0x55FFE7A3),
+        style, time,
     )
 }
 
