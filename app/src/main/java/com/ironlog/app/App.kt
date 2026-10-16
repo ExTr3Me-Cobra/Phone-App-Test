@@ -209,7 +209,8 @@ private fun Root() {
           LeaveTrail.Overlay()
         }
         val active by Store.active.collectAsState()
-        if (active != null && route != Route.Active) ResumeBar()
+        // On tab screens the bar sits above the tab bar (it's part of the tab screen); elsewhere at the very bottom.
+        if (active != null && route != Route.Active && route !is Route.Tabs) ResumeBar(Modifier.navigationBarsPadding())
     }
     Onboarding()
     RankUpOverlay()
@@ -230,6 +231,7 @@ private fun RouteScreen(route: Route) {
                     else -> ProfileScreen()
                 }
             }
+            ResumeBar()
             BottomBar(route.tab)
         }
         is Route.RoutineView -> RoutineViewScreen(route.id)
@@ -298,12 +300,12 @@ private fun screenTransition(from: Screen, to: Screen): ContentTransform {
 }
 
 @Composable
-private fun ResumeBar() {
+private fun ResumeBar(pad: Modifier = Modifier) {
     val a = Store.active.collectAsState().value ?: return
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { now = System.currentTimeMillis(); delay(1000) } }
     Row(
-        Modifier.fillMaxWidth().background(Card2).clickable { Nav.go(Route.Active) }.padding(horizontal = 16.dp, vertical = 10.dp),
+        Modifier.fillMaxWidth().background(Card2).clickable { Nav.go(Route.Active) }.then(pad).padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
