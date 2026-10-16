@@ -558,17 +558,14 @@ fun OneRmFxSettings() {
     fun preview(m: Int) { mode = m; play++ }
     Column(Modifier.bringIntoViewRequester(req), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         androidx.compose.material3.Text("1 Rep Max animations", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        androidx.compose.material3.Text("Pick one and it plays in the preview. Open 1 Rep Max to see it for real.", color = Sub, fontSize = 13.sp)
+        androidx.compose.material3.Text("Pick one and it plays in the preview. Open 1 Rep Max to see it for real. (A test screen itself has no effects.)", color = Sub, fontSize = 13.sp)
         FxStage(mode, play)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             GreyButton("▶ Replay", Modifier.weight(1f)) { play++ }
             GreyButton("Open 1 Rep Max", Modifier.weight(1.4f), Blue) { Nav.go(Route.OneRmList) }
         }
         FxPicker("Opening 1 Rep Max", OneRmFx.ENTRY, OneRmFx.entry) { OneRmFx.entry = it; OneRmFx.save(); preview(0) }
-        FxPicker("Opening a test", OneRmFx.TEST, OneRmFx.testTrans) { OneRmFx.testTrans = it; OneRmFx.save(); preview(1) }
-        FxPicker("Leaving (back)", OneRmFx.LEAVE, OneRmFx.leave) { OneRmFx.leave = it; OneRmFx.save(); preview(6) }
-        FxPicker("When a test opens", OneRmFx.ARRIVAL, OneRmFx.arrival) { OneRmFx.arrival = it; OneRmFx.save(); preview(2) }
-        FxPicker("Ticking a set", OneRmFx.TICK, OneRmFx.tick) { OneRmFx.tick = it; OneRmFx.save(); preview(3) }
+        FxPicker("Leaving 1 Rep Max", OneRmFx.LEAVE, OneRmFx.leave) { OneRmFx.leave = it; OneRmFx.save(); preview(6) }
         FxPicker("Gold buttons", OneRmFx.SHINE, OneRmFx.shine) { OneRmFx.shine = it; OneRmFx.save(); preview(4) }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -576,13 +573,6 @@ fun OneRmFxSettings() {
                 androidx.compose.material3.Text("Every exercise in the 1 Rep Max list rattles violently when it opens.", color = Sub, fontSize = 12.sp)
             }
             androidx.compose.material3.Switch(OneRmFx.listQuake, { OneRmFx.listQuake = it; OneRmFx.save(); preview(5) })
-        }
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                androidx.compose.material3.Text("Earthquake when a test opens (test)", fontSize = 14.sp)
-                androidx.compose.material3.Text("The cards and sets on a test screen rattle violently when it opens.", color = Sub, fontSize = 12.sp)
-            }
-            androidx.compose.material3.Switch(OneRmFx.testQuake, { OneRmFx.testQuake = it; OneRmFx.save(); preview(7) })
         }
     }
 }

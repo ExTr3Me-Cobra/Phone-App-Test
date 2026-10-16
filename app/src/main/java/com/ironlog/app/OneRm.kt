@@ -361,34 +361,14 @@ fun OneRmTestScreen(id: String) {
     // Leaving with a ticked set asks first (the test isn't saved until you finish it).
     fun leave() { if (OneRm.rows.any { it.done }) confirmLeave = true else { OneRm.clear(); Nav.back() } }
     androidx.activity.compose.BackHandler { leave() }
-    // Arrival effect (developer setting: When a test opens).
+    // The test screen itself has no transitions or effects: it's a plain working screen.
     val haptic = LocalHapticFeedback.current
-    val heat = rememberHeat()
-    // The effect picked in developer settings plays once, when you go into the test (not when you come back to it).
-    val fx = remember { FxState() }
-    val density = androidx.compose.ui.platform.LocalDensity.current.density
-    // Earthquake test: the cards and sets rattle when the test opens.
-    val quake = remember { Animatable(1f) }
-    LaunchedEffect(Unit) {
-        if (!OneRmFx.enteringTest) return@LaunchedEffect
-        OneRmFx.enteringTest = false
-        if (!extraAnims()) return@LaunchedEffect
-        // The opening's own fire (if it has one) as the screen lands, plus the "When a test opens" effect.
-        OneRmFx.testEffect()?.let { (k, at) -> launch { fx.play(k, haptic, at, density) } }
-        if (OneRmFx.testQuake) launch {
-            quake.snapTo(0f); kotlinx.coroutines.delay(150)
-            launch { repeat(4) { haptic.performHapticFeedback(HapticFeedbackType.LongPress); kotlinx.coroutines.delay(150) } }
-            quake.animateTo(1f, tween(1100))
-        }
-        fx.play(OneRmFx.arrival, haptic, 200, density)
-    }
-    val rattle = { quake.value }
-    val tickScope = androidx.compose.runtime.rememberCoroutineScope()
+    OneRmFx.enteringTest = false
     Box(Modifier.fillMaxSize()) {
-    Column(Modifier.fillMaxSize().fxShake(fx)) {
+    Column(Modifier.fillMaxSize()) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(Modifier.quakeRattle(rattle, 0), verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 ExerciseThumb(e, 64.dp)
                 Column(Modifier.padding(start = 12.dp)) {
                     NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -398,7 +378,7 @@ fun OneRmTestScreen(id: String) {
             }
 
             // Warm-up plan
-            Section("Warm-up plan", Blue, Modifier.quakeRattle(rattle, 1)) {
+            Section("Warm-up plan", Blue) {
                 // Kept to the minimum that does the job: get warm, wake the muscles up, then a few ramp-up sets.
                 Bullet("2–3 minutes of easy movement to get warm (a brisk walk, bike or rower).")
                 notes?.prep?.firstOrNull { !it.contains(Regex("min\\b|cardio|bike|rowing|row\\b|walk|jog", RegexOption.IGNORE_CASE)) }?.let { Bullet(it) }
@@ -421,8 +401,8 @@ fun OneRmTestScreen(id: String) {
                     Bullet("Rest about 3 minutes before each heavy single.")
                 }
             }
-            notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green, Modifier.quakeRattle(rattle, 2)) { f.forEach { Bullet(it) } } }
-            Section("Safety", Red, Modifier.quakeRattle(rattle, 3)) {
+            notes?.form?.takeIf { it.isNotEmpty() }?.let { f -> Section("Form", Green) { f.forEach { Bullet(it) } } }
+            Section("Safety", Red) {
                 notes?.safety?.forEach { Bullet(it) }
                 Bullet("Stop straight away for sharp or joint pain, dizziness, or if your form breaks down – a missed or ugly rep doesn't count.")
                 Bullet("Don't test when you're injured, ill, or very tired. Leave a few days between max tests on the same lift.")
@@ -441,16 +421,8 @@ fun OneRmTestScreen(id: String) {
             }
             OneRm.rows.forEachIndexed { i, s ->
                 val k = "$id:$i:$refresh"
-                // Ticking a set slams the tick down and rattles the row.
-                val tfx = remember(k) { TickFx() }
-                var seen by remember(k) { mutableStateOf(s.done) }
-                LaunchedEffect(k, s.done) {
-                    // Runs in the screen's scope, so unticking straight away lets the effect finish instead of freezing it.
-                    if (s.done && !seen && extraAnims()) tickScope.launch { tfx.play(OneRmFx.tick, haptic) }
-                    seen = s.done
-                }
-                val tickColor by animateColorAsState(if (s.done) Green else Card2, tween(160), label = "tick")
-                Row(Modifier.quakeRattle(rattle, 5 + i).tickRow(tfx), verticalAlignment = Alignment.CenterVertically) {
+                val tickColor = if (s.done) Green else Card2
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("${i + 1}", Modifier.weight(0.6f), color = Sub)
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
@@ -461,8 +433,7 @@ fun OneRmTestScreen(id: String) {
                     }
                     Row(Modifier.weight(1.2f), verticalAlignment = Alignment.CenterVertically) {
                         androidx.compose.foundation.layout.Box(
-                            Modifier.weight(1f).tickBox(tfx, OneRmFx.tick)
-                                .clip(RoundedCornerShape(10.dp)).background(tickColor)
+                            Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(tickColor)
                                 .clickable {
                                     OneRm.rows[i] = OneRm.rows[i].copy(done = !s.done)
                                     val live = OneRm.liveWorkout(id)
@@ -480,20 +451,15 @@ fun OneRmTestScreen(id: String) {
                 refresh++
             }
             error?.let { Text(it, color = Red) }
-            // Once a set is in, the button heats up: the glint sweeps across and the border glows.
-            val ready = OneRm.rows.any { it.done }
-            val finishPress = rememberPress(0.93f)
             Row(
-                Modifier.pressScale(finishPress).fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
-                    .then(if (ready) Modifier.heatFire(heat).glint(heat).emberBorder(heat, 2.dp, gold, RoundedCornerShape(12.dp))
-                        else Modifier.border(1.5.dp, gold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)))
-                    .pressClick(finishPress) { finishTest(context, id)?.let { error = it } }.padding(16.dp),
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Color(0xFF2A0E0E))
+                    .border(1.5.dp, gold, RoundedCornerShape(12.dp))
+                    .clickable { finishTest(context, id)?.let { error = it } }.padding(16.dp),
                 horizontalArrangement = Arrangement.Center,
             ) { Text("FINISH TEST", color = gold, fontWeight = FontWeight.ExtraBold, fontSize = 17.sp, letterSpacing = 1.5.sp) }
             Spacer(300)
         }
     }
-    FxOverlay(fx)
     }
     if (confirmLeave) AlertDialog(
         onDismissRequest = { confirmLeave = false },
@@ -508,7 +474,6 @@ fun OneRmTestScreen(id: String) {
 @Composable
 private fun Section(title: String, color: Color, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     var open by remember(title) { mutableStateOf(title !in OneRm.folded()) }
-    val turn by androidx.compose.animation.core.animateFloatAsState(if (open) 0f else -90f, tween(200), label = "fold")
     Column(
         modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Card).padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -516,9 +481,9 @@ private fun Section(title: String, color: Color, modifier: Modifier = Modifier, 
         Row(Modifier.fillMaxWidth().clickable { open = !open; OneRm.setFolded(title, !open) }, verticalAlignment = Alignment.CenterVertically) {
             androidx.compose.foundation.layout.Box(Modifier.size(width = 4.dp, height = 18.dp).background(color))
             Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.padding(start = 8.dp).weight(1f))
-            Text("▾", color = color, fontSize = 18.sp, modifier = Modifier.graphicsLayer { rotationZ = turn })
+            Text(if (open) "▾" else "▸", color = color, fontSize = 18.sp)
         }
-        Reveal(open) { Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { content() } }
+        if (open) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) { content() }
     }
 }
 
