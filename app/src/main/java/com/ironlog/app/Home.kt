@@ -82,7 +82,7 @@ fun HomeScreen() {
                     if (calendar) WorkoutCalendar(workouts)
                 }
                 val exerciseCount = Store.exercises.collectAsState().value.values.count { !it.hidden }
-                GreyButton("📚  Exercises ($exerciseCount)", Modifier.padding(horizontal = 16.dp).fillMaxWidth()) { Nav.go(Route.Library) }
+                GreyButton("💪  Exercises ($exerciseCount)", Modifier.padding(horizontal = 16.dp).fillMaxWidth()) { Nav.go(Route.Library) }
                 if (workouts.isEmpty()) {
                     Column(Modifier.padding(16.dp)) {
                         Text("Welcome to Loadout 💪", fontSize = 22.sp, fontWeight = FontWeight.Bold)
@@ -94,9 +94,13 @@ fun HomeScreen() {
                 } else {
                     // Tap to show your 10 most recent workouts (closed each time the app starts).
                     var open by homeWorkoutsOpen
-                    Row(Modifier.fillMaxWidth().clickable { open = !open }, verticalAlignment = Alignment.CenterVertically) {
-                        SectionTitle("Workouts (${workouts.size})", Modifier.weight(1f))
-                        Text(if (open) "▴" else "▾", color = Blue, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 20.dp))
+                    // Styled like the Exercises button, with an arrow showing it opens.
+                    Box(Modifier.padding(16.dp, 10.dp, 16.dp, 6.dp).fillMaxWidth().height(46.dp).clip(RoundedCornerShape(10.dp))
+                        .background(Card2).clickable { open = !open }) {
+                        Text("✅  Completed Workouts (${workouts.size})", fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1,
+                            modifier = Modifier.align(Alignment.Center))
+                        Text(if (open) "▲" else "▼", color = Blue, fontSize = 16.sp,
+                            modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp))
                     }
                 }
             }
