@@ -206,7 +206,6 @@ private fun Root() {
         }
         val active by Store.active.collectAsState()
         if (active != null && route != Route.Active) ResumeBar()
-        if (route is Route.Tabs) BottomBar(route.tab)
     }
     Onboarding()
     RankUpOverlay()
@@ -217,10 +216,17 @@ private fun Root() {
 @Composable
 private fun RouteScreen(route: Route) {
     when (route) {
-        is Route.Tabs -> when (route.tab) {
-            0 -> HomeScreen()
-            1 -> WorkoutTab()
-            else -> ProfileScreen()
+        // The tab bar belongs to the tab screens, so it moves with them; the screen area never changes size
+        // mid-transition (which made leaving screens jump for a frame or two).
+        is Route.Tabs -> Column(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (route.tab) {
+                    0 -> HomeScreen()
+                    1 -> WorkoutTab()
+                    else -> ProfileScreen()
+                }
+            }
+            BottomBar(route.tab)
         }
         is Route.RoutineView -> RoutineViewScreen(route.id)
         is Route.RoutineEdit -> RoutineEditScreen(route.id)
