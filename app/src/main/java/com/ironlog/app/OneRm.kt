@@ -192,9 +192,33 @@ fun OneRmListScreen() {
     var query by remember { mutableStateOf("") }
     val focus = remember { androidx.compose.ui.focus.FocusRequester() }
     val words = query.lowercase().split(" ").filter { it.isNotBlank() }
-    val shown = if (words.isEmpty()) list else list.filter { (id, _) ->
-        val n = Store.exercise(id)?.name?.lowercase().orEmpty(); words.all { it in n }
+    // How many 1 Rep Max tests each exercise has had.
+    val tests = remember(workouts) {
+        val t = HashMap<String, Int>()
+        workouts.filter { it.test && it.end != null }.forEach { w -> w.items.filter { i -> i.sets.any { it.done } }.map { it.exerciseId }.distinct().forEach { t[it] = (t[it] ?: 0) + 1 } }
+        t
     }
+    var sort by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("most") }
+    var showTested by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(true) }
+    var showUntested by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(true) }
+    var sortMenu by remember { mutableStateOf(false) }
+    var filterMenu by remember { mutableStateOf(false) }
+    val sorts = listOf("most" to "Most experience", "least" to "Least experience", "high" to "Highest rank", "low" to "Lowest rank",
+        "mostTests" to "Most 1RM tested", "leastTests" to "Least 1RM tested")
+    // Exercises with no rank yet count as the very lowest rank.
+    fun rankOf(id: String) = ranks[id]?.percentile ?: -1.0
+    val byName = compareBy<Pair<String, Int>> { Store.exercise(it.first)?.name }
+    val shown = list
+        .filter { (id, _) -> val n = Store.exercise(id)?.name?.lowercase().orEmpty(); words.all { it in n } }
+        .filter { (id, _) -> if ((tests[id] ?: 0) > 0) showTested else showUntested }
+        .sortedWith(when (sort) {
+            "least" -> compareBy<Pair<String, Int>> { it.second }.then(byName)
+            "high" -> compareByDescending<Pair<String, Int>> { rankOf(it.first) }.then(byName)
+            "low" -> compareBy<Pair<String, Int>> { rankOf(it.first) }.then(byName)
+            "mostTests" -> compareByDescending<Pair<String, Int>> { tests[it.first] ?: 0 }.then(byName)
+            "leastTests" -> compareBy<Pair<String, Int>> { tests[it.first] ?: 0 }.then(byName)
+            else -> compareByDescending<Pair<String, Int>> { it.second }.then(byName)
+        })
     Column(Modifier.fillMaxSize()) {
         TopBar("1 Rep Max", action = "🔍") { searching = !searching; if (!searching) query = "" }
         if (searching) {
@@ -204,6 +228,27 @@ fun OneRmListScreen() {
                 trailingIcon = { Text("✕", color = Sub, modifier = Modifier.clickable { query = ""; searching = false }.padding(12.dp)) },
             )
             androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
+        }
+        // Sort and filter, like All Workouts.
+        Row(Modifier.fillMaxWidth().padding(16.dp, 12.dp, 16.dp, 0.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            androidx.compose.foundation.layout.Box(Modifier.weight(1f)) {
+                GreyButton("Sort: ${sorts.first { it.first == sort }.second} ▾") { sortMenu = true }
+                androidx.compose.material3.DropdownMenu(sortMenu, { sortMenu = false }) {
+                    sorts.forEach { (k, label) ->
+                        androidx.compose.material3.DropdownMenuItem({ Text((if (k == sort) "✓  " else "     ") + label) }, { sort = k; sortMenu = false })
+                    }
+                }
+            }
+            androidx.compose.foundation.layout.Box(Modifier.weight(0.7f)) {
+                val off = listOf(showTested, showUntested).count { !it }
+                GreyButton("Filter" + (if (off > 0) " (1 of 2)" else "") + " ▾") { filterMenu = true }
+                androidx.compose.material3.DropdownMenu(filterMenu, { filterMenu = false }) {
+                    @Composable fun Tick(label: String, on: Boolean, set: (Boolean) -> Unit) = androidx.compose.material3.DropdownMenuItem(
+                        { Row(verticalAlignment = Alignment.CenterVertically) { androidx.compose.material3.Checkbox(on, set); Text(label) } }, { set(!on) })
+                    Tick("1 Rep Max tested", showTested) { showTested = it }
+                    Tick("Not tested yet", showUntested) { showUntested = it }
+                }
+            }
         }
         LazyColumn(Modifier.fillMaxSize().navigationBarsPadding(), contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)) {
             if (words.isEmpty()) item {
@@ -228,8 +273,9 @@ fun OneRmListScreen() {
                     ExerciseThumb(e, 48.dp)
                     Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                         NameText(starredName(e), fontWeight = FontWeight.Medium)
+                        val t = tests[id] ?: 0
                         Text((if (n == 0) "Not done yet" else "Done $n time${if (n == 1) "" else "s"}") +
-                            (r?.testedAt?.let { " · tested" } ?: ""), color = Sub, fontSize = 12.sp)
+                            (if (t > 0) " · 1RM tested ${if (t == 1) "once" else "$t times"}" else ""), color = Sub, fontSize = 12.sp)
                     }
                     if (r != null) Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         RankBadge(r.tier, 34.dp)
@@ -239,6 +285,7 @@ fun OneRmListScreen() {
                 }
             }
             item {
+                if (list.isNotEmpty() && shown.isEmpty() && words.isEmpty()) Text("No exercises match the filter.", color = Sub, modifier = Modifier.padding(vertical = 8.dp))
                 if (list.isEmpty()) Text("No ranked exercises done yet. Add one below, or log a workout first.", color = Sub,
                     modifier = Modifier.padding(vertical = 8.dp))
                 GreyButton("+ Add an exercise", Modifier.fillMaxWidth().padding(top = 8.dp), Blue) {
