@@ -1,0 +1,534 @@
+[
+  {
+    "exercise": "_meta",
+    "approach": "notes",
+    "numbers": "Search budget: ~34 WebSearch calls + several GitHub code searches. WebFetch/curl to journals, PMC, Crossref, OSF, Zenodo, IUSCA all blocked (proxy 403 / DNS). Every number below comes from search-result text (abstract snippets) or from GitHub-hosted notes, not from a full paper read, unless stated otherwise. Several high-value CC BY sources were FOUND but their tables could NOT be read (Piper IJSC 10RM norms; Sigvaldsen PLOS ONE; Fernandes Behav Sci). They are listed with numbers_status='not extracted' so someone with normal web access can pull the tables.",
+    "ratio_value_if_derivable": null,
+    "sources": [
+      {
+        "citation": "General legal position (not legal advice)",
+        "url": "https://en.wikipedia.org/wiki/Feist_Publications,_Inc.,_v._Rural_Telephone_Service_Co.",
+        "licence": "n/a",
+        "licence_evidence": "US: Feist v. Rural (1991): facts are not copyrightable; only original selection/arrangement/expression is. EU/UK: the sui generis database right can restrict extracting a substantial part of a database (relevant to scraping app/website datasets such as Strength Level), but reusing a few published means/SDs from a paper does not do that.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Means, SDs and ratios reported in a paywalled or NC/ND paper can be used as facts with citation. Do not copy table layouts, text or figures, and do not bulk-copy proprietary standards tables."
+      }
+    ],
+    "confidence": "n/a",
+    "verification": "n/a"
+  },
+  {
+    "exercise": "seated barbell press (also basis for standing barbell overhead press)",
+    "approach": "ratio to barbell bench press (same subjects)",
+    "numbers": "1RM, kg, mean +- SD; 24 sport-sciences students (12 men, 12 women). Horizontal bench press: men 94.2 +- 14.6, women 45.4 +- 10.1. Incline bench press: men 87.7 +- 11.6, women 41.6 +- 6.6. Seated military press (SMP): men 67.4 +- 7.8, women 37.3 +- 6.3. Load-velocity profiles were tested from 20% to 100% 1RM in 5% steps. Probably all on a Smith machine (not verified, check the full text).",
+    "ratio_value_if_derivable": {
+      "seated_military_press_to_bench_men": 0.716,
+      "seated_military_press_to_bench_women": 0.822,
+      "incline_to_bench_men": 0.931,
+      "incline_to_bench_women": 0.916,
+      "note": "Calculated from the group means (67.4/94.2, 37.3/45.4). Small n. Women's ratio is higher, consistent with a relatively weaker bench in women."
+    },
+    "sources": [
+      {
+        "citation": "Garcia-Ramos A, Suzovic D, Perez-Castilla A (2019/2021). The load-velocity profiles of three upper-body pushing exercises in men and women. Sports Biomechanics. (Authors and journal from memory; title confirmed by search.)",
+        "url": "https://www.researchgate.net/publication/331733001_The_load-velocity_profiles_of_three_upper-body_pushing_exercises_in_men_and_women",
+        "licence": "Subscription journal (Taylor & Francis), all rights reserved. Not separately verified by search.",
+        "licence_evidence": "No open-access licence was found in the search results. Only the ResearchGate abstract was shown.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Means and the ratio derived from them are uncopyrightable facts. Cite the paper; do not reproduce its tables or text."
+      }
+    ],
+    "confidence": "medium (same-subject design, both sexes; small n; Smith machine likely; seated, not standing)",
+    "verification": "search snippet (abstract text containing the kg values)"
+  },
+  {
+    "exercise": "barbell standing overhead press",
+    "approach": "ratio to seated press (then to bench) - standing vs seated and barbell vs dumbbell",
+    "numbers": "15 healthy men; 1RM in seated/standing x barbell/dumbbell shoulder presses. Search-snippet wording: 'Standing dumbbell 1RM was about 7% lower than standing barbell (p = 0.002) and about 10% lower than seated dumbbell (p < 0.001)'. The seated-barbell vs standing-barbell 1RM figure was NOT found in the snippets. Absolute kg values were not retrieved.",
+    "ratio_value_if_derivable": {
+      "standing_DB_to_standing_BB": 0.93,
+      "standing_DB_to_seated_DB": 0.9,
+      "derived_standing_OHP_to_bench_men": "approx 0.64-0.65 (0.716 seated:bench from Garcia-Ramos x ~0.90 standing:seated, IF the DB standing:seated gap also applies to the barbell; assumption)",
+      "derived_standing_OHP_to_bench_women": "approx 0.74 (0.822 x 0.90; same assumption)",
+      "note": "Dumbbell 1RM in this study is presumably the combined load of both dumbbells (not confirmed). Check the full text."
+    },
+    "sources": [
+      {
+        "citation": "Saeterbakken AH, Fimland MS (2013). Effects of body position and loading modality on muscle activity and strength in shoulder presses. J Strength Cond Res 27(7):1824-1831. doi:10.1519/JSC.0b013e318276b873",
+        "url": "https://www.bisp-surf.de/Record/PU201311007613",
+        "licence": "JSCR, subscription (Wolters Kluwer / NSCA), all rights reserved",
+        "licence_evidence": "No OA licence was found. A GitHub evidence file that cites it marks it '(abstract only)': https://github.com/ghosh-ayush/ai-trainer-ios/blob/main/docs/content/evidence-2-review.md",
+        "usable_commercially": "facts-only",
+        "reasoning": "Percent differences are facts. Secondary write-ups (breakingmuscle, fitnessvolt) disagree on which comparison each % belongs to, so verify against the abstract before use."
+      }
+    ],
+    "confidence": "low-medium (direction certain; exact attribution of 7%/10% needs abstract check; n=15 men only)",
+    "verification": "search snippet (secondary summaries + BISp record)"
+  },
+  {
+    "exercise": "barbell standing overhead press",
+    "approach": "ratio to barbell bench press (practitioner standards table, cross-check only)",
+    "numbers": "Kilgore 2023 strength standard tables, men aged 20-29, 57 kg row, kg (Physically Active / Beginner / Intermediate / Advanced / Elite). Bench 36/51/65/80/92; Press 23/32/42/51/67. Values as transcribed in a third-party GitHub research note, not read by me.",
+    "ratio_value_if_derivable": {
+      "press_to_bench_by_tier": [0.64, 0.63, 0.65, 0.64, 0.73],
+      "note": "Consistent with the ~0.64-0.65 derived above for men."
+    },
+    "sources": [
+      {
+        "citation": "Kilgore L (2023). Strength Standard Tables. Kilgore Academy. Transcribed in HelpMe-Pls/Life-Engineering Notes/strength-research/BARBELL.md",
+        "url": "https://raw.githubusercontent.com/HelpMe-Pls/Life-Engineering/e1e42df7fd54b2554a87e170946e820b7b60ccaa/Notes/strength-research/BARBELL.md",
+        "licence": "(c) 2023 Lon Kilgore PhD and the Kilgore Academy (file named 'Copyright-2023'); no open licence",
+        "licence_evidence": "Note quotes the source URL http://lonkilgore.com/resources/Lon_Kilgore_Strength_Standard_Tables-Copyright-2023.pdf and the attribution '(c) 2023 Lon Kilgore PhD and the Kilgore Academy'.",
+        "usable_commercially": "unclear",
+        "reasoning": "A compiled standards table is arguably protected expression, and its numbers are expert judgement, not measured data. Use only as a sanity check on a ratio, never as shipped standards."
+      }
+    ],
+    "confidence": "low (expert table, not population percentiles; second-hand transcription)",
+    "verification": "secondary (GitHub note); fetched raw file"
+  },
+  {
+    "exercise": "seated barbell press",
+    "approach": "direct (10RM percentile norms by sex and bodyweight category; convert 10RM to 1RM, e.g. Epley 10RM x 1.333)",
+    "numbers": "NOT EXTRACTED. College basic strength-training course, 18-25 y. Males n=1095 (collected over 5 years); females n=371 (mean pre-test body weight ~151 lb). Exercises: Lat Pulldown, Bench Press, Seated Front Press, Preacher Curl, Leg Press. Percentiles per bodyweight category (two weight-class systems from competitive lifting), weighted-average percentile break points, pre- and post-12-week training. Units appear to be lb.",
+    "numbers_status": "not extracted - tables in full text only (DOIs 10.47206/ijsc.v1i1.40 male, 10.47206/ijsc.v2i1.138 female)",
+    "ratio_value_if_derivable": "Seated front press : bench press and lat pulldown : bench press by sex and bodyweight would be derivable from the same people once the tables are read.",
+    "sources": [
+      {
+        "citation": "Piper T, et al. (2021). Establishing Normative Data for 10RM Strength Scores in College-Aged Males. International Journal of Strength and Conditioning 1(1). doi:10.47206/ijsc.v1i1.40",
+        "url": "https://doaj.org/article/974c2d84dcb14f80a0a46ab615894800",
+        "licence": "CC BY 4.0 (reported)",
+        "licence_evidence": "A search summary stated 'The male paper is CC BY 4.0 licensed'. Researcher.Life journal listing gives IJSC licence type 'CC BY' and DOAJ-indexed (https://www.researcher.life/journal/international-journal-of-strength-and-conditioning/25762). The DOAJ record exists (DOAJ requires a declared licence). The journal page itself was unreachable (DNS fail).",
+        "usable_commercially": "yes",
+        "reasoning": "CC BY allows commercial reuse, including tables, with attribution. Confirm the footer on the article page when the PDF is retrieved."
+      },
+      {
+        "citation": "Piper T, et al. (2022). Establishing Normative Data for 10RM Strength Scores in College-Aged Females. International Journal of Strength and Conditioning 2(1). doi:10.47206/ijsc.v2i1.138",
+        "url": "https://journal.iusca.org/index.php/Journal/article/view/138",
+        "licence": "CC BY 4.0 (journal-level, reported)",
+        "licence_evidence": "Same journal-level evidence as above (Researcher.Life 'CC BY', DOAJ record https://doaj.org/article/56ef004b5f844864afbd4531896a62ba).",
+        "usable_commercially": "yes",
+        "reasoning": "As above."
+      }
+    ],
+    "confidence": "high value / unverified numbers. Large n, both sexes, bodyweight classes, percentiles. Exactly the format the app needs.",
+    "verification": "search snippet (abstract/DOAJ); tables not seen"
+  },
+  {
+    "exercise": "seated dumbbell shoulder press",
+    "approach": "ratio to barbell bench press (6RM regression, same subjects)",
+    "numbers": "29 physically active college students (Hong Kong). Estimated 1RM bench 54.31 +- 14.60 kg (1RM/BW 0.80 +- 0.22). 6RM loads were tested. Prediction: DB shoulder press 6RM = 0.42 x bench-press 6RM + 5.84 kg (r with bench 0.80-0.93 across the four assistance lifts). Other equations: hammer curl = 0.28 x BP + 6.30; overhead triceps extension = 0.33 x BP - 0.60.",
+    "ratio_value_if_derivable": {
+      "DB_shoulder_press_6RM_over_bench_6RM_at_BP40kg": 0.566,
+      "at_BP60kg": 0.517,
+      "at_BP80kg": 0.493,
+      "note": "Unclear whether the DB load is one dumbbell or both. Combined is more plausible: per-dumbbell 25 kg+ at a 54 kg bench is unrealistic. If combined, per-dumbbell is about 0.25-0.28 x bench 6RM. Assumes 6RM ratios are roughly equal to 1RM ratios. Sex mix not stated in the snippet."
+    },
+    "sources": [
+      {
+        "citation": "Wong DP, Ngo KL, Tse MA, Smith AW (2013). Using bench press load to predict upper body exercise loads in physically active individuals. J Sports Sci Med 12(1):38-43. PMC3761768",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3761768/",
+        "licence": "CC BY-NC-ND 4.0 (JSSM site footer)",
+        "licence_evidence": "JSSM site footer: 'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License'. The same footer says 'the total or partial reproduction of this web site and the published materials is forbidden without written permission from JSSM' (https://www.jssm.org/hf.php).",
+        "usable_commercially": "facts-only",
+        "reasoning": "NC/ND bars commercial reuse of the article text and tables. The regression coefficients and means are facts and may be cited."
+      }
+    ],
+    "confidence": "medium-low (6RM not 1RM; per-dumbbell vs combined ambiguity; n=29)",
+    "verification": "search snippet (abstract)"
+  },
+  {
+    "exercise": "seated dumbbell shoulder press",
+    "approach": "ratio to seated/standing barbell press (Saeterbakken 2013)",
+    "numbers": "See the Saeterbakken entry. Standing DB is about 7% below standing BB, and standing DB about 10% below seated DB.",
+    "ratio_value_if_derivable": {
+      "seated_DB_combined_to_standing_BB": "approx 1.03 (0.93/0.90), i.e. seated DB per dumbbell about 0.52 x standing barbell OHP, if DB 1RM is the combined load",
+      "note": "Derived chain; verify against the abstract."
+    },
+    "sources": [
+      {
+        "citation": "Saeterbakken AH, Fimland MS (2013) J Strength Cond Res 27(7):1824-31",
+        "url": "https://www.bisp-surf.de/Record/PU201311007613",
+        "licence": "subscription, all rights reserved",
+        "licence_evidence": "As above.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only."
+      }
+    ],
+    "confidence": "low-medium",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "machine shoulder press",
+    "approach": "ratio to barbell bench press (same subjects) - numbers NOT extracted",
+    "numbers": "NOT EXTRACTED. 15 men + 15 women aged 18-35 with at least 3 months of resistance training; 1RM measured twice for biceps curl, lat pull down, bench press, leg curl, hip flexion, triceps extension, shoulder press, low row, leg extension, hip extension, leg press, squat. ICC > 0.91 for all. Table 2 has test/retest values by sex.",
+    "numbers_status": "not extracted (Table 2 in the full text: https://www.jssm.org/volume11/iss2/cap/jssm-11-221.pdf)",
+    "ratio_value_if_derivable": "shoulder press : bench, lat pull down : bench, low row : bench, by sex, once Table 2 is read",
+    "sources": [
+      {
+        "citation": "Seo DI, Kim E, Fahs CA, et al. (2012). Reliability of the one-repetition maximum test based on muscle group and gender. J Sports Sci Med 11(2):221-225. PMC3737872",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3737872",
+        "licence": "CC BY-NC-ND 4.0 (JSSM site footer)",
+        "licence_evidence": "As for Wong 2013: JSSM footer CC BY-NC-ND 4.0 plus 'reproduction ... forbidden without written permission'.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Per-sex means can be used as facts once extracted. Machine vs free weight is not stated in the snippet."
+      }
+    ],
+    "confidence": "high value / numbers missing",
+    "verification": "search snippet (abstract)"
+  },
+  {
+    "exercise": "machine shoulder press",
+    "approach": "direct (app crowd data) - cross-check only, NOT for use",
+    "numbers": "Strength Level averages (search snippet): seated shoulder press 70 kg men / 31 kg women; shoulder press (standing) 62 kg men / 33 kg women (5,644,500 lifts); chest press 86/37; lat pulldown 82/47 (2,011,718 lifts).",
+    "ratio_value_if_derivable": null,
+    "sources": [
+      {
+        "citation": "Strength Level, strength standards pages",
+        "url": "https://strengthlevel.com/strength-standards/seated-shoulder-press/kg",
+        "licence": "Proprietary website; terms not checked",
+        "licence_evidence": "No licence statement in the snippets. These are the user-submitted data the brief is moving away from.",
+        "usable_commercially": "no",
+        "reasoning": "Proprietary compiled dataset (EU database-right risk). Self-selected, self-reported lifters. Use at most as an internal sanity check."
+      }
+    ],
+    "confidence": "low",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "push press",
+    "approach": "ratio to clean & jerk (via jerk 1RM) - same subjects",
+    "numbers": "18 resistance-trained men; 1RM tested 3-7 days before loading protocol. Push press 89.7 +- 15.4 kg; push jerk 95.6 +- 14.4 kg; split jerk 103.0 +- 16.9 kg.",
+    "ratio_value_if_derivable": {
+      "push_press_to_split_jerk": 0.871,
+      "push_press_to_push_jerk": 0.938,
+      "push_press_to_clean_and_jerk": "approx 0.87 IF split-jerk-from-rack is about equal to C&J. For non-weightlifters the clean often limits C&J, so PP:C&J may be 0.9-1.0. Assumption, not measured.",
+      "note": "Men only. Resistance-trained, not competitive weightlifters."
+    },
+    "sources": [
+      {
+        "citation": "Soriano MA, et al. (2024). Kinetics and kinematics of the push press, push jerk, and split jerk. J Strength Cond Res. doi:10.1519/JSC.0000000000004810",
+        "url": "https://eprints.chi.ac.uk/id/eprint/7743/",
+        "licence": "JSCR, subscription. Accepted manuscript in the Univ. of Chichester eprints (also ECU, UCJC, Salford repositories), repository licence not seen.",
+        "licence_evidence": "Search result lists repository copies (eprints.chi.ac.uk/id/eprint/7743, ro.ecu.edu.au/ecuworks2022-2026/4438, repositorio.ucjc.edu/handle/20.500.12020/1496). No CC licence was shown in the snippets.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Means are facts. A repository manuscript is free to read but not necessarily open-licensed."
+      }
+    ],
+    "confidence": "medium (same-subject 1RMs; n=18 men; jerk-to-C&J step assumed)",
+    "verification": "search snippet (abstract text with the kg values)"
+  },
+  {
+    "exercise": "push press",
+    "approach": "direct (single group mean, no bodyweight split)",
+    "numbers": "16 resistance-trained people; push press 1RM 76.5 +- 19.5 kg. Push presses, push jerks and split jerks were then done at 80% of push-press 1RM (no separate jerk 1RM).",
+    "ratio_value_if_derivable": null,
+    "sources": [
+      {
+        "citation": "Soriano MA, et al. (2021). No differences in weightlifting overhead pressing exercises kinetics. PubMed 34704894 (journal not confirmed; likely Sports Biomechanics)",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/34704894",
+        "licence": "subscription, not verified",
+        "licence_evidence": "Repository record https://eprints.chi.ac.uk/id/eprint/6053/. No CC licence seen.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only. Low value without a same-subject reference lift."
+      }
+    ],
+    "confidence": "low",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "barbell bent-over row",
+    "approach": "ratio to barbell bench press (same subjects) - numbers NOT extracted",
+    "numbers": "NOT EXTRACTED. 20 young (mean 21 y) + 20 middle-aged (42.6 y) resistance-trained men; 1RM bench press, back squat and bent-over row tested, then load-velocity sets at 20-80% 1RM.",
+    "numbers_status": "not extracted (open PDF: https://digibug.ugr.es/bitstream/10481/68431/1/behavsci-11-00071.pdf)",
+    "ratio_value_if_derivable": "bent-over row : bench and row : squat, by age group, once Table 1 is read",
+    "sources": [
+      {
+        "citation": "Fernandes JFT, et al. (2021). Prediction of one repetition maximum using reference minimum velocity threshold values in young and middle-aged resistance-trained males. Behavioral Sciences 11(5):71. PMC8151422",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8151422/",
+        "licence": "CC BY 4.0 (MDPI standard; not confirmed on the article page)",
+        "licence_evidence": "MDPI publishes all articles under CC BY 4.0 (publisher-wide policy, from prior knowledge). The paper is in open repositories (digibug.ugr.es, Cardiff Met). Not checked by search because of the budget.",
+        "usable_commercially": "yes",
+        "reasoning": "CC BY permits commercial reuse with attribution. Confirm the licence line on the PDF."
+      }
+    ],
+    "confidence": "high value / numbers missing (men only)",
+    "verification": "search snippet (abstract)"
+  },
+  {
+    "exercise": "barbell bent-over row",
+    "approach": "ratio to barbell bench press (prone bench pull as proxy row, same subjects) - numbers NOT extracted",
+    "numbers": "NOT EXTRACTED. 28 recreationally active subjects (22 men, 6 women; 25 +- 2 y; 78 +- 9 kg). Smith-machine bench press and prone bench pull; actual 1RM, load-velocity, isometric and reps-to-failure methods. ICC > 0.96.",
+    "numbers_status": "not extracted (PMC10343053 results tables)",
+    "ratio_value_if_derivable": "prone bench pull : Smith bench in recreational adults, once tables are read",
+    "sources": [
+      {
+        "citation": "Sigvaldsen E, et al. (2023). Validity and reliability of upper body push and pull tests to determine one-repetition maximum. PLoS ONE 18(7):e0288649",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10343053/",
+        "licence": "CC BY 4.0 (PLOS ONE publishes all articles under CC BY; not confirmed on the article page)",
+        "licence_evidence": "PLOS publisher-wide policy: all content CC BY 4.0 (prior knowledge). IDEAS/RePEc record https://ideas.repec.org/a/plo/pone00/0288649.html.",
+        "usable_commercially": "yes",
+        "reasoning": "CC BY. Data may also be in a PLOS data-availability supplement (PLOS requires data sharing), which could give individual-level 1RMs."
+      }
+    ],
+    "confidence": "high value / numbers missing; mostly male",
+    "verification": "search snippet (abstract)"
+  },
+  {
+    "exercise": "barbell bent-over row",
+    "approach": "ratio to barbell bench press (prone bench pull, elite athletes)",
+    "numbers": "Elite male athletes. Rugby union: bench press ~142 kg, bench pull ~108 kg; BPr:BPl = 132% +- 6% (close-grip BP:BPl 114% +- 6%). Water polo: ~95 kg vs ~84 kg; BPr:BPl = 112% +- 11% (close-grip 109% +- 9%).",
+    "ratio_value_if_derivable": {
+      "bench_pull_to_bench_rugby": 0.758,
+      "bench_pull_to_bench_water_polo": 0.893,
+      "note": "Prone bench pull, not bent-over row. Elite athletes, not gym-goers. The ratio falls as pressing strength rises."
+    },
+    "sources": [
+      {
+        "citation": "A preliminary analysis of horizontal upper body pushing and pulling strength ratios in elite male athletes (authors/journal not confirmed; SPONET/LIDA record 4024315)",
+        "url": "https://lida.sport-iat.de/ta/Record/4024315",
+        "licence": "unknown",
+        "licence_evidence": "Only the bibliographic record was seen. No licence information.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only. Population mismatch."
+      },
+      {
+        "citation": "Baker D, Newton RU (2004). An analysis of the ratio and relationship between upper body pressing and pulling strength. J Strength Cond Res 18(3):594-598",
+        "url": "https://springerplus.springeropen.com/articles/10.1186/s40064-015-1539-9",
+        "licence": "JSCR subscription (the SpringerPlus citing paper is CC BY)",
+        "licence_evidence": "Secondary description from SpringerPlus 2015 (CC BY journal): pulling measured by '1RM pull up', BP/pull ratio ~97%, r = 0.81. This conflicts with the common citation that Baker & Newton used the bench pull. Unresolved.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Secondary and conflicting. Elite rugby league players."
+      }
+    ],
+    "confidence": "low for gym-goers",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "barbell bent-over row",
+    "approach": "direct context (prone bench pull vs body mass, athletes)",
+    "numbers": "15 male competitive rowers, 16.7 +- 1.7 y, body mass 67.8 +- 8.0 kg, prone bench pull 1RM 71.9 +- 23.3 kg (about 1.06 x BW); 1RM estimated from load-velocity (0.50 m/s).",
+    "ratio_value_if_derivable": {
+      "bench_pull_to_bodyweight": 1.06
+    },
+    "sources": [
+      {
+        "citation": "Velocity-based resistance training before 2000-m rowing ergometer test in rowers (Univ. of Granada group; exact citation not captured; JSCR-style manuscript) - text found in GitHub repo joewarne/Theory-Extraction-Project files/xml_files_theory/Study078.xml",
+        "url": "https://github.com/joewarne/Theory-Extraction-Project/blob/main/files/xml_files_theory/Study078.xml",
+        "licence": "unknown (likely subscription)",
+        "licence_evidence": "The GitHub repo holds a GROBID TEI extraction of the paper. No licence attached.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only. Adolescent rowers, not relevant to gym-goer percentiles."
+      }
+    ],
+    "confidence": "low relevance",
+    "verification": "full text (TEI extraction on GitHub), methods section"
+  },
+  {
+    "exercise": "lat pulldown",
+    "approach": "direct (relative 1RM/BW percentile norms by sex and age) - numbers NOT extracted",
+    "numbers": "NOT EXTRACTED. 579 healthy adults aged 18-65 (245 women, 334 men), Turkey. Lat pulldown 8-12RM converted to 1RM with Epley; relative strength = 1RM/BW; descriptive stats and frequency distribution in 5% steps (percentiles) by sex and age.",
+    "numbers_status": "not extracted (full text at Marmara open-access repository)",
+    "ratio_value_if_derivable": "lat pulldown 1RM / bodyweight percentiles by sex (and age)",
+    "sources": [
+      {
+        "citation": "Yetiskin bireylerde sirt kaslarinin rolatif kuvvet norm degerlerinin belirlenmesi [Determination of relative strength norm values of back muscles in adults]. Marmara University (thesis/article).",
+        "url": "https://openaccess.marmara.edu.tr/entities/publication/7af02df7-46b5-48ab-9695-ac38c1e7d7f3",
+        "licence": "unknown (open-access institutional repository; item licence not seen)",
+        "licence_evidence": "Only the repository abstract was in the search results. Turkish university repositories often use CC BY-NC-ND or 'all rights reserved' for theses. Check the item page.",
+        "usable_commercially": "unclear",
+        "reasoning": "Percentile values are facts and usable as such even if the PDF is NC. Population is ordinary adults, exactly the target."
+      }
+    ],
+    "confidence": "high value / numbers missing",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "lat pulldown",
+    "approach": "direct 10RM percentiles by sex and bodyweight + ratio to bench (same subjects) - Piper IJSC",
+    "numbers": "See the Piper entry under seated barbell press. Lat Pulldown 10RM percentile tables by pre-training body-weight category exist for males (ResearchGate table 'Percentile ranks and descriptive statistics for Lat Pulldown Pre-Training Body Weight') and females.",
+    "numbers_status": "not extracted",
+    "ratio_value_if_derivable": "lat pulldown : bench by sex and bodyweight class (same people)",
+    "sources": [
+      {
+        "citation": "Piper T, et al. (2021, 2022) IJSC 10RM norms",
+        "url": "https://www.researchgate.net/figure/Percentile-ranks-and-descriptive-statistics-for-Lat-Pulldown-Pre-Training-Body-Weight_tbl3_350035798",
+        "licence": "CC BY 4.0 (reported)",
+        "licence_evidence": "See the Piper entry above.",
+        "usable_commercially": "yes",
+        "reasoning": "CC BY."
+      }
+    ],
+    "confidence": "high value / numbers missing",
+    "verification": "search snippet (table title only)"
+  },
+  {
+    "exercise": "lat pulldown",
+    "approach": "ratio to bench press / chest press (same subjects) - numbers NOT extracted",
+    "numbers": "Hoeger 1990: untrained males n=38, untrained females n=40, plus trained males and females; 1RM measured for leg press, lat pull-down, bench press, leg extension, sit-up, leg curl, arm curl (then reps at 40/60/80%). Seo 2012 (see machine shoulder press entry): lat pull down + bench press 1RM, 15 M / 15 F.",
+    "numbers_status": "not extracted (Hoeger tables only in the print journal; Seo Table 2 in the JSSM PDF)",
+    "ratio_value_if_derivable": "lat pulldown : bench by sex and training status",
+    "sources": [
+      {
+        "citation": "Hoeger WWK, Hopkins DR, Barette SL, Hale DF (1990). Relationship between repetitions and selected percentages of one repetition maximum: a comparison between untrained and trained males and females. J Appl Sport Sci Res 4(2):47-54",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10933212/",
+        "licence": "subscription (NSCA journal predecessor of JSCR); no OA",
+        "licence_evidence": "Only bibliographic citations were seen (e.g. in Nuzzo et al. 2023 meta-regression, PMC10933212, which is CC BY).",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only once obtained. The Nuzzo 2023 meta-regression (Sports Med, CC BY) may hold extracted study-level data in its supplement or OSF, worth checking for 1RMs."
+      },
+      {
+        "citation": "Seo DI, et al. (2012) J Sports Sci Med 11:221-225",
+        "url": "https://www.jssm.org/volume11/iss2/cap/jssm-11-221.pdf",
+        "licence": "CC BY-NC-ND 4.0",
+        "licence_evidence": "JSSM footer (see the Wong entry).",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only."
+      }
+    ],
+    "confidence": "numbers missing",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "lat pulldown",
+    "approach": "ratio to chest press (muscular ENDURANCE, not 1RM) - weak proxy",
+    "numbers": "212 healthy sedentary participants; reps to exhaustion at 30% of bodyweight on lat machine and chest press. Lat machine : chest press reps ratio 1.36:1 (male), 2.69:1 (female).",
+    "ratio_value_if_derivable": {
+      "note": "Endurance-rep ratio, not a 1RM ratio. It only shows that relative pulldown capacity is high in women vs pressing. Do not convert."
+    },
+    "sources": [
+      {
+        "citation": "Thomas E, et al. (2015). Determination of a strength index for upper body local endurance strength in sedentary individuals. SpringerPlus 4:787 (approx). doi:10.1186/s40064-015-1539-9",
+        "url": "https://springerplus.springeropen.com/articles/10.1186/s40064-015-1539-9",
+        "licence": "CC BY 4.0 (SpringerPlus/SpringerOpen standard)",
+        "licence_evidence": "SpringerOpen journals publish under CC BY 4.0 (publisher-wide; not checked on the page).",
+        "usable_commercially": "yes",
+        "reasoning": "Licence fine, but the metric does not map to 1RM."
+      }
+    ],
+    "confidence": "low relevance",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "seated cable row",
+    "approach": "ratio to bench press (same subjects) - numbers NOT extracted",
+    "numbers": "Seo 2012: 'low row' 1RM + bench press 1RM, 15 M / 15 F resistance-trained 18-35 y (Table 2).",
+    "numbers_status": "not extracted",
+    "ratio_value_if_derivable": "low row : bench by sex",
+    "sources": [
+      {
+        "citation": "Seo DI, et al. (2012) J Sports Sci Med 11:221-225. PMC3737872",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3737872",
+        "licence": "CC BY-NC-ND 4.0",
+        "licence_evidence": "JSSM footer.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Facts only."
+      }
+    ],
+    "confidence": "numbers missing",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "upright row",
+    "approach": "none found with numbers",
+    "numbers": "McAllister et al.: 16 weight-trained men; upright row 1RM determined at 100% biacromial-breadth grip, trials at 85% 1RM with 3 grip widths. Absolute 1RM not in the snippet.",
+    "numbers_status": "not extracted",
+    "ratio_value_if_derivable": null,
+    "sources": [
+      {
+        "citation": "McAllister MJ, et al. (2013). Effect of grip width on electromyographic activity during the upright row. J Strength Cond Res. PubMed 22362088",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/22362088/",
+        "licence": "subscription",
+        "licence_evidence": "PubMed record only.",
+        "usable_commercially": "facts-only",
+        "reasoning": "Even if extracted, no same-subject reference lift."
+      }
+    ],
+    "confidence": "missing",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "Arnold press",
+    "approach": "none found",
+    "numbers": "No study reporting Arnold press 1RM, or a ratio to the DB shoulder press, was found.",
+    "ratio_value_if_derivable": null,
+    "sources": [],
+    "confidence": "missing",
+    "verification": "n/a"
+  },
+  {
+    "exercise": "one-arm dumbbell row",
+    "approach": "none found",
+    "numbers": "No research 1RM data. Only app/calculator pages (planfit, gymkee, arvo.guru) turned up.",
+    "ratio_value_if_derivable": null,
+    "sources": [],
+    "confidence": "missing",
+    "verification": "n/a"
+  },
+  {
+    "exercise": "bent-over dumbbell row",
+    "approach": "none found",
+    "numbers": "No research 1RM data found.",
+    "ratio_value_if_derivable": null,
+    "sources": [],
+    "confidence": "missing",
+    "verification": "n/a"
+  },
+  {
+    "exercise": "T-bar row",
+    "approach": "none found",
+    "numbers": "No research 1RM data or T-bar : barbell-row ratio found.",
+    "ratio_value_if_derivable": null,
+    "sources": [],
+    "confidence": "missing",
+    "verification": "n/a"
+  },
+  {
+    "exercise": "face pull",
+    "approach": "none found",
+    "numbers": "No 1RM research data. Face pull is rarely 1RM-tested.",
+    "ratio_value_if_derivable": null,
+    "sources": [],
+    "confidence": "missing",
+    "verification": "n/a"
+  },
+  {
+    "exercise": "dumbbell pullover",
+    "approach": "none found",
+    "numbers": "Only a standards website (shibamuscle.com) turned up. No research 1RM data.",
+    "ratio_value_if_derivable": null,
+    "sources": [
+      {
+        "citation": "shibamuscle.com Dumbbell Pullover strength standards",
+        "url": "https://shibamuscle.com/en/kg_dumbbell-pullover.html",
+        "licence": "proprietary website",
+        "licence_evidence": "No licence seen.",
+        "usable_commercially": "no",
+        "reasoning": "Unknown provenance."
+      }
+    ],
+    "confidence": "missing",
+    "verification": "search snippet"
+  },
+  {
+    "exercise": "barbell bent-over row / general push:pull",
+    "approach": "ratio (ISOMETRIC push vs pull) - weak proxy",
+    "numbers": "Elite Swedish throwers, 8 F + 9 M, custom bench press (push) vs supine bench row (pull), isometric. Push:pull 1.15 (F), 1.22 (M). Women's push/pull force 47-71% of men's. ICC 0.93-0.96.",
+    "ratio_value_if_derivable": {
+      "pull_to_push_isometric_women": 0.87,
+      "pull_to_push_isometric_men": 0.82,
+      "note": "Isometric, elite throwers. Not 1RM."
+    },
+    "sources": [
+      {
+        "citation": "Augustsson J, Gunhamn T, Andersson H (2024). An assessment of the ratio between upper body push and pull strength in female and male elite Swedish track and field throwers. Sports (MDPI). PMC11359276",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11359276/",
+        "licence": "CC BY 4.0 (MDPI standard)",
+        "licence_evidence": "MDPI publisher-wide CC BY 4.0 (prior knowledge). DOAJ record https://doaj.org/article/7641b35ac7954ef6839008aead4d15ea.",
+        "usable_commercially": "yes",
+        "reasoning": "Licence fine, but the metric does not map to 1RM."
+      }
+    ],
+    "confidence": "low relevance",
+    "verification": "search snippet"
+  }
+]

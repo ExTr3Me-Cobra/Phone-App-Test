@@ -1,0 +1,268 @@
+[
+  {
+    "rank": 1,
+    "name": "OpenPowerlifting (opl-data / opl-csv bulk CSV)",
+    "url": "https://gitlab.com/openpowerlifting/opl-data ; bulk CSV: https://openpowerlifting.gitlab.io/opl-csv/",
+    "licence": "Public domain dedication (LICENSE-DATA): 'OpenPowerlifting data is contributed to the public domain... To the extent possible under law, all CSV data is waived of all copyright and related or neighboring rights. The work is published from the United States.' Attribution optional; sample text: 'This page uses data from the OpenPowerlifting project, https://www.openpowerlifting.org. You may download a copy of the data at https://gitlab.com/openpowerlifting/opl-data.' Code is AGPL-3.0 (separate). Kaggle mirror 'open-powerlifting/powerlifting-database' listed as CC0.",
+    "licence_verified": "Read directly from gitlab LICENSE-DATA",
+    "commercial_use": "SAFE - public domain",
+    "metrics": "Squat, bench press, deadlift (best + attempts), total, Dots/Wilks/Goodlift, equipment, event type, tested flag",
+    "population": "Millions of competition entries worldwide (hundreds of federations); competitive powerlifters",
+    "bodyweight": true, "sex": true, "age": "yes (Age, AgeClass, BirthYearClass where known)",
+    "downloadable": true,
+    "notes": "Already in use. Competitive-lifter population skews strong; use with a general-population adjustment."
+  },
+  {
+    "rank": 2,
+    "name": "OpenWeightlifting (event_data CSVs)",
+    "url": "https://github.com/euanwm/OpenWeightlifting (event_data/) ; site https://www.openweightlifting.org ; API api.openweightlifting.org",
+    "licence": "Data public domain. README: 'OpenWeightlifting data (*.csv) under event_data/ is contributed to the public domain... To the extent possible under law, all data (*.csv) in the event_data/ folder is waived of all copyright and related or neighboring rights. The work is published from the United Kingdom.' Attribution optional; sample text: 'This page uses data from the OpenWeightlifting project, https://www.openweightlifting.org. You may download a copy of the data at https://github.com/euanwm/OpenWeightlifting.' Code BSD-3-Clause.",
+    "licence_verified": "Read directly from repo README (cloned, HEAD 2026-09-27)",
+    "commercial_use": "SAFE - public domain",
+    "metrics": "Snatch attempts 1-3, clean & jerk attempts 1-3 (negative = miss), best snatch, best C&J, total",
+    "population": "Olympic weightlifting meet results scraped from national governing bodies. File counts per folder: FFH (France) 10062, US (USA Weightlifting) 7456, AUS 1999, UK 1067, NVF (Norway) 835, IWF 539, CH 111, IRE 23. ~22k meet files.",
+    "csv_columns": "meet,date,age_category,lifter,body_weight_(kg),snatch_lift_1,snatch_lift_2,snatch_lift_3,c&j_lift_1,c&j_lift_2,c&j_lift_3,best_snatch,best_c&j,total",
+    "bodyweight": true, "sex": "derivable from age_category text (e.g. \"Open Men's 85 kg\")", "age": "age category only (Open/Junior/Youth/Masters), no exact age",
+    "downloadable": true,
+    "notes": "Best open weightlifting source. Sex/age must be parsed from category string; formats vary by federation."
+  },
+  {
+    "rank": 3,
+    "name": "NHANES Muscle Strength - Grip Test (MGX_G 2011-12, MGX_H 2013-14)",
+    "url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2011/DataFiles/MGX_G.htm ; https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2013/DataFiles/MGX_H.htm",
+    "licence": "US federal government work - public domain (CDC: 'Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced'). Public-use files subject to NCHS Data User Agreement: use only for statistical analysis/reporting, no re-identification attempts, no linkage to identifiable data. Attribution to CDC/NCHS + no-endorsement disclaimer expected.",
+    "commercial_use": "SAFE (public domain) - building aggregate percentile tables is statistical reporting; do not redistribute in a way that enables re-identification",
+    "metrics": "Handgrip strength (Takei dynamometer), 3 trials each hand, combined grip (sum of best each hand), kg",
+    "population": "~13,676 US participants aged 6-80 (2011-14 combined); nationally representative with exam sample weights",
+    "bodyweight": "yes via merge with BMX (body measures) file on SEQN", "sex": "yes via DEMO file", "age": "yes via DEMO file",
+    "downloadable": true,
+    "aggregate_numbers": {
+      "source": "Perna et al. 2016 J Strength Cond Res (CDC author manuscript, stacks.cdc.gov/view/cdc/90691) - NHANES 2011-12",
+      "peak_combined_grip_age_30_39_lb": {"men": 216.4, "women": 136.5},
+      "single_hand_dominant_mean_range": "50.3 kg (men 30-34 dominant) down to 10.0 kg (6-yr-old girls nondominant) - Wang et al. J Hand Ther 2018 (not gov work, cite only)",
+      "adult_median_best_single_hand_kg_approx": {"men": 47, "women": 29}
+    },
+    "notes": "Fetching cdc.gov was blocked from this sandbox; licence wording from search results. Grip is a good general-population anchor."
+  },
+  {
+    "rank": 4,
+    "name": "NHANES National Youth Fitness Survey 2012 (NNYFS) - modified pull-up, plank, knee extension, grip",
+    "url": "https://wwwn.cdc.gov/Nchs/Data/Nnyfs/Public/2012/DataFiles/Y_MPX.htm ; Data Brief 139 https://www.cdc.gov/nchs/products/databriefs/db139.htm",
+    "licence": "US federal government work - public domain; NCHS Data User Agreement (statistical use only). NOTE: combined NHANES2012+NNYFS grip file (C_MGX) is RDC-restricted, not public.",
+    "commercial_use": "SAFE (public files); grip file C_MGX NOT available",
+    "metrics": "Modified pull-ups (count), plank hold (s), isokinetic knee extension (lb), grip (restricted), cardio",
+    "population": "~1,224-1,600 US youth aged 3-15",
+    "bodyweight": true, "sex": true, "age": true,
+    "downloadable": true,
+    "aggregate_numbers": {
+      "source": "NCHS Data Brief 139 (public domain), US 2012",
+      "plank_mean_seconds": {"boys_6_11": 59.5, "boys_12_15": 90.9, "girls_6_11": 60.6, "girls_12_15": 77.3},
+      "modified_pullups_mean": {"boys_6_11": 5.0, "boys_12_15": 9.8, "girls_6_11": 4.3, "girls_12_15": 3.7},
+      "knee_extension_max_force_lb": {"boys_6_11": 43.2, "boys_12_15": 86.1, "girls_6_11": 44.4, "girls_12_15": 77.2}
+    },
+    "notes": "Youth only; values via search snippets of db139 table - verify against db139_table.pdf."
+  },
+  {
+    "rank": 5,
+    "name": "NHANES 1999-2002 Muscle Strength (MSX, MSX_B) - isokinetic knee extensor",
+    "url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/1999/DataFiles/MSX.htm ; https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2001/DataFiles/MSX_B.htm",
+    "licence": "US federal government work - public domain; NCHS Data User Agreement",
+    "commercial_use": "SAFE",
+    "metrics": "Isokinetic knee extensor peak force (Kin Com dynamometer, 60 deg/s), 20-ft walk",
+    "population": "US adults aged 50+ (several thousand)",
+    "bodyweight": "via BMX merge", "sex": "via DEMO", "age": "via DEMO",
+    "downloadable": true,
+    "notes": "Older adults only; useful for age-decline curves, not gym lifts."
+  },
+  {
+    "rank": 6,
+    "name": "Canadian Health Measures Survey grip strength reference values (Wong 2016, Health Reports 82-003-X) + CHMS Cycle 1/2 data tables",
+    "url": "https://www150.statcan.gc.ca/n1/pub/82-003-x/2016010/article/14665-eng.htm (tables tbl01-tbl03) ; Cycle 1 tables https://www150.statcan.gc.ca/n1/pub/82-623-x/82-623-x2010002-eng.pdf",
+    "licence": "Statistics Canada Open Licence - worldwide, royalty-free right to use, reproduce, sell and redistribute incl. commercial; must acknowledge 'Source: Statistics Canada' (e.g. 'Adapted from Statistics Canada, <product>, <date>'), not misrepresent, no implied endorsement.",
+    "commercial_use": "SAFE with attribution (OGL-style)",
+    "metrics": "Max grip strength (kg), percentiles P5-P95 by sex and single year of age (reference equations using age, sex, height, weight)",
+    "population": "11,108 Canadians aged 6-79, 2007-2013",
+    "bodyweight": "used in reference equations", "sex": true, "age": true,
+    "downloadable": "tables (HTML/PDF); microdata only via RDC",
+    "aggregate_numbers": {
+      "table1_mean_max_grip_kg_age_6_79": {"all": 34.5, "male": 42.8, "female": 26.2},
+      "table1_sd_kg": {"all": 13.2, "male": 13.0, "female": 6.6},
+      "pattern": "rises through adolescence, peaks ~age 40, then declines"
+    },
+    "notes": "statcan.gc.ca fetch blocked from sandbox; numbers from search snippets of Table 1 - verify full table."
+  },
+  {
+    "rank": 7,
+    "name": "van den Hoek et al. 2024 - Normative data for squat, bench press, deadlift (809,986 entries) - JSAMS",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/39060209/ ; https://www.jsams.org/article/S1440-2440(24)00246-9/fulltext ; tool thestrengthinitiative.com",
+    "licence": "Article open access CC BY 4.0 (tables reusable with attribution); underlying data = OpenPowerlifting (public domain)",
+    "commercial_use": "SAFE with attribution (CC BY 4.0) - but it is a paper, so prefer recomputing from OpenPowerlifting",
+    "metrics": "Squat/bench/deadlift relative to bodyweight, P10-P90 by sex, UN age class, weight class",
+    "population": "809,986 entries (571,650 M / 238,336 F), drug-tested raw powerlifting",
+    "bodyweight": true, "sex": true, "age": true,
+    "downloadable": "tables in article supplement",
+    "aggregate_numbers": {
+      "p90_xBW_age_18_35": {"squat": {"male": 2.83, "female": 2.26}, "bench": {"male": 1.95, "female": 1.35}, "deadlift": {"male": 3.25, "female": 2.66}},
+      "p90_squat_xBW_age_80plus": {"male": 1.72, "female": 1.01}
+    },
+    "notes": "Good validation target for our own OPL-derived percentiles."
+  },
+  {
+    "rank": 8,
+    "name": "Army Physical Fitness Test (APFT): Normative Data on 6022 Soldiers (Knapik et al. 1993, DTIC ADA274547)",
+    "url": "https://apps.dtic.mil/sti/html/tr/ADA274547/index.html",
+    "licence": "US government technical report, approved for public release - public domain (US gov work)",
+    "commercial_use": "SAFE",
+    "metrics": "2-min push-ups, 2-min sit-ups, 2-mile run; raw-score percentiles (Tables 4-18) and points percentiles by age/sex group",
+    "population": "5,346 male + 676 female US Army soldiers, 1988 survey, 14 installations",
+    "bodyweight": false, "sex": true, "age": "age groups",
+    "downloadable": "PDF tables (not machine-readable)",
+    "notes": "Only push-up distribution source found with clear PD status; dated (1988). Tables not read (PDF fetch not possible here)."
+  },
+  {
+    "rank": 9,
+    "name": "US military fitness score tables (Army Fitness Test/ACFT, USMC PFT/CFT, Navy PRT, Air Force PFA)",
+    "url": "Army: https://www.army.mil/aft (FM 7-22 / scoring tables); others on service sites",
+    "licence": "US federal government works - public domain",
+    "commercial_use": "SAFE",
+    "metrics": "3RM hex-bar deadlift, hand-release push-ups, plank, pull-ups (USMC), sprint-drag-carry, run; points-by-score tables by age/sex",
+    "population": "Scoring standards, NOT result distributions",
+    "bodyweight": false, "sex": true, "age": true,
+    "downloadable": "PDF tables",
+    "aggregate_numbers": {
+      "AFT_deadlift_17_21": "Combat standard male: 60 pts = 150 lb, 100 pts = 340 lb; general female: 60 pts = 120 lb (from third-party reproductions of June 2025 tables)",
+      "ACFT_field_test_mean_deadlift_lb": {"male": 238, "female": 160, "source": "Military.com 2019 report of Army field test (secondary, not gov doc)"}
+    },
+    "notes": "No official open dataset of per-soldier results found; standards only."
+  },
+  {
+    "rank": 10,
+    "name": "FitnessVolt Strength Standards Data & API",
+    "url": "https://fitnessvolt.com/strength-standards/strength-data/ ; developers page https://fitnessvolt.com/strength-standards/developers/",
+    "licence": "Claimed CC BY 4.0; attribution 'Powered by FitnessVolt' linking https://fitnessvolt.com/strength-standards/",
+    "commercial_use": "CAUTION - CC BY 4.0 on paper, but its gym percentiles come from the 'Symmetric Strength' dataset (self-reported, third-party; upstream licence unverified). Competition percentiles derive from OpenPowerlifting (PD).",
+    "metrics": "Percentile tables by bodyweight class for squat/bench/deadlift and other lifts; two populations (competition vs gym)",
+    "population": "OPL + Symmetric Strength users",
+    "bodyweight": true, "sex": true, "age": "unclear",
+    "downloadable": "JSON API (no key)",
+    "notes": "Do not rely on without written confirmation that FitnessVolt holds rights to the Symmetric Strength data."
+  },
+  {
+    "rank": 11,
+    "name": "Kaggle - CrossFit Athletes (ulrikthygepedersen/crossfit-athletes)",
+    "url": "https://www.kaggle.com/datasets/ulrikthygepedersen/crossfit-athletes",
+    "licence": "UNKNOWN / unverified (Kaggle page not reachable; uploader's other datasets are CC BY 4.0). Data originally scraped from games.crossfit.com athlete profiles (CrossFit-owned; ToS likely prohibits commercial reuse).",
+    "commercial_use": "NOT SAFE - upstream scraped from CrossFit LLC site; uploader licence cannot cure that",
+    "metrics": "fran, helen, grace, filthy50, fgonebad, run400, run5k, candj, snatch, deadlift, backsq, pullups (self-reported)",
+    "population": "423,006 rows x 27 cols (CrossFit Open registrants, ~2015-era scrape)",
+    "bodyweight": true, "sex": true, "age": true,
+    "downloadable": "yes (Kaggle login)",
+    "notes": "Most useful CrossFit benchmark source but legally risky; noisy self-reports. Could be used internally only to sanity-check, not shipped."
+  },
+  {
+    "rank": 12,
+    "name": "Maven Analytics - CrossFit Games 2019",
+    "url": "https://mavenanalytics.io/data-playground/crossfit-games",
+    "licence": "Listed as 'Public Domain' by Maven, but data scraped from CrossFit Games site",
+    "commercial_use": "CAUTION - PD label questionable given source",
+    "metrics": "Games workout scores/ranks, height, weight",
+    "population": "499-4,213 athletes (elite Games competitors)",
+    "bodyweight": true, "sex": true, "age": true,
+    "downloadable": true,
+    "notes": "Elite population; little direct max-lift data."
+  },
+  {
+    "rank": 13,
+    "name": "Kaggle - Body Performance Data (kukuroo3) / Korea Sports Promotion Foundation 국민체력100",
+    "url": "https://www.kaggle.com/datasets/kukuroo3/body-performance-data ; original: https://www.data.go.kr/data/15108938/openapi.do ; https://www.bigdata-culture.kr (체력측정 및 운동처방 종합 데이터)",
+    "licence": "Kaggle copy: unknown/unverified. Original data.go.kr API: '이용허락범위 제한 없음' (no usage restriction), free - Korean public data, generally KOGL Type 1 (attribution, commercial OK).",
+    "commercial_use": "LIKELY SAFE if sourced from data.go.kr original (verify KOGL type on dataset page); Kaggle copy unverified",
+    "metrics": "Grip force (kg), sit-ups count, standing broad jump (cm), sit-and-reach, body fat, BP; grade A-D",
+    "population": "13,393 Korean adults aged 20-64 (Kaggle); original programme covers hundreds of thousands",
+    "bodyweight": true, "sex": true, "age": true,
+    "downloadable": true,
+    "notes": "Good general-population grip/sit-up/jump norms (Korean population)."
+  },
+  {
+    "rank": 14,
+    "name": "wger Workout Manager bundled data",
+    "url": "https://github.com/wger-project/wger",
+    "licence": "Code AGPL-3.0-or-later; exercise/ingredient data 'Creative Commons (see individual entries)' (historically CC-BY-SA 3.0); docs CC-BY-SA-4.0",
+    "commercial_use": "Exercise metadata usable with per-entry CC attribution/share-alike; NO strength standards present",
+    "metrics": "None - exercise library only (categories, muscles, equipment). Verified fixtures: no strength-standard tables.",
+    "population": "n/a", "bodyweight": false, "sex": false, "age": false,
+    "downloadable": true
+  },
+  {
+    "rank": 15,
+    "name": "free-exercise-db (yuhonas)",
+    "url": "https://github.com/yuhonas/free-exercise-db",
+    "licence": "Unlicense (public domain)",
+    "commercial_use": "SAFE",
+    "metrics": "None - 800+ exercise definitions only, no performance numbers",
+    "population": "n/a", "bodyweight": false, "sex": false, "age": false,
+    "downloadable": true
+  },
+  {
+    "rank": 16,
+    "name": "Hugging Face workout-log datasets (e.g. Varick/workout-routine, BharathGowda/gym-muscle-involvement)",
+    "url": "https://huggingface.co/datasets/Varick/workout-routine ; https://huggingface.co/datasets/BharathGowda/gym-muscle-involvement",
+    "licence": "Unverified (not shown); gym-muscle-involvement weights/reps are randomized synthetic",
+    "commercial_use": "NOT SAFE until licence confirmed; low value",
+    "metrics": "Parsed exercise/weight/reps/sets text",
+    "population": "unknown / synthetic", "bodyweight": false, "sex": false, "age": false,
+    "downloadable": true,
+    "notes": "No genuine, clearly licensed real-user Strong/Hevy log dataset was found anywhere."
+  },
+  {
+    "rank": 17,
+    "name": "Gym Workout IMU Dataset (Kaggle shakthisairam123)",
+    "url": "https://www.kaggle.com/datasets/shakthisairam123/gym-workout-imu-dataset",
+    "licence": "MIT (per search snippet)",
+    "commercial_use": "SAFE (MIT) but not useful for ranking",
+    "metrics": "Wrist IMU per set; weight/reps encoded in filenames",
+    "population": "small, few subjects", "bodyweight": false, "sex": false, "age": false,
+    "downloadable": true
+  },
+  {
+    "rank": 18,
+    "name": "IWF results database / IWF-derived research sets",
+    "url": "https://iwf.sport/results/results-by-events/ ; scraper https://github.com/jwc20/iwf_api",
+    "licence": "IWF site: no open licence (all rights reserved by default). Facts themselves not copyrightable, but no licence grant.",
+    "commercial_use": "NOT SAFE to scrape/redistribute; use OpenWeightlifting's IWF folder (539 events, PD) instead",
+    "metrics": "Snatch/C&J attempts, bodyweight, birthdate, nation",
+    "population": "International elite", "bodyweight": true, "sex": true, "age": true,
+    "downloadable": "via scraping only"
+  },
+  {
+    "rank": 19,
+    "name": "Strongman results (FitnessVolt strongman database, Strongman Archives)",
+    "url": "https://fitnessvolt.com/strongman/stats/",
+    "licence": "No open licence stated; API 'coming'",
+    "commercial_use": "NOT SAFE",
+    "metrics": "Event results 1977-, ~4,000 athletes, 80k+ results",
+    "population": "elite strongman", "bodyweight": "partial", "sex": true, "age": false,
+    "downloadable": false,
+    "notes": "No open strongman dataset found."
+  },
+  {
+    "rank": 20,
+    "name": "UK / survey grip-strength microdata (Health Survey for England, ELSA, Understanding Society, UK Biobank, SHARE, HRS)",
+    "url": "https://ukdataservice.ac.uk",
+    "licence": "UK Data Service End User Licence / Special Licence - 'commercial use is not permitted'; UK Biobank/SHARE/HRS require registration, research-only",
+    "commercial_use": "NOT SAFE",
+    "metrics": "Grip strength, chair rises, etc.",
+    "population": "large national samples", "bodyweight": true, "sex": true, "age": true,
+    "downloadable": "registration only"
+  },
+  {
+    "rank": 21,
+    "name": "Repository search (Zenodo / Figshare / Dryad / OSF / Mendeley Data) for 1RM, push-up/pull-up, grip raw data",
+    "url": "n/a",
+    "licence": "n/a",
+    "commercial_use": "n/a",
+    "metrics": "No suitable clearly-licensed dataset located via search (direct repository APIs were unreachable from this sandbox). Small per-study CC BY deposits likely exist (n<200) but are not useful for population ranking.",
+    "population": "n/a", "bodyweight": null, "sex": null, "age": null,
+    "downloadable": null
+  }
+]

@@ -1,0 +1,350 @@
+LOADOUT - CHANGE IN RANK STANDARDS IF SWITCHED TO CLEAN (PUBLIC-DOMAIN / OPEN RESEARCH) DATA
+
+How to read: the % is how much the weight (or reps) needed for the same rank would change.
+  Negative = the new standard is lower (easier, your rank goes up). Positive = higher (harder).
+  Median = the middle of the scale (Gold 2). Low / high = the 5th and 95th percentile (Wood 2 / Legend).
+  Measured at 180 lb body weight for men and 140 lb for women.
+  Variations (e.g. hack squat = 0.6 x back squat) keep their multiplier, so they change by the same % as the lift they're based on.
+  LOST = no clean source found yet; that exercise would have no rank.
+
+Totals: 42 of 336 entries keep a rank; 294 are lost.
+Research numbers come from abstracts/search extracts and still need checking against the full papers.
+
+Exercise                                                    Men (median)  Women (median)  Men low / high  Women low / high  New source
+----------------------------------------------------------  ------------  --------------  --------------  ----------------  --------------------------------------------------------------------
+Axle Deadlift                                               -1%           +3%             -3% / +1%       +16% / +8%        OpenPowerlifting shape & deadlift:bench ratio
+Barbell Bench Press - Medium Grip                           -11%          -15%            -10% / -9%      +3% / -14%        OpenPowerlifting shape; level from open research
+Barbell Deadlift                                            -1%           +3%             -3% / +1%       +16% / +8%        OpenPowerlifting shape & deadlift:bench ratio
+Barbell Full Squat                                          -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+Barbell Hack Squat                                          -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+Barbell Incline Bench Press - Medium Grip                   -28%          -26%            -24% / -23%     +10% / -32%       bench x 0.78 at 30 deg (Rodriguez-Ridao 2020, CC BY)
+Barbell Squat                                               -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+Barbell Squat To A Bench                                    -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+Bench Press - Powerlifting                                  -11%          -15%            -10% / -9%      +3% / -14%        OpenPowerlifting shape; level from open research
+Board Press                                                 -11%          -15%            -10% / -9%      +3% / -14%        OpenPowerlifting shape; level from open research
+Clean and Jerk                                              -17%          -16%            -3% / -17%      -10% / -9%        OpenWeightlifting shape; same gap below competitors as the big lifts
+Clean Deadlift                                              -1%           +3%             -3% / +1%       +16% / +8%        OpenPowerlifting shape & deadlift:bench ratio
+Decline Smith Press                                         -18%          -18%            -12% / -14%     +21% / -23%       bench x 0.96 (Cotterman 2005; Saeterbakken 2011)
+Dumbbell Bench Press                                        -16%          -18%            +6% / -19%      +25% / -26%       bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)
+Dumbbell Bench Press with Neutral Grip                      -16%          -18%            +6% / -19%      +25% / -26%       bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)
+Dumbbell Floor Press                                        -16%          -18%            +6% / -19%      +25% / -26%       bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)
+Floor Press                                                 -11%          -15%            -10% / -9%      +3% / -14%        OpenPowerlifting shape; level from open research
+Front Barbell Squat                                         -9%           -10%            -2% / -4%       -3% / -3%         squat x 0.785 (Gullett 2009)
+Front Barbell Squat To A Bench                              -9%           -10%            -2% / -4%       -3% / -3%         squat x 0.785 (Gullett 2009)
+Front Squat (Clean Grip)                                    -9%           -10%            -2% / -4%       -3% / -3%         squat x 0.785 (Gullett 2009)
+Grip Dynamometer Test                                       0%            0%              0%              0%                Unchanged (already clean research)
+Hammer Grip Incline DB Bench Press                          -34%          -36%            -27% / -31%     -14% / -38%       incline ratio x dumbbell ratio
+Incline Dumbbell Bench With Palms Facing In                 -34%          -36%            -27% / -31%     -14% / -38%       incline ratio x dumbbell ratio
+Incline Dumbbell Press                                      -34%          -36%            -27% / -31%     -14% / -38%       incline ratio x dumbbell ratio
+Leg Press                                                   +10%          -17%            +41% / +5%      +29% / -25%       bench x 3.15 men / 3.1 women (Tiggemann 2011; JSSM 2011)
+Narrow Stance Leg Press                                     +10%          -17%            +41% / +5%      +29% / -25%       bench x 3.15 men / 3.1 women (Tiggemann 2011; JSSM 2011)
+Narrow Stance Squats                                        -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+Olympic Squat                                               -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+One Arm Dumbbell Bench Press                                -16%          -18%            +6% / -19%      +25% / -26%       bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)
+Pin Presses                                                 -11%          -15%            -10% / -9%      +3% / -14%        OpenPowerlifting shape; level from open research
+Smith Machine Bench Press                                   -18%          -18%            -12% / -14%     +21% / -23%       bench x 0.96 (Cotterman 2005; Saeterbakken 2011)
+Smith Machine Decline Press                                 -18%          -18%            -12% / -14%     +21% / -23%       bench x 0.96 (Cotterman 2005; Saeterbakken 2011)
+Smith Machine Incline Bench Press                           -18%          -18%            -12% / -14%     +21% / -23%       bench x 0.96 (Cotterman 2005; Saeterbakken 2011)
+Snatch                                                      -21%          -17%            -3% / -22%      -7% / -12%        OpenWeightlifting shape; same gap below competitors as the big lifts
+Snatch Deadlift                                             -1%           +3%             -3% / +1%       +16% / +8%        OpenPowerlifting shape & deadlift:bench ratio
+Snatch from Blocks                                          -21%          -17%            -3% / -22%      -7% / -12%        OpenWeightlifting shape; same gap below competitors as the big lifts
+Snatch Pull                                                 -21%          -17%            -3% / -22%      -7% / -12%        OpenWeightlifting shape; same gap below competitors as the big lifts
+Split Snatch                                                -21%          -17%            -3% / -22%      -7% / -12%        OpenWeightlifting shape; same gap below competitors as the big lifts
+Sumo Deadlift                                               -17%          -10%            -14% / -10%     -2% / -3%         OpenPowerlifting deadlift (includes sumo)
+Trap Bar Deadlift                                           -10%          -7%             -9% / -3%       +1% / +2%         deadlift x 1.04 (Swinton 2011; Camara)
+Wide Stance Barbell Squat                                   -8%           -6%             -1% / -3%       +18% / -5%        OpenPowerlifting shape & squat:bench ratio; level from bench anchor
+Wide-Grip Barbell Bench Press                               -11%          -15%            -10% / -9%      +3% / -14%        OpenPowerlifting shape; level from open research
+3/4 Sit-Up                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Ab Crunch Machine                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Alternate Hammer Curl                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Alternate Incline Dumbbell Curl                             LOST          LOST            LOST            LOST              No clean data source found yet
+Alternating Kettlebell Press                                LOST          LOST            LOST            LOST              No clean data source found yet
+Alternating Kettlebell Row                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Alternating Renegade Row                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Arnold Dumbbell Press                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Curl                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Curls Lying Against An Incline                      LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Glute Bridge                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Hip Thrust                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Lunge                                               LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Rear Delt Row                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Seated Calf Raise                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Shoulder Press                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Shrug                                               LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Shrug Behind The Back                               LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Side Split Squat                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Step Ups                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Barbell Walking Lunge                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Bench Dips                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Bent Over Barbell Row                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Bent Over Dumbbell Rear Delt Raise With Head On Bench       LOST          LOST            LOST            LOST              No clean data source found yet
+Bent Over One-Arm Long Bar Row                              LOST          LOST            LOST            LOST              No clean data source found yet
+Bent Over Two-Arm Long Bar Row                              LOST          LOST            LOST            LOST              No clean data source found yet
+Bent Over Two-Dumbbell Row                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Bent Over Two-Dumbbell Row With Palms In                    LOST          LOST            LOST            LOST              No clean data source found yet
+Bent-Arm Barbell Pullover                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Bent-Arm Dumbbell Pullover                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Box Squat                                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Butterfly                                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Crossover                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Crunch                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Hammer Curls - Rope Attachment                        LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Lying Triceps Extension                               LOST          LOST            LOST            LOST              No clean data source found yet
+Cable One Arm Tricep Extension                              LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Preacher Curl                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Rear Delt Fly                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Rope Overhead Triceps Extension                       LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Rope Rear-Delt Rows                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Seated Crunch                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Shrugs                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Cable Wrist Curl                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Calf Press                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Calf Press On The Leg Press Machine                         LOST          LOST            LOST            LOST              No clean data source found yet
+Calf-Machine Shoulder Shrug                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Chin-Up                                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Clean                                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Clean and Press                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Clean Pull                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Close-Grip Barbell Bench Press                              LOST          LOST            LOST            LOST              No clean data source found yet
+Close-Grip EZ Bar Curl                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Close-Grip EZ-Bar Press                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Close-Grip Front Lat Pulldown                               LOST          LOST            LOST            LOST              No clean data source found yet
+Close-Grip Standing Barbell Curl                            LOST          LOST            LOST            LOST              No clean data source found yet
+Concentration Curls                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Cross Body Hammer Curl                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Decline Barbell Bench Press                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Decline Dumbbell Bench Press                                LOST          LOST            LOST            LOST              No clean data source found yet
+Decline Dumbbell Flyes                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Decline Dumbbell Triceps Extension                          LOST          LOST            LOST            LOST              No clean data source found yet
+Decline EZ Bar Triceps Extension                            LOST          LOST            LOST            LOST              No clean data source found yet
+Decline Push-Up                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Deficit Deadlift                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Dips - Chest Version                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Dips - Triceps Version                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Donkey Calf Raises                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Drag Curl                                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Alternate Bicep Curl                               LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Bicep Curl                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Flyes                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Incline Row                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Lunges                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Lying Rear Lateral Raise                           LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell One-Arm Shoulder Press                             LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell One-Arm Triceps Extension                          LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell One-Arm Upright Row                                LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Prone Incline Curl                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Rear Lunge                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Scaption                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Shoulder Press                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Shrug                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Squat                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Squat To A Bench                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Dumbbell Step Ups                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Elevated Back Lunge                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Elevated Cable Rows                                         LOST          LOST            LOST            LOST              No clean data source found yet
+EZ-Bar Curl                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+EZ-Bar Skullcrusher                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Face Pull                                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Flat Bench Cable Flyes                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Flexor Incline Dumbbell Curls                               LOST          LOST            LOST            LOST              No clean data source found yet
+Front Cable Raise                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Front Dumbbell Raise                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Front Incline Dumbbell Raise                                LOST          LOST            LOST            LOST              No clean data source found yet
+Front Plate Raise                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Front Squats With Two Kettlebells                           LOST          LOST            LOST            LOST              No clean data source found yet
+Front Two-Dumbbell Raise                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Full Range-Of-Motion Lat Pulldown                           LOST          LOST            LOST            LOST              No clean data source found yet
+Gironda Sternum Chins                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Goblet Squat                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Good Morning                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Good Morning off Pins                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Hack Squat                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Hammer Curls                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Handstand Push-Ups                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Hang Clean                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Hang Clean - Below the Knees                                LOST          LOST            LOST            LOST              No clean data source found yet
+Hang Snatch                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Hip Abduction (Machine)                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Hip Adduction (Machine)                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Barbell Triceps Extension                           LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Bench Pull                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Cable Flye                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Dumbbell Curl                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Dumbbell Flyes                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Hammer Curls                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Inner Biceps Curl                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Push-Up                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Push-Up Close-Grip                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Push-Up Medium                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Incline Push-Up Wide                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Inverted Row                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Inverted Row with Straps                                    LOST          LOST            LOST            LOST              No clean data source found yet
+JM Press                                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Kettlebell One-Legged Deadlift                              LOST          LOST            LOST            LOST              No clean data source found yet
+Kettlebell Overhead Triceps Extension                       LOST          LOST            LOST            LOST              No clean data source found yet
+Kettlebell Seated Press                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Kipping Muscle Up                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Kneeling Cable Crunch With Alternating Oblique Twists       LOST          LOST            LOST            LOST              No clean data source found yet
+Kneeling Cable Triceps Extension                            LOST          LOST            LOST            LOST              No clean data source found yet
+Kneeling High Pulley Row                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Leg Extensions                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage Chest Press                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage Decline Chest Press                                LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage High Row                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage Incline Chest Press                                LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage Iso Row                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage Shoulder Press                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Leverage Shrug                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Low Cable Crossover                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Low Cable Triceps Extension                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Cable Curl                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Close-Grip Barbell Triceps Extension Behind The Head  LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Close-Grip Barbell Triceps Press To Chin              LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Dumbbell Tricep Extension                             LOST          LOST            LOST            LOST              No clean data source found yet
+Lying High Bench Barbell Curl                               LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Leg Curls                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Rear Delt Raise                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Lying T-Bar Row                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Lying Triceps Press                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Machine Bench Press                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Machine Bicep Curl                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Machine Preacher Curls                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Machine Shoulder (Military) Press                           LOST          LOST            LOST            LOST              No clean data source found yet
+Medium-Grip Lat Pulldown                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Medium-Grip Neutral Lat Pulldown                            LOST          LOST            LOST            LOST              No clean data source found yet
+Mixed Grip Chin                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Muscle Snatch                                               LOST          LOST            LOST            LOST              No clean data source found yet
+Muscle Up                                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Narrow Stance Hack Squats                                   LOST          LOST            LOST            LOST              No clean data source found yet
+One Arm Dumbbell Preacher Curl                              LOST          LOST            LOST            LOST              No clean data source found yet
+One Arm Lat Pulldown                                        LOST          LOST            LOST            LOST              No clean data source found yet
+One-Arm Dumbbell Row                                        LOST          LOST            LOST            LOST              No clean data source found yet
+One-Arm Flat Bench Dumbbell Flye                            LOST          LOST            LOST            LOST              No clean data source found yet
+One-Arm Kettlebell Row                                      LOST          LOST            LOST            LOST              No clean data source found yet
+One-Arm Long Bar Row                                        LOST          LOST            LOST            LOST              No clean data source found yet
+One-Arm Side Laterals                                       LOST          LOST            LOST            LOST              No clean data source found yet
+One-Leg Standing Calf Raise (Weighted Vest)                 LOST          LOST            LOST            LOST              No clean data source found yet
+Overhead Cable Curl                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Overhead Squat                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Palms-Down Wrist Curl Over A Bench                          LOST          LOST            LOST            LOST              No clean data source found yet
+Palms-Up Barbell Wrist Curl Over A Bench                    LOST          LOST            LOST            LOST              No clean data source found yet
+Palms-Up Dumbbell Wrist Curl Over A Bench                   LOST          LOST            LOST            LOST              No clean data source found yet
+Parallel Bar Dip                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Plie Dumbbell Squat                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Power Clean                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Power Clean from Blocks                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Power Jerk                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Power Snatch                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Power Snatch from Blocks                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Preacher Curl                                               LOST          LOST            LOST            LOST              No clean data source found yet
+Preacher Hammer Dumbbell Curl                               LOST          LOST            LOST            LOST              No clean data source found yet
+Pull Through                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Pullups                                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Push Press                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Push Press - Behind the Neck                                LOST          LOST            LOST            LOST              No clean data source found yet
+Push-Up Wide                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Push-Ups - Close Triceps Position                           LOST          LOST            LOST            LOST              No clean data source found yet
+Push-Ups With Feet Elevated                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Pushups                                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Pushups (Close and Wide Hand Positions)                     LOST          LOST            LOST            LOST              No clean data source found yet
+Rack Pulls                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Barbell Curl                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Barbell Preacher Curls                              LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Cable Curl                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Flyes                                               LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Flyes With External Rotation                        LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Grip Bent-Over Rows                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Grip Triceps Pushdown                               LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Machine Flyes                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Reverse Triceps Bench Press                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Ring Dips                                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Rocking Standing Calf Raise                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Romanian Deadlift                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Romanian Deadlift from Deficit                              LOST          LOST            LOST            LOST              No clean data source found yet
+Rope Crunch                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Rope Straight-Arm Pulldown                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Barbell Military Press                               LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Bent-Over Rear Delt Raise                            LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Cable Rows                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Calf Raise                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Dumbbell Curl                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Dumbbell Inner Biceps Curl                           LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Dumbbell Palms-Up Wrist Curl                         LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Dumbbell Press                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Good Mornings                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Leg Curl                                             LOST          LOST            LOST            LOST              No clean data source found yet
+Seated One-arm Cable Pulley Rows                            LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Palm-Up Barbell Wrist Curl                           LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Palms-Down Barbell Wrist Curl                        LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Side Lateral Raise                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Seated Triceps Press                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Shotgun Row                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Side Lateral Raise                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Side To Side Chins                                          LOST          LOST            LOST            LOST              No clean data source found yet
+Single-Arm Cable Crossover                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Single-Leg Leg Extension                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Sit-Up                                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Behind the Back Shrug                         LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Bent Over Row                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Calf Raise                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Close-Grip Bench Press                        LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Overhead Shoulder Press                       LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Squat                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Stiff-Legged Deadlift                         LOST          LOST            LOST            LOST              No clean data source found yet
+Smith Machine Upright Row                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Spider Curl                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Split Clean                                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Split Jerk                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Split Squat with Dumbbells                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Alternating Dumbbell Press                         LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Barbell Calf Raise                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Barbell Press Behind Neck                          LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Biceps Cable Curl                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Calf Raise (Weighted Vest)                         LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Calf Raises                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Concentration Curl                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Dumbbell Calf Raise                                LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Dumbbell Press                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Dumbbell Reverse Curl                              LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Dumbbell Triceps Extension                         LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Dumbbell Upright Row                               LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Front Barbell Raise Over Head                      LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Inner-Biceps Curl                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Leg Curl                                           LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Military Press                                     LOST          LOST            LOST            LOST              No clean data source found yet
+Standing One-Arm Cable Curl                                 LOST          LOST            LOST            LOST              No clean data source found yet
+Standing One-Arm Dumbbell Triceps Extension                 LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Overhead Barbell Triceps Extension                 LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Palm-In One-Arm Dumbbell Press                     LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Palms-In Dumbbell Press                            LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Palms-Up Barbell Behind The Back Wrist Curl        LOST          LOST            LOST            LOST              No clean data source found yet
+Standing Rope Crunch                                        LOST          LOST            LOST            LOST              No clean data source found yet
+Stiff Leg Barbell Good Morning                              LOST          LOST            LOST            LOST              No clean data source found yet
+Stiff-Legged Barbell Deadlift                               LOST          LOST            LOST            LOST              No clean data source found yet
+Stiff-Legged Dumbbell Deadlift                              LOST          LOST            LOST            LOST              No clean data source found yet
+Straight-Arm Dumbbell Pullover                              LOST          LOST            LOST            LOST              No clean data source found yet
+Straight-Arm Pulldown                                       LOST          LOST            LOST            LOST              No clean data source found yet
+T-Bar Row with Handle                                       LOST          LOST            LOST            LOST              No clean data source found yet
+Tate Press                                                  LOST          LOST            LOST            LOST              No clean data source found yet
+Towel Pull-Up                                               LOST          LOST            LOST            LOST              No clean data source found yet
+Tricep Dumbbell Kickback                                    LOST          LOST            LOST            LOST              No clean data source found yet
+Triceps Overhead Extension with Rope                        LOST          LOST            LOST            LOST              No clean data source found yet
+Triceps Pushdown                                            LOST          LOST            LOST            LOST              No clean data source found yet
+Triceps Pushdown - Rope Attachment                          LOST          LOST            LOST            LOST              No clean data source found yet
+Triceps Pushdown - V-Bar Attachment                         LOST          LOST            LOST            LOST              No clean data source found yet
+Two-Arm Dumbbell Preacher Curl                              LOST          LOST            LOST            LOST              No clean data source found yet
+Two-Arm Kettlebell Military Press                           LOST          LOST            LOST            LOST              No clean data source found yet
+Two-Arm Kettlebell Row                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Underhand Cable Pulldowns                                   LOST          LOST            LOST            LOST              No clean data source found yet
+Upright Barbell Row                                         LOST          LOST            LOST            LOST              No clean data source found yet
+Upright Cable Row                                           LOST          LOST            LOST            LOST              No clean data source found yet
+V-Bar Pulldown                                              LOST          LOST            LOST            LOST              No clean data source found yet
+V-Bar Pullup                                                LOST          LOST            LOST            LOST              No clean data source found yet
+Wide Stance Stiff Legs                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Wide-Grip Decline Barbell Bench Press                       LOST          LOST            LOST            LOST              No clean data source found yet
+Wide-Grip Lat Pulldown                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Wide-Grip Pulldown Behind The Neck                          LOST          LOST            LOST            LOST              No clean data source found yet
+Wide-Grip Rear Pull-Up                                      LOST          LOST            LOST            LOST              No clean data source found yet
+Wide-Grip Standing Barbell Curl                             LOST          LOST            LOST            LOST              No clean data source found yet
+Zercher Squats                                              LOST          LOST            LOST            LOST              No clean data source found yet
+Zottman Curl                                                LOST          LOST            LOST            LOST              No clean data source found yet

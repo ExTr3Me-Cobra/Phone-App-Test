@@ -1,0 +1,754 @@
+[
+ {
+  "exercise": "power clean",
+  "approach": "ratio to clean (primary); alternative ratio to back squat for non-weightlifter gym-goers",
+  "numbers": [
+   {
+    "what": "mean ratio of record (1RM) scores, power clean / clean",
+    "value": 0.89,
+    "units": "ratio",
+    "sex": "not confirmed in snippets",
+    "population": "young (youth/junior) weightlifters, Poland, tested 7 times at 3-month intervals over 2 years; ratio 'approximately constant'",
+    "n": 17,
+    "source": "Czaplicki 2021 JSCR"
+   },
+   {
+    "what": "background statement",
+    "value": "power clean typically performed with approximately 85-90% of the bar mass lifted in the full clean",
+    "units": "% of clean",
+    "sex": "n/a",
+    "population": "general weightlifting statement",
+    "n": null,
+    "source": "ISBS 2005 proceedings"
+   },
+   {
+    "what": "power clean 1RM vs back squat 1RM",
+    "value": {
+     "power_clean_kg": "70.55 +/- 24.24",
+     "back_squat_kg": "130.32 +/- 34.05"
+    },
+    "units": "kg mean +/- SD",
+    "sex": "not confirmed (collegiate athletes)",
+    "population": "inexperienced collegiate athletes",
+    "n": 44,
+    "derived_ratio_PC_over_BS": 0.541,
+    "source": "Comfort & McMahon 2015"
+   },
+   {
+    "what": "collegiate football 1RM means",
+    "value": {
+     "bench_kg": "136.9 +/- 25.8",
+     "back_squat_kg": "185.2 +/- 35.7",
+     "power_clean_kg": "118.1 +/- 17.7"
+    },
+    "units": "kg mean +/- SD",
+    "sex": "male",
+    "population": "NCAA football players, 19 programs",
+    "n": 981,
+    "derived_ratio_PC_over_BS": 0.638,
+    "derived_ratio_PC_over_bench": 0.863,
+    "source": "NSCA Essentials norms (via CSCS study page)"
+   },
+   {
+    "what": "NCAA Division I women's basketball 50th percentiles",
+    "value": {
+     "bench_kg": 48,
+     "squat_kg": 56,
+     "power_clean_kg": 44,
+     "bench_lb": 106,
+     "squat_lb": 123,
+     "power_clean_lb": 97
+    },
+    "units": "kg (lb)",
+    "sex": "female",
+    "population": "NCAA D-I women's basketball",
+    "n": {
+     "bench": 120,
+     "squat": 86,
+     "power_clean": 85
+    },
+    "derived_ratio_PC_over_squat_P50": 0.786,
+    "derived_ratio_PC_over_bench_P50": 0.917,
+    "other": "means also quoted as PC 48 +/- 9 kg, squat 59 +/- 19 kg (unit labels inconsistent in source)",
+    "source": "NSCA Essentials norms (via CSCS study page)"
+   },
+   {
+    "what": "power clean 1RM relative to body mass",
+    "value": "~1.07 x BW (reported as 107% of body weight)",
+    "units": "kg/kg",
+    "sex": "not confirmed",
+    "population": "field-sport collegiate athletes",
+    "n": 19,
+    "source": "Comfort et al. 2012"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "power_clean/clean": 0.89,
+   "power_clean/clean_range": "0.85-0.90",
+   "power_clean/clean_and_jerk": "~0.89-0.93 if C&J used as proxy for clean (clean 1RM >= C&J; C&J/clean ratio not sourced here)",
+   "power_clean/back_squat_men": "0.54-0.64 (non-weightlifter athletes)",
+   "power_clean/back_squat_women": "~0.79 (D-I basketball P50, low squat values)"
+  },
+  "sources": [
+   {
+    "citation": "Czaplicki A, et al. (2021). Analysis of record scores in the clean and its variations in the long-term training of young weightlifters. Journal of Strength and Conditioning Research. doi:10.1519/JSC.0000000000004086",
+    "url": "https://doi.org/10.1519/JSC.0000000000004086 ; abstract index: https://lida.sport-iat.de/ta/Record/4072064",
+    "licence": "Subscription/paywalled; copyright NSCA, published by Wolters Kluwer (LWW). No open licence found.",
+    "licence_evidence": "JSCR is the NSCA subscription journal published by Wolters Kluwer; only individual OA JSCR papers appear in PMC (under CC BY-NC-ND, e.g. PMC5441887). No OA/PMC copy of this article appeared in searches; abstract reached only via the LIDA/BISp index.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Ratios 0.96/0.89/0.80 are factual findings stated in the abstract - usable as facts with citation; do not copy text or tables. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "'Peak power output in the power clean - the influence of relative strength'. ISBS Conference Proceedings Archive (2005), International Society of Biomechanics in Sports. Also ECU Works record ro.ecu.edu.au/ecuworks/2805 (authors not retrieved).",
+    "url": "https://ojs.ub.uni-konstanz.de/cpa/article/view/833 ; https://ro.ecu.edu.au/ecuworks/2805",
+    "licence": "Free-access proceedings archive; no explicit licence found",
+    "licence_evidence": "ISBS proceedings page (https://isbs.org/conferences/proceedings-archive): proceedings 'archived in two separate open access journals hosted at the University of Konstanz ... and Northern Michigan University'; PDFs 'available free of charge'. No Creative Commons or reuse terms found; ISBS directs licensing queries to vppublications@isbs.org.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Free to read is not a reuse licence. The quoted 85-90% figure is a background statement (fact) - usable as a fact; licence itself unclear. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Comfort P, McMahon JJ (2015). Reliability of maximal back squat and power clean performances in inexperienced athletes. Journal of Strength and Conditioning Research 29(11):3089-3096.",
+    "url": "https://salford-repository.worktribe.com/output/1410214/reliability-of-maximal-back-squat-and-power-clean-performances-in-inexperienced-athletes",
+    "licence": "JSCR subscription (NSCA/Wolters Kluwer); accepted manuscript in University of Salford repository (repository terms not checked)",
+    "licence_evidence": "JSCR is paywalled (see above). Salford repository hosts the record/accepted manuscript; no CC licence seen in search snippet.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Means/SDs are facts. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "NSCA 'Essentials of Strength Training and Conditioning' (Human Kinetics) normative-data tables for collegiate athletes (NCAA Division I women's basketball percentiles; collegiate football 1RM means n=981 from 19 programs), as reproduced on a CSCS study page. Primary studies not resolved.",
+    "url": "https://app.achievable.me/study/cscs/learn/administration-scoring-and-interpretation-of-selected-tests-normative-data",
+    "licence": "Copyrighted textbook (Human Kinetics / NSCA); study page is a third-party reproduction",
+    "licence_evidence": "Essentials of Strength Training and Conditioning is a commercial Human Kinetics textbook (all rights reserved). No open licence.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Individual normative values are facts; do not reproduce the tables. Primary study should be identified before relying on it. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Comfort P, Fletcher C, McMahon JJ (2012). Determination of optimal loading during the power clean, in collegiate athletes. Journal of Strength and Conditioning Research 26(11):2970-2974.",
+    "url": "https://breakingmuscle.com/science-says-70-is-your-most-powerful-power-clean/ (secondary summary) ; primary: JSCR 26(11)",
+    "licence": "JSCR subscription (NSCA/Wolters Kluwer)",
+    "licence_evidence": "Paywalled journal; number seen only via search-result summary.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Single descriptive figure (fact). General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "medium for 0.89 x clean (single study, young weightlifters, but consistent with 0.85-0.90 statement); low-medium for back-squat ratios (sample-dependent: 0.54 novices to 0.64 football)",
+  "verification": "All numbers from search-result snippets/abstracts; no full text opened (PMC, jssm, journal sites blocked). Czaplicki 2021 participant sex/age not confirmed. Football n=981 primary study not identified. Recommend opening Czaplicki 2021 full text to get per-sex values."
+ },
+ {
+  "exercise": "hang clean",
+  "approach": "ratio to clean",
+  "numbers": [
+   {
+    "what": "mean ratio of record scores, hang clean / clean",
+    "value": 0.96,
+    "units": "ratio",
+    "sex": "not confirmed",
+    "population": "young weightlifters",
+    "n": 17,
+    "source": "Czaplicki 2021 JSCR"
+   },
+   {
+    "what": "mean ratio, hang power clean / clean",
+    "value": 0.8,
+    "units": "ratio",
+    "sex": "not confirmed",
+    "population": "young weightlifters",
+    "n": 17,
+    "source": "Czaplicki 2021 JSCR"
+   },
+   {
+    "what": "hang power clean 1RM (beginner group)",
+    "value": {
+     "men_kg": "89.6 +/- 10.3",
+     "women_kg": "56.8 +/- 9.7",
+     "women_body_mass_kg": "64.8 +/- 4.0",
+     "women_n": 5
+    },
+    "units": "kg mean +/- SD",
+    "sex": "both",
+    "population": "beginner weightlifters (study had 11 beginner, 10 advanced, 6 elite; n=27)",
+    "n": 27,
+    "source": "Geisler 2023 JSSM"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "hang_clean/clean": 0.96,
+   "hang_power_clean/clean": 0.8,
+   "hang_power_clean/power_clean": 0.9,
+   "note": "0.90 derived as 0.80/0.89 from the same study"
+  },
+  "sources": [
+   {
+    "citation": "Czaplicki A, et al. (2021). Analysis of record scores in the clean and its variations in the long-term training of young weightlifters. Journal of Strength and Conditioning Research. doi:10.1519/JSC.0000000000004086",
+    "url": "https://doi.org/10.1519/JSC.0000000000004086 ; abstract index: https://lida.sport-iat.de/ta/Record/4072064",
+    "licence": "Subscription/paywalled; copyright NSCA, published by Wolters Kluwer (LWW). No open licence found.",
+    "licence_evidence": "JSCR is the NSCA subscription journal published by Wolters Kluwer; only individual OA JSCR papers appear in PMC (under CC BY-NC-ND, e.g. PMC5441887). No OA/PMC copy of this article appeared in searches; abstract reached only via the LIDA/BISp index.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Ratios 0.96/0.89/0.80 are factual findings stated in the abstract - usable as facts with citation; do not copy text or tables. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Geisler S, et al. (2023). Effects of expertise on muscle activity during the hang power clean and hang power snatch compared to snatch and clean pulls - an explorative analysis. Journal of Sports Science and Medicine 22:778-789.",
+    "url": "https://www.jssm.org/jssm-22-778.xml%3EFulltext ; https://pmc.ncbi.nlm.nih.gov/articles/PMC10690512/",
+    "licence": "Open access (free to read); exact licence NOT verified this session",
+    "licence_evidence": "Article freely available at jssm.org and in PMC (PMC10690512). Licence statement not retrieved (jssm.org and PMC unreachable from sandbox; no search snippet gave it).",
+    "usable_commercially": "facts-only",
+    "reasoning": "Baseline 1RM descriptors are facts; licence for text/tables unclear. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "medium (single longitudinal study of young weightlifters; plausible and internally consistent)",
+  "verification": "Ratios from abstract text via search snippets. App lifts 'hang clean' - decide whether it means hang (squat) clean (0.96) or hang power clean (0.80) of clean."
+ },
+ {
+  "exercise": "power snatch",
+  "approach": "ratio to snatch",
+  "numbers": [
+   {
+    "what": "overall mean ratio of record scores, power snatch / snatch",
+    "value": 0.88,
+    "units": "ratio",
+    "sex": "not confirmed",
+    "population": "young weightlifters, tested 7 times at 3-month intervals over 2 annual cycles",
+    "n": 16,
+    "source": "Czaplicki 2019 PLOS ONE"
+   },
+   {
+    "what": "hang power snatch / snatch",
+    "value": 0.79,
+    "units": "ratio",
+    "sex": "not confirmed",
+    "population": "same",
+    "n": 16,
+    "source": "Czaplicki 2019 PLOS ONE"
+   },
+   {
+    "what": "hang snatch / snatch",
+    "value": 0.95,
+    "units": "ratio",
+    "sex": "not confirmed",
+    "population": "same",
+    "n": 16,
+    "source": "Czaplicki 2019 PLOS ONE"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "power_snatch/snatch": 0.88,
+   "hang_power_snatch/snatch": 0.79,
+   "hang_snatch/snatch": 0.95
+  },
+  "sources": [
+   {
+    "citation": "Czaplicki A, Szyszka P, Sacharuk J, Jaszczuk J (2019). Modeling record scores in the snatch and its variations in the long-term training of young weightlifters. PLOS ONE 14(12): e0225891. doi:10.1371/journal.pone.0225891",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6890263 ; https://doaj.org/article/15fb61db37744ddaaa51190b1d2bc5d6",
+    "licence": "CC BY 4.0 (PLOS journal-wide licence)",
+    "licence_evidence": "PLOS licensing policy (https://plos.org/license/ ; https://journals.plos.org/plosone/s/licenses-and-copyright): 'PLOS applies the Creative Commons Attribution (CC BY) license to articles and other works we publish.' Article is in PMC (PMC6890263) and DOAJ. The article page's own licence line was NOT fetched this session (sites blocked); an aggregator (prolekare.cz) shows an 'All rights reserved' footer that is the aggregator's boilerplate, not PLOS's.",
+    "usable_commercially": "yes",
+    "reasoning": "CC BY allows commercial reuse with attribution; the ratios are facts in any case. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "medium (single study, young lifters; CC BY so fully usable)",
+  "verification": "Ratios from abstract via search snippets (two separate searches agree). PLOS article likely has supporting data (S1 file) - worth opening for per-sex/per-session values."
+ },
+ {
+  "exercise": "push press",
+  "approach": "ratio to split jerk / overhead press (weightlifting-derived); C&J ratio inferred",
+  "numbers": [
+   {
+    "what": "relative 1RM, men (approximate as given in search summary, NOT exact published values)",
+    "value": {
+     "push_press": "~1.0",
+     "push_jerk": "~1.1",
+     "split_jerk": "~1.2"
+    },
+    "units": "kg/kg body mass",
+    "sex": "male (women: same pattern, lower values, numbers not retrieved)",
+    "population": "resistance-trained men and women with weightlifting experience",
+    "n": "15 men + 15 women",
+    "source": "Soriano et al. sex-difference study"
+   },
+   {
+    "what": "findings",
+    "value": "push press 1RM significantly lower than push jerk and split jerk; differences between exercises larger in weightlifters than CrossFit and mixed-sport athletes; ICC .98-.99",
+    "units": "",
+    "sex": "male",
+    "population": "weightlifters, CrossFit, mixed-sport",
+    "n": 46,
+    "source": "Soriano 2020 IJSPP"
+   },
+   {
+    "what": "overhead press vs split jerk 1RM (all participants)",
+    "value": {
+     "overhead_press_kg": "60.2 +/- 18.3",
+     "split_jerk_kg": "95.7 +/- 29.3",
+     "r": 0.9,
+     "r_men": 0.83,
+     "r_women": 0.56,
+     "body_mass_men_kg": 82.5,
+     "body_mass_women_kg": 62.6
+    },
+    "units": "kg mean +/- SD",
+    "sex": "both (61 men, 21 women)",
+    "population": "athletes with weightlifting experience (~3-4 y)",
+    "n": 82,
+    "derived_ratio_OHP_over_SJ": 0.629,
+    "source": "Soriano 2022 IJSSC"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "push_press/split_jerk_men": "~0.83 (from ~1.0/~1.2; approximate)",
+   "overhead_press/split_jerk": 0.629,
+   "push_press/overhead_press": "~1.3 (derived 0.83/0.629 across two samples - low confidence)",
+   "push_press/clean_and_jerk": "~0.80-0.85 if split jerk ~= C&J (not directly measured)"
+  },
+  "sources": [
+   {
+    "citation": "Soriano MA, Garcia-Ramos A, Calderbank J, Marin PJ, Sainz de Baranda P, Comfort P. Does sex impact the differences and relationships in the one repetition maximum performance across weightlifting overhead pressing exercises? (journal/year not confirmed in snippets; c. 2021-2022)",
+    "url": "https://salford-repository.worktribe.com/output/1354031/does-sex-impact-the-differences-and-relationships-in-the-one-repetition-maximum-performance-across-weightlifting-overhead-pressing-exercises",
+    "licence": "Not determined (journal not confirmed); repository copy at Salford",
+    "licence_evidence": "Only repository record surfaced; no licence statement in snippets.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Soriano MA, Garcia-Ramos A, Torres-Gonzalez A, Castillo-Palencia J, Marin PJ, Sainz de Baranda P, Comfort P (2020). Comparison of 1-repetition-maximum performance across 3 weightlifting overhead pressing exercises and sport groups. International Journal of Sports Physiology and Performance 15(6):862-867.",
+    "url": "https://salford-repository.worktribe.com/output/1351446/comparison-of-1-repetition-maximum-performance-across-3-weightlifting-overhead-pressing-exercises-and-sport-groups",
+    "licence": "Human Kinetics subscription journal; accepted manuscript in Salford repository",
+    "licence_evidence": "IJSPP is a paywalled Human Kinetics journal; no CC licence seen in snippets.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Soriano MA, et al. (2022). Is there a relationship between the overhead press and split jerk maximum performance? Influence of sex. International Journal of Sports Science & Coaching (SAGE).",
+    "url": "https://salford-repository.worktribe.com/output/1339798/is-there-a-relationship-between-the-overhead-press-and-split-jerk-maximum-performance-influence-of-sex ; https://repositorio.ucjc.edu/handle/20.500.12020/1528 ; https://ro.ecu.edu.au/ecuworkspost2013/10477",
+    "licence": "SAGE subscription journal (no OA licence seen); repository copies (Salford, UCJC, ECU)",
+    "licence_evidence": "No CC statement in snippets; IJSSC is a SAGE hybrid/subscription journal.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "low-medium (relative values are search-summary approximations; ratio to C&J is inferred)",
+  "verification": "Exact PP/PJ/SJ means by sex not retrieved - open the Salford repository accepted manuscripts (worktribe output 1354031, 1351446) to get exact kg and kg/kg values."
+ },
+ {
+  "exercise": "barbell decline bench press",
+  "approach": "ratio to flat barbell bench press",
+  "numbers": [
+   {
+    "what": "6RM loads by bench position",
+    "value": "6-RM loads were 18.5-21.5% lower in the inclined (25 deg) position compared with flat and declined; i.e. flat and decline within ~3-4% of each other",
+    "units": "% difference in 6RM",
+    "sex": "not confirmed (likely male)",
+    "population": "national/international-level competitive bench press athletes",
+    "n": 12,
+    "source": "Saeterbakken 2017 J Hum Kinet"
+   },
+   {
+    "what": "1RM flat vs incline vs decline",
+    "value": "subjects lifted the heaviest loads on the decline bench (numbers not retrieved)",
+    "units": "kg",
+    "sex": "male",
+    "population": "men with resistance-training experience",
+    "n": 11,
+    "source": "EFDeportes 2010"
+   },
+   {
+    "what": "1RM and 10RM flat/incline/decline with correction factor",
+    "value": "numbers not retrieved",
+    "units": "kg",
+    "sex": "male",
+    "population": "strength-trained men >=1 y",
+    "n": 14,
+    "source": "Mangussi et al."
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "decline/flat": "~1.00 (plausible range 0.96-1.04)"
+  },
+  "sources": [
+   {
+    "citation": "Saeterbakken AH, Mo DA, Scott S, Andersen V (2017). The effects of bench press variations in competitive athletes on muscle activity and performance. Journal of Human Kinetics 57:61-71. doi:10.1515/hukin-2017-0047",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5504579 ; https://hvlopen.brage.unit.no/hvlopen-xmlui/handle/11250/2449006 ; https://johk.pl/?p=4244",
+    "licence": "Open access; journal now CC BY 4.0, but the 2017 article's own licence line NOT verified (De Gruyter era - may be CC BY-NC-ND 3.0)",
+    "licence_evidence": "Journal 'About' page (https://jhk.termedia.pl/About-the-journal,3822.html): 'all articles are distributed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License' (current policy). 2014 JHK articles in PMC carry CC BY 3.0. No 2017-specific licence statement retrieved.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Percent differences are facts - usable regardless. Treat text/tables as unclear until the 2017 licence line is checked. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "'Comparacao dos valores de 1RM nos exercicios supino reto, inclinado e declinado' (title approx.). EFDeportes.com Revista Digital, Buenos Aires, no. 144 (2010).",
+    "url": "https://efdeportes.com/efd144/exercicios-supino-reto-inclinado-e-declinado.htm",
+    "licence": "Not determined (free web journal; no CC statement seen)",
+    "licence_evidence": "No licence text in search snippets.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Mangussi, Magosso, Souza. Fator de correcao do supino reto para o supino inclinado e para o supino declinado. Revista Brasileira de Atividade Fisica e Saude / Estacio periodicos (RBRAF), article 758.",
+    "url": "https://estacio.periodicoscientificos.com.br/index.php/rbraf/article/download/758/677/913",
+    "licence": "Not determined (Brazilian OA journal)",
+    "licence_evidence": "No licence text in snippets.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "low-medium (6RM not 1RM; elite athletes; direction of the small flat-vs-decline difference not confirmed)",
+  "verification": "Saeterbakken 2017 Table with kg 6RM per condition exists in PMC5504579 but was not reachable. Blog sources quoting ~18% lower decline are inconsistent with the paper's abstract - ignore them."
+ },
+ {
+  "exercise": "decline dumbbell bench press",
+  "approach": "ratio to flat dumbbell bench press (borrowing barbell decline/flat ratio)",
+  "numbers": [],
+  "ratio_value_if_derivable": {
+   "decline_db/flat_db": "~1.00 (assumed equal to barbell decline/flat; no dumbbell-specific data found)"
+  },
+  "sources": [
+   {
+    "citation": "Saeterbakken AH, Mo DA, Scott S, Andersen V (2017). The effects of bench press variations in competitive athletes on muscle activity and performance. Journal of Human Kinetics 57:61-71. doi:10.1515/hukin-2017-0047",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5504579 ; https://hvlopen.brage.unit.no/hvlopen-xmlui/handle/11250/2449006 ; https://johk.pl/?p=4244",
+    "licence": "Open access; journal now CC BY 4.0, but the 2017 article's own licence line NOT verified (De Gruyter era - may be CC BY-NC-ND 3.0)",
+    "licence_evidence": "Journal 'About' page (https://jhk.termedia.pl/About-the-journal,3822.html): 'all articles are distributed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License' (current policy). 2014 JHK articles in PMC carry CC BY 3.0. No 2017-specific licence statement retrieved.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Percent differences are facts - usable regardless. Treat text/tables as unclear until the 2017 licence line is checked. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "low",
+  "verification": "No study found reporting decline dumbbell 1RM. Derived assumption only."
+ },
+ {
+  "exercise": "close-grip bench press",
+  "approach": "ratio to flat (competition/medium grip) barbell bench press",
+  "numbers": [
+   {
+    "what": "1RM by grip width",
+    "value": {
+     "wide_kg": "109.8 +/- 24.5",
+     "medium_kg": "108.9 +/- 26.4",
+     "narrow_kg": "103.7 +/- 24"
+    },
+    "units": "kg mean +/- SD",
+    "sex": "male",
+    "population": "recreationally/bench-press-trained men",
+    "n": 14,
+    "derived": {
+     "narrow/medium": 0.952,
+     "narrow/wide": 0.944
+    },
+    "source": "Larsen 2021 Front Sports Act Living (CC BY)"
+   },
+   {
+    "what": "6RM by grip width",
+    "value": "6-RM loads were 5.8-11.1% greater using medium and wide grip compared to narrow grip",
+    "units": "% difference",
+    "sex": "not confirmed",
+    "population": "competitive bench press athletes",
+    "n": 12,
+    "derived": {
+     "narrow/medium_or_wide": "0.90-0.945"
+    },
+    "source": "Saeterbakken 2017 J Hum Kinet"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "close_grip/flat": "~0.93 (range 0.90-0.95)"
+  },
+  "sources": [
+   {
+    "citation": "Larsen S, Gomo O, van den Tillaar R (2021). A biomechanical analysis of wide, medium, and narrow grip width effects on kinematics, horizontal kinetics, and muscle activity on the sticking region in recreationally trained males during 1-RM bench pressing. Frontiers in Sports and Active Living 2:637066. doi:10.3389/fspor.2020.637066",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7862765 ; https://www.frontiersin.org/journals/sports-and-active-living/articles/10.3389/fspor.2020.637066/pdf ; https://doaj.org/article/491f9b30601d4bb182ef03fe48d18fdb",
+    "licence": "CC BY 4.0 (Frontiers journal-wide)",
+    "licence_evidence": "Frontiers publishes all articles under CC BY (Frontiers policies page: articles are 'published under a CC-BY licence'); article indexed in DOAJ (which lists OA licence) and PMC. Article-level licence line not fetched this session (site blocked).",
+    "usable_commercially": "yes",
+    "reasoning": "CC BY permits commercial reuse with attribution. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Saeterbakken AH, Mo DA, Scott S, Andersen V (2017). The effects of bench press variations in competitive athletes on muscle activity and performance. Journal of Human Kinetics 57:61-71. doi:10.1515/hukin-2017-0047",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5504579 ; https://hvlopen.brage.unit.no/hvlopen-xmlui/handle/11250/2449006 ; https://johk.pl/?p=4244",
+    "licence": "Open access; journal now CC BY 4.0, but the 2017 article's own licence line NOT verified (De Gruyter era - may be CC BY-NC-ND 3.0)",
+    "licence_evidence": "Journal 'About' page (https://jhk.termedia.pl/About-the-journal,3822.html): 'all articles are distributed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License' (current policy). 2014 JHK articles in PMC carry CC BY 3.0. No 2017-specific licence statement retrieved.",
+    "usable_commercially": "facts-only",
+    "reasoning": "Percent differences are facts - usable regardless. Treat text/tables as unclear until the 2017 licence line is checked. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "medium for men (two studies agree on 5-10% deficit); no female data",
+  "verification": "Larsen numbers from search snippet of PMC abstract; grip-width definitions (multiples of biacromial width) not retrieved. Wagner et al. 1992 and Gomo & van den Tillaar 2016 (J Sports Sci 34:232-238) not retrieved."
+ },
+ {
+  "exercise": "machine chest press (pin-stack)",
+  "approach": "direct (Universal machine bench-press norms, Cooper Institute) + ratio evidence",
+  "numbers": [
+   {
+    "what": "1RM bench press / body weight percentiles, ages 20-29 (verified cut-offs)",
+    "value": {
+     "men": {
+      "p10": 0.8,
+      "p90": 1.48
+     },
+     "women": {
+      "p10": 0.48,
+      "p90": 0.9
+     }
+    },
+    "units": "ratio 1RM/body mass",
+    "sex": "both",
+    "population": "Cooper Clinic adults (predominantly white, college-educated), Dallas",
+    "n": "not stated",
+    "source": "Cooper Institute via Supportive Care in Cancer ESM2 (already in sibling studies.json)"
+   },
+   {
+    "what": "full percentile table by age as RECALLED from ACSM Guidelines (verify before use)",
+    "value": {
+     "men": {
+      "20-29": {
+       "p90": 1.48,
+       "p80": 1.32,
+       "p70": 1.22,
+       "p60": 1.14,
+       "p50": 1.06,
+       "p40": 0.99,
+       "p30": 0.93,
+       "p20": 0.88,
+       "p10": 0.8
+      },
+      "30-39": {
+       "p90": 1.24,
+       "p80": 1.12,
+       "p70": 1.04,
+       "p60": 0.98,
+       "p50": 0.93,
+       "p40": 0.88,
+       "p30": 0.83,
+       "p20": 0.78,
+       "p10": 0.71
+      },
+      "40-49": {
+       "p90": 1.1,
+       "p80": 1.0,
+       "p70": 0.93,
+       "p60": 0.88,
+       "p50": 0.84,
+       "p40": 0.8,
+       "p30": 0.76,
+       "p20": 0.72,
+       "p10": 0.65
+      },
+      "50-59": {
+       "p90": 0.97,
+       "p80": 0.9,
+       "p70": 0.84,
+       "p60": 0.79,
+       "p50": 0.75,
+       "p40": 0.71,
+       "p30": 0.68,
+       "p20": 0.63,
+       "p10": 0.57
+      },
+      "60+": {
+       "p90": 0.89,
+       "p80": 0.82,
+       "p70": 0.77,
+       "p60": 0.72,
+       "p50": 0.68,
+       "p40": 0.66,
+       "p30": 0.63,
+       "p20": 0.57,
+       "p10": 0.53
+      }
+     },
+     "women": {
+      "20-29": {
+       "p90": 0.9,
+       "p80": 0.8,
+       "p70": 0.74,
+       "p60": 0.7,
+       "p50": 0.65,
+       "p40": 0.59,
+       "p30": 0.56,
+       "p20": 0.51,
+       "p10": 0.48
+      },
+      "30-39": {
+       "p90": 0.76,
+       "p80": 0.7,
+       "p70": 0.63,
+       "p60": 0.6,
+       "p50": 0.57,
+       "p40": 0.53,
+       "p30": 0.51,
+       "p20": 0.47,
+       "p10": 0.42
+      },
+      "40-49": {
+       "p90": 0.71,
+       "p80": 0.62,
+       "p70": 0.57,
+       "p60": 0.54,
+       "p50": 0.52,
+       "p40": 0.5,
+       "p30": 0.47,
+       "p20": 0.43,
+       "p10": 0.38
+      },
+      "50-59": {
+       "p90": 0.61,
+       "p80": 0.55,
+       "p70": 0.52,
+       "p60": 0.48,
+       "p50": 0.46,
+       "p40": 0.44,
+       "p30": 0.42,
+       "p20": 0.39,
+       "p10": 0.37
+      },
+      "60+": {
+       "p90": 0.64,
+       "p80": 0.54,
+       "p70": 0.51,
+       "p60": 0.47,
+       "p50": 0.45,
+       "p40": 0.43,
+       "p30": 0.4,
+       "p20": 0.38,
+       "p10": 0.33
+      }
+     }
+    },
+    "units": "ratio 1RM/body mass",
+    "sex": "both",
+    "population": "Cooper Clinic adults; 1RM measured on a Universal DVR (machine) bench press per ACSM footnote (recalled)",
+    "n": "not stated",
+    "source": "Cooper Institute / ACSM Guidelines (recalled)"
+   },
+   {
+    "what": "chest press 1RM, older women",
+    "value": "44.0 +/- 11.1 kg (leg extension 48.8 +/- 11.8 kg)",
+    "units": "kg mean +/- SD",
+    "sex": "female",
+    "population": "physically independent women 60-88 y, Brazil",
+    "n": 511,
+    "source": "Exp Gerontol 166 (2022)"
+   },
+   {
+    "what": "Keiser pneumatic chest press norms by half-decade",
+    "value": "quartiles by sex/age exist; values in sibling studies.json look implausible for chest press",
+    "units": "kg/kg",
+    "sex": "both",
+    "population": "older adults 60-85",
+    "n": 445,
+    "source": "Exp Gerontol 2021 PMID 33974938"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "universal_machine_bench/free_weight_bench": "not measured directly; Cooper machine norms can be used as-is for a pin-stack chest press, or compared with your free-weight bench percentiles to derive a ratio",
+   "plate_loaded_vs_hydraulic_bench_machine": "no significant difference in 25 women (p=0.082) - Sensors 2022"
+  },
+  "sources": [
+   {
+    "citation": "The Cooper Institute (formerly Institute for Aerobics Research), Dallas TX: 1-RM bench press / body weight percentile norms by sex and age, reproduced in ACSM's Guidelines for Exercise Testing and Prescription (several editions) and in Supportive Care in Cancer (2022) ESM2 to doi:10.1007/s00520-022-07217-w.",
+    "url": "https://media.springernature.com/original/springer-static/esm/art%3A10.1007%2Fs00520-022-07217-w/MediaObjects/520_2022_7217_MOESM2_ESM.docx",
+    "licence": "Copyrighted (The Cooper Institute); ACSM reprints 'adapted with permission'",
+    "licence_evidence": "ACSM Guidelines footnote credits the Cooper Institute (recalled, not re-fetched this session). Springer ESM licence follows its article (not checked).",
+    "usable_commercially": "facts-only",
+    "reasoning": "Percentile cut-offs are facts; do not copy the table as a table. General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Experimental Gerontology vol. 166 (2022): 1RM reference data in 511 physically independent women aged 60-88 (Brazil; UNESP repository record).",
+    "url": "https://repositorio.unesp.br/entities/publication/a4380a47-de8b-4231-866a-e507044da673 ; https://educapes.capes.gov.br/handle/11449/240330?mode=full",
+    "licence": "Elsevier subscription journal; repository record at UNESP",
+    "licence_evidence": "No CC statement seen in snippets.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "(2021) Leg press and chest press strength normative values by half-decades in older persons. Experimental Gerontology. PMID 33974938",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/33974938/",
+    "licence": "Elsevier subscription journal",
+    "licence_evidence": "Listed as paywalled in sibling file studies.json; not re-checked.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   },
+   {
+    "citation": "Estimation of 1-Repetition Maximum Using a Hydraulic Bench Press Machine Based on User's Lifting Speed and Load Weight. Sensors (MDPI), Jan 2022.",
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8778367/ ; https://doaj.org/article/b09a5f505f1b43ceaf59c6778142eb62",
+    "licence": "CC BY 4.0 (MDPI journal-wide)",
+    "licence_evidence": "MDPI publishes all articles under CC BY 4.0; article in DOAJ and PMC. Article-level line not fetched.",
+    "usable_commercially": "yes",
+    "reasoning": "Open licence; but no usable ratio numbers were retrieved."
+   }
+  ],
+  "confidence": "medium for 20-29 p10/p90 (two independent sources agree); low until verified for the rest of the recalled table. Machine loads vary by brand (cam/lever), so any machine norm is inherently approximate.",
+  "verification": "Only the 20-29 p10/p90 cut-offs are corroborated (Springer ESM snippet, recorded in sibling studies.json). The full recalled table and the 'Universal DVR machine' footnote must be checked against an ACSM Guidelines copy before use."
+ },
+ {
+  "exercise": "machine chest press (plate-loaded)",
+  "approach": "ratio to free-weight barbell bench press",
+  "numbers": [
+   {
+    "what": "Hammer Strength (plate-loaded) vs matched free-weight 1RM",
+    "value": "1RMs significantly greater (p<0.05) on Hammer Strength equipment for all exercises (chest press, shoulder press, preacher curl vs free-weight counterparts); regression equations given to predict free-weight 1RM (none for shoulder press and preacher curl). Magnitude not retrieved.",
+    "units": "kg",
+    "sex": "male",
+    "population": "trained men",
+    "n": 31,
+    "source": "JSCR 2010 PMID 20940634 / Thoma 2006 WKU thesis"
+   }
+  ],
+  "ratio_value_if_derivable": {
+   "plate_loaded_chest_press/barbell_bench": ">1.0 (direction confirmed, magnitude unknown)"
+  },
+  "sources": [
+   {
+    "citation": "Specificity of training modalities on upper-body one repetition maximum performance: free weights vs. Hammer Strength equipment. Journal of Strength and Conditioning Research (2010). doi:10.1519/JSC.0b013e3181e726c6; PMID 20940634. Related thesis: Thoma (2006), Western Kentucky University master's thesis.",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/20940634/ ; https://digitalcommons.kennesaw.edu/facpubs/2425 ; https://digitalcommons.wku.edu/theses/299",
+    "licence": "JSCR subscription (NSCA/Wolters Kluwer); WKU thesis freely downloadable on TopSCHOLAR (licence not checked)",
+    "licence_evidence": "Paywalled journal; thesis is on an institutional OA repository - specific rights statement not retrieved.",
+    "usable_commercially": "facts-only",
+    "reasoning": "General legal position: individual numbers/findings (means, SDs, ratios) are facts and not copyrightable (US: Feist v. Rural, 499 U.S. 340 (1991); UK/EU copyright likewise protects expression, not data points; EU/UK sui generis database right protects substantial extraction from a database, not a handful of figures from a paper). Text, table layout and figures are protected unless the licence permits reuse."
+   }
+  ],
+  "confidence": "low (magnitude unknown; machine-specific leverage)",
+  "verification": "Open the WKU thesis (digitalcommons.wku.edu/theses/299) - likely freely downloadable PDF with means and the regression equation for chest press. Not reachable from sandbox."
+ },
+ {
+  "exercise": "_dataset_checks (Olympic variants)",
+  "approach": "dataset search",
+  "numbers": [
+   {
+    "what": "OpenWeightlifting event_data columns",
+    "value": "meet,date,age_category,lifter,body_weight_(kg),snatch_lift_1-3,c&j_lift_1-3,best_snatch,best_c&j,total",
+    "units": "",
+    "sex": "",
+    "population": "",
+    "n": null,
+    "source": "local copy dl_owl/repo/event_data/US/999.csv header"
+   },
+   {
+    "what": "conclusion",
+    "value": "OpenWeightlifting contains competition snatch and clean & jerk only - no power clean, hang clean, power snatch or push press. Kaggle CrossFit athletes dataset (from memory) has C&J/snatch/deadlift/back squat but no power variants; licence unverified. No public strongman/CrossFit dataset with power clean/push press found.",
+    "units": "",
+    "sex": "",
+    "population": "",
+    "n": null,
+    "source": ""
+   }
+  ],
+  "ratio_value_if_derivable": null,
+  "sources": [
+   {
+    "citation": "OpenWeightlifting (euanwm/OpenWeightlifting), event_data/*.csv",
+    "url": "https://github.com/euanwm/OpenWeightlifting",
+    "licence": "Data: public domain dedication; code BSD-3-Clause",
+    "licence_evidence": "README: 'OpenWeightlifting data (*.csv) under event_data/ is contributed to the public domain ... all data (*.csv) in the event_data/ folder is waived of all copyright and related or neighboring rights.' (local copy dl_owl/repo/README.md)",
+    "usable_commercially": "yes",
+    "reasoning": "Public domain, but contains competition lifts only."
+   },
+   {
+    "citation": "Kaggle 'CrossFit Athletes' dataset (ulrikthygepedersen), scraped CrossFit Games/Open athlete profiles",
+    "url": "https://baselight.app/u/kaggle/dataset/ulrikthygepedersen_crossfit_athletes",
+    "licence": "Not verified",
+    "licence_evidence": "Search snippet did not show column list or licence; underlying data scraped from CrossFit profiles (CrossFit terms not checked).",
+    "usable_commercially": "unclear",
+    "reasoning": "From memory the dataset has candj/snatch/deadlift/backsq self-reported maxes but NO power clean/push press/power snatch - not verified this session."
+   }
+  ],
+  "confidence": "high for OWL (column header checked); low for Kaggle (not opened)",
+  "verification": "GitHub code-search API is blocked in this session; README + CSV header inspected locally."
+ }
+]

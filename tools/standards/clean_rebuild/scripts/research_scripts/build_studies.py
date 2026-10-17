@@ -1,0 +1,440 @@
+"""Builds studies.json. Every number below was read from web-search result text
+(abstracts, table snippets, repository pages). Full-text fetching was blocked in this
+environment, so `verification` says how far each number has been checked."""
+import json, sys
+
+V_ABS = "number taken from abstract/table snippet via web search; full text not opened - verify before use"
+V_SEC = "number taken from a secondary transcription (calculator/fitness site quoting the source); verify against the primary document"
+V_LEAD = "no numbers retrieved (full text not reachable); high-value lead - open the full text to extract the table"
+
+S = []
+def add(**k): S.append(k)
+
+# ---------------------------------------------------------------- 1RM: general / recreational
+add(citation="Tiggemann CL, et al. (2011). The reliability of the one maximum repetition in sedentary, active and strength-trained subjects. Motriz: Revista de Educacao Fisica 17(4):700-707. doi:10.1590/S1980-65742011000400015",
+    url="https://scielo.br/j/motriz/a/dHX3kMhcqLfxKCsgBgm3qjS/?lang=en",
+    licence="Open access (SciELO / DOAJ). SciELO journals are usually CC BY or CC BY-NC - check article page. Means are facts either way.",
+    population="30 adults aged 18-34, three groups of 10: sedentary, physically active, strength-trained (sex not stated in snippet; likely men - check)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="bench press (flat barbell)", sex="unspecified (likely male)", metric="1RM kg, test1 -> test2 group means",
+           values={"sedentary": [56.4, 57.6], "active": [68.8, 69.4], "strength_trained": [87.2, 88.6]},
+           notes="Two familiarisation sessions before testing; 1RM rose significantly between tests in all groups. ICC 0.922-0.997."),
+      dict(name="45-degree leg press", sex="unspecified (likely male)", metric="1RM kg, test1 -> test2 group means",
+           values={"sedentary": [222.5, 229.5], "active": [238.5, 244.0], "strength_trained": [321.5, 336.4]},
+           notes="Sled leg press loads (plate-loaded 45 deg); sled weight convention not stated."),
+    ])
+
+add(citation="Journal of Sports Science and Medicine (2011) vol 10 p 577, Table 1 'Descriptive characteristics and maximal strength (1-RM) of the subjects' (article title not confirmed; same values appear at PMC3737817 table001)",
+    url="https://www.jssm.org/tablejssm-10-577.xml/table001.xml",
+    licence="JSSM is free open access (also in PMC). Check the article's licence statement; the means themselves are facts.",
+    population="13 men, 10 women, young adults (training status not confirmed in snippet)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="leg press", sex="male", metric="1RM kg mean (SD)", values={"mean": 219, "sd": 44}, notes="p<0.01 vs women"),
+      dict(name="leg press", sex="female", metric="1RM kg mean (SD)", values={"mean": 118, "sd": 29}, notes="women/men = 0.54"),
+      dict(name="bench press", sex="male", metric="1RM kg mean (SD)", values={"mean": 77, "sd": 8}, notes=""),
+      dict(name="bench press", sex="female", metric="1RM kg mean (SD)", values={"mean": 38, "sd": 5}, notes="women/men = 0.49"),
+    ])
+
+add(citation="Comfort P, Bullock N, Pearson SJ (2012). A comparison of maximal squat strength and 5-, 10-, and 20-meter sprint times, in athletes and recreationally trained men. J Strength Cond Res 26(4):937-940.",
+    url="https://salford-repository.worktribe.com/output/1415540/a-comparison-of-maximal-squat-strength-and-5-10-and-20-meter-sprint-times-in-athletes-and-recreationally-trained-men",
+    licence="Paywalled journal (author accepted manuscript in Salford repository). Numbers are facts; do not copy tables verbatim.",
+    population="20 recreationally trained men (vs 24 professional rugby league players)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="back squat", sex="male", metric="1RM kg mean (SD)", values={"recreational": {"mean": 135.45, "sd": 30.07}, "rugby_pros": {"mean": 170.63, "sd": 21.43}}, notes=""),
+      dict(name="back squat", sex="male", metric="1RM / body mass (kg/kg) mean (SD)", values={"recreational": {"mean": 1.78, "sd": 0.33}, "rugby_pros": {"mean": 1.78, "sd": 0.27}},
+           notes="A secondary article gives body mass ~79 kg for the recreational group (unverified)."),
+    ])
+
+add(citation="Lee (2017). The effect of 12-week resistance training on muscular strength and body composition in untrained young women: implications of exercise frequency. Journal of Exercise Physiology Online 20(4):88-95.",
+    url="https://scholarworks.gnu.ac.kr/handle/sw.gnu/14940",
+    licence="JEPonline (ASEP) is free to read; copyright retained by publisher. Numbers are facts.",
+    population="17 untrained female college students (8 trained 3x/wk, 9 trained 1x/wk)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="bench press", sex="female", metric="1RM kg, pre -> post 12 wk",
+           values={"1x_per_week": {"pre_mean": 19.55, "pre_se_or_sd": 0.85, "post_mean": 24.33, "post_se_or_sd": 1.01}, "3x_per_week": {"pre_mean": 20.62, "post_mean": 23.62}},
+           notes="Good anchor for a true-beginner woman: ~20 kg bench press. +/- value likely SE. Lat pulldown 1RM also measured (values not retrieved)."),
+    ])
+
+add(citation="Ribeiro AS, et al. (2014). Reliability of one-repetition maximum test in untrained young adult men and women. Isokinetics and Exercise Science.",
+    url="https://repositorio.unesp.br/handle/11449/117496",
+    licence="Paywalled journal; UNESP repository record. Numbers are facts.",
+    population="13 untrained men, 11 untrained women, 18-35 y",
+    verification=V_ABS,
+    exercises=[
+      dict(name="bench press / Smith-machine squat / arm curl", sex="both", metric="% increase in 1RM from session 1 to session 4 (learning effect)",
+           values={"bench_press": {"male_pct": 10.5, "female_pct": 13.1}, "smith_squat": {"male_pct": 17.6, "female_pct": 20.7}, "arm_curl": {"male_pct": 7.5, "female_pct": 11.7}},
+           notes="Useful for a 'first test underestimates true 1RM by 10-20% in novices' correction. Absolute kg not retrieved."),
+    ])
+
+add(citation="Ribeiro AS, et al. (2014). Effect of 16 weeks of resistance training on fatigue resistance in men and women. Journal of Human Kinetics 42:165-174. doi:10.2478/hukin-2014-0071",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4234756/",
+    licence="Open access in PMC (J Hum Kinet; typically CC BY-NC-ND 3.0 - check). Numbers are facts.",
+    population="58 untrained men (body mass ~70.6 kg), 65 untrained women (~58.8 kg)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="bench press", sex="both", metric="% 1RM gain after 16 wk training (3x/wk)", values={"male_pct": 16, "female_pct": 26}, notes="Baseline kg in full-text table (not retrieved)."),
+      dict(name="barbell arm curl", sex="both", metric="% 1RM gain after 16 wk", values={"male_pct": 14, "female_pct": 23}, notes=""),
+    ])
+
+add(citation="Miller AE, MacDougall JD, Tarnopolsky MA, Sale DG (1993). Gender differences in strength and muscle fiber characteristics. Eur J Appl Physiol 66(3):254-262.",
+    url="https://pubmed.ncbi.nlm.nih.gov/8477683/",
+    licence="Paywalled (Springer). Ratios are facts.",
+    population="8 men, 8 women (mixed/modest training histories)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="upper-body vs lower-body strength (sex ratio)", sex="female relative to male", metric="women's strength as % of men's",
+           values={"upper_body_pct": 52, "lower_body_pct": 66}, notes="Classic basis for setting female standards lower for upper-body lifts (bench/OHP ~50-55% of male) than lower-body lifts (squat/deadlift/leg press ~65%)."),
+    ])
+
+add(citation="Biology of Sport (2023/2024; first author not confirmed). Effects of light- vs. heavy-load squat training on velocity, strength, power, and total mechanical work in recreationally trained men and women.",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10955750/",
+    licence="Open access (Biology of Sport; check CC licence - often CC BY-NC-ND 4.0).",
+    population="22 recreationally trained men, 16 recreationally trained women",
+    verification=V_LEAD,
+    exercises=[dict(name="Smith machine squat", sex="both", metric="estimated 1RM kg baseline", values=None, notes="Participant-characteristics table should give baseline squat 1RM by sex.")])
+
+add(citation="IJERPH (2022) 19(11):6756. Bar load-velocity profile of full squat and bench press exercises in young recreational athletes.",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9180020/",
+    licence="CC BY 4.0 (MDPI).",
+    population="96 young women, 256 young men, recreational athletes, not strength-trained",
+    verification=V_LEAD,
+    exercises=[dict(name="full (deep) squat, bench press", sex="both", metric="1RM kg and 1RM/BM", values=None,
+                    notes="Large n of non-strength-trained young adults by sex - probably the best single open-licence source for squat+bench means/SDs. Extract Table 1.")])
+
+add(citation="Bioengineering (2023) 10(7):865. First insights in the relationship between lower limb anatomy and back squat performance in resistance-trained males and females.",
+    url="https://doi.org/10.3390/bioengineering10070865",
+    licence="CC BY 4.0 (MDPI).",
+    population="resistance-trained men and women (n not retrieved)",
+    verification=V_ABS,
+    exercises=[dict(name="back squat", sex="pooled", metric="1RM kg mean (SD), range", values={"mean": 141.6, "sd": 36.8, "range": [95, 190]}, notes="Sex-specific values in full text.")])
+
+add(citation="Bartolomei S, Grillone G, Di Michele R, Cortesi M (2021). A comparison between male and female athletes in relative strength and power performances. J Funct Morphol Kinesiol 6(1):17.",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7930971/",
+    licence="CC BY 4.0 (MDPI).",
+    population="16 men, 14 women, resistance-trained athletes",
+    verification=V_LEAD,
+    exercises=[dict(name="bench press, squat, deadlift", sex="both", metric="1RM kg and per lean body mass", values=None,
+                    notes="After adjusting for lean mass, men still stronger on bench (sig.) but NOT on squat (p=0.945) or deadlift - supports smaller sex gap for lower body.")])
+
+add(citation="Jones MT, Jagim AR, Haff GG, Carr PJ, Martin J, Oliver JM (2016). Greater strength drives difference in power between sexes in the conventional deadlift exercise. Sports 4(3):43. doi:10.3390/sports4030043",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5968884/",
+    licence="CC BY 4.0 (MDPI).",
+    population="9 strength-trained women (BM 62 +/- 2.4 kg), 9 strength-trained men (BM 85.5 +/- 1.4 kg)",
+    verification=V_ABS,
+    exercises=[
+      dict(name="conventional deadlift", sex="male", metric="1RM / body mass", values={"mean": 2.3, "sd": 0.1}, notes="Implied absolute ~197 kg (2.3 x 85.5) - computed, not reported."),
+      dict(name="conventional deadlift", sex="female", metric="1RM / body mass", values={"mean": 1.6, "sd": 0.1}, notes="Implied absolute ~99 kg (1.6 x 62) - computed. Strength-trained athletes = upper-intermediate anchor, not average gym-goer."),
+    ])
+
+add(citation="Hagerupsen et al. (2024). Comparison of resistance training using barbell half squats and trap bar deadlifts on maximal strength, power performance, and lean mass in recreationally active females: an eight-week randomised trial. BMC Sports Sci Med Rehabil. doi:10.1186/s13102-024-00911-8",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11140948/",
+    licence="CC BY 4.0 (BMC).",
+    population="22 recreationally active women, 26.9 +/- 7.7 y, 166.0 +/- 5.1 cm, 68.6 +/- 9.9 kg",
+    verification=V_ABS,
+    exercises=[
+      dict(name="half squat", sex="female", metric="8-wk 1RM gain kg mean (SD)", values={"squat_group": {"mean": 21.0, "sd": 11.5}, "trap_bar_group": {"mean": 13.1, "sd": 7.5}}, notes="Baseline 1RMs in full text (not retrieved)."),
+      dict(name="trap bar deadlift", sex="female", metric="8-wk 1RM gain kg mean (SD)", values={"trap_bar_group": {"mean": 18.4, "sd": 11.2}, "squat_group": {"mean": 11.7, "sd": 8.1}}, notes="Beginner progression-rate data."),
+    ])
+
+add(citation="Byrd MT, Dinyer TK, Bergstrom HC (2018). Sex comparisons for very short-term dynamic constant external resistance training. J Funct Morphol Kinesiol 3(4):50.",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7739250/",
+    licence="CC BY 4.0 (MDPI).",
+    population="10 women (21.3 y, 71.4 +/- 10.7 kg), 10 men (24.6 y, 88.6 +/- 11 kg), untrained/recreational",
+    verification=V_ABS,
+    exercises=[dict(name="bench press", sex="both", metric="% 1RM gain after 3 sessions", values={"male_pct": 5.1, "female_pct": 5.4}, notes="Baseline 1RM kg in full text.")])
+
+add(citation="Ugurlu et al. (2024). Dose-response effects of 8-week resistance training on body composition and muscular performance in untrained young women: a quasi-experimental design. Medicine (Baltimore).",
+    url="https://pmc.ncbi.nlm.nih.gov/articles/PMC11537639",
+    licence="Open access (Medicine is CC BY 4.0 / CC BY-NC - check).",
+    population="45 untrained women, ~20.7 y",
+    verification=V_LEAD,
+    exercises=[dict(name="squat, bench press (1RM)", sex="female", metric="baseline 1RM kg", values=None, notes="Untrained-women baseline table.")])
+
+add(citation="Hoeger WWK, Hopkins DR, Barette SL, Hale DF (1990). Relationship between repetitions and selected percentages of one repetition maximum: a comparison between untrained and trained males and females. J Appl Sport Sci Res 4(2):47-54.",
+    url="https://journals.lww.com/nsca-jscr/abstract/1990/05000/relationship_between_repetitions_and_selected.4.aspx",
+    licence="Paywalled (NSCA/LWW). Numbers are facts; do not reproduce tables verbatim.",
+    population="untrained men (38), untrained women (40), trained men (25), trained women (26), college age",
+    verification=V_ABS,
+    exercises=[
+      dict(name="leg press", sex="female (trained)", metric="max reps at %1RM mean (SD)", values={"80pct": {"mean": 22.4, "sd": 10.7}, "60pct": {"mean": 57.3, "sd": 27.9}, "40pct": {"mean": 146.1, "sd": 66.9}}, notes="Secondary-source figure. Also holds 1RMs for 7 machine lifts (leg press, lat pulldown, bench, knee extension, sit-up, arm curl, leg curl) by sex/training - extract from full text."),
+      dict(name="reps at 80% 1RM by exercise type", sex="pooled", metric="typical reps", values={"multi_joint_bench_legext_latpull_legpress": "10-15", "leg_curl_arm_curl": "6-8"}, notes="Important: the reps-to-1RM conversion differs by exercise; matters if you estimate 1RM from rep sets."),
+    ])
+
+add(citation="Shimano T, et al. (2006). Relationship between the number of repetitions and selected percentages of one repetition maximum in free weight exercises in trained and untrained men. J Strength Cond Res 20(4):819-823.",
+    url="https://ro.ecu.edu.au/ecuworks/2069",
+    licence="Paywalled (NSCA/LWW).",
+    population="8 trained, 8 untrained men",
+    verification=V_LEAD,
+    exercises=[dict(name="back squat, bench press, arm curl", sex="male", metric="1RM kg (trained vs untrained) and reps at 60/80/90%", values=None,
+                    notes="More reps on squat than bench/curl at 60%. Table 1 has 1RMs for trained & untrained men.")])
+
+add(citation="Levinger I, et al. (2009). The reliability of the 1RM strength test for untrained middle-aged individuals. J Sci Med Sport 12(2):310-316.",
+    url="https://vuir.vu.edu.au/4408/",
+    licence="Paywalled (Elsevier).",
+    population="53 untrained middle-aged adults (25 men, 28 women), mean age ~51",
+    verification=V_LEAD,
+    exercises=[dict(name="7 machine exercises incl. chest press, leg press (likely lat pulldown, leg extension, leg curl, seated row, arm curl)", sex="both", metric="1RM kg", values=None,
+                    notes="ICC > 0.99. Good source for machine 1RMs in untrained 40-60 y adults.")])
+
+add(citation="Piper T, Furman B, Smith C, Waller M (2021). Establishing normative data for 10RM strength scores in college-aged males. International Journal of Strength and Conditioning 1(1). doi:10.47206/ijsc.v1i1.40  AND  Piper et al. (2022) ... college-aged females. IJSC 2(1). doi:10.47206/ijsc.v2i1.138",
+    url="https://journal.iusca.org/index.php/Journal/article/view/138",
+    licence="Open access, IUSCA journal (DOAJ-listed; IJSC publishes under CC BY 4.0 - confirm on article page).",
+    population="College strength-training course students, 18-25 y; females n=371 (mean age ~19.9); males from 5 years of testing",
+    verification=V_LEAD,
+    exercises=[dict(name="bench press, leg press (squat-type), lat pulldown, seated front (overhead) press, preacher curl", sex="both (separate papers)", metric="10RM (lb) percentile tables by bodyweight class, pre- and post-training",
+                    values=None, notes="TOP PRIORITY: exactly the target population (beginner/novice gym users), percentiles by bodyweight class, machine + free-weight lifts, OHP, openly licensed. Convert 10RM to 1RM (~75% of 1RM).")])
+
+add(citation="Cal Poly Humboldt master's theses: (a) 'A preliminary study for the development of free weight back squat muscular fitness reference norms for adults aged 19-29' (2022, etd/604); (b) Medina L. 'Preliminary study on free-weight back squat muscular hypertrophy reference norms' (2026, etd/2542); (c) Kwon YS, Robergs RA, So H, Mermier CM - poster 'Free weight bench press muscular fitness normative data: adults aged 20-29 years'",
+    url="https://digitalcommons.humboldt.edu/etd/604/",
+    licence="Theses on Digital Commons: author copyright, free to read. Percentile values are facts; cite.",
+    population="(a) 399 adults 19-29 (51% male); (b) 138 adults 20-29 (86 men, 52 women); (c) adults 20-29",
+    verification=V_ABS,
+    exercises=[
+      dict(name="back squat (free weight)", sex="pooled", metric="1RM mean (SD), units not stated (very likely lb)", values={"mean": 213.8, "sd": 72.6},
+           notes="Thesis (a) gives 5th-95th / 1st-99th percentile ranks by sex for 1RM, 1RM/BM, 1RM/LBM and 1RM/BM^0.67 - extract. Men > women in 8 of 9 metrics."),
+      dict(name="bench press (free weight)", sex="both", metric="percentile norms", values=None, notes="(c) poster notes the only general-population bench norms (Cooper Institute) used a Universal DVR machine, not a free barbell."),
+    ])
+
+add(citation="Supplementary table (ESM2) to Supportive Care in Cancer (2022) article doi:10.1007/s00520-022-07217-w: 'Normative data for strength and functional tests for 20-29 year old males and females' (10th-90th percentile range)",
+    url="https://media.springernature.com/original/springer-static/esm/art%3A10.1007%2Fs00520-022-07217-w/MediaObjects/520_2022_7217_MOESM2_ESM.docx",
+    licence="Springer supplementary file - licence follows the article (check; if OA then CC BY 4.0). Original data source of the norms is cited inside the file - trace it.",
+    population="Healthy adults 20-29",
+    verification=V_ABS,
+    exercises=[
+      dict(name="chest press (1RM)", sex="male", metric="1RM / body mass, 10th-90th percentile", values={"p10": 0.80, "p90": 1.48}, notes=""),
+      dict(name="chest press (1RM)", sex="female", metric="1RM / body mass, 10th-90th percentile", values={"p10": 0.48, "p90": 0.90}, notes=""),
+      dict(name="leg press (1RM)", sex="male", metric="1RM / body mass, 10th-90th percentile", values={"p10": 1.51, "p90": 2.27}, notes=""),
+      dict(name="leg press (1RM)", sex="female", metric="1RM / body mass, 10th-90th percentile", values={"p10": 1.14, "p90": 1.82}, notes=""),
+    ])
+
+add(citation="The Cooper Institute bench press 1RM/body-weight norms (Universal DVR machine), as reprinted in ACE '38 Bench Press Assessment Protocol' and ACSM's Guidelines for Exercise Testing and Prescription",
+    url="https://www.acefitness.org/images/webcontent/assets/certification/ace-answers/forms/pt/38_Bench-Press_Assessment_Protocol.pdf",
+    licence="Copyrighted table (Cooper Institute / ACE / ACSM). Individual cut-points are facts; don't reproduce the table layout; prefer as a cross-check.",
+    population="Cooper Clinic adults (US), by age decade and sex; measured on a Universal DVR machine bench",
+    verification=V_ABS,
+    exercises=[
+      dict(name="bench press (machine)", sex="male 20-29", metric="1RM / body weight", values={"excellent_80th_pct": 1.32, "good_60th_pct": 1.14}, notes="Other age bands and categories in source table."),
+      dict(name="bench press (machine)", sex="female 20-29", metric="1RM / body weight", values={"excellent_80th_pct": 0.80}, notes=""),
+    ])
+
+add(citation="Augustsson J, Svantesson U (2013?). Reliability of the 1 RM bench press and squat in young women. European Journal of Physiotherapy.",
+    url="https://www.researchgate.net/publication/256079105_Reliability_of_the_1_RM_bench_press_and_squat_in_young_women",
+    licence="Paywalled.",
+    population="41 women aged 21-30",
+    verification=V_LEAD,
+    exercises=[dict(name="bench press, squat", sex="female", metric="1RM kg", values=None, notes="Descriptive 1RMs for young women in full text.")])
+
+# ---------------------------------------------------------------- ratios between lifts
+add(citation="Rodriguez-Ridao D, Antequera-Vique JA, Martin-Fuentes I, Muyor JM (2020). Effect of five bench inclinations on the electromyographic activity of the pectoralis major, anterior deltoid, and triceps brachii during the bench press exercise. IJERPH 17(19):7339.",
+    url="https://www.mdpi.com/1660-4601/17/19/7339",
+    licence="CC BY 4.0 (MDPI open access).",
+    population="30 resistance-trained adults",
+    verification=V_ABS,
+    exercises=[dict(name="barbell bench press at bench inclinations", sex="pooled", metric="1RM kg mean (SD)",
+                    values={"0deg_flat": {"mean": 81.4, "sd": 15.5}, "15deg": {"mean": 72.0, "sd": 14.0}, "30deg": {"mean": 63.3, "sd": 12.3}, "45deg": {"mean": 57.9, "sd": 9.7}, "60deg": {"mean": 52.2, "sd": 9.0}},
+                    notes="Derived ratios to flat: 15deg 0.88, 30deg 0.78, 45deg 0.71, 60deg 0.64. 60deg approximates a seated overhead-ish press.")])
+
+add(citation="Gullett JC, Tillman MD, Gutierrez GM, Chow JW (2009). A biomechanical comparison of back and front squats in healthy trained individuals. J Strength Cond Res 23(1):284-292.",
+    url="https://www.researchgate.net/publication/23466524_A_Biomechanical_Comparison_of_Back_and_Front_Squats_in_Healthy_Trained_Individuals",
+    licence="Paywalled (NSCA/LWW). Numbers are facts.",
+    population="15 healthy trained individuals (men and women)",
+    verification=V_ABS,
+    exercises=[dict(name="back squat vs front squat", sex="pooled", metric="test load kg mean (SD) (loads were set relative to each lift's own 1RM)",
+                    values={"back_squat": {"mean": 61.8, "sd": 18.6}, "front_squat": {"mean": 48.5, "sd": 14.1}},
+                    notes="Ratio front/back = 0.78 (computed). Back load ~90% BM, front ~70% BM. Because both loads are the same %1RM, the ratio applies to 1RM.")])
+
+add(citation="Saeterbakken AH, van den Tillaar R, Fimland MS (2011). A comparison of muscle activity and 1-RM strength of three chest-press exercises with different stability requirements. J Sports Sci 29(5):533-538.",
+    url="https://app.cristin.no/results/show.jsf?id=741530",
+    licence="Paywalled (Taylor & Francis). Percentages are facts.",
+    population="12 healthy resistance-trained men",
+    verification=V_ABS,
+    exercises=[dict(name="barbell vs dumbbell vs Smith machine bench press", sex="male", metric="relative 1RM",
+                    values={"dumbbell_vs_barbell_pct_less": 17, "dumbbell_vs_smith_pct_less": 14, "barbell_vs_smith_pct_more": 3},
+                    notes="Dumbbell 1RM = total of both dumbbells ~0.83 x barbell 1RM (i.e. ~0.415 per hand).")])
+
+add(citation="Jackson WR (2012). Comparison between 1 repetition maximum barbell and 1 repetition maximum dumbbell bench press. Master's thesis, Arkansas State University.",
+    url="https://arch.astate.edu/all-etd/866/",
+    licence="Thesis, free to read, author copyright. Equation is a fact.",
+    population="56 men",
+    verification=V_ABS,
+    exercises=[dict(name="dumbbell bench press vs barbell bench press", sex="male", metric="1RM (lb) regression",
+                    values={"equation_lb": "DB_1RM = 24.7595 + 0.698 * BB_1RM", "SEE_lb": 14.33, "summary_ratio": 0.80},
+                    notes="Authors: ~80% of barbell 1RM using dumbbells (combined). Consistent with Saeterbakken 2011 (~83%).")])
+
+add(citation="Cotterman ML, Darby LA, Skelly WA (2005). Comparison of muscle force production using the Smith machine and free weights for bench press and squat exercises. J Strength Cond Res 19(1):169-176.",
+    url="https://pubmed.ncbi.nlm.nih.gov/15705030/",
+    licence="Paywalled. Equation is a fact.",
+    population="32 men and women",
+    verification=V_ABS,
+    exercises=[dict(name="Smith machine bench vs free-weight bench", sex="pooled", metric="1RM kg conversion",
+                    values={"equation_kg": "SM_bench_1RM = -6.76 + 0.95 * FW_bench_1RM"},
+                    notes="Free-weight bench > Smith for both sexes. The paper also gives a squat conversion (Smith squat > free squat) - not retrieved.")])
+
+add(citation="Swinton PA, Stewart A, Agouris I, Keogh JW, Lloyd R (2011). A biomechanical analysis of straight and hexagonal barbell deadlifts using submaximal loads. J Strength Cond Res 25(7):2000-2009.  PLUS  Camara KD et al. (2016) An examination of muscle activation and power characteristics while performing the deadlift exercise with straight and hexagonal barbells. J Strength Cond Res 30(5):1183-1188.",
+    url="https://pubmed.ncbi.nlm.nih.gov/21659894/",
+    licence="Paywalled. Numbers are facts.",
+    population="Swinton: 19 male powerlifters; Camara: 20 men (recreationally trained)",
+    verification=V_ABS,
+    exercises=[dict(name="hex/trap bar deadlift vs straight bar deadlift", sex="male", metric="1RM kg mean (SD)",
+                    values={"swinton_powerlifters": {"hex": {"mean": 265, "sd": 41}, "straight": {"mean": 245, "sd": 39}}, "camara_20_men": {"straight": 181.4, "hex": 181.1}},
+                    notes="Hex/straight ratio ~1.08 in powerlifters, ~1.00 in non-specialists. Use ~1.0-1.05.")])
+
+add(citation="Ratamess NA, et al. (2007). Acute muscular strength assessment using free weight bars of different thickness. J Strength Cond Res 21(1):240-244.",
+    url="https://www.bisp-surf.de/Record/PU201006004964",
+    licence="Paywalled.",
+    population="11 resistance-trained men (22.1 +/- 1.6 y, 90.5 +/- 8.9 kg, 8.2 y training)",
+    verification=V_ABS,
+    exercises=[dict(name="deadlift, bent-over row, upright row, bench press, seated shoulder press, arm curl (same subjects)", sex="male", metric="1RM loss with thick bars (%)",
+                    values={"deadlift_2in": -28.3, "deadlift_3in": -55.0, "bent_over_row_2in": -8.9, "bent_over_row_3in": -37.3, "upright_row_3in": -26.1, "arm_curl_3in": -17.6},
+                    notes="Standard-bar 1RMs for all 6 lifts in the same men are in Table 1 -> would give row/bench, OHP/bench, curl/bench and deadlift/bench ratios. Extract.")])
+
+add(citation="Sanchez-Medina L, Gonzalez-Badillo JJ, et al. (2014). Velocity- and power-load relationships of the bench pull vs. bench press exercises. Int J Sports Med 35(3):209-216. doi:10.1055/s-0033-1351252",
+    url="https://dx.doi.org/10.1055/s-0033-1351252",
+    licence="Paywalled (Thieme).",
+    population="75 athletes",
+    verification=V_LEAD,
+    exercises=[dict(name="prone bench pull vs bench press", sex="male", metric="1RM kg", values=None, notes="1RM greater for bench press than bench pull; exact ratio in full text.")])
+
+add(citation="Kim PS, Mayhew JL, Peterson DF (2002). A modified YMCA bench press test as a predictor of 1 repetition maximum bench press strength. J Strength Cond Res 16(3):440-445.",
+    url="https://pubmed.ncbi.nlm.nih.gov/12173960/",
+    licence="Paywalled.",
+    population="58 medical students (37 men, 21 women)",
+    verification=V_ABS,
+    exercises=[dict(name="YMCA bench press reps -> 1RM bench", sex="both", metric="prediction SEE kg",
+                    values={"male_SEE_30rpm": 8.0, "male_SEE_60rpm": 8.2, "female_SEE_30rpm": 3.1, "female_SEE_60rpm": 2.7, "r2_male": [0.757, 0.884], "r2_female": [0.754, 0.816]},
+                    notes="YMCA test uses 80 lb (36 kg) bar men / 35 lb (16 kg) women. Mean 1RMs in full text.")])
+
+# ---------------------------------------------------------------- pull-ups / lat pulldown
+add(citation="Bayonas A, et al. (2025). Relative Strength Ratio and 1RM in the prone-grip pull-up exercise [dataset]. Mendeley Data V1. doi:10.17632/yf5xvycdn2.1 ; companion abstract: 'Maximum number of repetitions and relative strength in the prone-grip pull-up exercise in men and women', Proc Physiol Soc 62, C10 (2024).",
+    url="https://data.mendeley.com/datasets/yf5xvycdn2/1",
+    licence="Mendeley Data raw dataset - licence field not visible in search (Mendeley Data defaults to CC BY 4.0; confirm). If CC BY: commercial use OK with attribution.",
+    population="84 participants (69 men, 15 women), Universidad de Murcia, trained",
+    verification=V_LEAD,
+    exercises=[dict(name="weighted pull-up 1RM; bodyweight pull-up max reps", sex="both", metric="raw individual data: age, height, weight, body fat, muscle mass, 1RM (added load), MNR",
+                    values=None, notes="RAW, openly licensed individual data - ideal for deriving pull-up reps <-> relative strength model and percentiles.")])
+
+add(citation="Feng et al. (2022). Impact of COVID-19 on 1000 m running and pull-up performance among college men living in China. IJERPH 19(16):9930.",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9408354/",
+    licence="CC BY 4.0 (MDPI).",
+    population="7,107 male university students, 19.21 +/- 1.17 y (Tsinghua)",
+    verification=V_ABS,
+    exercises=[dict(name="pull-up (max reps)", sex="male", metric="% change 2019->2020", values={"overall_pct_change": -23.89, "third_year_pct": -39.11, "first_year_pct": 10.98},
+                    notes="Mean pull-up counts by year in Table (not retrieved) - very large n of untrained college men.")])
+
+add(citation="EFDeportes (Lecturas: Educacion Fisica y Deportes). Influencia de la fuerza relativa en el numero maximo de repeticiones en la barra fija en estudiantes universitarios.",
+    url="https://efdeportes.com/efdeportes/index.php/EFDeportes/article/view/8534",
+    licence="Open access journal (check licence on page; EFDeportes commonly CC BY-NC-ND).",
+    population="23 physical-education university students, 20.9 +/- 2.4 y (sex mix not retrieved)",
+    verification=V_ABS,
+    exercises=[dict(name="pull-up (max reps), lat pulldown 1RM, pull-up 1RM", sex="unspecified", metric="max reps mean (SD); correlation with relative strength",
+                    values={"pullup_reps_mean": 14.8, "pullup_reps_sd": 2.62, "r_relative_strength": [0.56, 0.62], "R2": [0.31, 0.38]},
+                    notes="PE students = trained-ish. Relative lat-pulldown 1RM/BM predicts reps moderately.")])
+
+add(citation="Marmara University thesis: 'Yetiskin bireylerde sirt kaslarinin rolatif kuvvet norm degerlerinin belirlenmesi' (Determination of relative strength norm values of back muscles in adults).",
+    url="https://openaccess.marmara.edu.tr/entities/publication/7af02df7-46b5-48ab-9695-ac38c1e7d7f3",
+    licence="Open-access institutional repository; author copyright - norms are facts.",
+    population="579 healthy adults 18-65 (245 women, 334 men), Turkey",
+    verification=V_LEAD,
+    exercises=[dict(name="lat pulldown", sex="both", metric="estimated 1RM (Epley, from submax reps) / body weight; percentile norms (5% steps) by age group and sex",
+                    values=None, notes="Rare general-population machine norm by age, sex and bodyweight. Extract tables.")])
+
+# ---------------------------------------------------------------- older adults / machines
+add(citation="(2021) Leg press and chest press strength normative values by half-decades in older persons. Experimental Gerontology. PMID 33974938",
+    url="https://pubmed.ncbi.nlm.nih.gov/33974938/",
+    licence="Paywalled (Elsevier). Numbers are facts.",
+    population="445 older adults 60-85 y; Keiser A420 pneumatic machines",
+    verification=V_ABS,
+    exercises=[dict(name="chest press (Keiser)", sex="male (likely)", metric="relative 1RM (kg/kg BM as reported) mean (SD)",
+                    values={"65-69": {"mean": 2.70, "sd": 0.54}, "70-74": {"mean": 2.45, "sd": 0.47}},
+                    notes="Values look high for chest press/BM - may be leg press or Keiser units; verify. Quartile tables by sex and half-decade for leg & chest press. Companion: power norms in older women (PMID 38241469).")])
+
+add(citation="Barbalho M, et al. (2018). High 1RM tests reproducibility and validity are not dependent on training experience, muscle group tested or strength level in older women. Sports 6(4):171. doi:10.3390/sports6040171",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6315518/",
+    licence="CC BY 4.0 (MDPI).",
+    population="376 older women, 68.5 +/- 14.1 y, >=3 months resistance training",
+    verification=V_ABS + " (snippet was fragmentary; subgroup unclear)",
+    exercises=[
+      dict(name="45-degree leg press", sex="female", metric="1RM kg mean (SD) (subgroup unclear)", values={"mean": 39.4, "sd": 3.7}, notes="Seems low for a 45-deg sled - check subgroup/units."),
+      dict(name="bench press", sex="female", metric="1RM kg mean (SD) (subgroup unclear)", values={"mean": 21.0, "sd": 4.4, "another_row": 10.1}, notes="Verify against Table."),
+    ])
+
+# ---------------------------------------------------------------- government / military / population fitness tests
+add(citation="U.S. Army (2025). Army Fitness Test (AFT) Scoring Scales, approved 15 May 2025, effective 1 June 2025 (supersedes ACFT tables in FM 7-22).",
+    url="https://www.army.mil/e2/downloads/rv7/aft/AFT_Scoring_Scales_250601.pdf",
+    licence="US Government work - public domain (17 U.S.C. 105).",
+    population="US Army soldiers; standards by age band and sex (M|C = male/combat sex-neutral scale; F = female non-combat)",
+    verification=V_SEC,
+    exercises=[
+      dict(name="hex/trap bar deadlift, 3-rep max (MDL)", sex="male (M|C)", metric="lb for 3 reps", values={"100_pts": {"17-21": 340, "22-26": 350, "57-61": 250, "62+": 230}, "60_pts_pass": {"17-31": 150, "32+": 140}}, notes="Points 60 = minimum pass. Standards, not population distribution."),
+      dict(name="hex/trap bar deadlift, 3-rep max (MDL)", sex="female (F)", metric="lb for 3 reps", values={"100_pts": {"17-21": 220, "22-26": 230, "57-61": 170, "62+": 170}, "60_pts_pass": {"all_ages": 120}}, notes="Hand-release push-ups also scored (values not reliably retrieved)."),
+    ])
+
+add(citation="U.S. Marine Corps. MCO 6100.13A (with changes) Marine Corps Physical Fitness and Combat Fitness Tests - PFT scoring tables.",
+    url="https://www.military.com/military-fitness/marine-corps-fitness-requirements/usmc-pft-charts",
+    licence="US Government work - public domain. (URL is a secondary reproduction; obtain the order from marines.mil.)",
+    population="US Marines by age band and sex",
+    verification=V_SEC,
+    exercises=[
+      dict(name="pull-ups (dead hang)", sex="male", metric="reps: min passing / max (100 pts)", values={"17-20": [4, 20], "21-35": [5, 23]}, notes=""),
+      dict(name="pull-ups (dead hang)", sex="female", metric="reps: min passing / max (100 pts)", values={"17-20": [1, 7], "26-30": [4, 12]}, notes="Female pull-up minimum worth 60 pts."),
+      dict(name="push-ups (2 min)", sex="male", metric="reps: min / max (70 pts cap)", values={"17-20": [42, 82]}, notes=""),
+      dict(name="push-ups (2 min)", sex="female", metric="reps: min / max (70 pts cap)", values={"17-20": [19, 42]}, notes=""),
+    ])
+
+add(citation="Canadian Society for Exercise Physiology (2019). CSEP Physical Activity Training for Health (CSEP-PATH) Resource Manual, 2nd ed. - push-up norms (originating from the Canadian Physical Activity, Fitness & Lifestyle Approach, CPAFLA); reprinted in ACE '36 Push-up Assessment Protocol' and ACSM's Guidelines.",
+    url="https://www.acefitness.org/images/webcontent/assets/certification/ace-answers/forms/pt/36_Push-up_Assessment_Protocol.pdf",
+    licence="Copyrighted (CSEP). Cut-points are facts derived from Canada Fitness Survey data; do not reproduce the table; consider citing as cross-check only.",
+    population="Canadian adults, by age decade and sex (men standard push-ups, women usually modified/knee push-ups)",
+    verification=V_SEC,
+    exercises=[
+      dict(name="push-ups to exhaustion (standard)", sex="male 20-29", metric="reps by rating", values={"excellent": ">=36", "very_good": "29-35", "good": "22-28", "fair": "17-21", "needs_improvement": "<=16"}, notes=""),
+      dict(name="push-ups to exhaustion (modified/knee per most reprints)", sex="female 20-29", metric="reps by rating", values={"excellent": ">=30", "very_good": "21-29", "good": "15-20", "fair": "10-14", "needs_improvement": "<=9 (one reprint shows <=11)"}, notes="Women's position (knee vs full) not confirmed from primary source."),
+    ])
+
+add(citation="Statistics Canada (2010). Canadian Health Measures Survey (CHMS) Cycle 1 data tables, 2007 to 2009 (Cat. 82-623-X), Table 6 total grip strength and Table 8 partial curl-ups; and 'Fitness of Canadian adults' (Health Reports 82-003-X 2010001).",
+    url="https://www150.statcan.gc.ca/n1/pub/82-623-x/2010002/t023-eng.htm",
+    licence="Statistics Canada Open Licence - commercial use permitted with attribution.",
+    population="Nationally representative Canadian household population 6-69 y",
+    verification=V_ABS,
+    exercises=[
+      dict(name="total grip strength (sum of both hands)", sex="male", metric="kg: mean, p5, p10, p25", values={"20-39": {"mean": 97, "p5": 72, "p10": 77, "p25": 87}, "40-59": {"mean": 93, "p5": 68, "p10": 73, "p25": 83}}, notes="Both sexes: 20-39 mean 76, 40-59 mean 73. Female rows in same table (not retrieved)."),
+      dict(name="partial curl-ups (max 25)", sex="both", metric="reps mean / median", values={"12-19_mean": 19, "12-19_median": 24, "20-39_median": 23, "40-59_mean": 7, "60-69_mean": 3}, notes="% completing all 25 at age 20-39: women 31%, men 55%. Percent excellent/very good at 20-39: women 44%, men 75%."),
+    ])
+
+add(citation="Heileson JL, et al. (2022). Body composition, eicosapentaenoic acid, and vitamin D are associated with Army Combat Fitness Test performance. J Int Soc Sports Nutr.",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9261738/",
+    licence="CC BY 4.0 (JISSN / Taylor & Francis OA).",
+    population="60 ROTC/military cadets (43 male, 17 female)",
+    verification=V_LEAD,
+    exercises=[dict(name="3RM trap-bar deadlift, hand-release push-ups, leg tuck", sex="both", metric="mean by sex", values=None, notes="Table 1 likely gives 3RM deadlift by sex for young non-elite adults.")])
+
+add(citation="Rue CA, et al. (2024). A comparison of role-related physical fitness between British Army trainees and trained soldiers. Eur J Sport Sci. doi:10.1002/ejsc.12227",
+    url="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11680188/",
+    licence="Open access (EJSS/Wiley OA - typically CC BY 4.0; check).",
+    population="316 British Army personnel: 68 trainees (63 men), 248 trained soldiers (225 men)",
+    verification=V_LEAD,
+    exercises=[dict(name="hex bar deadlift, pull-ups, isometric mid-thigh pull", sex="mostly male", metric="means", values=None, notes="Extract hex-bar deadlift and pull-up means.")])
+
+add(citation="NHANES 2011-2014 Muscle Strength (handgrip) component, CDC/NCHS; reference values analysis in PMC6436115 (13,918 participants).",
+    url="https://pmc.ncbi.nlm.nih.gov/articles/PMC6436115",
+    licence="NHANES data: US Government, public domain. The analysis paper is OA (check licence) - values recomputable from public data.",
+    population="US civilian population, 6-80 y, by sex and age",
+    verification=V_LEAD,
+    exercises=[dict(name="handgrip strength", sex="both", metric="kg percentiles by age/sex", values=None, notes="Fully public-domain anchor for an age-adjustment curve (grip declines track 1RM declines).")])
+
+add(citation="Pareja-Blanco F, et al. (2025/2026). Sex influences the load-velocity relationship more than the relative strength. Int J Sports Physiol Perform 21(2):202-207.",
+    url="https://rio.upo.es/entities/publication/407ff195-11f9-45da-8789-06cf06335188",
+    licence="Paywalled (Human Kinetics); institutional repository record.",
+    population="120 young healthy men and women",
+    verification=V_ABS,
+    exercises=[dict(name="bench press", sex="both", metric="relative strength (1RM/BM) grouping bands used", values={"men_high": ">1.1", "men_mid": "0.7-1.0", "women_mid": "0.7-1.0", "women_low": "<0.6"},
+                    notes="Indicates typical spread in young recreational adults: men ~0.7 to >1.1 x BM, women <0.6 to ~1.0 x BM.")])
+
+out = "/tmp/claude-0/-home-user-Phone-App-Test/38839be0-c3cc-5779-aa49-91384a3b0295/scratchpad/research/studies.json"
+with open(out, "w") as f:
+    json.dump(S, f, indent=2, ensure_ascii=False)
+print(len(S), "sources written;", sum(1 for s in S if any(e.get("values") for e in s["exercises"])), "with numbers")

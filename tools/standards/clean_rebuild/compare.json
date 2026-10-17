@@ -1,0 +1,7159 @@
+[
+ {
+  "exercise": "Bench Press",
+  "id": "Barbell_Bench_Press_-_Medium_Grip",
+  "family": "Barbell Bench Press",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape; level from open research",
+  "M": {
+   "cur": [
+    122,
+    159,
+    202,
+    264,
+    326
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -10,
+    -12,
+    -11,
+    -12,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    70,
+    100,
+    136,
+    176
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    4,
+    -8,
+    -14,
+    -15,
+    -13
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Bench Press",
+  "id": "Bench_Press_-_Powerlifting",
+  "family": "Barbell Bench Press",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape; level from open research",
+  "M": {
+   "cur": [
+    122,
+    159,
+    202,
+    264,
+    326
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -10,
+    -12,
+    -11,
+    -12,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    70,
+    100,
+    136,
+    176
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    4,
+    -8,
+    -14,
+    -15,
+    -13
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Squat",
+  "id": "Barbell_Squat",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Squat",
+  "id": "Barbell_Full_Squat",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Deadlift",
+  "id": "Barbell_Deadlift",
+  "family": "Barbell Deadlift",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & deadlift:bench ratio",
+  "M": {
+   "cur": [
+    201,
+    261,
+    325,
+    426,
+    519
+   ],
+   "new": [
+    190,
+    241,
+    311,
+    400,
+    509
+   ],
+   "chg": [
+    -6,
+    -8,
+    -4,
+    -6,
+    -2
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    92,
+    139,
+    184,
+    252,
+    312
+   ],
+   "new": [
+    107,
+    142,
+    191,
+    257,
+    340
+   ],
+   "chg": [
+    17,
+    3,
+    4,
+    2,
+    9
+   ],
+   "gold2_now": "Gold 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Shoulder Press",
+  "id": "Standing_Military_Press",
+  "family": "Barbell Standing Overhead Press",
+  "status": "rebuilt",
+  "source": "seated press x 0.92 (Saeterbakken 2013 standing vs seated)",
+  "M": {
+   "cur": [
+    74,
+    103,
+    132,
+    171,
+    215
+   ],
+   "new": [
+    67,
+    86,
+    110,
+    142,
+    180
+   ],
+   "chg": [
+    -9,
+    -17,
+    -17,
+    -17,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    30,
+    47,
+    68,
+    95,
+    124
+   ],
+   "new": [
+    35,
+    47,
+    63,
+    84,
+    111
+   ],
+   "chg": [
+    16,
+    -1,
+    -7,
+    -11,
+    -10
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Bent Over Row",
+  "id": "Bent_Over_Barbell_Row",
+  "family": "Barbell Bent Over Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Front Squat",
+  "id": "Front_Barbell_Squat",
+  "family": "Barbell Front Squat",
+  "status": "rebuilt",
+  "source": "squat x 0.785 (Gullett 2009)",
+  "M": {
+   "cur": [
+    134,
+    180,
+    236,
+    299,
+    366
+   ],
+   "new": [
+    127,
+    162,
+    209,
+    269,
+    342
+   ],
+   "chg": [
+    -5,
+    -10,
+    -11,
+    -10,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    71,
+    100,
+    136,
+    178,
+    224
+   ],
+   "new": [
+    69,
+    92,
+    124,
+    166,
+    220
+   ],
+   "chg": [
+    -2,
+    -8,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Front Squat",
+  "id": "Front_Squat_Clean_Grip",
+  "family": "Barbell Front Squat",
+  "status": "rebuilt",
+  "source": "squat x 0.785 (Gullett 2009)",
+  "M": {
+   "cur": [
+    134,
+    180,
+    236,
+    299,
+    366
+   ],
+   "new": [
+    127,
+    162,
+    209,
+    269,
+    342
+   ],
+   "chg": [
+    -5,
+    -10,
+    -11,
+    -10,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    71,
+    100,
+    136,
+    178,
+    224
+   ],
+   "new": [
+    69,
+    92,
+    124,
+    166,
+    220
+   ],
+   "chg": [
+    -2,
+    -8,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Incline Bench Press",
+  "id": "Barbell_Incline_Bench_Press_-_Medium_Grip",
+  "family": "Barbell Incline Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.78 at 30 deg (Rodriguez-Ridao 2020, CC BY)",
+  "M": {
+   "cur": [
+    113,
+    150,
+    195,
+    246,
+    300
+   ],
+   "new": [
+    86,
+    109,
+    140,
+    181,
+    230
+   ],
+   "chg": [
+    -24,
+    -27,
+    -28,
+    -27,
+    -23
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    34,
+    58,
+    90,
+    130,
+    174
+   ],
+   "new": [
+    38,
+    50,
+    67,
+    90,
+    120
+   ],
+   "chg": [
+    11,
+    -14,
+    -25,
+    -31,
+    -31
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Romanian Deadlift",
+  "id": "Romanian_Deadlift",
+  "family": "Barbell Romanian Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hip Thrust",
+  "id": "Barbell_Hip_Thrust",
+  "family": "Barbell Hip Thrust",
+  "status": "lost"
+ },
+ {
+  "exercise": "Power Clean",
+  "id": "Power_Clean",
+  "family": "Barbell Power Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.91 (power clean ~0.89 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    117,
+    154,
+    194,
+    253,
+    302
+   ],
+   "new": [
+    92,
+    118,
+    151,
+    195,
+    248
+   ],
+   "chg": [
+    -21,
+    -24,
+    -22,
+    -23,
+    -18
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    63,
+    84,
+    116,
+    149,
+    170
+   ],
+   "new": [
+    53,
+    70,
+    94,
+    126,
+    167
+   ],
+   "chg": [
+    -16,
+    -17,
+    -19,
+    -16,
+    -2
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Bench Press",
+  "id": "Dumbbell_Bench_Press",
+  "family": "Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    43,
+    64,
+    89,
+    119,
+    152
+   ],
+   "new": [
+    46,
+    58,
+    75,
+    96,
+    122
+   ],
+   "chg": [
+    6,
+    -9,
+    -16,
+    -19,
+    -19
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    16,
+    28,
+    43,
+    63,
+    85
+   ],
+   "new": [
+    20,
+    27,
+    36,
+    48,
+    64
+   ],
+   "chg": [
+    26,
+    -5,
+    -17,
+    -24,
+    -25
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Row",
+  "id": "One-Arm_Dumbbell_Row",
+  "family": "One-Arm Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Fly",
+  "id": "Dumbbell_Flyes",
+  "family": "Dumbbell Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Lateral Raise",
+  "id": "Side_Lateral_Raise",
+  "family": "Dumbbell Lateral Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Curl",
+  "id": "Dumbbell_Bicep_Curl",
+  "family": "Dumbbell Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Curl",
+  "id": "Dumbbell_Alternate_Bicep_Curl",
+  "family": "Dumbbell Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hammer Curl",
+  "id": "Hammer_Curls",
+  "family": "Dumbbell Hammer Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hammer Curl",
+  "id": "Alternate_Hammer_Curl",
+  "family": "Dumbbell Hammer Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Incline Dumbbell Bench Press",
+  "id": "Incline_Dumbbell_Press",
+  "family": "Incline Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "incline ratio x dumbbell ratio",
+  "M": {
+   "cur": [
+    49,
+    66,
+    88,
+    113,
+    139
+   ],
+   "new": [
+    36,
+    45,
+    58,
+    75,
+    95
+   ],
+   "chg": [
+    -27,
+    -31,
+    -34,
+    -34,
+    -31
+   ],
+   "gold2_now": "Olympian",
+   "beginner_now": "Bronze 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    18,
+    28,
+    43,
+    60,
+    79
+   ],
+   "new": [
+    16,
+    21,
+    28,
+    37,
+    50
+   ],
+   "chg": [
+    -13,
+    -26,
+    -35,
+    -38,
+    -37
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Shrug",
+  "id": "Dumbbell_Shrug",
+  "family": "Dumbbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Goblet Squat",
+  "id": "Goblet_Squat",
+  "family": "Goblet Squat (one dumbbell or kettlebell)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Lunge",
+  "id": "Dumbbell_Lunges",
+  "family": "Dumbbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Bulgarian Split Squat",
+  "id": "Split_Squat_with_Dumbbells",
+  "family": "Dumbbell Bulgarian Split Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "id": "Barbell_Curl",
+  "family": "Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Preacher Curl",
+  "id": "Preacher_Curl",
+  "family": "Barbell Preacher Curl",
+  "status": "rebuilt",
+  "source": "bench x 0.47 men / 0.57 women (Piper 2021/2022)",
+  "M": {
+   "cur": [
+    46,
+    70,
+    100,
+    136,
+    175
+   ],
+   "new": [
+    52,
+    66,
+    85,
+    109,
+    139
+   ],
+   "chg": [
+    12,
+    -6,
+    -15,
+    -20,
+    -21
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    20,
+    35,
+    54,
+    78,
+    104
+   ],
+   "new": [
+    28,
+    37,
+    49,
+    66,
+    87
+   ],
+   "chg": [
+    38,
+    5,
+    -9,
+    -15,
+    -16
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "EZ Bar Curl",
+  "id": "EZ-Bar_Curl",
+  "family": "EZ Bar Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Lying_Triceps_Press",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "EZ-Bar_Skullcrusher",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Close Grip Bench Press",
+  "id": "Close-Grip_Barbell_Bench_Press",
+  "family": "Barbell Close-Grip Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.93 (Larsen 2021, Frontiers, CC BY; Saeterbakken 2017)",
+  "M": {
+   "cur": [
+    124,
+    163,
+    208,
+    260,
+    314
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -18,
+    -20,
+    -20,
+    -17,
+    -13
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    48,
+    73,
+    106,
+    144,
+    186
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -6,
+    -18,
+    -24,
+    -25,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Barbell Shrug",
+  "id": "Barbell_Shrug",
+  "family": "Barbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Calf Raise",
+  "id": "Standing_Calf_Raises",
+  "family": "Machine Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Decline Bench Press",
+  "id": "Decline_Barbell_Bench_Press",
+  "family": "Barbell Decline Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 1.00 (Saeterbakken 2017; Brazilian studies) - low confidence",
+  "M": {
+   "cur": [
+    131,
+    177,
+    234,
+    299,
+    368
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -16,
+    -21,
+    -23,
+    -22,
+    -20
+   ],
+   "gold2_now": "Diamond 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    44,
+    74,
+    114,
+    163,
+    217
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    10,
+    -13,
+    -24,
+    -29,
+    -29
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Barbell Lunge",
+  "id": "Barbell_Lunge",
+  "family": "Barbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Pull Ups",
+  "id": "Pullups",
+  "family": "Pull-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Chin Ups",
+  "id": "Chin-Up",
+  "family": "Chin-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Pushups",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dips",
+  "id": "Dips_-_Triceps_Version",
+  "family": "Dips (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dips",
+  "id": "Parallel_Bar_Dip",
+  "family": "Dips (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dips",
+  "id": "Dips_-_Chest_Version",
+  "family": "Dips (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Wide-Grip_Lat_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "x_Medium_Grip_Lat_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Close-Grip_Front_Lat_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "x_Medium_Grip_Neutral_Lat_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Seated Cable Row",
+  "id": "Seated_Cable_Rows",
+  "family": "Seated Cable Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Leg Press",
+  "id": "Leg_Press",
+  "family": "Sled Leg Press",
+  "status": "rebuilt",
+  "source": "bench x 2.65 men / 4.5 women (Piper 2021/2022, n=1,466; Tiggemann 2011)",
+  "M": {
+   "cur": [
+    246,
+    366,
+    516,
+    692,
+    884
+   ],
+   "new": [
+    291,
+    371,
+    477,
+    614,
+    781
+   ],
+   "chg": [
+    18,
+    1,
+    -8,
+    -11,
+    -12
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    115,
+    202,
+    320,
+    465,
+    628
+   ],
+   "new": [
+    218,
+    289,
+    388,
+    521,
+    690
+   ],
+   "chg": [
+    90,
+    43,
+    21,
+    12,
+    10
+   ],
+   "gold2_now": "Bronze 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Leg Extension",
+  "id": "Leg_Extensions",
+  "family": "Machine Leg Extension",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Leg Curl",
+  "id": "Lying_Leg_Curls",
+  "family": "Machine Lying Leg Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Leg Curl",
+  "id": "Seated_Leg_Curl",
+  "family": "Machine Seated Leg Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Pushdown",
+  "id": "Triceps_Pushdown",
+  "family": "Cable Tricep Pushdown (bar)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Pushdown",
+  "id": "Triceps_Pushdown_-_V-Bar_Attachment",
+  "family": "Cable Tricep Pushdown (bar)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Chest Press",
+  "id": "Leverage_Chest_Press",
+  "family": "Machine Chest Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Shoulder Press",
+  "id": "Machine_Shoulder_Military_Press",
+  "family": "Machine Shoulder Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Shoulder Press",
+  "id": "Leverage_Shoulder_Press",
+  "family": "Machine Shoulder Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Calf Raise",
+  "id": "Seated_Calf_Raise",
+  "family": "Machine Seated Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Calf Raise",
+  "id": "Standing_Barbell_Calf_Raise",
+  "family": "Barbell Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Calf Raise",
+  "id": "Standing_Dumbbell_Calf_Raise",
+  "family": "Dumbbell Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Sled Press Calf Raise",
+  "id": "Calf_Press_On_The_Leg_Press_Machine",
+  "family": "Sled Leg Press Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Sled Press Calf Raise",
+  "id": "Calf_Press",
+  "family": "Sled Leg Press Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Fly",
+  "id": "Cable_Crossover",
+  "family": "Cable Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Shoulder Press",
+  "id": "Seated_Barbell_Military_Press",
+  "family": "Barbell Seated Overhead Press",
+  "status": "rebuilt",
+  "source": "bench x 0.665 men / 0.79 women (Piper 2021/2022; Garcia-Ramos)",
+  "M": {
+   "cur": [
+    82,
+    117,
+    160,
+    210,
+    264
+   ],
+   "new": [
+    73,
+    93,
+    120,
+    154,
+    196
+   ],
+   "chg": [
+    -11,
+    -21,
+    -25,
+    -27,
+    -26
+   ],
+   "gold2_now": "Diamond 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    23,
+    43,
+    70,
+    104,
+    143
+   ],
+   "new": [
+    38,
+    51,
+    68,
+    91,
+    121
+   ],
+   "chg": [
+    67,
+    18,
+    -3,
+    -12,
+    -15
+   ],
+   "gold2_now": "Gold 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Shoulder Press",
+  "id": "Barbell_Shoulder_Press",
+  "family": "Barbell Seated Overhead Press",
+  "status": "rebuilt",
+  "source": "bench x 0.665 men / 0.79 women (Piper 2021/2022; Garcia-Ramos)",
+  "M": {
+   "cur": [
+    82,
+    117,
+    160,
+    210,
+    264
+   ],
+   "new": [
+    73,
+    93,
+    120,
+    154,
+    196
+   ],
+   "chg": [
+    -11,
+    -21,
+    -25,
+    -27,
+    -26
+   ],
+   "gold2_now": "Diamond 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    23,
+    43,
+    70,
+    104,
+    143
+   ],
+   "new": [
+    38,
+    51,
+    68,
+    91,
+    121
+   ],
+   "chg": [
+    67,
+    18,
+    -3,
+    -12,
+    -15
+   ],
+   "gold2_now": "Gold 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Dumbbell_Shoulder_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Smith Machine Bench Press",
+  "id": "Smith_Machine_Bench_Press",
+  "family": "Smith Machine Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.96 (Cotterman 2005; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    120,
+    162,
+    212,
+    270,
+    331
+   ],
+   "new": [
+    105,
+    134,
+    173,
+    222,
+    283
+   ],
+   "chg": [
+    -12,
+    -17,
+    -18,
+    -18,
+    -14
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    38,
+    65,
+    100,
+    142,
+    190
+   ],
+   "new": [
+    47,
+    62,
+    83,
+    111,
+    147
+   ],
+   "chg": [
+    22,
+    -5,
+    -17,
+    -22,
+    -23
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Smith Machine Squat",
+  "id": "Smith_Machine_Squat",
+  "family": "Smith Machine Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hip Abduction",
+  "id": "Thigh_Abductor",
+  "family": "Machine Hip Abduction",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hip Adduction",
+  "id": "Thigh_Adductor",
+  "family": "Machine Hip Adduction",
+  "status": "lost"
+ },
+ {
+  "exercise": "Face Pull",
+  "id": "Face_Pull",
+  "family": "Cable Face Pull",
+  "status": "lost"
+ },
+ {
+  "exercise": "Upright Row",
+  "id": "Upright_Barbell_Row",
+  "family": "Barbell Upright Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Arnold Press",
+  "id": "Arnold_Dumbbell_Press",
+  "family": "Dumbbell Arnold Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "T-Bar Row",
+  "id": "T-Bar_Row_with_Handle",
+  "family": "T-Bar Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Good Morning",
+  "id": "Good_Morning",
+  "family": "Barbell Good Morning",
+  "status": "lost"
+ },
+ {
+  "exercise": "Sumo Deadlift",
+  "id": "Sumo_Deadlift",
+  "family": "Barbell Sumo Deadlift",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting deadlift (includes sumo)",
+  "M": {
+   "cur": [
+    226,
+    299,
+    386,
+    483,
+    586
+   ],
+   "new": [
+    190,
+    241,
+    311,
+    400,
+    509
+   ],
+   "chg": [
+    -16,
+    -19,
+    -19,
+    -17,
+    -13
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    108,
+    153,
+    210,
+    275,
+    345
+   ],
+   "new": [
+    107,
+    142,
+    191,
+    257,
+    340
+   ],
+   "chg": [
+    -1,
+    -7,
+    -9,
+    -7,
+    -1
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Box Squat",
+  "id": "Box_Squat",
+  "family": "Barbell Box Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Rack Pull",
+  "id": "Rack_Pulls",
+  "family": "Barbell Rack Pull",
+  "status": "lost"
+ },
+ {
+  "exercise": "Trap Bar Deadlift",
+  "id": "Trap_Bar_Deadlift",
+  "family": "Trap Bar Deadlift",
+  "status": "rebuilt",
+  "source": "deadlift x 1.04 (Swinton 2011; Camara)",
+  "M": {
+   "cur": [
+    223,
+    291,
+    372,
+    464,
+    560
+   ],
+   "new": [
+    197,
+    251,
+    323,
+    416,
+    529
+   ],
+   "chg": [
+    -12,
+    -14,
+    -13,
+    -10,
+    -5
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    110,
+    155,
+    211,
+    274,
+    343
+   ],
+   "new": [
+    112,
+    148,
+    199,
+    267,
+    353
+   ],
+   "chg": [
+    2,
+    -5,
+    -6,
+    -3,
+    3
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Deficit Deadlift",
+  "id": "Deficit_Deadlift",
+  "family": "Barbell Deficit Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Zercher Squat",
+  "id": "Zercher_Squats",
+  "family": "Barbell Zercher Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Overhead Squat",
+  "id": "Overhead_Squat",
+  "family": "Barbell Overhead Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Clean and Jerk",
+  "id": "Clean_and_Jerk",
+  "family": "Barbell Clean and Jerk",
+  "status": "rebuilt",
+  "source": "OpenWeightlifting shape; same gap below competitors as the big lifts",
+  "M": {
+   "cur": [
+    106,
+    150,
+    203,
+    265,
+    332
+   ],
+   "new": [
+    102,
+    129,
+    166,
+    214,
+    273
+   ],
+   "chg": [
+    -4,
+    -14,
+    -18,
+    -19,
+    -18
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    63,
+    89,
+    120,
+    157,
+    196
+   ],
+   "new": [
+    58,
+    77,
+    103,
+    138,
+    183
+   ],
+   "chg": [
+    -8,
+    -14,
+    -14,
+    -12,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Snatch",
+  "id": "Snatch",
+  "family": "Barbell Snatch",
+  "status": "rebuilt",
+  "source": "OpenWeightlifting shape; same gap below competitors as the big lifts",
+  "M": {
+   "cur": [
+    83,
+    120,
+    166,
+    220,
+    278
+   ],
+   "new": [
+    79,
+    101,
+    130,
+    168,
+    213
+   ],
+   "chg": [
+    -4,
+    -16,
+    -22,
+    -24,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    68,
+    94,
+    124,
+    157
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -4,
+    -12,
+    -15,
+    -13,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Hang Clean",
+  "id": "Hang_Clean",
+  "family": "Barbell Hang Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.96 (hang clean ~0.96 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    123,
+    157,
+    197,
+    242,
+    289
+   ],
+   "new": [
+    98,
+    124,
+    160,
+    206,
+    262
+   ],
+   "chg": [
+    -21,
+    -21,
+    -19,
+    -15,
+    -9
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    65,
+    88,
+    115,
+    146,
+    180
+   ],
+   "new": [
+    56,
+    74,
+    99,
+    133,
+    176
+   ],
+   "chg": [
+    -14,
+    -16,
+    -14,
+    -9,
+    -2
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Snatch",
+  "id": "Power_Snatch",
+  "family": "Barbell Power Snatch",
+  "status": "rebuilt",
+  "source": "snatch x 0.88 (Czaplicki 2019, PLOS ONE, CC BY)",
+  "M": {
+   "cur": [
+    78,
+    115,
+    161,
+    215,
+    274
+   ],
+   "new": [
+    70,
+    89,
+    115,
+    147,
+    188
+   ],
+   "chg": [
+    -10,
+    -23,
+    -29,
+    -31,
+    -32
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    43,
+    64,
+    90,
+    121,
+    154
+   ],
+   "new": [
+    40,
+    53,
+    71,
+    95,
+    125
+   ],
+   "chg": [
+    -8,
+    -18,
+    -22,
+    -22,
+    -19
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Push Press",
+  "id": "Push_Press",
+  "family": "Barbell Push Press",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.87 (push press vs split jerk, Soriano) - low confidence",
+  "M": {
+   "cur": [
+    96,
+    133,
+    177,
+    229,
+    283
+   ],
+   "new": [
+    88,
+    113,
+    145,
+    186,
+    237
+   ],
+   "chg": [
+    -8,
+    -15,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    51,
+    72,
+    99,
+    129,
+    162
+   ],
+   "new": [
+    50,
+    67,
+    90,
+    120,
+    159
+   ],
+   "chg": [
+    -1,
+    -7,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Hack Squat",
+  "id": "Hack_Squat",
+  "family": "Machine Hack Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Rope Pushdown",
+  "id": "Triceps_Pushdown_-_Rope_Attachment",
+  "family": "Cable Tricep Rope Pushdown",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Standing_Dumbbell_Triceps_Extension",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Pullover",
+  "id": "Straight-Arm_Dumbbell_Pullover",
+  "family": "Dumbbell Pullover",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Pullover",
+  "id": "Bent-Arm_Dumbbell_Pullover",
+  "family": "Dumbbell Pullover",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Front_Dumbbell_Raise",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Front_Two-Dumbbell_Raise",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Barbell Curl",
+  "id": "Reverse_Barbell_Curl",
+  "family": "Reverse Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Palms-Up_Barbell_Wrist_Curl_Over_A_Bench",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Seated_Palm-Up_Barbell_Wrist_Curl",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Incline Dumbbell Curl",
+  "id": "Incline_Dumbbell_Curl",
+  "family": "Incline Dumbbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Incline Dumbbell Curl",
+  "id": "Alternate_Incline_Dumbbell_Curl",
+  "family": "Incline Dumbbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Concentration Curl",
+  "id": "Concentration_Curls",
+  "family": "Dumbbell Concentration Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Bicep Curl",
+  "id": "Standing_Biceps_Cable_Curl",
+  "family": "Cable Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Bicep Curl",
+  "id": "Machine_Bicep_Curl",
+  "family": "Machine Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Reverse_Flyes",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Reverse Fly",
+  "id": "Reverse_Machine_Flyes",
+  "family": "Machine Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Fly",
+  "id": "Butterfly",
+  "family": "Machine Chest Fly (pec deck)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Squat",
+  "id": "Dumbbell_Squat",
+  "family": "Dumbbell Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Stiff Leg Deadlift",
+  "id": "Stiff-Legged_Barbell_Deadlift",
+  "family": "Barbell Stiff-Leg Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Dumbbell Row",
+  "id": "Bent_Over_Two-Dumbbell_Row",
+  "family": "Bent Over Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Dumbbell Row",
+  "id": "Bent_Over_Two-Dumbbell_Row_With_Palms_In",
+  "family": "Bent Over Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Decline Dumbbell Bench Press",
+  "id": "Decline_Dumbbell_Bench_Press",
+  "family": "Decline Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "dumbbell bench x 1.00 - low confidence",
+  "M": {
+   "cur": [
+    36,
+    57,
+    84,
+    117,
+    153
+   ],
+   "new": [
+    46,
+    58,
+    75,
+    96,
+    122
+   ],
+   "chg": [
+    27,
+    2,
+    -11,
+    -18,
+    -20
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    14,
+    28,
+    46,
+    70,
+    96
+   ],
+   "new": [
+    20,
+    27,
+    36,
+    48,
+    64
+   ],
+   "chg": [
+    44,
+    -5,
+    -22,
+    -31,
+    -34
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Barbell Glute Bridge",
+  "id": "Barbell_Glute_Bridge",
+  "family": "Barbell Glute Bridge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Crunch",
+  "id": "Cable_Crunch",
+  "family": "Kneeling Cable Crunch",
+  "status": "lost"
+ },
+ {
+  "exercise": "Muscle Ups",
+  "id": "Muscle_Up",
+  "family": "Muscle-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Sit Ups",
+  "id": "Sit-Up",
+  "family": "Sit-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Inverted Row",
+  "id": "Inverted_Row",
+  "family": "Inverted Row (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Handstand Push Ups",
+  "id": "Handstand_Push-Ups",
+  "family": "Handstand Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Crunch",
+  "id": "Rope_Crunch",
+  "family": "Kneeling Cable Crunch",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Crunch",
+  "id": "Cable_Seated_Crunch",
+  "family": "Kneeling Cable Crunch",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Crunch",
+  "id": "Standing_Rope_Crunch",
+  "family": "Kneeling Cable Crunch",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Crunch",
+  "id": "Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists",
+  "family": "Kneeling Cable Crunch",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Crunch",
+  "id": "Ab_Crunch_Machine",
+  "family": "Kneeling Cable Crunch",
+  "status": "lost"
+ },
+ {
+  "exercise": "Sit Ups",
+  "id": "3_4_Sit-Up",
+  "family": "Sit-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Squat",
+  "id": "Barbell_Squat_To_A_Bench",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Squat",
+  "id": "Olympic_Squat",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Squat",
+  "id": "Wide_Stance_Barbell_Squat",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Squat",
+  "id": "Narrow_Stance_Squats",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Squat",
+  "id": "Barbell_Hack_Squat",
+  "family": "Barbell Back Squat",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & squat:bench ratio; level from bench anchor",
+  "M": {
+   "cur": [
+    169,
+    228,
+    298,
+    377,
+    462
+   ],
+   "new": [
+    162,
+    207,
+    266,
+    342,
+    436
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -9,
+    -6
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    74,
+    114,
+    165,
+    226,
+    292
+   ],
+   "new": [
+    88,
+    117,
+    157,
+    211,
+    280
+   ],
+   "chg": [
+    20,
+    3,
+    -5,
+    -6,
+    -4
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Front Squat",
+  "id": "Front_Barbell_Squat_To_A_Bench",
+  "family": "Barbell Front Squat",
+  "status": "rebuilt",
+  "source": "squat x 0.785 (Gullett 2009)",
+  "M": {
+   "cur": [
+    134,
+    180,
+    236,
+    299,
+    366
+   ],
+   "new": [
+    127,
+    162,
+    209,
+    269,
+    342
+   ],
+   "chg": [
+    -5,
+    -10,
+    -11,
+    -10,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    71,
+    100,
+    136,
+    178,
+    224
+   ],
+   "new": [
+    69,
+    92,
+    124,
+    166,
+    220
+   ],
+   "chg": [
+    -2,
+    -8,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Squat",
+  "id": "Dumbbell_Squat_To_A_Bench",
+  "family": "Dumbbell Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Goblet Squat",
+  "id": "Plie_Dumbbell_Squat",
+  "family": "Goblet Squat (one dumbbell or kettlebell)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Goblet Squat",
+  "id": "Front_Squats_With_Two_Kettlebells",
+  "family": "Goblet Squat (one dumbbell or kettlebell)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hack Squat",
+  "id": "Narrow_Stance_Hack_Squats",
+  "family": "Machine Hack Squat",
+  "status": "lost"
+ },
+ {
+  "exercise": "Leg Press",
+  "id": "Narrow_Stance_Leg_Press",
+  "family": "Sled Leg Press",
+  "status": "rebuilt",
+  "source": "bench x 2.65 men / 4.5 women (Piper 2021/2022, n=1,466; Tiggemann 2011)",
+  "M": {
+   "cur": [
+    246,
+    366,
+    516,
+    692,
+    884
+   ],
+   "new": [
+    291,
+    371,
+    477,
+    614,
+    781
+   ],
+   "chg": [
+    18,
+    1,
+    -8,
+    -11,
+    -12
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    115,
+    202,
+    320,
+    465,
+    628
+   ],
+   "new": [
+    218,
+    289,
+    388,
+    521,
+    690
+   ],
+   "chg": [
+    90,
+    43,
+    21,
+    12,
+    10
+   ],
+   "gold2_now": "Bronze 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Leg Extension",
+  "id": "Single-Leg_Leg_Extension",
+  "family": "Machine Leg Extension",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Leg Curl",
+  "id": "Standing_Leg_Curl",
+  "family": "Machine Lying Leg Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Lunge",
+  "id": "Barbell_Walking_Lunge",
+  "family": "Barbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Lunge",
+  "id": "Elevated_Back_Lunge",
+  "family": "Barbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Lunge",
+  "id": "Barbell_Step_Ups",
+  "family": "Barbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Lunge",
+  "id": "Dumbbell_Rear_Lunge",
+  "family": "Dumbbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Lunge",
+  "id": "Dumbbell_Step_Ups",
+  "family": "Dumbbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hang Clean",
+  "id": "Hang_Clean_-_Below_the_Knees",
+  "family": "Barbell Hang Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.96 (hang clean ~0.96 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    123,
+    157,
+    197,
+    242,
+    289
+   ],
+   "new": [
+    98,
+    124,
+    160,
+    206,
+    262
+   ],
+   "chg": [
+    -21,
+    -21,
+    -19,
+    -15,
+    -9
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    65,
+    88,
+    115,
+    146,
+    180
+   ],
+   "new": [
+    56,
+    74,
+    99,
+    133,
+    176
+   ],
+   "chg": [
+    -14,
+    -16,
+    -14,
+    -9,
+    -2
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Clean",
+  "id": "Clean",
+  "family": "Barbell Power Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.91 (power clean ~0.89 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    117,
+    154,
+    194,
+    253,
+    302
+   ],
+   "new": [
+    92,
+    118,
+    151,
+    195,
+    248
+   ],
+   "chg": [
+    -21,
+    -24,
+    -22,
+    -23,
+    -18
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    63,
+    84,
+    116,
+    149,
+    170
+   ],
+   "new": [
+    53,
+    70,
+    94,
+    126,
+    167
+   ],
+   "chg": [
+    -16,
+    -17,
+    -19,
+    -16,
+    -2
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Clean",
+  "id": "Split_Clean",
+  "family": "Barbell Power Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.91 (power clean ~0.89 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    117,
+    154,
+    194,
+    253,
+    302
+   ],
+   "new": [
+    92,
+    118,
+    151,
+    195,
+    248
+   ],
+   "chg": [
+    -21,
+    -24,
+    -22,
+    -23,
+    -18
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    63,
+    84,
+    116,
+    149,
+    170
+   ],
+   "new": [
+    53,
+    70,
+    94,
+    126,
+    167
+   ],
+   "chg": [
+    -16,
+    -17,
+    -19,
+    -16,
+    -2
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Snatch",
+  "id": "Power_Snatch_from_Blocks",
+  "family": "Barbell Power Snatch",
+  "status": "rebuilt",
+  "source": "snatch x 0.88 (Czaplicki 2019, PLOS ONE, CC BY)",
+  "M": {
+   "cur": [
+    78,
+    115,
+    161,
+    215,
+    274
+   ],
+   "new": [
+    70,
+    89,
+    115,
+    147,
+    188
+   ],
+   "chg": [
+    -10,
+    -23,
+    -29,
+    -31,
+    -32
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    43,
+    64,
+    90,
+    121,
+    154
+   ],
+   "new": [
+    40,
+    53,
+    71,
+    95,
+    125
+   ],
+   "chg": [
+    -8,
+    -18,
+    -22,
+    -22,
+    -19
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Snatch",
+  "id": "Hang_Snatch",
+  "family": "Barbell Power Snatch",
+  "status": "rebuilt",
+  "source": "snatch x 0.88 (Czaplicki 2019, PLOS ONE, CC BY)",
+  "M": {
+   "cur": [
+    78,
+    115,
+    161,
+    215,
+    274
+   ],
+   "new": [
+    70,
+    89,
+    115,
+    147,
+    188
+   ],
+   "chg": [
+    -10,
+    -23,
+    -29,
+    -31,
+    -32
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    43,
+    64,
+    90,
+    121,
+    154
+   ],
+   "new": [
+    40,
+    53,
+    71,
+    95,
+    125
+   ],
+   "chg": [
+    -8,
+    -18,
+    -22,
+    -22,
+    -19
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Snatch",
+  "id": "Muscle_Snatch",
+  "family": "Barbell Power Snatch",
+  "status": "rebuilt",
+  "source": "snatch x 0.88 (Czaplicki 2019, PLOS ONE, CC BY)",
+  "M": {
+   "cur": [
+    78,
+    115,
+    161,
+    215,
+    274
+   ],
+   "new": [
+    70,
+    89,
+    115,
+    147,
+    188
+   ],
+   "chg": [
+    -10,
+    -23,
+    -29,
+    -31,
+    -32
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    43,
+    64,
+    90,
+    121,
+    154
+   ],
+   "new": [
+    40,
+    53,
+    71,
+    95,
+    125
+   ],
+   "chg": [
+    -8,
+    -18,
+    -22,
+    -22,
+    -19
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Snatch",
+  "id": "Snatch_from_Blocks",
+  "family": "Barbell Snatch",
+  "status": "rebuilt",
+  "source": "OpenWeightlifting shape; same gap below competitors as the big lifts",
+  "M": {
+   "cur": [
+    83,
+    120,
+    166,
+    220,
+    278
+   ],
+   "new": [
+    79,
+    101,
+    130,
+    168,
+    213
+   ],
+   "chg": [
+    -4,
+    -16,
+    -22,
+    -24,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    68,
+    94,
+    124,
+    157
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -4,
+    -12,
+    -15,
+    -13,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Snatch",
+  "id": "Split_Snatch",
+  "family": "Barbell Snatch",
+  "status": "rebuilt",
+  "source": "OpenWeightlifting shape; same gap below competitors as the big lifts",
+  "M": {
+   "cur": [
+    83,
+    120,
+    166,
+    220,
+    278
+   ],
+   "new": [
+    79,
+    101,
+    130,
+    168,
+    213
+   ],
+   "chg": [
+    -4,
+    -16,
+    -22,
+    -24,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    68,
+    94,
+    124,
+    157
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -4,
+    -12,
+    -15,
+    -13,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Push Press",
+  "id": "Power_Jerk",
+  "family": "Barbell Push Press",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.87 (push press vs split jerk, Soriano) - low confidence",
+  "M": {
+   "cur": [
+    96,
+    133,
+    177,
+    229,
+    283
+   ],
+   "new": [
+    88,
+    113,
+    145,
+    186,
+    237
+   ],
+   "chg": [
+    -8,
+    -15,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    51,
+    72,
+    99,
+    129,
+    162
+   ],
+   "new": [
+    50,
+    67,
+    90,
+    120,
+    159
+   ],
+   "chg": [
+    -1,
+    -7,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Push Press",
+  "id": "Split_Jerk",
+  "family": "Barbell Push Press",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.87 (push press vs split jerk, Soriano) - low confidence",
+  "M": {
+   "cur": [
+    96,
+    133,
+    177,
+    229,
+    283
+   ],
+   "new": [
+    88,
+    113,
+    145,
+    186,
+    237
+   ],
+   "chg": [
+    -8,
+    -15,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    51,
+    72,
+    99,
+    129,
+    162
+   ],
+   "new": [
+    50,
+    67,
+    90,
+    120,
+    159
+   ],
+   "chg": [
+    -1,
+    -7,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Push Press",
+  "id": "Push_Press_-_Behind_the_Neck",
+  "family": "Barbell Push Press",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.87 (push press vs split jerk, Soriano) - low confidence",
+  "M": {
+   "cur": [
+    96,
+    133,
+    177,
+    229,
+    283
+   ],
+   "new": [
+    88,
+    113,
+    145,
+    186,
+    237
+   ],
+   "chg": [
+    -8,
+    -15,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    51,
+    72,
+    99,
+    129,
+    162
+   ],
+   "new": [
+    50,
+    67,
+    90,
+    120,
+    159
+   ],
+   "chg": [
+    -1,
+    -7,
+    -9,
+    -7,
+    -2
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Seated_Dumbbell_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Standing_Dumbbell_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Standing_Palms-In_Dumbbell_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Standing_Alternating_Dumbbell_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Dumbbell_One-Arm_Shoulder_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Kettlebell_Seated_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Two-Arm_Kettlebell_Military_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Shoulder Press",
+  "id": "Smith_Machine_Overhead_Shoulder_Press",
+  "family": "Barbell Seated Overhead Press",
+  "status": "rebuilt",
+  "source": "bench x 0.665 men / 0.79 women (Piper 2021/2022; Garcia-Ramos)",
+  "M": {
+   "cur": [
+    82,
+    117,
+    160,
+    210,
+    264
+   ],
+   "new": [
+    73,
+    93,
+    120,
+    154,
+    196
+   ],
+   "chg": [
+    -11,
+    -21,
+    -25,
+    -27,
+    -26
+   ],
+   "gold2_now": "Diamond 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    23,
+    43,
+    70,
+    104,
+    143
+   ],
+   "new": [
+    38,
+    51,
+    68,
+    91,
+    121
+   ],
+   "chg": [
+    67,
+    18,
+    -3,
+    -12,
+    -15
+   ],
+   "gold2_now": "Gold 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Shoulder Press",
+  "id": "Standing_Barbell_Press_Behind_Neck",
+  "family": "Barbell Standing Overhead Press",
+  "status": "rebuilt",
+  "source": "seated press x 0.92 (Saeterbakken 2013 standing vs seated)",
+  "M": {
+   "cur": [
+    74,
+    103,
+    132,
+    171,
+    215
+   ],
+   "new": [
+    67,
+    86,
+    110,
+    142,
+    180
+   ],
+   "chg": [
+    -9,
+    -17,
+    -17,
+    -17,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    30,
+    47,
+    68,
+    95,
+    124
+   ],
+   "new": [
+    35,
+    47,
+    63,
+    84,
+    111
+   ],
+   "chg": [
+    16,
+    -1,
+    -7,
+    -11,
+    -10
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Shoulder Press",
+  "id": "Clean_and_Press",
+  "family": "Barbell Standing Overhead Press",
+  "status": "rebuilt",
+  "source": "seated press x 0.92 (Saeterbakken 2013 standing vs seated)",
+  "M": {
+   "cur": [
+    74,
+    103,
+    132,
+    171,
+    215
+   ],
+   "new": [
+    67,
+    86,
+    110,
+    142,
+    180
+   ],
+   "chg": [
+    -9,
+    -17,
+    -17,
+    -17,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    30,
+    47,
+    68,
+    95,
+    124
+   ],
+   "new": [
+    35,
+    47,
+    63,
+    84,
+    111
+   ],
+   "chg": [
+    16,
+    -1,
+    -7,
+    -11,
+    -10
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Lateral Raise",
+  "id": "Seated_Side_Lateral_Raise",
+  "family": "Dumbbell Lateral Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Lateral Raise",
+  "id": "One-Arm_Side_Laterals",
+  "family": "Dumbbell Lateral Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Front_Incline_Dumbbell_Raise",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Front_Cable_Raise",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Dumbbell_Scaption",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Front_Plate_Raise",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Front Raise",
+  "id": "Standing_Front_Barbell_Raise_Over_Head",
+  "family": "Dumbbell Front Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Seated_Bent-Over_Rear_Delt_Raise",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Bent_Over_Dumbbell_Rear_Delt_Raise_With_Head_On_Bench",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Lying_Rear_Delt_Raise",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Dumbbell_Lying_Rear_Lateral_Raise",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Reverse_Flyes_With_External_Rotation",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Dumbbell Fly",
+  "id": "Cable_Rear_Delt_Fly",
+  "family": "Dumbbell Reverse Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Upright Row",
+  "id": "Smith_Machine_Upright_Row",
+  "family": "Barbell Upright Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Upright Row",
+  "id": "Upright_Cable_Row",
+  "family": "Barbell Upright Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Upright Row",
+  "id": "Standing_Dumbbell_Upright_Row",
+  "family": "Barbell Upright Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bench Press",
+  "id": "Wide-Grip_Barbell_Bench_Press",
+  "family": "Barbell Bench Press",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape; level from open research",
+  "M": {
+   "cur": [
+    122,
+    159,
+    202,
+    264,
+    326
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -10,
+    -12,
+    -11,
+    -12,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    70,
+    100,
+    136,
+    176
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    4,
+    -8,
+    -14,
+    -15,
+    -13
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Decline Bench Press",
+  "id": "Wide-Grip_Decline_Barbell_Bench_Press",
+  "family": "Barbell Decline Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 1.00 (Saeterbakken 2017; Brazilian studies) - low confidence",
+  "M": {
+   "cur": [
+    131,
+    177,
+    234,
+    299,
+    368
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -16,
+    -21,
+    -23,
+    -22,
+    -20
+   ],
+   "gold2_now": "Diamond 2",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    44,
+    74,
+    114,
+    163,
+    217
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    10,
+    -13,
+    -24,
+    -29,
+    -29
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Bench Press",
+  "id": "Floor_Press",
+  "family": "Barbell Bench Press",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape; level from open research",
+  "M": {
+   "cur": [
+    122,
+    159,
+    202,
+    264,
+    326
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -10,
+    -12,
+    -11,
+    -12,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    70,
+    100,
+    136,
+    176
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    4,
+    -8,
+    -14,
+    -15,
+    -13
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Bench Press",
+  "id": "Board_Press",
+  "family": "Barbell Bench Press",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape; level from open research",
+  "M": {
+   "cur": [
+    122,
+    159,
+    202,
+    264,
+    326
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -10,
+    -12,
+    -11,
+    -12,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    70,
+    100,
+    136,
+    176
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    4,
+    -8,
+    -14,
+    -15,
+    -13
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Bench Press",
+  "id": "Pin_Presses",
+  "family": "Barbell Bench Press",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape; level from open research",
+  "M": {
+   "cur": [
+    122,
+    159,
+    202,
+    264,
+    326
+   ],
+   "new": [
+    110,
+    140,
+    180,
+    232,
+    295
+   ],
+   "chg": [
+    -10,
+    -12,
+    -11,
+    -12,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    70,
+    100,
+    136,
+    176
+   ],
+   "new": [
+    48,
+    64,
+    86,
+    116,
+    153
+   ],
+   "chg": [
+    4,
+    -8,
+    -14,
+    -15,
+    -13
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Machine Chest Press",
+  "id": "Machine_Bench_Press",
+  "family": "Machine Chest Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Chest Press",
+  "id": "Leverage_Incline_Chest_Press",
+  "family": "Machine Chest Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "Machine Chest Press",
+  "id": "Leverage_Decline_Chest_Press",
+  "family": "Machine Chest Press",
+  "status": "lost"
+ },
+ {
+  "exercise": "Smith Machine Bench Press",
+  "id": "Smith_Machine_Incline_Bench_Press",
+  "family": "Smith Machine Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.96 (Cotterman 2005; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    120,
+    162,
+    212,
+    270,
+    331
+   ],
+   "new": [
+    105,
+    134,
+    173,
+    222,
+    283
+   ],
+   "chg": [
+    -12,
+    -17,
+    -18,
+    -18,
+    -14
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    38,
+    65,
+    100,
+    142,
+    190
+   ],
+   "new": [
+    47,
+    62,
+    83,
+    111,
+    147
+   ],
+   "chg": [
+    22,
+    -5,
+    -17,
+    -22,
+    -23
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Smith Machine Bench Press",
+  "id": "Smith_Machine_Decline_Press",
+  "family": "Smith Machine Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.96 (Cotterman 2005; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    120,
+    162,
+    212,
+    270,
+    331
+   ],
+   "new": [
+    105,
+    134,
+    173,
+    222,
+    283
+   ],
+   "chg": [
+    -12,
+    -17,
+    -18,
+    -18,
+    -14
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    38,
+    65,
+    100,
+    142,
+    190
+   ],
+   "new": [
+    47,
+    62,
+    83,
+    111,
+    147
+   ],
+   "chg": [
+    22,
+    -5,
+    -17,
+    -22,
+    -23
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Smith Machine Bench Press",
+  "id": "Decline_Smith_Press",
+  "family": "Smith Machine Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.96 (Cotterman 2005; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    120,
+    162,
+    212,
+    270,
+    331
+   ],
+   "new": [
+    105,
+    134,
+    173,
+    222,
+    283
+   ],
+   "chg": [
+    -12,
+    -17,
+    -18,
+    -18,
+    -14
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    38,
+    65,
+    100,
+    142,
+    190
+   ],
+   "new": [
+    47,
+    62,
+    83,
+    111,
+    147
+   ],
+   "chg": [
+    22,
+    -5,
+    -17,
+    -22,
+    -23
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Bench Press",
+  "id": "Dumbbell_Bench_Press_with_Neutral_Grip",
+  "family": "Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    43,
+    64,
+    89,
+    119,
+    152
+   ],
+   "new": [
+    46,
+    58,
+    75,
+    96,
+    122
+   ],
+   "chg": [
+    6,
+    -9,
+    -16,
+    -19,
+    -19
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    16,
+    28,
+    43,
+    63,
+    85
+   ],
+   "new": [
+    20,
+    27,
+    36,
+    48,
+    64
+   ],
+   "chg": [
+    26,
+    -5,
+    -17,
+    -24,
+    -25
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Bench Press",
+  "id": "One_Arm_Dumbbell_Bench_Press",
+  "family": "Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    43,
+    64,
+    89,
+    119,
+    152
+   ],
+   "new": [
+    46,
+    58,
+    75,
+    96,
+    122
+   ],
+   "chg": [
+    6,
+    -9,
+    -16,
+    -19,
+    -19
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    16,
+    28,
+    43,
+    63,
+    85
+   ],
+   "new": [
+    20,
+    27,
+    36,
+    48,
+    64
+   ],
+   "chg": [
+    26,
+    -5,
+    -17,
+    -24,
+    -25
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Bench Press",
+  "id": "Dumbbell_Floor_Press",
+  "family": "Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.83, per dumbbell (Jackson 2012; Saeterbakken 2011)",
+  "M": {
+   "cur": [
+    43,
+    64,
+    89,
+    119,
+    152
+   ],
+   "new": [
+    46,
+    58,
+    75,
+    96,
+    122
+   ],
+   "chg": [
+    6,
+    -9,
+    -16,
+    -19,
+    -19
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    16,
+    28,
+    43,
+    63,
+    85
+   ],
+   "new": [
+    20,
+    27,
+    36,
+    48,
+    64
+   ],
+   "chg": [
+    26,
+    -5,
+    -17,
+    -24,
+    -25
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Incline Dumbbell Bench Press",
+  "id": "Hammer_Grip_Incline_DB_Bench_Press",
+  "family": "Incline Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "incline ratio x dumbbell ratio",
+  "M": {
+   "cur": [
+    49,
+    66,
+    88,
+    113,
+    139
+   ],
+   "new": [
+    36,
+    45,
+    58,
+    75,
+    95
+   ],
+   "chg": [
+    -27,
+    -31,
+    -34,
+    -34,
+    -31
+   ],
+   "gold2_now": "Olympian",
+   "beginner_now": "Bronze 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    18,
+    28,
+    43,
+    60,
+    79
+   ],
+   "new": [
+    16,
+    21,
+    28,
+    37,
+    50
+   ],
+   "chg": [
+    -13,
+    -26,
+    -35,
+    -38,
+    -37
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Incline Dumbbell Bench Press",
+  "id": "Incline_Dumbbell_Bench_With_Palms_Facing_In",
+  "family": "Incline Dumbbell Bench Press",
+  "status": "rebuilt",
+  "source": "incline ratio x dumbbell ratio",
+  "M": {
+   "cur": [
+    49,
+    66,
+    88,
+    113,
+    139
+   ],
+   "new": [
+    36,
+    45,
+    58,
+    75,
+    95
+   ],
+   "chg": [
+    -27,
+    -31,
+    -34,
+    -34,
+    -31
+   ],
+   "gold2_now": "Olympian",
+   "beginner_now": "Bronze 3",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    18,
+    28,
+    43,
+    60,
+    79
+   ],
+   "new": [
+    16,
+    21,
+    28,
+    37,
+    50
+   ],
+   "chg": [
+    -13,
+    -26,
+    -35,
+    -38,
+    -37
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Fly",
+  "id": "Incline_Dumbbell_Flyes",
+  "family": "Dumbbell Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Fly",
+  "id": "Decline_Dumbbell_Flyes",
+  "family": "Dumbbell Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Fly",
+  "id": "Flat_Bench_Cable_Flyes",
+  "family": "Cable Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Fly",
+  "id": "Low_Cable_Crossover",
+  "family": "Cable Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Fly",
+  "id": "Incline_Cable_Flye",
+  "family": "Cable Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Fly",
+  "id": "Single-Arm_Cable_Crossover",
+  "family": "Cable Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Push-Up_Wide",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Pushups_Close_and_Wide_Hand_Positions",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Push-Ups_-_Close_Triceps_Position",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Decline_Push-Up",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Push-Ups_With_Feet_Elevated",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Incline_Push-Up",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Incline_Push-Up_Medium",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Incline_Push-Up_Wide",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Push Ups",
+  "id": "Incline_Push-Up_Close-Grip",
+  "family": "Push-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dips",
+  "id": "Ring_Dips",
+  "family": "Dips (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dips",
+  "id": "Bench_Dips",
+  "family": "Dips (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Pull Ups",
+  "id": "V-Bar_Pullup",
+  "family": "Pull-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Chin Ups",
+  "id": "Mixed_Grip_Chin",
+  "family": "Chin-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Pull Ups",
+  "id": "Wide-Grip_Rear_Pull-Up",
+  "family": "Pull-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Pull Ups",
+  "id": "Side_To_Side_Chins",
+  "family": "Pull-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Chin Ups",
+  "id": "Gironda_Sternum_Chins",
+  "family": "Chin-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Pull Ups",
+  "id": "x_Towel_Pull_Up",
+  "family": "Pull-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Muscle Ups",
+  "id": "Kipping_Muscle_Up",
+  "family": "Muscle-Ups (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Inverted Row",
+  "id": "Inverted_Row_with_Straps",
+  "family": "Inverted Row (bodyweight)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Close Grip Bench Press",
+  "id": "JM_Press",
+  "family": "Barbell Close-Grip Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.93 (Larsen 2021, Frontiers, CC BY; Saeterbakken 2017)",
+  "M": {
+   "cur": [
+    124,
+    163,
+    208,
+    260,
+    314
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -18,
+    -20,
+    -20,
+    -17,
+    -13
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    48,
+    73,
+    106,
+    144,
+    186
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -6,
+    -18,
+    -24,
+    -25,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Close Grip Bench Press",
+  "id": "Smith_Machine_Close-Grip_Bench_Press",
+  "family": "Barbell Close-Grip Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.93 (Larsen 2021, Frontiers, CC BY; Saeterbakken 2017)",
+  "M": {
+   "cur": [
+    124,
+    163,
+    208,
+    260,
+    314
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -18,
+    -20,
+    -20,
+    -17,
+    -13
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    48,
+    73,
+    106,
+    144,
+    186
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -6,
+    -18,
+    -24,
+    -25,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Close Grip Bench Press",
+  "id": "Close-Grip_EZ-Bar_Press",
+  "family": "Barbell Close-Grip Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.93 (Larsen 2021, Frontiers, CC BY; Saeterbakken 2017)",
+  "M": {
+   "cur": [
+    124,
+    163,
+    208,
+    260,
+    314
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -18,
+    -20,
+    -20,
+    -17,
+    -13
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    48,
+    73,
+    106,
+    144,
+    186
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -6,
+    -18,
+    -24,
+    -25,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Lying_Close-Grip_Barbell_Triceps_Extension_Behind_The_Head",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Lying_Close-Grip_Barbell_Triceps_Press_To_Chin",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Decline_EZ_Bar_Triceps_Extension",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Incline_Barbell_Triceps_Extension",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Standing_Overhead_Barbell_Triceps_Extension",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Lying_Dumbbell_Tricep_Extension",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lying Tricep Extension",
+  "id": "Decline_Dumbbell_Triceps_Extension",
+  "family": "Barbell Lying Tricep Extension (skull crusher)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Seated_Triceps_Press",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Kettlebell_Overhead_Triceps_Extension",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Dumbbell_One-Arm_Triceps_Extension",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Standing_One-Arm_Dumbbell_Triceps_Extension",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Rope Pushdown",
+  "id": "Cable_Rope_Overhead_Triceps_Extension",
+  "family": "Cable Tricep Rope Pushdown",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Rope Pushdown",
+  "id": "Triceps_Overhead_Extension_with_Rope",
+  "family": "Cable Tricep Rope Pushdown",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Pushdown",
+  "id": "Reverse_Grip_Triceps_Pushdown",
+  "family": "Cable Tricep Pushdown (bar)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Preacher Curl",
+  "id": "Two-Arm_Dumbbell_Preacher_Curl",
+  "family": "Barbell Preacher Curl",
+  "status": "rebuilt",
+  "source": "bench x 0.47 men / 0.57 women (Piper 2021/2022)",
+  "M": {
+   "cur": [
+    46,
+    70,
+    100,
+    136,
+    175
+   ],
+   "new": [
+    52,
+    66,
+    85,
+    109,
+    139
+   ],
+   "chg": [
+    12,
+    -6,
+    -15,
+    -20,
+    -21
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    20,
+    35,
+    54,
+    78,
+    104
+   ],
+   "new": [
+    28,
+    37,
+    49,
+    66,
+    87
+   ],
+   "chg": [
+    38,
+    5,
+    -9,
+    -15,
+    -16
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Preacher Curl",
+  "id": "One_Arm_Dumbbell_Preacher_Curl",
+  "family": "Barbell Preacher Curl",
+  "status": "rebuilt",
+  "source": "bench x 0.47 men / 0.57 women (Piper 2021/2022)",
+  "M": {
+   "cur": [
+    46,
+    70,
+    100,
+    136,
+    175
+   ],
+   "new": [
+    52,
+    66,
+    85,
+    109,
+    139
+   ],
+   "chg": [
+    12,
+    -6,
+    -15,
+    -20,
+    -21
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    20,
+    35,
+    54,
+    78,
+    104
+   ],
+   "new": [
+    28,
+    37,
+    49,
+    66,
+    87
+   ],
+   "chg": [
+    38,
+    5,
+    -9,
+    -15,
+    -16
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Preacher Curl",
+  "id": "Spider_Curl",
+  "family": "Barbell Preacher Curl",
+  "status": "rebuilt",
+  "source": "bench x 0.47 men / 0.57 women (Piper 2021/2022)",
+  "M": {
+   "cur": [
+    46,
+    70,
+    100,
+    136,
+    175
+   ],
+   "new": [
+    52,
+    66,
+    85,
+    109,
+    139
+   ],
+   "chg": [
+    12,
+    -6,
+    -15,
+    -20,
+    -21
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    20,
+    35,
+    54,
+    78,
+    104
+   ],
+   "new": [
+    28,
+    37,
+    49,
+    66,
+    87
+   ],
+   "chg": [
+    38,
+    5,
+    -9,
+    -15,
+    -16
+   ],
+   "gold2_now": "Platinum 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Machine Bicep Curl",
+  "id": "Machine_Preacher_Curls",
+  "family": "Machine Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Bicep Curl",
+  "id": "Cable_Preacher_Curl",
+  "family": "Cable Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Bicep Curl",
+  "id": "Standing_One-Arm_Cable_Curl",
+  "family": "Cable Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Bicep Curl",
+  "id": "Cable_Hammer_Curls_-_Rope_Attachment",
+  "family": "Cable Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "EZ Bar Curl",
+  "id": "Close-Grip_EZ_Bar_Curl",
+  "family": "EZ Bar Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "id": "Close-Grip_Standing_Barbell_Curl",
+  "family": "Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "id": "Wide-Grip_Standing_Barbell_Curl",
+  "family": "Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "id": "Drag_Curl",
+  "family": "Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "id": "Lying_High_Bench_Barbell_Curl",
+  "family": "Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "id": "Barbell_Curls_Lying_Against_An_Incline",
+  "family": "Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Curl",
+  "id": "Seated_Dumbbell_Curl",
+  "family": "Dumbbell Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Curl",
+  "id": "Standing_Inner-Biceps_Curl",
+  "family": "Dumbbell Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Curl",
+  "id": "Seated_Dumbbell_Inner_Biceps_Curl",
+  "family": "Dumbbell Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Incline Dumbbell Curl",
+  "id": "Incline_Inner_Biceps_Curl",
+  "family": "Incline Dumbbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Incline Dumbbell Curl",
+  "id": "Flexor_Incline_Dumbbell_Curls",
+  "family": "Incline Dumbbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Incline Dumbbell Curl",
+  "id": "Dumbbell_Prone_Incline_Curl",
+  "family": "Incline Dumbbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Concentration Curl",
+  "id": "Standing_Concentration_Curl",
+  "family": "Dumbbell Concentration Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hammer Curl",
+  "id": "Cross_Body_Hammer_Curl",
+  "family": "Dumbbell Hammer Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hammer Curl",
+  "id": "Incline_Hammer_Curls",
+  "family": "Dumbbell Hammer Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hammer Curl",
+  "id": "Preacher_Hammer_Dumbbell_Curl",
+  "family": "Dumbbell Hammer Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Hammer Curl",
+  "id": "Zottman_Curl",
+  "family": "Dumbbell Hammer Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Barbell Curl",
+  "id": "Standing_Dumbbell_Reverse_Curl",
+  "family": "Reverse Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Barbell Curl",
+  "id": "Reverse_Barbell_Preacher_Curls",
+  "family": "Reverse Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Reverse Barbell Curl",
+  "id": "Reverse_Cable_Curl",
+  "family": "Reverse Barbell Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Full_Range-Of-Motion_Lat_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "V-Bar_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Underhand_Cable_Pulldowns",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Wide-Grip_Pulldown_Behind_The_Neck",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "One_Arm_Lat_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Seated Cable Row",
+  "id": "Seated_One-arm_Cable_Pulley_Rows",
+  "family": "Seated Cable Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Cable Row",
+  "id": "Elevated_Cable_Rows",
+  "family": "Seated Cable Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Row",
+  "id": "Reverse_Grip_Bent-Over_Rows",
+  "family": "Barbell Bent Over Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Row",
+  "id": "Smith_Machine_Bent_Over_Row",
+  "family": "Barbell Bent Over Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "T-Bar Row",
+  "id": "Bent_Over_Two-Arm_Long_Bar_Row",
+  "family": "T-Bar Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "T-Bar Row",
+  "id": "Lying_T-Bar_Row",
+  "family": "T-Bar Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "T-Bar Row",
+  "id": "One-Arm_Long_Bar_Row",
+  "family": "T-Bar Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "T-Bar Row",
+  "id": "Bent_Over_One-Arm_Long_Bar_Row",
+  "family": "T-Bar Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Row",
+  "id": "One-Arm_Kettlebell_Row",
+  "family": "One-Arm Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Dumbbell Row",
+  "id": "Two-Arm_Kettlebell_Row",
+  "family": "Bent Over Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Dumbbell Row",
+  "id": "Alternating_Kettlebell_Row",
+  "family": "Bent Over Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Dumbbell Row",
+  "id": "Dumbbell_Incline_Row",
+  "family": "Bent Over Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Deadlift",
+  "id": "Axle_Deadlift",
+  "family": "Barbell Deadlift",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & deadlift:bench ratio",
+  "M": {
+   "cur": [
+    201,
+    261,
+    325,
+    426,
+    519
+   ],
+   "new": [
+    190,
+    241,
+    311,
+    400,
+    509
+   ],
+   "chg": [
+    -6,
+    -8,
+    -4,
+    -6,
+    -2
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    92,
+    139,
+    184,
+    252,
+    312
+   ],
+   "new": [
+    107,
+    142,
+    191,
+    257,
+    340
+   ],
+   "chg": [
+    17,
+    3,
+    4,
+    2,
+    9
+   ],
+   "gold2_now": "Gold 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Deadlift",
+  "id": "Clean_Deadlift",
+  "family": "Barbell Deadlift",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & deadlift:bench ratio",
+  "M": {
+   "cur": [
+    201,
+    261,
+    325,
+    426,
+    519
+   ],
+   "new": [
+    190,
+    241,
+    311,
+    400,
+    509
+   ],
+   "chg": [
+    -6,
+    -8,
+    -4,
+    -6,
+    -2
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    92,
+    139,
+    184,
+    252,
+    312
+   ],
+   "new": [
+    107,
+    142,
+    191,
+    257,
+    340
+   ],
+   "chg": [
+    17,
+    3,
+    4,
+    2,
+    9
+   ],
+   "gold2_now": "Gold 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Deadlift",
+  "id": "Snatch_Deadlift",
+  "family": "Barbell Deadlift",
+  "status": "rebuilt",
+  "source": "OpenPowerlifting shape & deadlift:bench ratio",
+  "M": {
+   "cur": [
+    201,
+    261,
+    325,
+    426,
+    519
+   ],
+   "new": [
+    190,
+    241,
+    311,
+    400,
+    509
+   ],
+   "chg": [
+    -6,
+    -8,
+    -4,
+    -6,
+    -2
+   ],
+   "gold2_now": "Gold 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    92,
+    139,
+    184,
+    252,
+    312
+   ],
+   "new": [
+    107,
+    142,
+    191,
+    257,
+    340
+   ],
+   "chg": [
+    17,
+    3,
+    4,
+    2,
+    9
+   ],
+   "gold2_now": "Gold 1",
+   "beginner_now": "Wood 1",
+   "elite_now": "Olympian"
+  }
+ },
+ {
+  "exercise": "Romanian Deadlift",
+  "id": "Romanian_Deadlift_from_Deficit",
+  "family": "Barbell Romanian Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Romanian Deadlift",
+  "id": "Stiff-Legged_Dumbbell_Deadlift",
+  "family": "Barbell Romanian Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Stiff Leg Deadlift",
+  "id": "Smith_Machine_Stiff-Legged_Deadlift",
+  "family": "Barbell Stiff-Leg Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Stiff Leg Deadlift",
+  "id": "Wide_Stance_Stiff_Legs",
+  "family": "Barbell Stiff-Leg Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Good Morning",
+  "id": "Stiff_Leg_Barbell_Good_Morning",
+  "family": "Barbell Good Morning",
+  "status": "lost"
+ },
+ {
+  "exercise": "Good Morning",
+  "id": "Good_Morning_off_Pins",
+  "family": "Barbell Good Morning",
+  "status": "lost"
+ },
+ {
+  "exercise": "Good Morning",
+  "id": "Seated_Good_Mornings",
+  "family": "Barbell Good Morning",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Calf Raise",
+  "id": "Smith_Machine_Calf_Raise",
+  "family": "Barbell Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Calf Raise",
+  "id": "Rocking_Standing_Calf_Raise",
+  "family": "Barbell Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Calf Raise",
+  "id": "x_Standing_Calf_Raise_Weighted_Vest",
+  "family": "Machine Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Calf Raise",
+  "id": "x_One_Leg_Standing_Calf_Raise_Weighted_Vest",
+  "family": "Machine Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Calf Raise",
+  "id": "Donkey_Calf_Raises",
+  "family": "Machine Standing Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Calf Raise",
+  "id": "Barbell_Seated_Calf_Raise",
+  "family": "Machine Seated Calf Raise",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Shrug",
+  "id": "Barbell_Shrug_Behind_The_Back",
+  "family": "Barbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Shrug",
+  "id": "Smith_Machine_Behind_the_Back_Shrug",
+  "family": "Barbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Shrug",
+  "id": "Leverage_Shrug",
+  "family": "Barbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Shrug",
+  "id": "Calf-Machine_Shoulder_Shrug",
+  "family": "Barbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Shrug",
+  "id": "Cable_Shrugs",
+  "family": "Barbell Shrug",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Cable_Wrist_Curl",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Seated_Palms-Down_Barbell_Wrist_Curl",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Palms-Down_Wrist_Curl_Over_A_Bench",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Palms-Up_Dumbbell_Wrist_Curl_Over_A_Bench",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Wrist Curl",
+  "id": "Seated_Dumbbell_Palms-Up_Wrist_Curl",
+  "family": "Barbell Wrist Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Straight-Arm_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Rope_Straight-Arm_Pulldown",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Leverage_High_Row",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Lat Pulldown",
+  "id": "Kneeling_High_Pulley_Row",
+  "family": "Cable Lat Pulldown",
+  "status": "rebuilt",
+  "source": "bench x 0.93 men / 1.34 women (Piper et al. 2021/2022 college norms, n=1,466, CC BY)",
+  "M": {
+   "cur": [
+    106,
+    143,
+    189,
+    241,
+    296
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -4,
+    -9,
+    -11,
+    -11,
+    -7
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    52,
+    75,
+    103,
+    136,
+    172
+   ],
+   "new": [
+    65,
+    86,
+    116,
+    155,
+    205
+   ],
+   "chg": [
+    25,
+    15,
+    12,
+    14,
+    19
+   ],
+   "gold2_now": "Silver 2",
+   "beginner_now": "Wood 1",
+   "elite_now": "Diamond 3"
+  }
+ },
+ {
+  "exercise": "Seated Cable Row",
+  "id": "Leverage_Iso_Row",
+  "family": "Seated Cable Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Cable Row",
+  "id": "Shotgun_Row",
+  "family": "Seated Cable Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Row",
+  "id": "Incline_Bench_Pull",
+  "family": "Barbell Bent Over Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Row",
+  "id": "Alternating_Renegade_Row",
+  "family": "One-Arm Dumbbell Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Bent Over Row",
+  "id": "Barbell_Rear_Delt_Row",
+  "family": "Barbell Bent Over Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Face Pull",
+  "id": "Cable_Rope_Rear-Delt_Rows",
+  "family": "Cable Face Pull",
+  "status": "lost"
+ },
+ {
+  "exercise": "Upright Row",
+  "id": "Dumbbell_One-Arm_Upright_Row",
+  "family": "Barbell Upright Row",
+  "status": "lost"
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Standing_Palm-In_One-Arm_Dumbbell_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Seated Dumbbell Shoulder Press",
+  "id": "Alternating_Kettlebell_Press",
+  "family": "Seated Dumbbell Shoulder Press",
+  "status": "rebuilt",
+  "source": "per dumbbell ~0.30 men / 0.35 women x bench (Saeterbakken 2013 chain; HK 6RM study) - low confidence",
+  "M": {
+   "cur": [
+    40,
+    56,
+    76,
+    98,
+    122
+   ],
+   "new": [
+    33,
+    42,
+    54,
+    70,
+    88
+   ],
+   "chg": [
+    -18,
+    -25,
+    -29,
+    -29,
+    -27
+   ],
+   "gold2_now": "Diamond 3",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    17,
+    26,
+    37,
+    50,
+    64
+   ],
+   "new": [
+    17,
+    22,
+    30,
+    41,
+    54
+   ],
+   "chg": [
+    0,
+    -14,
+    -18,
+    -19,
+    -16
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Fly",
+  "id": "One-Arm_Flat_Bench_Dumbbell_Flye",
+  "family": "Dumbbell Chest Fly",
+  "status": "lost"
+ },
+ {
+  "exercise": "Close Grip Bench Press",
+  "id": "Reverse_Triceps_Bench_Press",
+  "family": "Barbell Close-Grip Bench Press",
+  "status": "rebuilt",
+  "source": "bench x 0.93 (Larsen 2021, Frontiers, CC BY; Saeterbakken 2017)",
+  "M": {
+   "cur": [
+    124,
+    163,
+    208,
+    260,
+    314
+   ],
+   "new": [
+    102,
+    130,
+    167,
+    216,
+    274
+   ],
+   "chg": [
+    -18,
+    -20,
+    -20,
+    -17,
+    -13
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    48,
+    73,
+    106,
+    144,
+    186
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -6,
+    -18,
+    -24,
+    -25,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Tate_Press",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Tricep Extension",
+  "id": "Tricep_Dumbbell_Kickback",
+  "family": "Dumbbell Overhead Tricep Extension (one dumbbell, both hands)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Pushdown",
+  "id": "Cable_One_Arm_Tricep_Extension",
+  "family": "Cable Tricep Pushdown (bar)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Pushdown",
+  "id": "Cable_Lying_Triceps_Extension",
+  "family": "Cable Tricep Pushdown (bar)",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Rope Pushdown",
+  "id": "Low_Cable_Triceps_Extension",
+  "family": "Cable Tricep Rope Pushdown",
+  "status": "lost"
+ },
+ {
+  "exercise": "Tricep Rope Pushdown",
+  "id": "Kneeling_Cable_Triceps_Extension",
+  "family": "Cable Tricep Rope Pushdown",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Bicep Curl",
+  "id": "Overhead_Cable_Curl",
+  "family": "Cable Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Cable Bicep Curl",
+  "id": "Lying_Cable_Curl",
+  "family": "Cable Bicep Curl",
+  "status": "lost"
+ },
+ {
+  "exercise": "Dumbbell Pullover",
+  "id": "Bent-Arm_Barbell_Pullover",
+  "family": "Dumbbell Pullover",
+  "status": "lost"
+ },
+ {
+  "exercise": "Romanian Deadlift",
+  "id": "Kettlebell_One-Legged_Deadlift",
+  "family": "Barbell Romanian Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Barbell Lunge",
+  "id": "Barbell_Side_Split_Squat",
+  "family": "Barbell Lunge",
+  "status": "lost"
+ },
+ {
+  "exercise": "Romanian Deadlift",
+  "id": "Pull_Through",
+  "family": "Barbell Romanian Deadlift",
+  "status": "lost"
+ },
+ {
+  "exercise": "Power Clean",
+  "id": "Clean_Pull",
+  "family": "Barbell Power Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.91 (power clean ~0.89 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    117,
+    154,
+    194,
+    253,
+    302
+   ],
+   "new": [
+    92,
+    118,
+    151,
+    195,
+    248
+   ],
+   "chg": [
+    -21,
+    -24,
+    -22,
+    -23,
+    -18
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    63,
+    84,
+    116,
+    149,
+    170
+   ],
+   "new": [
+    53,
+    70,
+    94,
+    126,
+    167
+   ],
+   "chg": [
+    -16,
+    -17,
+    -19,
+    -16,
+    -2
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Power Clean",
+  "id": "Power_Clean_from_Blocks",
+  "family": "Barbell Power Clean",
+  "status": "rebuilt",
+  "source": "clean & jerk x 0.91 (power clean ~0.89 x clean; Czaplicki 2021)",
+  "M": {
+   "cur": [
+    117,
+    154,
+    194,
+    253,
+    302
+   ],
+   "new": [
+    92,
+    118,
+    151,
+    195,
+    248
+   ],
+   "chg": [
+    -21,
+    -24,
+    -22,
+    -23,
+    -18
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Bronze 1",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    63,
+    84,
+    116,
+    149,
+    170
+   ],
+   "new": [
+    53,
+    70,
+    94,
+    126,
+    167
+   ],
+   "chg": [
+    -16,
+    -17,
+    -19,
+    -16,
+    -2
+   ],
+   "gold2_now": "Platinum 3",
+   "beginner_now": "Wood 3",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Snatch",
+  "id": "Snatch_Pull",
+  "family": "Barbell Snatch",
+  "status": "rebuilt",
+  "source": "OpenWeightlifting shape; same gap below competitors as the big lifts",
+  "M": {
+   "cur": [
+    83,
+    120,
+    166,
+    220,
+    278
+   ],
+   "new": [
+    79,
+    101,
+    130,
+    168,
+    213
+   ],
+   "chg": [
+    -4,
+    -16,
+    -22,
+    -24,
+    -23
+   ],
+   "gold2_now": "Diamond 1",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  },
+  "F": {
+   "cur": [
+    47,
+    68,
+    94,
+    124,
+    157
+   ],
+   "new": [
+    45,
+    60,
+    80,
+    108,
+    143
+   ],
+   "chg": [
+    -4,
+    -12,
+    -15,
+    -13,
+    -9
+   ],
+   "gold2_now": "Platinum 2",
+   "beginner_now": "Wood 2",
+   "elite_now": "Legend"
+  }
+ },
+ {
+  "exercise": "Grip Dynamometer",
+  "id": "x_Grip_Dynamometer_Test",
+  "family": "Hand Grip Dynamometer",
+  "status": "kept"
+ }
+]

@@ -1,0 +1,380 @@
+[
+  {
+    "id": "rgym_2024_survey",
+    "title": "2024 r/GYM Survey Results",
+    "url": "https://www.reddit.com/r/GYM/comments/1fy9425/2024_rgym_survey_results/",
+    "mirror_url": "https://lr.us.psf.lt/r/GYM/comments/1fy9425/2024_rgym_survey_results",
+    "date": "2024-10-07",
+    "author": "u/cilantno (r/GYM moderator/organiser)",
+    "category": "reddit_community_survey",
+    "sample": {"n": 202, "male": 189, "male_pct": 92.1, "female": 12, "female_pct": 5.9, "other": "1 MtF (0.5%), 3 prefer not to say (1.5%)", "mean_age_years": 28.26},
+    "collection_method": "Voluntary online survey posted to r/GYM; respondents self-reported best squat/bench/deadlift (1RM) plus age/sex. No verification.",
+    "licence_terms": "Reddit post (Reddit User Agreement; content owned by poster). The aggregate numbers are facts and can be cited with attribution; do not copy the post text/tables wholesale.",
+    "units": "lb (kg also given in original)",
+    "numbers": {
+      "sub_wide_averages_all_respondents": {"total_lb": 983.97, "total_kg": 446.32, "squat_lb": 331.83, "squat_kg": 150.52, "bench_lb": 233.34, "bench_kg": 105.84, "deadlift_lb": 399.92, "deadlift_kg": 181.4},
+      "male_averages_by_age_bracket_lb": [
+        {"age": "u18", "count": 18, "total": 654.85, "squat": 233.28, "bench": 167.31, "deadlift": 260.97},
+        {"age": "18-22", "count": 32, "total": 848.77, "squat": 282.65, "bench": 209.49, "deadlift": 346.63},
+        {"age": "23-29", "count": 54, "total": 1101.42, "squat": 374.9, "bench": 258.92, "deadlift": 436.1},
+        {"age": "30-39", "count": 69, "total": 1070.7, "squat": 355.36, "bench": 249.75, "deadlift": 442.48},
+        {"age": "40+", "note": "row not retrievable from extracts"}
+      ],
+      "female_results": "not retrievable (only 12 respondents)",
+      "statistic": "arithmetic MEAN, not median"
+    },
+    "bodyweight_info": "Not retrieved; original post may contain bodyweight breakdowns.",
+    "author_caveats": "Organiser: 'we do not meet the threshold for even 90% confidence with this sample size'; response count less than half of 2023.",
+    "reliability": "LOW-MODERATE. Small n, heavy self-selection (enthusiast subreddit, people proud of lifts more likely to answer), unverified self-reports, means inflated by outliers. Useful as an upper-bound 'engaged lifter' reference, not an ordinary gym-goer median.",
+    "verification_status": "Numbers taken from search-engine extracts of a Reddit mirror; Reddit and mirrors were network-blocked from this environment so the post was not opened directly. Re-check before shipping."
+  },
+  {
+    "id": "rgym_2023_survey",
+    "title": "2023 r/GYM Survey Results",
+    "url": "https://www.reddit.com/r/GYM/comments/15kjuw7/2023_rgym_survey_results/",
+    "mirror_url": "https://lr.in.psf.lt/r/GYM/comments/15kjuw7/2023_rgym_survey_results",
+    "date": "2023-08-07",
+    "author": "u/cilantno",
+    "category": "reddit_community_survey",
+    "sample": {"n": "not retrieved (fewer than 2022's 445; 2024 post says 2024's 202 was less than half of 2023, so likely ~400-445)", "female_pct": 9.7, "female_pct_previous_year": 7},
+    "collection_method": "Voluntary online survey on r/GYM; self-reported 1RMs.",
+    "licence_terms": "Reddit post; aggregate numbers are facts, cite with attribution.",
+    "units": "lb and kg as published",
+    "numbers": {
+      "average_total_by_sex": {
+        "male": {"lb": 980.01, "kg": 444.53, "previous_year_2022_lb": 954.09, "previous_year_2022_kg": 432.77},
+        "female": {"lb": 544.85, "kg": 247.14, "previous_year_2022_lb": 535.19, "previous_year_2022_kg": 242.76}
+      },
+      "average_squat_by_sex": {"male_lb": 333.43, "female_lb": 185.17, "female_kg": 83.99, "female_previous_year_lb": 190.63, "female_previous_year_kg": 86.47},
+      "average_bench_by_sex": {"male_lb": 238.19, "female_lb": 115.58, "female_kg": 52.43, "female_previous_year_lb": 111.35, "female_previous_year_kg": 50.51},
+      "average_deadlift_by_sex": {"male_lb": 398.19, "female_lb": 221.23, "female_kg": 100.35, "female_previous_year_lb": 237.33, "female_previous_year_kg": 107.65},
+      "male_by_age_partial": {"30-39": {"squat_lb": 379, "bench_lb": 270, "note": "approx, from secondary extract"}, "40+": {"total_lb": 1039.57, "squat_lb": 351.82, "bench_lb": 259.89, "deadlift_lb": 411.22}},
+      "statistic": "arithmetic MEAN"
+    },
+    "derived_ratios": {"male_bench_to_squat": 0.714, "male_deadlift_to_squat": 1.194, "female_bench_to_squat": 0.624, "female_deadlift_to_squat": 1.195, "female_to_male_total": 0.556},
+    "bodyweight_info": "Not retrieved.",
+    "reliability": "LOW-MODERATE. Same caveats as 2024 (self-selected enthusiast subreddit, unverified, means). Female n small (~40).",
+    "verification_status": "From search extracts of a Reddit mirror; not opened directly."
+  },
+  {
+    "id": "rgym_2022_survey",
+    "title": "2022 r/GYM Survey (values quoted as 'last year' in the 2023 post)",
+    "url": "https://www.reddit.com/r/GYM/ (2022 survey post; URL not retrieved)",
+    "date": "2022",
+    "category": "reddit_community_survey",
+    "sample": {"n": 445, "female_pct": 7},
+    "numbers": {"male_total_lb": 954.09, "female_total_lb": 535.19, "female_squat_lb": 190.63, "female_bench_lb": 111.35, "female_deadlift_lb": 237.33},
+    "licence_terms": "Reddit post; numbers are facts.",
+    "reliability": "LOW-MODERATE (same as later r/GYM surveys). Included leaderboards.",
+    "verification_status": "Indirect, via 2023 post extracts."
+  },
+  {
+    "id": "rweightroom_2021_survey",
+    "title": "WR Survey Results: The Deadlift (r/weightroom 2021 survey; post header reportedly says '2022 Survey Results')",
+    "url": "https://www.reddit.com/r/weightroom/comments/pwi8zi/wr_survey_results_the_deadlift/",
+    "mirror_url": "https://pol1.lr.ggtyler.dev/r/weightroom/comments/pwi8zi/wr_survey_results_the_deadlift/",
+    "related_urls": ["https://www.reddit.com/r/weightroom/comments/prn7wm/comment/hdl6zhb/ (methodology comment, 2021-09-20)", "https://www.reddit.com/r/weightroom/comments/psb0v8/comment/hdpoq10/ (best squatter/deadlifter tables, 2021-09-21)"],
+    "date": "2021-09-27",
+    "author": "u/... flair 'Data Dude | okayish lifting pirate'",
+    "category": "reddit_community_survey",
+    "sample": {"n": 1159, "n_with_wilks": 1106, "note": "Wilks only computable for 1,106 respondents (missing bodyweight or a lift)"},
+    "collection_method": "r/weightroom annual survey (Google Form/Sheet); asked for SBD 1RMs, bodyweight, and 'how long have you been training?'. Author treated all as raw tested lifts while admitting they are not.",
+    "licence_terms": "Reddit post; aggregate numbers are facts. Underlying sheet may be public via the survey post.",
+    "units": "lb",
+    "numbers": {
+      "average_deadlift_by_flair_lb": {
+        "columns": ["female", "male"],
+        "Everyone": [274, 424],
+        "No Flair": [283, 415],
+        "Beginner Flair": [249, 289],
+        "Intermediate Flair": [294, 469],
+        "Custom Flair": [310, 504],
+        "Sport Specific Flair": [318, 485]
+      },
+      "average_training_age_years": {"male": 8, "female": 5},
+      "pct_reporting_squat_greater_than_deadlift": "~8% (54 people)",
+      "bodyweight_cluster": "Male user base clusters around 190-200 lb bodyweight and ~6 ft; ~425 lb deadlift = top half of sample.",
+      "uncertain_extract": "One extract also gave 'minimum Wilks 159 (M) / 168 (F), average deadlift 611 lb (M) / 387 lb (F)' - this is probably a top-lifter subgroup table, NOT the population average; do not use without checking.",
+      "statistic": "MEAN"
+    },
+    "author_caveats": "'These numbers are probably with straps and might even include a deadlift suit and, definitely, include people pulling sumo.' Some heat-map cells have very few users.",
+    "reliability": "LOW for 'ordinary gym-goer' purposes. r/weightroom is a serious-lifter community (avg 8 yrs training); strongly skewed upward. Good as an 'experienced hobbyist' anchor.",
+    "verification_status": "From search extracts of Reddit mirrors; not opened directly."
+  },
+  {
+    "id": "steele_2022_rqes",
+    "title": "Long-Term Time-Course of Strength Adaptation to Minimal Dose Resistance Training Through Retrospective Longitudinal Growth Modeling (Steele et al.)",
+    "url": "https://www.tandfonline.com/doi/abs/10.1080/02701367.2022.2070592",
+    "open_copies": ["https://pure.solent.ac.uk/ws/portalfiles/portal/32824694/Manuscript_Steele_et_al._Final_Clean_accepted.pdf", "https://sportrxiv.org/index.php/server/preprint/download/69/103"],
+    "secondary_summary": "https://www.strongerbyscience.com/research-spotlight-modeling-strength/",
+    "date": "Preprint 2021 (SportRxiv); Research Quarterly for Exercise and Sport vol 94 no 4 (2022 online / 2023 issue)",
+    "category": "research_paper_with_community_survey",
+    "is_research_paper": true,
+    "sample": {"primary": "14,690 gym clients (60% female, age 48 +/- 11) of a private exercise company, up to 352 weeks", "supplementary": ["~1,000 r/weightroom respondents (powerlifting total + training years)", "10,000 random OpenPowerlifting lifters"]},
+    "collection_method": "Retrospective training records (machine-based, 1x/week single set to failure, 6 exercises) + r/weightroom self-report survey + competition data.",
+    "licence_terms": "Journal article (T&F copyright); accepted manuscript in Solent repository; preprint on SportRxiv (check its CC licence). Data may be on OSF.",
+    "numbers": {
+      "key_findings": "Linear-log strength curve; gains practically plateau by ~1-2 years in minimal-dose gym clients; typical participant ~30-50% stronger in first year (secondary summary). Male and female relative rates of progress comparable over ~6 years across all three datasets.",
+      "absolute_lift_numbers": "Not retrieved - r/weightroom total-vs-years figures are in the full paper/supplement."
+    },
+    "reliability": "MODERATE-HIGH for progression shape (peer-reviewed, large n), but primary cohort is machine-based older adults, not barbell 1RMs. Good source for 'expected progress vs training years' curve shape.",
+    "verification_status": "Design confirmed via abstract/secondary summaries; numbers not extracted."
+  },
+  {
+    "id": "outlift_reader_survey",
+    "title": "Outlift / Bony to Beastly newsletter reader strength survey (articles: How Much Should You Be Able to Bench/Squat/Deadlift/Overhead Press; How Much Can the Average Man Lift)",
+    "url": "https://outlift.com/how-much-can-the-average-man-lift/",
+    "related_urls": ["https://outlift.com/how-much-should-you-be-able-to-bench-press/", "https://outlift.com/how-much-should-you-be-able-to-squat/", "https://outlift.com/how-much-should-you-be-able-to-deadlift/", "https://outlift.com/how-much-should-you-be-able-to-overhead-press/", "https://outlift.com/is-225-a-good-bench-press/"],
+    "date": "Articles c. 2023-2025 (metadata ~May 2025); survey date not stated",
+    "author": "Shane Duquette (Outlift / Bony to Beastly) - coach-run survey, NOT a research paper",
+    "category": "coach_survey",
+    "is_research_paper": false,
+    "sample": {"n": "Inconsistently stated: 540 (deadlift), 580, 585 (bench), ~600 subscribers", "sex": "men", "population": "Newsletter readers; many from Bony to Beastly (naturally thin men), ages ~20-60"},
+    "collection_method": "Online survey of newsletter subscribers: years lifting + most weight ever lifted for squat/bench/deadlift/OHP (bucketed by plate milestones). Self-reported; 'most ever' not verified singles.",
+    "licence_terms": "Copyrighted commercial blog; figures are facts, cite with attribution.",
+    "units": "lb, men only",
+    "numbers": {
+      "bench": {
+        "first_year": "60% bench <135 lb; 38% bench 135-224; <1% bench 225",
+        "after_1_year": "56% could bench >135 lb; 5% could bench 225",
+        "after_3_years": "72% bench 135-224 lb; 16% bench 225; one person benched 315",
+        "after_5_years": "~1/3 bench >=225 lb",
+        "overall": "17% of men who completed the survey had ever benched 225 lb",
+        "summary_fractions": "1 in 100 in first year, 1 in 20 after 1 yr, 1 in 6 after 3 yr, 1/3 after 5 yr can bench 225"
+      },
+      "squat": {
+        "225": "Most men need at least 3 years to squat 225 lb",
+        "315": "1 in 25 after one year; ~1 in 6 (~17%) of lifetime/advanced lifters ever squat 315 even after 10+ years",
+        "405": "~1 in 17 (~6%) ever squat 405"
+      },
+      "deadlift": {
+        "after_1_year": "Most can deadlift ~185 lb for a few reps; some reach 315",
+        "after_3_years": "Most deadlift 225-315 lb for a few reps; <5% deadlift 405",
+        "315_overall": "Only around half ever load 315",
+        "405": "12% at 5-10 years; ~1 in 8 ever deadlift 405; most plateau after ~5 years"
+      },
+      "overhead_press": {
+        "after_1_year": "1 in 10 can press 135 lb for >=1 rep",
+        "after_3_years": "1 in 4 can press 135 lb; none pressed 225",
+        "after_5_years": "1 in 3 can press 135 lb (plateau point)",
+        "after_10_years": "2% have pressed 225+ lb"
+      }
+    },
+    "bodyweight_info": "Not reported; sample skews lighter than average men.",
+    "reliability": "MODERATE as a 'typical recreational male lifter by training years' source - one of the few sources tied to training years and to ordinary (non-competitive) lifters. Biases: self-selected, thin-skewing sample (pushes numbers down), recall/ego bias (pushes up), inconsistent n. Rounded plate-threshold buckets only.",
+    "notes": "Outlift also quotes ExRx/Nuckols figures in the same articles - ignore those (ExRx excluded). Stronger app and other sites re-publish these Outlift numbers (not independent).",
+    "verification_status": "From search extracts; outlift.com was network-blocked here."
+  },
+  {
+    "id": "outlift_pullup_polls",
+    "title": "How Many Pull-Ups Can the Average Man Do? (Outlift YouTube poll + Bony to Beastly newsletter survey)",
+    "url": "https://outlift.com/how-many-pull-ups/",
+    "date": "c. 2025 (metadata ~525 days old)",
+    "category": "coach_survey",
+    "sample": {"youtube_poll_n": "just under 600", "newsletter_n": "not stated", "sex": "men"},
+    "collection_method": "YouTube community poll (bucketed) and newsletter survey; self-reported max strict pull-ups.",
+    "licence_terms": "Commercial blog; numbers are facts.",
+    "numbers": {
+      "youtube_poll": "About half 0-9 pull-ups, half 10-19, a handful 20+; quite a few stuck at 0",
+      "newsletter": "Average man can do 10-14 pull-ups; ~30% more, ~30% fewer"
+    },
+    "reliability": "LOW. Fitness-audience, lean-skewed men; YouTube poll buckets are coarse. Upper bound for general population.",
+    "verification_status": "From search extracts."
+  },
+  {
+    "id": "hardy_strength_report",
+    "title": "Hardy app Strength Report (How Many People Can Squat 315 / Overhead Press 135 / Bench 225)",
+    "url": "https://hardy.app/strength-report/how-many-people-can-squat-315",
+    "related_urls": ["https://hardy.app/strength-report/how-many-people-can-overhead-press-135", "Bench 225 chapter: 'Data From 6,500 Lifters Who Log Every Set', dated 2026-09-03 (numbers not retrieved)"],
+    "date": "2026 (bench chapter 2026-09-03)",
+    "category": "app_logged_data (third-party aggregate)",
+    "sample": {"squat_n": 5931, "ohp_n": 4582, "bench_n": "~6,500", "inclusion": "logged the lift in >=3 workouts", "sex": "mixed - app has no sex/bodyweight/age data"},
+    "collection_method": "Workout logs in the Hardy app; a milestone counts if any set of >=1 rep at that load was logged.",
+    "licence_terms": "Commercial site, copyrighted; percentages are facts, cite with attribution.",
+    "units": "lb with kg equivalents (135lb/60kg, 225lb/100kg, 315lb/140kg, 405lb/180kg)",
+    "numbers": {
+      "squat": {"pct_ever_135": 74, "pct_ever_225": 30, "pct_ever_315": 7, "pct_ever_405": 1, "pct_reaching_315_within_12mo_of_starting_below": 7},
+      "overhead_press": {"pct_ever_135": 14, "pct_ever_225": "<0.5 (fewer than 1 in 200)", "pct_reaching_135_within_12mo_of_starting_below": 14}
+    },
+    "reliability": "MODERATE. Real logged sets (less recall bias than surveys), but mixed sex with no bodyweight; app users who keep logging skew stronger than average gym-goers (report says so).",
+    "verification_status": "From search extracts; hardy.app not fetched directly."
+  },
+  {
+    "id": "gravitus_strength_standards",
+    "title": "Gravitus: How Strong Am I? Strength Standards From 10M Real Workouts (+ per-lift 'Average X for Men and Women: Real Lifter Data' pages)",
+    "url": "https://gravitus.com/strength-standards/",
+    "related_urls": ["https://gravitus.com/strength-standards/bench-press/average/", "https://gravitus.com/tools/max-squat-calculator/", "https://gravitus.com/tools/max-deadlift-calculator/", "https://gravitus.com/strength-standards/overhead-press/average/", "https://gravitus.com/strength-standards/incline-bench-press/average/", "https://gravitus.com/strength-standards/front-squat/average/", "https://gravitus.com/strength-standards/barbell-row/", "https://gravitus.com/guides/exercises/weighted-pull-up/", "https://gravitus.com/guides/exercises/deadlift/"],
+    "date": "Last computed 2026-10-11 (updated weekly)",
+    "category": "app_logged_data (third-party aggregate)",
+    "sample": {"deadlift": "20,627 men, 5,078 women", "pull_ups": "7,000+ men, 240+ women (Sept 2026)", "other_lifts": "not stated per lift ('thousands')", "overall": "~10M logged workouts"},
+    "collection_method": "Each lifter's all-time best logged set converted to estimated 1RM (Brzycki per calculator pages). Percentiles within bodyweight brackets; brackets <50 lifters interpolated (allometric) on standards pages, omitted on 'average' pages.",
+    "licence_terms": "Commercial app marketing pages, copyrighted; numbers are facts. Appears to be Gravitus's own data, not a Strength Level/Symmetric repackage, but verify.",
+    "units": "lb, estimated 1RM",
+    "numbers": {
+      "bench_press": {"men": {"p25": 168, "p50": 207, "p75": 247, "225_percentile": "~61-62"}, "women": {"p25": 68, "p50": 88, "p75": 110, "135_percentile": "~90"},
+        "men_median_by_bodyweight": "175 lb at 140 lb BW rising to 245 lb at 210+ lb BW",
+        "women_median_by_bodyweight": "80 lb at 110 lb BW; 90 at 120-130; 95 at 140-200",
+        "men_180lb_tiers": {"beginner_p5": 135, "novice_p20": 180, "intermediate_p50": 225, "advanced_p80": 265, "elite_p95": 310},
+        "note": "180lb tiers (p50=225) are bodyweight-bracket percentiles and differ from all-BW median 207"},
+      "squat": {"men": {"p25": 197, "p50": 253, "p75": 309}, "women": {"p25": 99, "p50": 137, "p75": 176}},
+      "deadlift": {"men": {"p25": 238, "p50": 301, "p75": 371, "405_percentile": "~84"}, "women": {"p25": 118, "p50": 163, "p75": 206}},
+      "overhead_press": {"men": {"p25": 99, "p50": 122, "p75": 147, "135_beats_pct": 64}, "women": {"p25": 44, "p50": 59, "p75": 71}, "men_180lb_median": "~125", "women_140lb_median": "~60"},
+      "incline_bench": {"men_p50": 177, "women_p50": 76},
+      "front_squat": {"men": {"p25": 152, "p50": 192, "p75": 238}, "women": {"p25": 77, "p50": 104, "p75": 132}},
+      "barbell_row": {"men": {"p25": 147, "p50": 183, "p75": 227}, "women": {"p25": 67, "p50": 88, "p75": 113}},
+      "pull_ups_bodyweight": {"men_median_best_set_reps": 12, "women_median_best_set_reps": 10, "note": "among users who log WEIGHTED pull-ups - strongly selected"},
+      "weighted_pull_up": "Median man's heaviest weighted set: 5 reps with +22% bodyweight (3,000+ men)"
+    },
+    "derived_ratios_from_medians": {
+      "note": "Ratios of independent medians (different user subsets per lift), not paired within-lifter ratios",
+      "ohp_to_bench": {"men": 0.589, "women": 0.67},
+      "incline_to_flat_bench": {"men": 0.855, "women": 0.864},
+      "front_to_back_squat": {"men": 0.759, "women": 0.759},
+      "row_to_bench": {"men": 0.884, "women": 1.0},
+      "squat_to_bench": {"men": 1.222, "women": 1.557},
+      "deadlift_to_bench": {"men": 1.454, "women": 1.852},
+      "deadlift_to_squat": {"men": 1.19, "women": 1.19}
+    },
+    "reliability": "MODERATE. Large, logged (not recalled), includes beginners, sex-split, percentiles published. Biases: app users who log barbell lifts; e1RM from rep sets (Brzycki underestimates at high reps); single commercial source. Probably the closest to an 'ordinary gym-goer' distribution found.",
+    "verification_status": "From search extracts; gravitus.com not fetched directly."
+  },
+  {
+    "id": "liftoff_bench_by_age",
+    "title": "What Is The Average Bench Press By Age? (Liftoff app)",
+    "url": "https://liftoffrank.com/blog/average-bench-press-by-age",
+    "date": "Updated 2026-10-09; data 2026-07-10 to 2026-10-08",
+    "category": "app_logged_data (third-party aggregate)",
+    "sample": {"n": 217054, "note": "users who logged bench press in window; sample is very young (110k of 217k under 19)"},
+    "collection_method": "Strongest set of <=12 reps per lifter, Epley e1RM, rounded to 5 lb; median per age/sex.",
+    "licence_terms": "Commercial blog; numbers are facts.",
+    "units": "lb, estimated 1RM, median",
+    "numbers": {
+      "median_bench_by_age": [
+        {"age": "13-15", "men": 125, "women": 75, "population": 39828},
+        {"age": "16-18", "men": 165, "women": 80, "population": 70324},
+        {"age": "19-29", "men": 185, "women": 85, "population": 93209},
+        {"age": "30-39", "men": 205, "women": 85, "population": 10577},
+        {"age": "40-49", "men": 200, "women": 80, "population": 2523},
+        {"age": "50-59", "men": 175, "women": null, "population": 593}
+      ]
+    },
+    "bodyweight_info": "None.",
+    "reliability": "MODERATE. Large logged sample including many novices/teens (lower medians than enthusiast surveys); gamified ranking app; Epley on up-to-12-rep sets overestimates slightly.",
+    "verification_status": "From search extracts."
+  },
+  {
+    "id": "mirafit_uk_strongest_cities",
+    "title": "These Are the Strongest Cities in the UK (Mirafit survey)",
+    "url": "https://mirafit.co.uk/blog/these-are-the-strongest-cities-in-the-uk/",
+    "related_urls": ["https://swanseabaynews.com/swansea-ranks-among-uks-strongest-cities-in-new-fitness-survey/"],
+    "date": "c. mid-2025 (article ~14 months old)",
+    "category": "commercial_consumer_survey (PR)",
+    "sample": {"n": 2000, "population": "UK adults who lift weights in gyms"},
+    "collection_method": "Online consumer survey (likely panel); self-reported deadlift, squat, bench, military press; reported city averages and 'combined average'.",
+    "licence_terms": "Brand PR content; numbers are facts.",
+    "units": "kg",
+    "numbers": {
+      "combined_average_total_kg_by_city": {"Gloucester": 232.2, "Plymouth": 214.4, "Belfast": 212.3, "Brighton & Hove": 201.6, "Coventry": 193.5, "Swansea": 192.1},
+      "deadlift_kg": {"Gloucester": 84.5, "Plymouth": 82},
+      "bench_kg": {"Gloucester": 69.5, "Swansea": 67.04},
+      "squat_kg": {"Swansea": 64.29},
+      "note": "Combined total = sum of 4 lifts incl. military press; sexes not separated in extracts. National averages not retrieved."
+    },
+    "reliability": "LOW-MODERATE. Panel survey of general UK lifters (good: ordinary gym-goers, not enthusiasts) but PR-motivated, no sex split, no definition of 'max', and suspiciously low squat < bench in some cities. Use only as a sanity check that general-population lifters are much weaker than Reddit samples.",
+    "verification_status": "From search extracts."
+  },
+  {
+    "id": "gymless_pushup_survey_2021",
+    "title": "Nationwide Survey Results: The Majority of Americans Cannot Do More Than 10 Consecutive Pushups (Gymless.org)",
+    "url": "https://gymless.org/nationwide-survey-results-the-majority-of-americans-cannot-do-more-than-10-consecutive-pushups/",
+    "related_urls": ["https://www.prnewswire.com/news-releases/a-new-survey-of-2-000-americans-aged-18-and-over-by-gymlessorg-found-that-the-majority-cannot-perform-more-than-10-push-ups-301367697.html"],
+    "date": "Survey 2021-08-02 to 2021-08-24; release 2021-09-01",
+    "category": "commercial_consumer_survey (general population)",
+    "sample": {"n": "1,403 (site) vs 2,000 (press release) - inconsistent", "population": "US adults 18+, all 50 states"},
+    "collection_method": "Online self-report of max consecutive push-ups (bucketed).",
+    "licence_terms": "Press release / blog; numbers are facts.",
+    "numbers": {
+      "pct_fewer_than_5": 36.4,
+      "pct_cannot_do_more_than_10": 53.8,
+      "pct_more_than_10": 46.2,
+      "pct_51_or_more": 11.8,
+      "sex_of_those_unable_to_do_more_than_10": {"women_pct": 69, "men_pct": 31}
+    },
+    "reliability": "LOW-MODERATE. General population (not gym-goers), self-reported; author notes bimodal clustering at extremes (11.8% claiming 51+ is implausible). Useful as a general-public anchor for push-up percentiles.",
+    "verification_status": "From search extracts."
+  },
+  {
+    "id": "calisthenics101_pullup_survey",
+    "title": "Case Study: What Percentage Of People Can Do A Pull-Up? (Calisthenics 101)",
+    "url": "https://www.calisthenics-101.co.uk/case-study-what-percentage-of-people-can-do-a-pull-up",
+    "date": "c. 2023",
+    "category": "site_audience_survey",
+    "sample": {"n": 142, "male_pct": 63.2, "female_pct": 33.6, "other_n": 5},
+    "collection_method": "Online survey of site audience: can you do a pull-up?",
+    "licence_terms": "Blog; numbers are facts.",
+    "numbers": {"pct_can_do_one_pullup_all": 68.3, "pct_women_can": 31.4, "pct_men_can_approx": 80, "pct_men_cannot": 20, "pct_women_cannot": 69},
+    "reliability": "LOW. Tiny, calisthenics-interested audience.",
+    "verification_status": "From search extracts."
+  },
+  {
+    "id": "weightroom_ohp_bench_ratio_claim",
+    "title": "Overhead Press Calculator - OHP 1RM, Standards & Push Ratio (strengthcalculator.org) citing r/weightroom survey",
+    "url": "https://strengthcalculator.org/overhead-press-calculator",
+    "date": "2026 (page); underlying survey year unknown",
+    "category": "secondary_citation_of_community_survey",
+    "numbers": {"ohp_to_bench_ratio_reddit_weightroom_survey": 0.625, "starting_strength_balanced_ratio": 0.67, "community_benchmark_range": "0.60-0.67"},
+    "licence_terms": "Commercial calculator site.",
+    "reliability": "LOW - primary r/weightroom source not located; treat as unverified. Consistent with Gravitus median ratio (0.59 men).",
+    "verification_status": "Secondary claim only."
+  },
+  {
+    "id": "reference_jsams_competition_norms",
+    "title": "Normative data for the squat, bench press and deadlift exercises in powerlifting: Data from 809,986 competition entries (J Sci Med Sport 2024)",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/39060209/",
+    "date": "2024",
+    "category": "REFERENCE ONLY - competition data, not self-report",
+    "is_research_paper": true,
+    "sample": {"n": 809986, "male": 571650, "female": 238336, "population": "drug-tested, unequipped powerlifting meet entries (OpenPowerlifting-derived)"},
+    "numbers": {
+      "mean_relative_strength_xBW": {"squat": {"male": 2.17, "female": 1.64}, "bench": {"male": 1.50, "female": 0.95}, "deadlift": {"male": 2.51, "female": 1.98}},
+      "p90_age_18_35_xBW": {"squat": {"male": 2.83, "female": 2.26}, "bench": {"male": 1.95, "female": 1.35}, "deadlift": {"male": 3.25, "female": 2.66}},
+      "p90_age_36_59_xBW": {"squat": {"male": 2.58, "female": 2.05}, "bench": {"male": 1.92, "female": 1.28}, "deadlift": {"male": 2.98, "female": 2.51}},
+      "p90_age_60_79_xBW": {"squat": {"male": 2.16, "female": 1.65}, "bench": {"male": 1.60, "female": 1.04}, "deadlift": {"male": 2.64, "female": 2.19}}
+    },
+    "licence_terms": "Elsevier journal; numbers are facts.",
+    "reliability": "HIGH for competitors, but NOT ordinary gym-goers - use only as the upper tail/ceiling. Some p90 figures came via a secondary blog summary.",
+    "verification_status": "Abstract-level via search extracts."
+  },
+  {
+    "id": "EXCLUDE_repackaged_sources",
+    "title": "Sources found that are repackaging excluded datasets (Strength Level / Symmetric Strength / StrengthLog / ExRx / OpenPowerlifting) - do not use as independent data",
+    "category": "exclusion_list",
+    "items": [
+      {"source": "FitnessVolt 'Age Curve of Strength' (386,606 male gym benches; male bench median peaks 209 lb at 30-39; deadlift medians 329 lb 20-29 etc.)", "url": "https://fitnessvolt.com/strength-standards/research/age-curve-of-strength", "reason": "Explicitly uses 'the Symmetric Strength self-reported gym population'. Other FitnessVolt tables are modeled from OpenPowerlifting."},
+      {"source": "FitnessVolt 'How Strong Am I?' / gym vs competition gap / stat finder", "url": "https://fitnessvolt.com/strength-standards/how-strong-am-i/", "reason": "Gym side = Symmetric Strength data."},
+      {"source": "Stronger app (strongermobileapp.com) standards pages", "url": "https://www.strongermobileapp.com/blog/strength-standards", "reason": "Percentiles from OpenPowerlifting; bodyweight tables from Strength Level; also re-publishes Outlift survey numbers."},
+      {"source": "Gainwise app blog (average pull-ups 14 men / 6 women; strength standards)", "url": "https://gainwiseapp.com/blog/average-pull-ups", "reason": "Cites Strength Level data."},
+      {"source": "Hevy app strength tiers", "url": "https://www.hevyapp.com/features/gym-performance/", "reason": "Uses Strength Level benchmarking."},
+      {"source": "Many 'average bench' articles (ritfitsports, fitnessavenue, fedfitness, exercisemenu, worldmetrics, marathonhandbook, boxlifemagazine etc.)", "reason": "Restate Strength Level (212/112 lb bench etc.), ExRx, StrengthLog or Outlift numbers."},
+      {"source": "Strength Origins, LiftGauge, Powerlifting Technique", "reason": "OpenPowerlifting competition data, not gym-goers."},
+      {"source": "arvo.guru percentile tables (median squat 1.5xBW men etc.)", "url": "https://arvo.guru/resources/strength-standards", "reason": "Methodology unverified; likely derived/modeled."},
+      {"source": "'17.4% of men / 4.9% of women can do a pull-up' (kalibrefitness, biologyinsights, etc.)", "reason": "Widely repeated, no traceable primary source."},
+      {"source": "'1.3 million Americans / 0.4% can bench 225'", "url": "https://fitnessvolt.com/how-many-people-can-bench-225-pounds/", "reason": "Unsourced estimate; FitnessVolt itself says no representative survey exists."}
+    ]
+  },
+  {
+    "id": "NOT_FOUND",
+    "title": "Searched for but not found / not accessible",
+    "category": "gaps",
+    "items": [
+      "r/Fitness annual survey with lift numbers - none indexed.",
+      "r/xxfitness survey with lift numbers - none indexed.",
+      "r/bodyweightfitness survey with pull-up/push-up/dip rep distributions - none indexed.",
+      "r/powerlifting community survey with totals - none indexed.",
+      "Stronger By Science own lift-number survey - none found; SBS only reviewed Steele et al. (r/weightroom n~1,000 subsample).",
+      "Fitbod / JEFIT / Hevy published population lift numbers - none found (Fitbod LinkedIn analysis by Thiago Marzagao exists, numbers not retrieved).",
+      "Dip max-rep distributions - nothing found.",
+      "Note: reddit.com, its mirrors, outlift.com, strongerbyscience.com, web.archive.org were network-blocked in this environment; all figures came from search-engine page extracts and should be spot-checked in a browser before use."
+    ]
+  }
+]
