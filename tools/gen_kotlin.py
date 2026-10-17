@@ -48,11 +48,19 @@ object BodyMapData {{
     val regions: List<Region> = listOf(
 {chr(10).join(lines)}
     )
-    /** The woman's picture (assets/body_f.jpg, same size and layout) and her muscle shapes, from tools/body_map_edits_f.json. */
-    val regionsF: List<Region> = listOf(
-{chr(10).join(lines_f)}
-    )
+
     class Region(val muscle: String, val pts: FloatArray, val mirrorX: Float?, val front: Boolean)
+}}
+''')
+
+# The woman's shapes live in their own class: both lists in one class are too big for the JVM.
+open(os.path.join(SRC, 'BodyMapDataF.kt'), 'w').write(f'''package com.ironlog.app
+
+/** The woman's muscle shapes on assets/body_f.jpg (same size and layout as body.jpg), from tools/body_map_edits_f.json via tools/gen_kotlin.py. */
+object BodyMapDataF {{
+    val regions: List<BodyMapData.Region> = listOf(
+{chr(10).join(lines_f).replace('        Region(', '        BodyMapData.Region(')}
+    )
 }}
 ''')
 

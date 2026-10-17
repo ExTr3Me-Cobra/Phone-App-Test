@@ -89,7 +89,7 @@ object BodyMap {
         listOfNotNull(Shape(r.muscle, path(r, null), r.front), r.mirrorX?.let { Shape(r.muscle, path(r, it), r.front) })
     }
     private val shapes: List<Shape> by lazy { shapesOf(BodyMapData.regions) }
-    private val shapesF: List<Shape> by lazy { shapesOf(BodyMapData.regionsF) }
+    private val shapesF: List<Shape> by lazy { shapesOf(BodyMapDataF.regions) }
 
     private val LEGS = setOf("quadriceps", "hamstrings", "calves", "glutes", "adductors", "abductors", "shins", "hip flexors")
 
