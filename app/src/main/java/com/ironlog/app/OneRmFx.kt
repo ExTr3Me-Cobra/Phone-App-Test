@@ -609,8 +609,12 @@ fun Modifier.quakeRattle(q: () -> Float, i: Int) = graphicsLayer {
  * Molten cracks splitting outward from a ✓: jagged lines that tear out fast, glow white-gold to orange, then cool to
  * dark red and fade. [k] runs 0–1; [reach] stretches them; [seed] gives each hit its own pattern.
  *
+ * They tear out of a shallow crater punched around the button: a dark bowl with a ragged rim, lit from the top left
+ * and shadowed on the far side, with a ring of curved fractures around its lip.
+ *
  * No two cracks ever cross: each one keeps to its own slice of the circle around the button (its main line in the
- * middle of the slice, its side cracks in the edges of it), and only ever moves outward.
+ * middle of the slice, its side cracks in the edges of it, out past the ring), and only ever moves outward. The ring's
+ * curved fractures sit in the gaps between main lines, so they never reach one either.
  */
 fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, seed: Float = 0f) {
     val grow = (k / 0.16f).coerceAtMost(1f)
@@ -623,6 +627,8 @@ fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, 
     val slice = (2.0 * Math.PI / n).toFloat()
     val turn = rnd(2, 39f + seed) * slice
     fun at(ang: Float, r: Float) = Offset(c.x + kotlin.math.cos(ang) * r, c.y + kotlin.math.sin(ang) * r)
+    val rim = half * 1.75f
+    crater(c, rim, k, seed)
     fun line(p: Offset, q: Offset, w: Float, alpha: Float) {
         drawLine(FireOrange.copy(alpha = 0.35f * alpha), p, q, strokeWidth = (9.dp.toPx() * w).coerceAtLeast(2f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
         drawLine(hot.copy(alpha = alpha), p, q, strokeWidth = (4.dp.toPx() * w).coerceAtLeast(1.5f), cap = androidx.compose.ui.graphics.StrokeCap.Round)
@@ -632,7 +638,7 @@ fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, 
         val mid = turn + branch * slice
         val len = total * (0.55f + 0.45f * rnd(branch, 42f + seed))
         val show = len * grow
-        val start = half * 0.85f
+        val start = rim * 0.92f
         // The main line zig-zags, but only within the middle 40% of its slice.
         val steps = 7
         var prevR = start
@@ -646,7 +652,7 @@ fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, 
             val w = 1f - (prevR - start) / len
             line(prev, q, w, a)
             // Now and then a short side crack into the edge of this slice (never past it, never back inward).
-            if (rnd(branch * 10 + seg, 45f + seed) < 0.4f && rr < start + show) {
+            if (rr > rim * 1.9f && rnd(branch * 10 + seg, 45f + seed) < 0.45f && rr < start + show) {
                 val side = if (rnd(branch * 10 + seg, 46f + seed) < 0.5f) 1f else -1f
                 val sideAng = mid + side * slice * (0.3f + 0.12f * rnd(branch * 10 + seg, 47f + seed))
                 val sideR = rr + (len - start) / steps * (0.35f + 0.4f * rnd(branch * 10 + seg, 48f + seed))
@@ -655,9 +661,59 @@ fun DrawScope.moltenCracks(c: Offset, half: Float, k: Float, reach: Float = 1f, 
             prev = q; prevR = r
         }
     }
-    // The impact glow at the centre.
-    drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF4D0).copy(alpha = a), FireOrange.copy(alpha = 0.5f * a), Color.Transparent), center = c, radius = half * 2.4f),
-        radius = half * 2.4f, center = c)
+    // Curved fractures round the lip: one in some of the gaps between main lines, opening out as the crater forms.
+    val ring = ((k - 0.04f) / 0.14f).coerceIn(0f, 1f)
+    if (ring > 0f) for (gap in 0 until n) {
+        if (rnd(gap, 81f + seed) > 0.75f) continue
+        val r0 = rim * (1.35f + 0.45f * rnd(gap, 82f + seed))
+        val from = turn + (gap + 0.28f + 0.08f * rnd(gap, 83f + seed)) * slice
+        val span = slice * (0.32f + 0.08f * rnd(gap, 84f + seed)) * ring
+        var prev = at(from, r0)
+        for (j in 1..4) {
+            val q = at(from + span * j / 4, r0 * (1f + (rnd(gap * 10 + j, 85f + seed) - 0.5f) * 0.06f))
+            line(prev, q, 0.55f, a * 0.85f)
+            prev = q
+        }
+    }
+    // The molten glow at the bottom of the crater.
+    drawCircle(Brush.radialGradient(listOf(Color(0xFFFFF4D0).copy(alpha = a), FireOrange.copy(alpha = 0.5f * a), Color.Transparent), center = c, radius = rim),
+        radius = rim, center = c)
+}
+
+/** A shallow impact crater of radius [r] around [c]: a dark bowl, a ragged rim lit from the top left, and a dusty skirt. */
+private fun DrawScope.crater(c: Offset, r: Float, k: Float, seed: Float) {
+    // Punched in fast, then it holds and fades out over the last half.
+    val pop = (k / 0.08f).coerceAtMost(1f)
+    val a = (1f - ((k - 0.5f) / 0.5f).coerceIn(0f, 1f)) * pop
+    if (a <= 0f) return
+    val rr = r * (0.7f + 0.3f * (1f - (1f - pop) * (1f - pop)))
+    val edge = androidx.compose.ui.graphics.Path().apply {
+        val pts = 30
+        for (i in 0 until pts) {
+            val ang = (i * 2.0 * Math.PI / pts).toFloat()
+            val d = rr * (1f + (rnd(i, 91f + seed) - 0.5f) * 0.14f)
+            val x = c.x + kotlin.math.cos(ang) * d; val y = c.y + kotlin.math.sin(ang) * d
+            if (i == 0) moveTo(x, y) else lineTo(x, y)
+        }
+        close()
+    }
+    val tl = Offset(c.x - rr, c.y - rr); val br = Offset(c.x + rr, c.y + rr)
+    // Thrown-out dust and rubble around the outside.
+    drawCircle(Brush.radialGradient(listOf(Color.Transparent, Color(0xFF2A1A10).copy(alpha = 0.55f * a), Color.Transparent),
+        center = c, radius = rr * 1.9f), radius = rr * 1.9f, center = c)
+    for (i in 0 until 14) {
+        val ang = (rnd(i, 92f + seed) * 2.0 * Math.PI).toFloat()
+        val d = rr * (1.12f + rnd(i, 93f + seed) * 0.6f)
+        drawCircle(Color(0xFF5A4636).copy(alpha = 0.8f * a), radius = (1f + rnd(i, 94f + seed) * 1.8f).dp.toPx(),
+            center = Offset(c.x + kotlin.math.cos(ang) * d, c.y + kotlin.math.sin(ang) * d))
+    }
+    // The bowl: darkest in the middle.
+    drawPath(edge, Brush.radialGradient(listOf(Color.Black.copy(alpha = 0.85f * a), Color(0xFF1A120C).copy(alpha = 0.7f * a)), center = c, radius = rr))
+    // Its inside wall: in shadow nearest the light, lit on the far side.
+    drawPath(edge, Brush.linearGradient(listOf(Color.Black.copy(alpha = 0.55f * a), Color.Transparent, Color(0xFFFFB066).copy(alpha = 0.28f * a)), tl, br))
+    // The raised lip: bright where the light catches it, dark where it falls away.
+    drawPath(edge, Brush.linearGradient(listOf(Color(0xFFFFE6C0).copy(alpha = 0.75f * a), Color(0xFF8A6A50).copy(alpha = 0.4f * a), Color.Black.copy(alpha = 0.7f * a)), tl, br),
+        style = Stroke(3.dp.toPx(), join = androidx.compose.ui.graphics.StrokeJoin.Round))
 }
 
 /** Blobs of molten metal flung out of the ✓, arcing down with glowing streaks. */
