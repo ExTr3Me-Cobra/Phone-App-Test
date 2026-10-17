@@ -34,7 +34,7 @@ object Standards {
             val rows = (if (p.male) s.male else s.female) ?: return null
             return Fit(rows, false, emptyList(), "Compared with ${if (p.male) "men" else "women"} aged 20–39 – everyone, not just people who lift. " +
                 "Body weight and age aren't used. Source: international grip-strength norms from 2.4 million adults in 69 countries " +
-                "(Tomkinson et al. 2025), best squeeze of either hand on a hand dynamometer." + (s.note?.let { " $it" } ?: ""))
+                "(Tomkinson et al. 2025), hand dynamometer. Your number is the average of your best right-hand and best left-hand squeeze, so you need both hands logged to get a rank." + (s.note?.let { " $it" } ?: ""))
         }
         val bw = p.bodyweight ?: return null
         val own = if (p.male) s.male else s.female
@@ -206,7 +206,7 @@ object Standards {
      */
     fun testValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup }
-        if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0
+        if (isFlat(id)) return gripValue(sets)
         if (isOneLeg(id)) return done.maxOfOrNull { oneLegValue(it) } ?: 0.0
         if (isReps(id)) return (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         val single = done.filter { it.reps == 1 }.maxOfOrNull { rankWeight(it.weight) } ?: 0.0
@@ -214,6 +214,28 @@ object Standards {
     }
 
     fun isOneLeg(id: String) = table[id]?.oneLeg == true
+
+    /** Dynamometer squeezes take turns: right, left, right, left… (warm-ups don't count). True = right hand, null = warm-up. */
+    fun hands(sets: List<DoneSet>): List<Boolean?> {
+        var n = 0
+        return sets.map { if (it.warmup) null else (n++ % 2 == 0) }
+    }
+
+    /** One set's own number (for crowns and finding a set): a grip squeeze is just its reading, whichever hand. */
+    fun oneSet(id: String, s: DoneSet, test: Boolean): Double = when {
+        !s.done || s.warmup -> 0.0
+        isFlat(id) -> s.weight ?: 0.0
+        test -> testValue(id, listOf(s))
+        else -> bestValue(id, listOf(s))
+    }
+
+    /** Grip: the average of your best right-hand and best left-hand squeeze. Nothing until both hands have one. */
+    fun gripValue(sets: List<DoneSet>): Double {
+        val h = hands(sets)
+        fun best(right: Boolean) = sets.indices.filter { h[it] == right && sets[it].done }.maxOfOrNull { sets[it].weight ?: 0.0 } ?: 0.0
+        val r = best(true); val l = best(false)
+        return if (r > 0 && l > 0) (r + l) / 2 else 0.0
+    }
 
     /**
      * One-leg set -> the two-leg set it matches, then scored exactly like the two-leg version.
@@ -232,7 +254,7 @@ object Standards {
     /** The rankable number in a set of sets: best est. 1-rep max, or most reps. */
     fun bestValue(id: String, sets: List<DoneSet>): Double {
         val done = sets.filter { it.done && !it.warmup } // warm-ups never count
-        if (isFlat(id)) return done.maxOfOrNull { it.weight ?: 0.0 } ?: 0.0 // one squeeze: the reading itself
+        if (isFlat(id)) return gripValue(sets)
         if (isOneLeg(id)) return done.maxOfOrNull { oneLegValue(it) } ?: 0.0
         return if (isReps(id)) (done.maxOfOrNull { it.reps ?: 0 } ?: 0).toDouble()
         else done.maxOfOrNull { Stats.e1rm(rankWeight(it.weight), it.reps) } ?: 0.0
@@ -317,7 +339,13 @@ object Ranks {
     /** The finished workout and set your rank's number came from (the latest one, if several match). */
     fun source(id: String, value: Double, workouts: List<Workout>): Pair<Workout, DoneSet>? {
         for (w in workouts.filter { it.end != null }.sortedByDescending { it.start }) {
-            for (s in w.items.filter { it.exerciseId == id }.flatMap { it.sets }) {
+            val sets = w.items.filter { it.exerciseId == id }.flatMap { it.sets }
+            // Grip is an average of two hands, so it's the workout that matches; point at its best squeeze.
+            if (Standards.isFlat(id)) {
+                if (kotlin.math.abs(Standards.gripValue(sets) - value) < 0.01) return sets.filter { it.done && !it.warmup }.maxByOrNull { it.weight ?: 0.0 }?.let { w to it }
+                continue
+            }
+            for (s in sets) {
                 if (!s.done || s.warmup) continue
                 val v = if (w.test) Standards.testValue(id, listOf(s)) else Standards.bestValue(id, listOf(s))
                 if (kotlin.math.abs(v - value) < 0.01) return w to s

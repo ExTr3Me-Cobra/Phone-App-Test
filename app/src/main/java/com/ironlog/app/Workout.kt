@@ -219,7 +219,7 @@ fun ActiveWorkoutScreen() {
                     val ranked = Standards.covers(ex.id, profileNow)
                     fun setValue(s: DoneSet): Double = when {
                         !s.done || s.warmup -> 0.0
-                        ranked -> Standards.bestValue(ex.id, listOf(s))
+                        ranked -> Standards.oneSet(ex.id, s, false)
                         else -> when (ex.type) {
                             ExType.WEIGHT -> Stats.e1rm(s.weight, s.reps)
                             ExType.BODYWEIGHT -> (s.reps ?: 0).toDouble()
@@ -299,6 +299,11 @@ private fun ActiveSetRow(ex: Exercise, i: Int, n: Int, s: DoneSet, prev: DoneSet
             ) {
                 val item = Store.active.value?.items?.getOrNull(i)
                 SetLabel(setNumber(item?.sets?.map { it.warmup } ?: emptyList(), n).coerceAtLeast(0), s.failure, Modifier, s.warmup)
+            }
+            // Grip dynamometer: squeezes take turns, right then left.
+            if (Standards.isFlat(ex.id)) Standards.hands(Store.active.value?.items?.getOrNull(i)?.sets.orEmpty()).getOrNull(n)?.let { right ->
+                Text(if (right) "R" else "L", color = Blue, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.BottomStart).offset(x = 33.dp, y = 2.dp))
             }
             if (crown) Text("👑", fontSize = 15.sp, modifier = Modifier.align(Alignment.TopStart).offset(x = 30.dp, y = (-6).dp))
             SetTypeMenu(typeMenu, { typeMenu = false }, s.warmup, s.failure) { w, f ->

@@ -138,7 +138,7 @@ object OneRm {
         val sets = workouts.filter { it.end != null }.flatMap { w -> w.items.filter { it.exerciseId == id }.flatMap { it.sets } }
             .filter { it.done && !it.warmup }
         if (sets.isEmpty()) return null
-        fun v(s: DoneSet) = Standards.testValue(id, listOf(s))
+        fun v(s: DoneSet) = Standards.oneSet(id, s, true)
         val target = Ranks.all(workouts, p)[id]?.value
         val s = target?.let { t -> sets.filter { kotlin.math.abs(v(it) - t) < 0.01 }.maxByOrNull { v(it) } } ?: sets.maxByOrNull { v(it) }
         return s?.let { DoneSet(weight = it.weight, reps = it.reps, seconds = it.seconds, distance = it.distance) }
@@ -432,7 +432,7 @@ fun OneRmTestScreen(id: String) {
             // Attempts
             Text(if (squeeze) "Your squeezes" else if (reps) "Your sets" else "Your sets & attempts", fontWeight = FontWeight.Bold, fontSize = 17.sp,
                 modifier = Modifier.quakeRattle(rattle, 4))
-            Text(if (squeeze) "Enter each reading and tick it. Your best squeeze counts." else if (reps) "Tick a set when it's done. Your best set counts." else
+            Text(if (squeeze) "Enter each reading and tick it. Your best right and best left squeeze are averaged – you need both hands for a rank." else if (reps) "Tick a set when it's done. Your best set counts." else
                 "Tick each set when it's done. The 1 Rep Max calculation is more accurate the higher the weight and the lower the max reps you can do with it.",
                 color = Sub, fontSize = 13.sp, modifier = Modifier.quakeRattle(rattle, 5))
             Row(Modifier.quakeRattle(rattle, 6)) {
@@ -457,7 +457,7 @@ fun OneRmTestScreen(id: String) {
                     if (!reps) NumField(Units.weight(s.weight), "0", "$k:w", Modifier.weight(1.4f).padding(end = 6.dp), outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(weight = v.toDoubleOrNull()?.let(Units::fromShown))
                     }
-                    if (squeeze) Text(if (i % 2 == 0) "Right" else "Left", Modifier.weight(1.2f), color = Sub)
+                    if (squeeze) Text(when (Standards.hands(OneRm.rows)[i]) { true -> "Right"; false -> "Left"; null -> "Warm-up" }, Modifier.weight(1.2f), color = Sub)
                     else NumField(s.reps?.toString() ?: "", "0", "$k:r", Modifier.weight(1.2f).padding(end = 6.dp), KeyboardType.Number, outlined = true) { v ->
                         OneRm.rows[i] = OneRm.rows[i].copy(reps = v.toIntOrNull())
                     }
