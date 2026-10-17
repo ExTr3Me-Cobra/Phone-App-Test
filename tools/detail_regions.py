@@ -51,9 +51,9 @@ def cut(poly, *planes):
     return poly
 
 
-def build():
+def build(edits_file='body_map_edits.json'):
     # Outlines hand-drawn in the Body Map Editor win over the generated ones below.
-    edits = os.path.join(os.path.dirname(__file__), 'body_map_edits.json')
+    edits = os.path.join(os.path.dirname(__file__), edits_file)
     if os.path.exists(edits):
         F, B = {}, {}
         for name, sides in json.load(open(edits))['muscles'].items():

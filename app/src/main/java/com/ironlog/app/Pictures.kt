@@ -46,7 +46,7 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 
-/** The muscle heatmap: your body picture with muscles shaded white → light red → dark red. */
+/** The muscle heatmap: your body picture with muscles shaded white → light red → dark red. A woman's body when your sex is set to woman. */
 object BodyMap {
     enum class View(val box: FloatArray) {
         BOTH(floatArrayOf(60f, 70f, 1022f, 910f)),
@@ -59,10 +59,15 @@ object BodyMap {
     }
 
     @Volatile private var base: Bitmap? = null
+    @Volatile private var baseF: Bitmap? = null
 
     fun init(c: Context) {
         if (base == null) base = runCatching { c.assets.open("body.jpg").use { BitmapFactory.decodeStream(it) } }.getOrNull()
+        if (baseF == null) baseF = runCatching { c.assets.open("body_f.jpg").use { BitmapFactory.decodeStream(it) } }.getOrNull()
     }
+
+    /** Which body to draw: the woman's when your sex is set to woman. */
+    fun female() = !Store.profile.value.male
 
     private val cache = object : LruCache<String, Bitmap>(28 * 1024 * 1024) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount
@@ -80,11 +85,11 @@ object BodyMap {
 
     private class Shape(val muscle: String, val path: Path, val front: Boolean)
 
-    private val shapes: List<Shape> by lazy {
-        BodyMapData.regions.flatMap { r ->
-            listOfNotNull(Shape(r.muscle, path(r, null), r.front), r.mirrorX?.let { Shape(r.muscle, path(r, it), r.front) })
-        }
+    private fun shapesOf(regions: List<BodyMapData.Region>) = regions.flatMap { r ->
+        listOfNotNull(Shape(r.muscle, path(r, null), r.front), r.mirrorX?.let { Shape(r.muscle, path(r, it), r.front) })
     }
+    private val shapes: List<Shape> by lazy { shapesOf(BodyMapData.regions) }
+    private val shapesF: List<Shape> by lazy { shapesOf(BodyMapData.regionsF) }
 
     private val LEGS = setOf("quadriceps", "hamstrings", "calves", "glutes", "adductors", "abductors", "shins", "hip flexors")
 
@@ -123,9 +128,10 @@ object BodyMap {
      * Draws the picture with [levels] (muscle -> 0..1), cropped to [view], about [widthPx] wide.
      * With [colors] (muscle -> colour), muscles are shaded in those colours instead (rank map).
      */
-    fun render(levels: Map<String, Float>, view: View, widthPx: Int, colors: Map<String, Int>? = null): Bitmap? {
-        val src = base ?: return null
-        val key = "${view.name}:$widthPx:" + levels.entries.sortedBy { it.key }.joinToString(",") { "${it.key}=${"%.3f".format(it.value)}" } +
+    fun render(levels: Map<String, Float>, view: View, widthPx: Int, colors: Map<String, Int>? = null, female: Boolean = female()): Bitmap? {
+        val src = (if (female) baseF else base) ?: return null
+        val shapes = if (female) shapesF else shapes
+        val key = "${if (female) "F" else "M"}:${view.name}:$widthPx:" + levels.entries.sortedBy { it.key }.joinToString(",") { "${it.key}=${"%.3f".format(it.value)}" } +
             (colors?.entries?.sortedBy { it.key }?.joinToString(",", prefix = "|") { "${it.key}=${it.value}" } ?: "")
         cache.get(key)?.let { return it }
         val box = view.box
@@ -169,8 +175,10 @@ object BodyMap {
 fun BodyMapView(levels: Map<String, Float>, modifier: Modifier, view: BodyMap.View = BodyMap.View.BOTH, colors: Map<String, Int>? = null) {
     androidx.compose.foundation.layout.BoxWithConstraints(modifier, contentAlignment = Alignment.Center) {
         val px = with(androidx.compose.ui.platform.LocalDensity.current) { maxWidth.toPx().toInt().coerceIn(64, 1100) }
-        val bmp by androidx.compose.runtime.produceState<ImageBitmap?>(null, levels, view, px, colors) {
-            value = withContext(Dispatchers.Default) { BodyMap.render(levels, view, px, colors)?.asImageBitmap() }
+        // Redraws with the other body if you change your sex in Settings.
+        val female = !Store.profile.collectAsState().value.male
+        val bmp by androidx.compose.runtime.produceState<ImageBitmap?>(null, levels, view, px, colors, female) {
+            value = withContext(Dispatchers.Default) { BodyMap.render(levels, view, px, colors, female)?.asImageBitmap() }
         }
         bmp?.let { Image(it, null, Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
     }

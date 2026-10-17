@@ -14,17 +14,23 @@ assert names == heads, (names ^ heads)
 def q(s): return json.dumps(s)
 def num(v): return ('%.1f' % v).rstrip('0').rstrip('.') + 'f'
 
-lines = []
-for regs, cx, front in ((F, FC, 'true'), (B, BC, 'false')):
-    for m in sorted(regs):
-        for p in regs[m]:
-            # Drop near-duplicate points to keep the file small.
-            pts = [p[0]]
-            for x, y in p[1:]:
-                if abs(x - pts[-1][0]) + abs(y - pts[-1][1]) >= 1.5: pts.append((x, y))
-            flat = ', '.join(num(v) for xy in pts for v in xy)
-            mirror = 'null' if m == 'neck' else num(cx)
-            lines.append(f'        Region({q(m)}, floatArrayOf({flat}), {mirror}, {front}),')
+def region_lines(F, B):
+  lines = []
+  for regs, cx, front in ((F, FC, 'true'), (B, BC, 'false')):
+      for m in sorted(regs):
+          for p in regs[m]:
+              # Drop near-duplicate points to keep the file small.
+              pts = [p[0]]
+              for x, y in p[1:]:
+                  if abs(x - pts[-1][0]) + abs(y - pts[-1][1]) >= 1.5: pts.append((x, y))
+              flat = ', '.join(num(v) for xy in pts for v in xy)
+              mirror = 'null' if m == 'neck' else num(cx)
+              lines.append(f'        Region({q(m)}, floatArrayOf({flat}), {mirror}, {front}),')
+  return lines
+
+lines = region_lines(F, B)
+Ff, Bf = build('body_map_edits_f.json')
+lines_f = region_lines(Ff, Bf)
 open(os.path.join(SRC, 'BodyMapData.kt'), 'w').write(f'''package com.ironlog.app
 
 /**
@@ -41,6 +47,10 @@ object BodyMapData {{
     val backBox = floatArrayOf(615f, 80f, 985f, 900f)
     val regions: List<Region> = listOf(
 {chr(10).join(lines)}
+    )
+    /** The woman's picture (assets/body_f.jpg, same size and layout) and her muscle shapes, from tools/body_map_edits_f.json. */
+    val regionsF: List<Region> = listOf(
+{chr(10).join(lines_f)}
     )
     class Region(val muscle: String, val pts: FloatArray, val mirrorX: Float?, val front: Boolean)
 }}
