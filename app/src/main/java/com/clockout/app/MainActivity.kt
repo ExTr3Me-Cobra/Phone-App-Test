@@ -124,13 +124,13 @@ private fun Screen() {
         }
     }
 
-    fun readImage(uri: Uri) {
+    fun readImage(vararg uris: Uri) {
         reading = true
         message = null
         scan = null
-        val photo = thumbnail(context, uri)
+        val photo = thumbnail(context, uris.first())
         scope.launch {
-            val r = runCatching { Ocr.read(context, uri, Store.settings.value) }
+            val r = runCatching { Ocr.read(context, uris.toList(), Store.settings.value) }
             reading = false
             r.onSuccess { res ->
                 rawText = res.raw
@@ -143,21 +143,42 @@ private fun Screen() {
         }
     }
 
-    val photoFile = remember { File(context.cacheDir, "photos").apply { mkdirs() }.let { File(it, "rings.jpg") } }
-    val photoUri = remember { FileProvider.getUriForFile(context, "${context.packageName}.files", photoFile) }
+    // Two pictures from different angles: glare and the screen's pixel pattern land differently, so readings that
+    // agree across both are much more likely right.
+    val photoFiles = remember { File(context.cacheDir, "photos").apply { mkdirs() }.let { listOf(File(it, "rings.jpg"), File(it, "rings2.jpg")) } }
+    val photoUris = remember { photoFiles.map { FileProvider.getUriForFile(context, "${context.packageName}.files", it) } }
     var launchedAt by remember { mutableStateOf(0L) }
+    var shot by remember { mutableStateOf(0) }          // which picture the camera is taking (0 = first, 1 = second)
+    var askSecond by remember { mutableStateOf(false) }  // first picture taken: ask for the second
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
         // Some camera apps save the picture but don't say so: use it if it's fresh.
-        val fresh = photoFile.exists() && photoFile.length() > 0 && photoFile.lastModified() >= launchedAt - 2_000
-        if (ok || fresh) readImage(photoUri) else message = "No picture taken."
+        val f = photoFiles[shot]
+        val fresh = f.exists() && f.length() > 0 && f.lastModified() >= launchedAt - 2_000
+        when {
+            !(ok || fresh) && shot == 0 -> message = "No picture taken."
+            !(ok || fresh) -> readImage(photoUris[0])   // skipped the second: read the first on its own
+            shot == 0 -> askSecond = true
+            else -> readImage(photoUris[0], photoUris[1])
+        }
     }
-    fun takePicture() {
-        photoFile.delete()
+    fun launchShot(i: Int) {
+        shot = i
+        photoFiles[i].delete()
         launchedAt = System.currentTimeMillis()
-        camera.launch(photoUri)
+        camera.launch(photoUris[i])
     }
+    fun takePicture() = launchShot(0)
+    if (askSecond) AlertDialog(
+        onDismissRequest = { askSecond = false; readImage(photoUris[0]) },
+        title = { Text("Now one more") },
+        text = { Text("Take a second picture of the same rings from a slightly different angle (tilt or step to the side). Reading both makes mistakes much less likely.") },
+        confirmButton = { Button(onClick = { askSecond = false; launchShot(1) }) { Text("📷  Second picture") } },
+        dismissButton = { TextButton(onClick = { askSecond = false; readImage(photoUris[0]) }) { Text("Use just the first") } },
+    )
     val gallery = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> if (uri != null) readImage(uri) }
-    val notifyPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    val notifyPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { Reminder.update(context) }
+    // Puts the "Clock out at …" notification back if it's missing (e.g. after the phone restarted the app).
+    LaunchedEffect(Unit) { Reminder.update(context) }
     LaunchedEffect(s.remind) {
         if (s.remind && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             notifyPermission.launch(Manifest.permission.POST_NOTIFICATIONS)

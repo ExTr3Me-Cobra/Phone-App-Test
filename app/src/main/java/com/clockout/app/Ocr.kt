@@ -51,8 +51,19 @@ object Ocr {
         return out
     }
 
-    suspend fun read(context: Context, uri: Uri, s: Settings): Result {
+    /** Reads one or more pictures of the same rings; every reading of every picture votes. */
+    suspend fun read(context: Context, uris: List<Uri>, s: Settings): Result {
         val texts = mutableListOf<Text>()
+        for (uri in uris) readInto(context, uri, texts)
+        var decimal = s.decimal
+        var rings = merge(texts, decimal)
+        var switched = false
+        // Nothing in the chosen time style: see if the picture uses the other one.
+        if (rings.isEmpty()) merge(texts, !decimal).takeIf { it.isNotEmpty() }?.let { rings = it; decimal = !decimal; switched = true }
+        return Result(rings, texts.first().text, decimal, switched)
+    }
+
+    private suspend fun readInto(context: Context, uri: Uri, texts: MutableList<Text>) {
         texts += recognize(InputImage.fromFilePath(context, uri))
         // The extra readings (the picture upright, as decoded).
         runCatching {
@@ -64,12 +75,6 @@ object Ocr {
             val variants = withContext(Dispatchers.Default) { listOf(scaled(bmp, 1600), scaled(bmp, 1100), cleaned(bmp)) }
             for (v in variants) runCatching { texts += recognize(InputImage.fromBitmap(v, 0)) }
         }
-        var decimal = s.decimal
-        var rings = merge(texts, decimal)
-        var switched = false
-        // Nothing in the chosen time style: see if the picture uses the other one.
-        if (rings.isEmpty()) merge(texts, !decimal).takeIf { it.isNotEmpty() }?.let { rings = it; decimal = !decimal; switched = true }
-        return Result(rings, texts.first().text, decimal, switched)
     }
 
     /** Rings from every reading, combined. */
