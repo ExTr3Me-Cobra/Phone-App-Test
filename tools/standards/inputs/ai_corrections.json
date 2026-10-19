@@ -1,0 +1,356 @@
+[
+ {
+  "exercise": "Pullups",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Pushups",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Pushups",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Dips - Triceps Version",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Parallel Bar Dip",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Dips - Chest Version",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Standing Dumbbell Calf Raise",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Standing Dumbbell Calf Raise",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Reverse Machine Flyes",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Reverse Machine Flyes",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Butterfly",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Butterfly",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Front Squats With Two Kettlebells",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Front Squats With Two Kettlebells",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Elevated Back Lunge",
+  "source": "deepseek",
+  "sex": "male",
+  "multiplier": 2
+ },
+ {
+  "exercise": "Elevated Back Lunge",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 2
+ },
+ {
+  "exercise": "Standing Dumbbell Upright Row",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Standing Dumbbell Upright Row",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Hammer Grip Incline DB Bench Press",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Hammer Grip Incline DB Bench Press",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Push-Up Wide",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Push-Up Wide",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Pushups (Close and Wide Hand Positions)",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Pushups (Close and Wide Hand Positions)",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Push-Ups - Close Triceps Position",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Push-Ups - Close Triceps Position",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Decline Push-Up",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Decline Push-Up",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Push-Ups With Feet Elevated",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Push-Ups With Feet Elevated",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "V-Bar Pullup",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Wide-Grip Rear Pull-Up",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Side To Side Chins",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Towel Pull-Up",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Towel Pull-Up",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "One Arm Lat Pulldown",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "One Arm Lat Pulldown",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Dumbbell Incline Row",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Dumbbell Incline Row",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Stiff-Legged Dumbbell Deadlift",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Stiff-Legged Dumbbell Deadlift",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Straight-Arm Pulldown",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Straight-Arm Pulldown",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Rope Straight-Arm Pulldown",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Rope Straight-Arm Pulldown",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Leverage Iso Row",
+  "source": "gemini",
+  "sex": "male",
+  "multiplier": 2
+ },
+ {
+  "exercise": "Leverage Iso Row",
+  "source": "gemini",
+  "sex": "female",
+  "multiplier": 2
+ },
+ {
+  "exercise": "Shotgun Row",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Shotgun Row",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Incline Bench Pull",
+  "source": "claude",
+  "sex": "male",
+  "multiplier": 2
+ },
+ {
+  "exercise": "Incline Bench Pull",
+  "source": "claude",
+  "sex": "female",
+  "multiplier": 2
+ },
+ {
+  "exercise": "Dumbbell One-Arm Upright Row",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Dumbbell One-Arm Upright Row",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Tate Press",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Tate Press",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Barbell Side Split Squat",
+  "source": "chatgpt",
+  "sex": "male",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Barbell Side Split Squat",
+  "source": "chatgpt",
+  "sex": "female",
+  "multiplier": 0.5
+ },
+ {
+  "exercise": "Clean Pull",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ },
+ {
+  "exercise": "Snatch Pull",
+  "source": "deepseek",
+  "sex": "female",
+  "multiplier": 0
+ }
+]

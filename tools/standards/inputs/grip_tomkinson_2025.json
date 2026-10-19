@@ -1,0 +1,80 @@
+{
+ "source": "Tomkinson GR et al. (iGRIPS). International norms for adult handgrip strength: a systematic review of data on 2.4 million adults aged 20 to 100+ years from 69 countries and regions. J Sport Health Sci 2025;14:101014. Open access, CC BY 4.0. https://pmc.ncbi.nlm.nih.gov/articles/PMC11863340/",
+ "measure": "Hand grip, from the paper's table of absolute handgrip strength percentiles (kg): P5, P20, P50, P80 and P95 for ages 20-24, 25-29, 30-34 and 35-39; the four age groups averaged and converted to lb (x 2.20462)",
+ "values_kg": {
+  "male": {
+   "20-24": [
+    33.9,
+    40.5,
+    48.0,
+    56.0,
+    63.6
+   ],
+   "25-29": [
+    35.5,
+    42.1,
+    49.3,
+    56.7,
+    64.0
+   ],
+   "30-34": [
+    35.0,
+    42.2,
+    49.7,
+    57.4,
+    64.9
+   ],
+   "35-39": [
+    33.8,
+    41.5,
+    49.5,
+    57.5,
+    65.3
+   ]
+  },
+  "female": {
+   "20-24": [
+    19.7,
+    24.0,
+    28.6,
+    33.6,
+    39.1
+   ],
+   "25-29": [
+    20.0,
+    24.5,
+    29.4,
+    34.6,
+    39.7
+   ],
+   "30-34": [
+    19.6,
+    24.4,
+    29.7,
+    35.2,
+    40.4
+   ],
+   "35-39": [
+    19.0,
+    24.1,
+    29.7,
+    35.4,
+    40.8
+   ]
+  }
+ },
+ "male_lb": [
+  76.2,
+  91.7,
+  108.3,
+  125.4,
+  142.1
+ ],
+ "female_lb": [
+  43.2,
+  53.5,
+  64.7,
+  76.5,
+  88.2
+ ]
+}

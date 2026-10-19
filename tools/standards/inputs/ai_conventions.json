@@ -1,0 +1,14 @@
+{
+ "about": "Where an AI database measured an exercise a different way from the app (per stack vs both stacks, one arm vs both, one dumbbell in both hands vs one per hand). Each entry was found by comparing the source with its own value for the related exercise named in 'evidence'; 'multiplier' converts it to the app's way (0 = left out because it can't be converted).",
+ "entries": [
+  {"exercise": "Overhead Cable Curl", "source": "chatgpt", "multiplier": 0.5, "evidence": "same table as its Standing Biceps Cable Curl (both hands on one stack), so it is both arms together; the app logs one of the two stacks"},
+  {"exercise": "Overhead Cable Curl", "source": "deepseek", "multiplier": 0.5, "evidence": "1.6x its Standing One-Arm Cable Curl, so it is both stacks together; the app logs one of the two stacks"},
+  {"exercise": "Standing Dumbbell Triceps Extension", "source": "gemini", "multiplier": 0, "evidence": "same value as its Dumbbell One-Arm Triceps Extension, so one dumbbell per arm; the app logs one dumbbell held in both hands"},
+  {"exercise": "Standing Dumbbell Triceps Extension", "source": "chatgpt", "multiplier": 0, "evidence": "same table as its Dumbbell One-Arm Triceps Extension, so one dumbbell per arm; the app logs one dumbbell held in both hands"},
+  {"exercise": "Standing One-Arm Cable Curl", "source": "chatgpt", "multiplier": 0, "evidence": "same table as its two-arm Standing Biceps Cable Curl"},
+  {"exercise": "One Arm Lat Pulldown", "source": "chatgpt", "multiplier": 0, "evidence": "same table as its two-arm Medium-Grip Lat Pulldown"},
+  {"exercise": "Seated One-arm Cable Pulley Rows", "source": "chatgpt", "multiplier": 0, "evidence": "same table as its two-arm Seated Cable Rows"},
+  {"exercise": "Straight-Arm Pulldown", "source": "chatgpt", "multiplier": 0, "evidence": "same table as its Medium-Grip Lat Pulldown, a different and much stronger movement"},
+  {"exercise": "Rope Straight-Arm Pulldown", "source": "chatgpt", "multiplier": 0, "evidence": "same table as its Medium-Grip Lat Pulldown, a different and much stronger movement"}
+ ]
+}

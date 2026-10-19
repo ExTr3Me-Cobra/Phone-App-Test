@@ -1,0 +1,300 @@
+package com.ironlog.app
+
+import org.json.JSONArray
+import org.json.JSONObject
+
+/**
+ * Imports a workout history CSV exported from Hevy (Settings → Export data). Workouts are added
+ * (ones already here are skipped); exercises are matched to the library, anything without a match
+ * becomes a custom exercise.
+ */
+object HevyImport {
+    /** Hevy exercise -> Loadout exercise name. */
+    private val MAP = mapOf(
+        "Bench Press (Barbell)" to "Barbell Bench Press - Medium Grip", "Bicep Curl (Dumbbell)" to "Dumbbell Bicep Curl",
+        "Hammer Curl (Dumbbell)" to "Hammer Curls", "Pull Up" to "Pullups", "Hip Thrust (Barbell)" to "Barbell Hip Thrust",
+        "Leg Extension (Machine)" to "Leg Extensions", "Lying Leg Curl (Machine)" to "Lying Leg Curls",
+        "Seated Leg Curl (Machine)" to "Seated Leg Curl", "Lateral Raise (Band)" to "Lateral Raise - With Bands",
+        "Chest Fly (Band)" to "Cross Over - With Bands", "External Shoulder Rotation (Cable)" to "External Rotation with Cable",
+        "Seated Clamshell" to "Clamshell", "Reverse Crunch" to "Reverse Crunch", "Triceps Rope Pushdown" to "Triceps Pushdown - Rope Attachment",
+        "90-Degree External Rotation (Cable)" to "Cable External Rotation at 90°", "Triceps Pushdown" to "Triceps Pushdown",
+        "Kneeling Hip Flexor Stretch" to "Kneeling Hip Flexor Stretch", "Plank" to "Plank", "Doorway Pec Stretch" to "Doorway Pec Stretch",
+        "Seated Forward Fold" to "Seated Floor Hamstring Stretch", "Ab Wheel" to "Ab Wheel Rollout",
+        "Seated Wrist Curl (Barbell)" to "Seated Palm-Up Barbell Wrist Curl", "Seated Wrist Extension (Barbell)" to "Seated Palms-Down Barbell Wrist Curl",
+        "Triceps Extension (Dumbbell)" to "Standing Dumbbell Triceps Extension", "Chest Supported Reverse Fly (Dumbbell)" to "Reverse Flyes",
+        "Reverse Curl (Dumbbell)" to "Standing Dumbbell Reverse Curl", "Lat Pulldown (Cable)" to "Medium-Grip Lat Pulldown",
+        "Glute Bridge" to "Glute Bridge", "Seated Cable Row - Bar Wide Grip" to "Seated Cable Rows",
+        "External Shoulder Rotation (Band)" to "External Rotation with Band", "Dead Hang" to "Dead Hang", "Full Can Raises" to "Full Can Scaption",
+        "Seated Incline Hammer Curl (Dumbbell)" to "Incline Hammer Curls", "Standing Calf Raise (Dumbbell)" to "Standing Dumbbell Calf Raise",
+        "Lateral Raise (Dumbbell)" to "Side Lateral Raise", "Cable Crunch" to "Cable Crunch", "Squat (Band)" to "Squats - With Bands",
+        "Squat (Bodyweight)" to "Bodyweight Squat", "Chin Up" to "Chin-Up", "Low Row (Suspension)" to "Suspended Row", "Push Up" to "Pushups",
+        "Push Up Plus" to "Push-Up Plus", "Preacher Curl (Dumbbell)" to "Two-Arm Dumbbell Preacher Curl", "Sit Up" to "Sit-Up",
+        "Squat (Barbell)" to "Barbell Squat", "Deadlift (Barbell)" to "Barbell Deadlift", "Overhead Press (Barbell)" to "Standing Military Press",
+        "Bent Over Row (Barbell)" to "Bent Over Barbell Row", "Incline Bench Press (Barbell)" to "Barbell Incline Bench Press - Medium Grip",
+        "Bench Press (Dumbbell)" to "Dumbbell Bench Press", "Incline Bench Press (Dumbbell)" to "Incline Dumbbell Press",
+        "Shoulder Press (Dumbbell)" to "Dumbbell Shoulder Press", "Romanian Deadlift (Barbell)" to "Romanian Deadlift",
+        "Leg Press (Machine)" to "Leg Press", "Seated Cable Row - V Grip (Cable)" to "Seated Cable Rows", "Dumbbell Row" to "One-Arm Dumbbell Row",
+        "Bicep Curl (Barbell)" to "Barbell Curl", "Skullcrusher (Barbell)" to "Lying Triceps Press", "Shrug (Dumbbell)" to "Dumbbell Shrug",
+        "Shrug (Barbell)" to "Barbell Shrug", "Face Pull" to "Face Pull", "Lunge (Dumbbell)" to "Dumbbell Lunges", "Goblet Squat" to "Goblet Squat",
+        "Standing Calf Raise (Machine)" to "Standing Calf Raises", "Seated Calf Raise" to "Seated Calf Raise", "Hanging Leg Raise" to "Hanging Leg Raise",
+        "Chest Dip" to "Dips - Chest Version", "Triceps Dip" to "Dips - Triceps Version", "Front Squat" to "Front Barbell Squat",
+    )
+
+    /** Hevy exercises with no Loadout match: custom exercise (based on, equipment, logged as). */
+    private val CUSTOM = mapOf(
+        "Hammer Curl (Band)" to Triple("Hammer Curls", "Bands", ExType.WEIGHT),
+        "Kneeling Pulldown (band)" to Triple("Medium-Grip Lat Pulldown", "Bands", ExType.WEIGHT),
+        "Supine Barbell Serratus Punch" to Triple("Serratus Punch (Dumbbell, Lying)", "Barbell", ExType.WEIGHT),
+        "Triceps Extension (Suspension)" to Triple("Body Tricep Press", "Other", ExType.BODYWEIGHT),
+    )
+
+    fun looksLikeHevy(text: String): Boolean {
+        val head = text.trimStart('﻿').lineSequence().firstOrNull() ?: return false
+        return "exercise_title" in head && "start_time" in head
+    }
+
+    // ---- Your choices for exercises without a direct match, remembered for the next import ----
+
+    /** Choice meaning "don't import this exercise". */
+    const val SKIP = "-"
+
+    /** Hevy exercise -> Loadout exercise id, "" for a new custom exercise, or [SKIP]. */
+    fun savedChoices(): Map<String, String> = runCatching {
+        val o = JSONObject(Store.readFile("hevy_map.json") ?: "{}")
+        o.keys().asSequence().associateWith { o.getString(it) }
+    }.getOrDefault(emptyMap())
+
+    private fun saveChoices(m: Map<String, String>) =
+        Store.writeFile("hevy_map.json", JSONObject((savedChoices() + m) as Map<*, *>).toString())
+
+    private fun library() = Store.exercises.value.values.filter { !it.hidden }.associateBy { it.name.lowercase() }
+
+    /** A direct match in the library, if there is one. */
+    private fun directId(hevy: String, byName: Map<String, Exercise>): String? =
+        MAP[hevy]?.let { byName[it.lowercase()]?.id } ?: byName[hevy.lowercase()]?.id
+
+    /**
+     * One Hevy exercise to match. [saved]: your choice from a previous import (an exercise id, or "" for
+     * a custom one), [guess]: a Loadout exercise with the same or a similar name, only shown as a hint.
+     */
+    class Unmatched(val hevy: String, val sets: Int, val saved: String?, val guess: String?)
+
+    /** A workout name from Hevy that can become a routine: done [times] times, last on [last] with [exercises] exercises. */
+    class RoutineOption(val name: String, val times: Int, val last: String, val exercises: Int)
+
+    class Plan(val text: String, val unmatched: List<Unmatched>, val routines: List<RoutineOption>)
+
+    /** The file waiting on the matching screen. */
+    var pending: Plan? = null
+
+    /** Choices on the matching screen (kept here so they survive opening the exercise picker). */
+    val choices = androidx.compose.runtime.mutableStateMapOf<String, String>()
+
+    /** Workout names ticked to become routines. */
+    val routinePicks = androidx.compose.runtime.mutableStateMapOf<String, Boolean>()
+
+    /** How each Hevy exercise in the file was logged (weight, time, reps, distance), for new custom exercises. */
+    private val typeGuess = HashMap<String, ExType>()
+
+    private fun customId(hevy: String) = "custom_hevy_" + hevy.replace(Regex("[^A-Za-z0-9]+"), "_").trim('_')
+
+    /** A new custom exercise for a Hevy exercise: no picture or directions; muscles only where a close base is known. */
+    private fun buildCustom(hevy: String, type: ExType): Exercise {
+        val c = CUSTOM[hevy]
+        val base = c?.first?.let { library()[it.lowercase()] }
+        return Exercise(
+            customId(hevy), hevy.replace("(band)", "(Band)"), c?.second ?: "Other", c?.third ?: type,
+            base?.primary ?: emptyList(), base?.secondary ?: emptyList(), base?.category ?: "strength",
+            emptyList(), custom = true,
+            secondaryWeights = base?.secondaryWeights ?: emptyList(),
+            detail = base?.detail ?: emptyMap(),
+        )
+    }
+
+    /** Custom exercises made on the matching screen this time: deleted again if you leave without importing. */
+    val createdNow = mutableSetOf<String>()
+
+    /** Makes (or reuses) the custom exercise for [hevy] right away, so you can edit it before importing. Returns its id. */
+    fun createCustom(hevy: String): String {
+        val id = customId(hevy)
+        if (Store.exercise(id) == null) {
+            Store.saveCustomExercise(buildCustom(hevy, typeGuess[hevy] ?: ExType.WEIGHT))
+            createdNow += id
+        }
+        return id
+    }
+
+    /** Deletes custom exercises made here that aren't used anywhere ([keep]: ones chosen for the import). */
+    fun discardCreated(keep: Set<String> = emptySet()) {
+        val used = Store.workouts.value.flatMap { w -> w.items.map { it.exerciseId } }.toSet() +
+            Store.routines.value.flatMap { r -> r.items.map { it.exerciseId } } + keep
+        createdNow.filter { it !in used }.forEach { Store.deleteCustomExercise(it, toBin = false) }
+        createdNow.clear()
+    }
+
+    private fun guessType(hasW: Boolean, hasT: Boolean, hasR: Boolean, hasD: Boolean) = when {
+        hasW && hasT && !hasR -> ExType.WEIGHT_TIME
+        hasW -> ExType.WEIGHT
+        hasT && !hasR -> ExType.TIMED
+        hasD -> ExType.CARDIO
+        else -> ExType.BODYWEIGHT
+    }
+
+    /** Reads the file and lists the exercises with no direct match. */
+    fun prepare(text: String): Plan {
+        val rows = parseCsv(text.trimStart('﻿'))
+        if (rows.size < 2) error("Empty file")
+        val cEx = rows[0].indexOf("exercise_title").also { if (it < 0) error("Missing column exercise_title") }
+        val byName = library()
+        val saved = savedChoices()
+        val counts = rows.drop(1).mapNotNull { it.getOrNull(cEx)?.takeIf { n -> n.isNotBlank() } }.groupingBy { it }.eachCount()
+        // Every exercise gets matched by you; only choices you made before are filled in.
+        // Most-used exercises first.
+        val unmatched = counts.keys.sortedWith(compareByDescending<String> { counts.getValue(it) }.thenBy { it }).map { n ->
+            val savedId = saved[n]?.takeIf { it == "" || it == SKIP || Store.exercise(it) != null }
+            Unmatched(n, counts.getValue(n), savedId, directId(n, byName))
+        }
+        choices.clear()
+        createdNow.clear()
+        unmatched.forEach { u -> u.saved?.let { choices[u.hevy] = it } }
+
+        // How each exercise was logged, for any you turn into custom exercises.
+        val head = rows[0]
+        fun idx(vararg n: String) = n.map { head.indexOf(it) }.filter { it >= 0 }
+        val wI = idx("weight_lbs", "weight_kg"); val tI = idx("duration_seconds"); val rI = idx("reps"); val dI = idx("distance_miles", "distance_km")
+        typeGuess.clear()
+        rows.drop(1).filter { it.size > cEx && it[cEx].isNotBlank() }.groupBy { it[cEx] }.forEach { (n, rs) ->
+            fun any(cols: List<Int>) = rs.any { r -> cols.any { r.getOrNull(it).orEmpty().isNotBlank() } }
+            typeGuess[n] = guessType(any(wI), any(tI), any(rI), any(dI))
+        }
+
+        // Workout names -> possible routines (built from the most recent session with that name).
+        val cTitle = rows[0].indexOf("title"); val cStart = rows[0].indexOf("start_time")
+        val routines = if (cTitle < 0 || cStart < 0) emptyList() else {
+            val sessions = rows.drop(1).filter { it.size > maxOf(cTitle, cStart, cEx) && it[cEx].isNotBlank() }
+                .groupBy { it[cTitle].ifBlank { "Workout" } }
+            sessions.map { (name, rs) ->
+                val byStart = rs.groupBy { localTime(it[cStart]) ?: "" }
+                val last = byStart.keys.max()
+                RoutineOption(name, byStart.size, last, byStart.getValue(last).map { it[cEx] }.distinct().size)
+            }.sortedWith(compareByDescending<RoutineOption> { it.times }.thenByDescending { it.last })
+        }
+        routinePicks.clear()
+        val have = Store.routines.value.map { it.id }.toSet()
+        routines.forEach { routinePicks[it.name] = it.times >= 2 && routineId(it.name) !in have }
+        return Plan(text, unmatched, routines)
+    }
+
+    /** Imports with your [choices] (Hevy name -> exercise id, "" = custom). Returns how many workouts were added. */
+    fun routineId(name: String) = "hevy_routine_" + name.lowercase().replace(Regex("[^a-z0-9]+"), "_").trim('_')
+
+    /**
+     * Imports with your [choices] (Hevy name -> exercise id, "" = custom) and makes a routine for each
+     * workout name in [routines]. Returns how many workouts were added.
+     */
+    fun import(text: String, choices: Map<String, String> = emptyMap(), routines: Set<String> = emptySet()): Int {
+        if (choices.isNotEmpty()) saveChoices(choices)
+        val rows = parseCsv(text.trimStart('﻿'))
+        if (rows.size < 2) error("Empty file")
+        val head = rows[0]
+        fun col(name: String) = head.indexOf(name).also { if (it < 0) error("Missing column $name") }
+        val cTitle = col("title"); val cStart = col("start_time"); val cEnd = col("end_time"); val cEx = col("exercise_title")
+        val cNotes = head.indexOf("exercise_notes"); val cType = head.indexOf("set_type")
+        val cW = head.indexOf("weight_lbs").takeIf { it >= 0 }; val cKg = head.indexOf("weight_kg").takeIf { it >= 0 }
+        val cR = head.indexOf("reps"); val cD = head.indexOf("distance_miles").takeIf { it >= 0 }
+        val cKm = head.indexOf("distance_km").takeIf { it >= 0 }; val cT = head.indexOf("duration_seconds")
+
+        val byName = library()
+        val custom = HashMap<String, Exercise>()
+        fun exerciseFor(hevy: String, row: List<String>): String {
+            choices[hevy]?.takeIf { it.isNotEmpty() && Store.exercise(it) != null }?.let { return it }
+            val id = customId(hevy)
+            Store.exercise(id)?.let { return it.id }
+            custom[id]?.let { return id }
+            fun has(i: Int?) = i != null && i >= 0 && row.getOrNull(i).orEmpty().isNotBlank()
+            val type = typeGuess[hevy] ?: guessType(has(cW) || has(cKg), has(cT), has(cR), has(cD) || has(cKm))
+            custom[id] = buildCustom(hevy, type)
+            return id
+        }
+
+        class W(val id: String, val name: String, val start: String, val end: String?, val items: MutableList<JSONObject> = mutableListOf())
+        val workouts = LinkedHashMap<String, W>()
+        for (r in rows.drop(1)) {
+            if (r.size <= cEx || r[cEx].isBlank()) continue
+            val start = localTime(r[cStart]) ?: continue
+            if (choices[r[cEx]] == SKIP) continue // you chose not to import this exercise
+            val w = workouts.getOrPut(r[cTitle] + "|" + r[cStart]) {
+                W("hevy_" + start.filter { it.isDigit() }, r[cTitle].ifBlank { "Workout" }, start, localTime(r.getOrNull(cEnd).orEmpty()))
+            }
+            val ex = exerciseFor(r[cEx], r)
+            if (w.items.isEmpty() || w.items.last().getString("ex") != ex) {
+                w.items += JSONObject().put("ex", ex).put("rest", 90).put("note", if (cNotes >= 0) r.getOrNull(cNotes).orEmpty() else "")
+                    .put("sets", JSONArray())
+            }
+            fun num(i: Int?) = if (i == null || i < 0) null else r.getOrNull(i)?.trim()?.toDoubleOrNull()
+            val set = JSONObject().put("f", cType >= 0 && r.getOrNull(cType) == "failure").put("x", true)
+            if (cType >= 0 && r.getOrNull(cType) == "warmup") set.put("wu", true)
+            (num(cW) ?: num(cKg)?.let { it / 0.45359237 })?.let { set.put("w", it) }
+            num(cR)?.let { set.put("r", it.toInt()) }
+            num(cT)?.let { set.put("t", it.toInt()) }
+            (num(cD) ?: num(cKm)?.let { it / 1.609344 })?.let { set.put("d", it) }
+            w.items.last().getJSONArray("sets").put(set)
+        }
+        // Routines: the exercises and sets of the most recent session with that name.
+        val made = routines.mapNotNull { name ->
+            val latest = workouts.values.filter { it.name == name }.maxByOrNull { it.start } ?: return@mapNotNull null
+            JSONObject().put("id", routineId(name)).put("name", name).put("items", JSONArray(latest.items.map { i ->
+                val sets = i.getJSONArray("sets")
+                JSONObject().put("ex", i.getString("ex")).put("rest", 90).put("note", i.optString("note"))
+                    .put("sets", JSONArray(List(sets.length()) { k -> JSONObject(sets.getJSONObject(k).toString()).apply { remove("x") } }))
+            }))
+        }
+        val json = JSONObject().put("app", "Loadout").put("merge", true)
+            .put("routines", JSONArray(made))
+            .put("custom", JSONArray(custom.values.map { it.toJson() }))
+            .put("workouts", JSONArray(workouts.values.map { w ->
+                JSONObject().put("id", w.id).put("name", w.name).put("start", w.start).apply { w.end?.let { put("end", it) } }
+                    .put("items", JSONArray(w.items))
+            }))
+        Store.restore(json.toString())
+        return Store.lastImported ?: 0
+    }
+
+    private val FORMATS = listOf("d MMM yyyy, HH:mm", "d MMM yyyy HH:mm", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm")
+
+    /** Hevy's "12 Oct 2026, 20:12" -> "2026-10-12T20:12" (read later in the phone's time zone). */
+    private fun localTime(s: String): String? {
+        val t = s.trim().ifEmpty { return null }
+        for (f in FORMATS) runCatching {
+            val d = java.time.LocalDateTime.parse(t, java.time.format.DateTimeFormatter.ofPattern(f, java.util.Locale.ENGLISH))
+            return d.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+        }
+        return null
+    }
+
+    /** CSV with quoted fields (commas, quotes and line breaks inside quotes). */
+    private fun parseCsv(text: String): List<List<String>> {
+        val rows = mutableListOf<List<String>>()
+        var row = mutableListOf<String>()
+        val f = StringBuilder()
+        var quoted = false
+        var i = 0
+        while (i < text.length) {
+            val ch = text[i]
+            if (quoted) {
+                if (ch == '"') {
+                    if (i + 1 < text.length && text[i + 1] == '"') { f.append('"'); i++ } else quoted = false
+                } else f.append(ch)
+            } else when (ch) {
+                '"' -> quoted = true
+                ',' -> { row += f.toString(); f.clear() }
+                '\r' -> {}
+                '\n' -> { row += f.toString(); f.clear(); rows += row; row = mutableListOf() }
+                else -> f.append(ch)
+            }
+            i++
+        }
+        if (f.isNotEmpty() || row.isNotEmpty()) { row += f.toString(); rows += row }
+        return rows
+    }
+}

@@ -1,0 +1,698 @@
+{
+ "about": "Exercise directions taken from wger.de (user-contributed, per-entry licence below; CC BY-SA text stays CC BY-SA). All other directions in the app were written for Loadout.",
+ "entries": [
+  {
+   "exercise": "Alternate Hammer Curl",
+   "source": "wger.de exercise 1567: Alternating dumbbell hammer curl",
+   "url": "https://wger.de/en/exercise/1567/view/",
+   "author": "Mariano_O",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Band Assisted Pull-Up",
+   "source": "wger.de exercise 1929: Assisted Pull-Up",
+   "url": "https://wger.de/en/exercise/1929/view/",
+   "author": "amaesc",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Barbell Ab Rollout",
+   "source": "wger.de exercise 41: Barbell Ab Rollout",
+   "url": "https://wger.de/en/exercise/41/view/",
+   "author": "sevae",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Barbell Deadlift",
+   "source": "wger.de exercise 184: Deadlifts",
+   "url": "https://wger.de/en/exercise/184/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Barbell Full Squat",
+   "source": "wger.de exercise 1801: Barbell Full Squat",
+   "url": "https://wger.de/en/exercise/1801/view/",
+   "author": "fabrice",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Barbell Shoulder Press",
+   "source": "wger.de exercise 566: Shoulder Press, Barbell",
+   "url": "https://wger.de/en/exercise/566/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Barbell Shrug",
+   "source": "wger.de exercise 571: Shrugs, Barbells",
+   "url": "https://wger.de/en/exercise/571/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Barbell Squat",
+   "source": "wger.de exercise 615: Squats",
+   "url": "https://wger.de/en/exercise/615/view/",
+   "author": "axel, wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Butterfly",
+   "source": "wger.de exercise 135: Butterfly",
+   "url": "https://wger.de/en/exercise/135/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Cable Wrist Curl",
+   "source": "wger.de exercise 1771: Wrist curl, cable",
+   "url": "https://wger.de/en/exercise/1771/view/",
+   "author": "eufvksruh",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Child's Pose",
+   "source": "wger.de exercise 1002: Child's pose",
+   "url": "https://wger.de/en/exercise/1002/view/",
+   "author": "Miroslav Mazel (imported from Feeel)",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Chin-Up",
+   "source": "wger.de exercise 152: Chin Up",
+   "url": "https://wger.de/en/exercise/152/view/",
+   "author": "BFad07",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Clean",
+   "source": "wger.de exercise 1438: Clean",
+   "url": "https://wger.de/en/exercise/1438/view/",
+   "author": "M9",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Clean and Press",
+   "source": "wger.de exercise 1901: Clean and Press",
+   "url": "https://wger.de/en/exercise/1901/view/",
+   "author": "nishant0712",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Close-Grip Barbell Bench Press",
+   "source": "wger.de exercise 76: Bench Press Narrow Grip (alias: Close-Grip Bench Press)",
+   "url": "https://wger.de/en/exercise/76/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Crunches",
+   "source": "wger.de exercise 167: Crunches",
+   "url": "https://wger.de/en/exercise/167/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Decline Barbell Bench Press",
+   "source": "wger.de exercise 185: Decline Bench Press Barbell",
+   "url": "https://wger.de/en/exercise/185/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Decline Dumbbell Bench Press",
+   "source": "wger.de exercise 186: Decline Bench Press Dumbbell",
+   "url": "https://wger.de/en/exercise/186/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Decline Push-Up",
+   "source": "wger.de exercise 1112: Push-Ups | Decline",
+   "url": "https://wger.de/en/exercise/1112/view/",
+   "author": "anon1337",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Deficit Deadlift",
+   "source": "wger.de exercise 189: Deficit Deadlift",
+   "url": "https://wger.de/en/exercise/189/view/",
+   "author": "bobbyprince89",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Alternate Bicep Curl",
+   "source": "wger.de exercise 1192: Alternating Biceps Curls With Dumbbell",
+   "url": "https://wger.de/en/exercise/1192/view/",
+   "author": "Franpol",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Bicep Curl",
+   "source": "wger.de exercise 92: Biceps Curls With Dumbbell",
+   "url": "https://wger.de/en/exercise/92/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Floor Press",
+   "source": "wger.de exercise 1084: Dumbbell Floor Press",
+   "url": "https://wger.de/en/exercise/1084/view/",
+   "author": "wger.de contributors",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Rear Lunge",
+   "source": "wger.de exercise 1651: Dumbbell Rear Lunge",
+   "url": "https://wger.de/en/exercise/1651/view/",
+   "author": "AlucardEvil40",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Shoulder Press",
+   "source": "wger.de exercise 567: Shoulder Press, Dumbbells",
+   "url": "https://wger.de/en/exercise/567/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Shrug",
+   "source": "wger.de exercise 572: Shrugs, Dumbbells",
+   "url": "https://wger.de/en/exercise/572/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Dumbbell Side Bend",
+   "source": "wger.de exercise 1650: Dumbbell Side Bend",
+   "url": "https://wger.de/en/exercise/1650/view/",
+   "author": "AlucardEvil40",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "EZ-Bar Skullcrusher",
+   "source": "wger.de exercise 246: Skullcrusher SZ-bar",
+   "url": "https://wger.de/en/exercise/246/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "External Rotation with Cable",
+   "source": "wger.de exercise 142: Cable External Rotation",
+   "url": "https://wger.de/en/exercise/142/view/",
+   "author": "lauroernesto",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Face Pull",
+   "source": "wger.de exercise 222: Facepull (alias: Face pull)",
+   "url": "https://wger.de/en/exercise/222/view/",
+   "author": "abeworld",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Flutter Kicks",
+   "source": "wger.de exercise 235: Flutter Kicks",
+   "url": "https://wger.de/en/exercise/235/view/",
+   "author": "nate303303",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Front Barbell Squat",
+   "source": "wger.de exercise 257: Front Squats",
+   "url": "https://wger.de/en/exercise/257/view/",
+   "author": "sistab2",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Front Cable Raise",
+   "source": "wger.de exercise 1731: Front Raise (Cable)",
+   "url": "https://wger.de/en/exercise/1731/view/",
+   "author": "barry",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Front Dumbbell Raise",
+   "source": "wger.de exercise 256: Front Raises (alias: dumbbell front raises)",
+   "url": "https://wger.de/en/exercise/256/view/",
+   "author": "Manu, wikipedia",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Glute Ham Raise",
+   "source": "wger.de exercise 2478: Glute-Ham Raise",
+   "url": "https://wger.de/en/exercise/2478/view/",
+   "author": "wger.de contributors",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Good Morning",
+   "source": "wger.de exercise 1392: Good Morning",
+   "url": "https://wger.de/en/exercise/1392/view/",
+   "author": "captive0592",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Hammer Curls",
+   "source": "wger.de exercise 272: Hammer Curls",
+   "url": "https://wger.de/en/exercise/272/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Hamstring Stretch",
+   "source": "wger.de exercise 2688: Hamstring Stretch",
+   "url": "https://wger.de/en/exercise/2688/view/",
+   "author": "tobias08",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Handstand Push-Ups",
+   "source": "wger.de exercise 282: Handstand Pushup",
+   "url": "https://wger.de/en/exercise/282/view/",
+   "author": "BFad07",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Foam Roll: IT Band",
+   "source": "wger.de exercise 1950: Foam Roll IT Band",
+   "url": "https://wger.de/en/exercise/1950/view/",
+   "author": "Pete-E automation",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Incline Cable Chest Press",
+   "source": "wger.de exercise 1660: Cable Chest Press - Incline",
+   "url": "https://wger.de/en/exercise/1660/view/",
+   "author": "Shiladree",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Incline Dumbbell Press",
+   "source": "wger.de exercise 537: Incline Bench Press - Dumbbell (alias: Incline Dumbbell Press)",
+   "url": "https://wger.de/en/exercise/537/view/",
+   "author": "tuckerm, wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Incline Push-Up",
+   "source": "wger.de exercise 1111: Push-Ups | Incline",
+   "url": "https://wger.de/en/exercise/1111/view/",
+   "author": "anon1337",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Inverted Row",
+   "source": "wger.de exercise 1198: Inverted Rows",
+   "url": "https://wger.de/en/exercise/1198/view/",
+   "author": "Gavru",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "JM Press",
+   "source": "wger.de exercise 1302: JM Press",
+   "url": "https://wger.de/en/exercise/1302/view/",
+   "author": "Epiphany8424",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Kettlebell One-Legged Deadlift",
+   "source": "wger.de exercise 1641: Kettlebell One Legged Deadlift",
+   "url": "https://wger.de/en/exercise/1641/view/",
+   "author": "AlucardEvil40",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Leg Extensions",
+   "source": "wger.de exercise 369: Leg Extension",
+   "url": "https://wger.de/en/exercise/369/view/",
+   "author": "BFad07",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Leg Press",
+   "source": "wger.de exercise 371: Leg Press",
+   "url": "https://wger.de/en/exercise/371/view/",
+   "author": "BFad07",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Leverage Chest Press",
+   "source": "wger.de exercise 379: Leverage Machine Chest Press",
+   "url": "https://wger.de/en/exercise/379/view/",
+   "author": "tuckerm",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Monster Walk",
+   "source": "wger.de exercise 2665: Banded Monster Walk (alias: Monster Walk)",
+   "url": "https://wger.de/en/exercise/2665/view/",
+   "author": "trs1800",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Mountain Climbers",
+   "source": "wger.de exercise 996: Mountain climbers",
+   "url": "https://wger.de/en/exercise/996/view/",
+   "author": "Miroslav Mazel (imported from Feeel), mondstern (imported from Feeel)",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Muscle Up",
+   "source": "wger.de exercise 423: Muscle up",
+   "url": "https://wger.de/en/exercise/423/view/",
+   "author": "arson",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "One-Arm Dumbbell Row",
+   "source": "wger.de exercise 81: Bent Over Dumbbell Rows (Single Arm) (alias: One Arm DB Rows)",
+   "url": "https://wger.de/en/exercise/81/view/",
+   "author": "sebk",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "One Arm Dumbbell Preacher Curl",
+   "source": "wger.de exercise 584: Single-arm Preacher Curl",
+   "url": "https://wger.de/en/exercise/584/view/",
+   "author": "tuckerm",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "One Arm Lat Pulldown",
+   "source": "wger.de exercise 1972: Single-Arm Lat Pulldown",
+   "url": "https://wger.de/en/exercise/1972/view/",
+   "author": "evtimovgeorg",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Overhead Squat",
+   "source": "wger.de exercise 441: Overhead Squat",
+   "url": "https://wger.de/en/exercise/441/view/",
+   "author": "geraldbaeck",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Pallof Press",
+   "source": "wger.de exercise 1194: Pallof Press",
+   "url": "https://wger.de/en/exercise/1194/view/",
+   "author": "prevail90",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Pull Through",
+   "source": "wger.de exercise 1751: Cable pull through",
+   "url": "https://wger.de/en/exercise/1751/view/",
+   "author": "manuher89",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Pullups",
+   "source": "wger.de exercise 475: Pull-ups",
+   "url": "https://wger.de/en/exercise/475/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Push-Up Wide",
+   "source": "wger.de exercise 1964: Wide Push-Up",
+   "url": "https://wger.de/en/exercise/1964/view/",
+   "author": "Anon#2",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Push Press",
+   "source": "wger.de exercise 478: Push Press",
+   "url": "https://wger.de/en/exercise/478/view/",
+   "author": "sistab2",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Pushups",
+   "source": "wger.de exercise 1551: Push-Up",
+   "url": "https://wger.de/en/exercise/1551/view/",
+   "author": "Settebello",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Recumbent Bike",
+   "source": "wger.de exercise 1376: Recumbent Bike",
+   "url": "https://wger.de/en/exercise/1376/view/",
+   "author": "pera_perkan",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Reverse Crunch",
+   "source": "wger.de exercise 1772: Reverse crunch",
+   "url": "https://wger.de/en/exercise/1772/view/",
+   "author": "eufvksruh",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Reverse Hyperextension",
+   "source": "wger.de exercise 1809: Reverse Hyperextension",
+   "url": "https://wger.de/en/exercise/1809/view/",
+   "author": "Croak6728",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Seated Cable Rows",
+   "source": "wger.de exercise 1117: Seated Cable Row",
+   "url": "https://wger.de/en/exercise/1117/view/",
+   "author": "Franpol",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Seated Dumbbell Curl",
+   "source": "wger.de exercise 1289: Seated Dumbbell Curls",
+   "url": "https://wger.de/en/exercise/1289/view/",
+   "author": "sTiKyt",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Seated Triceps Press",
+   "source": "wger.de exercise 549: Seated Triceps Press",
+   "url": "https://wger.de/en/exercise/549/view/",
+   "author": "richmr2174@gmail.com",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Sit-Up",
+   "source": "wger.de exercise 591: Sit-ups",
+   "url": "https://wger.de/en/exercise/591/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Sled Push",
+   "source": "wger.de exercise 1523: Sled Push",
+   "url": "https://wger.de/en/exercise/1523/view/",
+   "author": "flanny",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Smith Machine Close-Grip Bench Press",
+   "source": "wger.de exercise 598: Smith Machine Close-grip Bench Press",
+   "url": "https://wger.de/en/exercise/598/view/",
+   "author": "tuckerm",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Snatch",
+   "source": "wger.de exercise 599: Snatch",
+   "url": "https://wger.de/en/exercise/599/view/",
+   "author": "Mens Fitness",
+   "license": "CC0 1.0",
+   "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Spider Curl",
+   "source": "wger.de exercise 1465: Spider Curl",
+   "url": "https://wger.de/en/exercise/1465/view/",
+   "author": "Moffi",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Standing Calf Raises",
+   "source": "wger.de exercise 622: Standing Calf Raises",
+   "url": "https://wger.de/en/exercise/622/view/",
+   "author": "wger.de",
+   "license": "CC-BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Straight-Arm Pulldown",
+   "source": "wger.de exercise 1726: Straight-Arm Pulldown (Cable)",
+   "url": "https://wger.de/en/exercise/1726/view/",
+   "author": "barry",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Wrist Circles",
+   "source": "wger.de exercise 2543: Wrist circles",
+   "url": "https://wger.de/en/exercise/2543/view/",
+   "author": "Awlex",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  },
+  {
+   "exercise": "Zottman Curl",
+   "source": "wger.de exercise 1683: Zottman curl",
+   "url": "https://wger.de/en/exercise/1683/view/",
+   "author": "meldun",
+   "license": "CC-BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "changes": "split into numbered steps"
+  }
+ ]
+}

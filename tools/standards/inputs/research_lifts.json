@@ -1,0 +1,343 @@
+[
+ {
+  "exercise": "Barbell Bench Press - Medium Grip",
+  "male_median_lb_at_180": 198.0,
+  "female_median_lb_at_140": 93.1,
+  "gold": {
+   "male": true,
+   "female": true
+  },
+  "curve": "B",
+  "source": "gym-goer median bench, halfway between Isenmann et al. 2026 (CC BY) and Tiggemann et al. 2011 / Rodriguez-Ridao et al. 2020"
+ },
+ {
+  "exercise": "Barbell Squat",
+  "male_median_lb_at_180": 245.5,
+  "female_median_lb_at_140": 156.2,
+  "gold": {
+   "male": true,
+   "female": true
+  },
+  "curve": "S",
+  "source": "squat = 1.24 x bench men / 1.67 women in gym-goers (Isenmann et al. 2026, CC BY)"
+ },
+ {
+  "exercise": "Barbell Deadlift",
+  "male_median_lb_at_180": 302.9,
+  "female_median_lb_at_140": 190.3,
+  "gold": {
+   "male": true,
+   "female": true
+  },
+  "curve": "D",
+  "source": "deadlift = 1.53 x bench men / 2.05 women in gym-goers (Isenmann et al. 2026, CC BY)"
+ },
+ {
+  "exercise": "Sumo Deadlift",
+  "male_median_lb_at_180": 302.9,
+  "female_median_lb_at_140": 190.3,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "D",
+  "source": "assumed equal to the conventional deadlift"
+ },
+ {
+  "exercise": "Trap Bar Deadlift",
+  "male_median_lb_at_180": 315.1,
+  "female_median_lb_at_140": 197.9,
+  "gold": {
+   "male": true,
+   "female": false
+  },
+  "curve": "D",
+  "source": "deadlift x 1.04, the mean of 1.08 (Swinton et al. 2011) and 1.00 (Camara et al. 2016), both in men"
+ },
+ {
+  "exercise": "Front Barbell Squat",
+  "male_median_lb_at_180": 192.7,
+  "female_median_lb_at_140": 122.6,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "S",
+  "source": "squat x 0.785, a commonly cited ratio not confirmed in a 1RM study"
+ },
+ {
+  "exercise": "Barbell Incline Bench Press - Medium Grip",
+  "male_median_lb_at_180": 154.4,
+  "female_median_lb_at_140": 72.6,
+  "gold": {
+   "male": true,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.78 at 30 degrees (Rodriguez-Ridao et al. 2020, CC BY; participants mostly men)"
+ },
+ {
+  "exercise": "Dumbbell Bench Press",
+  "male_median_lb_at_180": 82.2,
+  "female_median_lb_at_140": 38.6,
+  "gold": {
+   "male": true,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.83 for both dumbbells, per dumbbell (Saeterbakken et al. 2011; Jackson 2012 thesis; men)"
+ },
+ {
+  "exercise": "Incline Dumbbell Press",
+  "male_median_lb_at_180": 64.1,
+  "female_median_lb_at_140": 30.1,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "incline ratio x dumbbell ratio, from two different studies"
+ },
+ {
+  "exercise": "Smith Machine Bench Press",
+  "male_median_lb_at_180": 182.2,
+  "female_median_lb_at_140": 74.4,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.92 men (between Cotterman et al. 2005 and Saeterbakken et al. 2011) / 0.80 women (Cotterman et al. 2005)"
+ },
+ {
+  "exercise": "Leg Press",
+  "male_median_lb_at_180": 524.7,
+  "female_median_lb_at_140": 418.8,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 2.65 men / 4.5 women, a 10-rep-max ratio (Piper et al. 2021/2022, CC BY)"
+ },
+ {
+  "exercise": "Wide-Grip Lat Pulldown",
+  "male_median_lb_at_180": 184.1,
+  "female_median_lb_at_140": 124.7,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.93 men / 1.34 women, a 10-rep-max ratio (Piper et al. 2021/2022, CC BY)"
+ },
+ {
+  "exercise": "Seated Barbell Military Press",
+  "male_median_lb_at_180": 131.7,
+  "female_median_lb_at_140": 73.5,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.665 men / 0.79 women, a 10-rep-max ratio (Piper et al. 2021/2022, CC BY)"
+ },
+ {
+  "exercise": "Standing Military Press",
+  "male_median_lb_at_180": 121.1,
+  "female_median_lb_at_140": 67.6,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "seated press x 0.92 for standing (assumed from Saeterbakken & Fimland 2013)"
+ },
+ {
+  "exercise": "Seated Dumbbell Press",
+  "male_median_lb_at_180": 59.4,
+  "female_median_lb_at_140": 32.6,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "per dumbbell about 0.30 men / 0.35 women x bench - low confidence"
+ },
+ {
+  "exercise": "Preacher Curl",
+  "male_median_lb_at_180": 93.1,
+  "female_median_lb_at_140": 53.0,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.47 men / 0.57 women, a 10-rep-max ratio (Piper et al. 2021/2022, CC BY)"
+ },
+ {
+  "exercise": "Barbell Curl",
+  "male_median_lb_at_180": 108.9,
+  "female_median_lb_at_140": 55.8,
+  "gold": {
+   "male": true,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.55 men (Massini et al. 2022: 0.54; Ribeiro et al. 2024: 0.58); women 0.60, between Seo et al. 2012 (0.46) and Ribeiro et al. 2024 (0.74)"
+ },
+ {
+  "exercise": "EZ-Bar Curl",
+  "male_median_lb_at_180": 108.9,
+  "female_median_lb_at_140": 55.8,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "assumed equal to the barbell curl"
+ },
+ {
+  "exercise": "Close-Grip Barbell Bench Press",
+  "male_median_lb_at_180": 188.1,
+  "female_median_lb_at_140": 88.4,
+  "gold": {
+   "male": true,
+   "female": false
+  },
+  "curve": "B",
+  "source": "bench x 0.95 (Larsen et al. 2021, CC BY; men)"
+ },
+ {
+  "exercise": "Decline Barbell Bench Press",
+  "male_median_lb_at_180": 198.0,
+  "female_median_lb_at_140": 93.1,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "assumed equal to the flat bench - low confidence"
+ },
+ {
+  "exercise": "Decline Dumbbell Bench Press",
+  "male_median_lb_at_180": 82.2,
+  "female_median_lb_at_140": 38.6,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "assumed equal to the flat dumbbell bench"
+ },
+ {
+  "exercise": "Seated Cable Rows",
+  "male_median_lb_at_180": 192.1,
+  "female_median_lb_at_140": 99.6,
+  "gold": {
+   "male": true,
+   "female": true
+  },
+  "curve": "B",
+  "source": "bench x 0.97 men / 1.07 women (Seo et al. 2012, J Sports Sci Med, machine row and bench)"
+ },
+ {
+  "exercise": "Bent Over Barbell Row",
+  "male_median_lb_at_180": 184.1,
+  "female_median_lb_at_140": 95.8,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "B",
+  "source": "assumed about 0.96 x the seated row - low confidence"
+ },
+ {
+  "exercise": "Barbell Hip Thrust",
+  "male_median_lb_at_180": 369.6,
+  "female_median_lb_at_140": 245.5,
+  "gold": {
+   "male": true,
+   "female": true
+  },
+  "curve": "D",
+  "source": "deadlift x 1.22 men / 1.29 women (Nieto-Acevedo et al. 2023, IJERPH, CC BY)"
+ },
+ {
+  "exercise": "Romanian Deadlift",
+  "male_median_lb_at_180": 245.5,
+  "female_median_lb_at_140": 156.2,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "D",
+  "source": "squat x 1.00 (one rugby 3RM study) - low confidence"
+ },
+ {
+  "exercise": "Snatch",
+  "male_median_lb_at_180": 143.2,
+  "female_median_lb_at_140": 86.5,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "SN",
+  "source": "OpenWeightlifting shape; gym-goers assumed the same fraction of competitors as on the bench"
+ },
+ {
+  "exercise": "Clean and Jerk",
+  "male_median_lb_at_180": 183.1,
+  "female_median_lb_at_140": 111.2,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "CJ",
+  "source": "OpenWeightlifting shape; gym-goers assumed the same fraction of competitors as on the bench"
+ },
+ {
+  "exercise": "Power Clean",
+  "male_median_lb_at_180": 163.0,
+  "female_median_lb_at_140": 99.0,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "CJ",
+  "source": "clean x 0.89 (Szyszka & Czaplicki 2021), the clean taken as equal to the clean & jerk"
+ },
+ {
+  "exercise": "Hang Clean",
+  "male_median_lb_at_180": 175.8,
+  "female_median_lb_at_140": 106.7,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "CJ",
+  "source": "clean x 0.96 (Szyszka & Czaplicki 2021), the clean taken as equal to the clean & jerk"
+ },
+ {
+  "exercise": "Power Snatch",
+  "male_median_lb_at_180": 126.0,
+  "female_median_lb_at_140": 76.1,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "SN",
+  "source": "snatch x 0.88 (Czaplicki et al. 2019, CC BY)"
+ },
+ {
+  "exercise": "Push Press",
+  "male_median_lb_at_180": 159.3,
+  "female_median_lb_at_140": 96.7,
+  "gold": {
+   "male": false,
+   "female": false
+  },
+  "curve": "CJ",
+  "source": "clean & jerk x 0.87 - low confidence"
+ }
+]

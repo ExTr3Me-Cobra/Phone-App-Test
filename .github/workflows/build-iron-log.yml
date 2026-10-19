@@ -1,0 +1,104 @@
+name: Build Loadout APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One build at a time, so every build signs with the same saved key.
+concurrency:
+  group: iron-log-build
+  cancel-in-progress: false
+
+jobs:
+  # One-off cleanup, only when the pushed commit's message contains [delete-old-releases]: removes every earlier
+  # Loadout / Iron Log release, its tag, old APK build artifacts, earlier runs of this workflow and build caches
+  # on this branch (except the signing key, so updates still install over the current app). Other apps' releases,
+  # tags and caches are not touched.
+  cleanup:
+    if: contains(github.event.head_commit.message, '[delete-old-releases]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+    steps:
+      # IDs are listed in full before anything is deleted, so deleting doesn't shift the pages being read. A delete
+      # that fails is logged and skipped, so it can't stop the build.
+      - name: Delete old Loadout and Iron Log releases and tags
+        run: |
+          ids=$(gh api --paginate "repos/$REPO/releases?per_page=100" --jq '.[] | select(.tag_name | test("^(loadout|iron-log)-")) | .id' || true)
+          for id in $ids; do gh api -X DELETE "repos/$REPO/releases/$id" && echo "deleted release $id" || echo "could not delete release $id"; done
+          for prefix in loadout- iron-log-; do
+            refs=$(gh api --paginate "repos/$REPO/git/matching-refs/tags/$prefix" --jq '.[].ref' || true)
+            for ref in $refs; do gh api -X DELETE "repos/$REPO/git/refs/${ref#refs/}" && echo "deleted $ref" || echo "could not delete $ref"; done
+          done
+      - name: Delete old APK artifacts, earlier runs and this branch's build caches
+        run: |
+          ids=$(gh api --paginate "repos/$REPO/actions/artifacts?per_page=100" --jq '.artifacts[] | select(.name == "Loadout-apk" or .name == "IronLog-apk") | .id' || true)
+          for id in $ids; do gh api -X DELETE "repos/$REPO/actions/artifacts/$id" && echo "deleted artifact $id" || echo "could not delete artifact $id"; done
+          ids=$(gh api --paginate "repos/$REPO/actions/workflows/build-iron-log.yml/runs?per_page=100" --jq '.workflow_runs[].id' || true)
+          for id in $ids; do [ "$id" = "${{ github.run_id }}" ] && continue
+            gh api -X DELETE "repos/$REPO/actions/runs/$id" && echo "deleted run $id" || echo "could not delete run $id"; done
+          # Only this branch's caches, and never a signing key (other apps keep theirs in caches too).
+          ids=$(gh api --paginate "repos/$REPO/actions/caches?per_page=100&ref=${{ github.ref }}" --jq '.actions_caches[] | select(.key | contains("signing-key") | not) | .id' || true)
+          for id in $ids; do gh api -X DELETE "repos/$REPO/actions/caches/$id" && echo "deleted cache $id" || echo "could not delete cache $id"; done
+
+  build:
+    needs: cleanup
+    if: ${{ !cancelled() && needs.cleanup.result != 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Every build must be signed with the same key, or Android refuses to install it as an
+      # update ("App not installed"). The key is made once and kept in the build cache.
+      - name: Reuse the same signing key
+        uses: actions/cache@v4
+        with:
+          path: signing/ironlog.keystore
+          key: ironlog-signing-key-v1
+
+      - name: Make the signing key (first build only)
+        run: |
+          mkdir -p signing
+          if [ ! -f signing/ironlog.keystore ]; then
+            keytool -genkeypair -v -keystore signing/ironlog.keystore -alias ironlog \
+              -keyalg RSA -keysize 2048 -validity 36500 \
+              -storepass android -keypass android -dname "CN=Iron Log"
+          fi
+          keytool -list -v -keystore signing/ironlog.keystore -storepass android | grep SHA256
+
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --stacktrace -PsignKeystore=$PWD/signing/ironlog.keystore
+          cp app/build/outputs/apk/release/app-release.apk Loadout.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Loadout-apk
+          path: Loadout.apk
+
+      - name: Publish download on the Releases page
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: loadout-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Loadout (build ${{ github.run_number }})
+          body: |
+            On your phone, tap **Loadout.apk** below to download it, then open it to install.
+            See the README on the claude/workout-log-app branch for setup steps.
+          files: Loadout.apk
+          make_latest: false
