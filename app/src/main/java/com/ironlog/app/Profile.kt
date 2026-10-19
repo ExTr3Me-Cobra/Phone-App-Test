@@ -271,13 +271,11 @@ fun SettingsScreen() {
                 "Hevy workouts into Loadout routines.", color = Sub, fontSize = 13.sp)
             GreyButton("Import Hevy App data (.csv)") { import.launch(arrayOf("text/csv", "text/comma-separated-values", "text/plain", "*/*")) }
             message?.let { Text(it, color = Blue) }
-            val build = remember {
-                runCatching { context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode }.getOrNull()
-            }
+            val info = remember { runCatching { context.packageManager.getPackageInfo(context.packageName, 0) }.getOrNull() }
             // Tap the build number 10 times quickly to unlock the developer settings.
             var taps by remember { mutableStateOf(0) }
             var lastTap by remember { mutableStateOf(0L) }
-            Text("Loadout · build ${build ?: "?"}", color = Sub, fontSize = 13.sp,
+            Text("Loadout ${info?.versionName ?: ""} · build ${info?.longVersionCode ?: "?"}", color = Sub, fontSize = 13.sp,
                 modifier = Modifier.padding(top = 16.dp).clickable(remember { androidx.compose.foundation.interaction.MutableInteractionSource() }, null) {
                     val now = System.currentTimeMillis()
                     taps = if (now - lastTap < 700) taps + 1 else 1
