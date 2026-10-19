@@ -316,6 +316,14 @@ fun SettingsScreen() {
                     }
                     androidx.compose.material3.Switch(p.dev1rm, { set(p.copy(dev1rm = it)) })
                 }
+                Row(Modifier.fillMaxWidth().clickable { set(p.copy(devGemini = !p.devGemini)) }, verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Favor Gemini's data (trial)")
+                        Text("Ranks with standards built mostly (80%) from the Gemini database's own numbers, research lifts included. Stars stay the same; bodyweight-rep moves don't change.",
+                            color = Sub, fontSize = 13.sp)
+                    }
+                    androidx.compose.material3.Switch(p.devGemini, { set(p.copy(devGemini = it)) })
+                }
                 Row(Modifier.fillMaxWidth().clickable { set(p.copy(devAi = !p.devAi)) }, verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("AI picture tools")
@@ -365,7 +373,7 @@ fun SettingsScreen() {
             packMsg?.let { Text(it, color = Blue) }
 
                 }
-                GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false, dev1rm = false)) }
+                GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false, dev1rm = false, devGemini = false)) }
                 Spacer(8)
                 Text("Backup log", fontWeight = FontWeight.Bold)
                 Text("What Android's Google backup has done with Loadout. Empty means Android hasn't asked Loadout for a backup yet.",

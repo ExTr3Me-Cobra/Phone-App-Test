@@ -5,7 +5,11 @@
 
 ```
 node tools/standards/build_standards.js
+FAVOR=gemini node tools/standards/build_standards.js   # developer variant: standards_gemini.json
 ```
+
+The developer setting "Favor Gemini's data" ranks with `standards_gemini.json`: every weighted exercise Gemini covers takes
+its middle level 80% from Gemini's own number and 20% from the normal build, with the same stars and spread.
 
 Levels: Beginner / Novice / Intermediate / Advanced / Elite = stronger than 5 / 20 / 50 / 80 / 95% of people who do
 resistance training, at the lifter's sex and body weight (rows every 10 lb: men 110-310, women 90-260). 1RM in lb:

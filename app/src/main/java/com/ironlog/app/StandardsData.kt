@@ -36,14 +36,23 @@ object StandardsData {
         fun noteFor(male: Boolean) = if (male) note else noteF
     }
 
-    @Volatile var all: List<Std> = emptyList()
-        private set
+    @Volatile private var normal: List<Std> = emptyList()
+    /** Developer: the same standards with Gemini's numbers heavily favored (standards_gemini.json). */
+    @Volatile private var gemini: List<Std> = emptyList()
+
+    /** The standards in use: normally standards.json; the Gemini-favored set while that developer setting is on. */
+    val all: List<Std> get() = if (Store.profile.value.devGemini && gemini.isNotEmpty()) gemini else normal
 
     /** Reads the tables once; call before anything uses [Standards]. */
     fun init(c: Context) {
-        if (all.isNotEmpty()) return
-        all = runCatching {
-            val a = JSONArray(c.assets.open("standards.json").bufferedReader().readText())
+        if (normal.isNotEmpty()) return
+        normal = load(c, "standards.json")
+        gemini = load(c, "standards_gemini.json")
+    }
+
+    private fun load(c: Context, file: String): List<Std> =
+        runCatching {
+            val a = JSONArray(c.assets.open(file).bufferedReader().readText())
             List(a.length()) { i ->
                 val o = a.getJSONObject(i)
                 fun rows(k: String) = o.optJSONArray(k)?.let { r ->
@@ -59,5 +68,4 @@ object StandardsData {
                     if (o.has("af")) str("af") else approx, o.optBoolean("aif", ai), if (o.has("nf")) str("nf") else note)
             }
         }.getOrDefault(emptyList())
-    }
 }

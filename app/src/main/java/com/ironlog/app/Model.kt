@@ -164,6 +164,8 @@ data class Profile(
     val extraAnims: Boolean = true,
     /** Developer: on 1 Rep Max tests, show the standard and the personal 1 Rep Max estimate above the next set. */
     val dev1rm: Boolean = false,
+    /** Developer: rank with standards that heavily favor Gemini's database. */
+    val devGemini: Boolean = false,
     /** App accent colour (ARGB); the light blue by default. */
     val accent: Int = 0xFF2D8CFF.toInt(),
     /** Both-arm cable moves: how many stacks you use (1 or 2), by exercise id; missing = the exercise's usual number. */
@@ -241,7 +243,7 @@ object Json {
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
         .put("dev", p.devUnlocked).put("devAi", p.devAi).put("range", p.homeRange).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort).put("grip", p.gripRank)
         .put("gp", JSONObject(p.groupPicks.mapValues { JSONArray(it.value) } as Map<*, *>))
-        .put("xa", p.extraAnims).put("d1rm", p.dev1rm).put("acc", p.accent)
+        .put("xa", p.extraAnims).put("d1rm", p.dev1rm).put("dgem", p.devGemini).put("acc", p.accent)
         .put("lay", JSONObject(p.layouts.mapValues { JSONArray(it.value) } as Map<*, *>))
         .put("stk", JSONObject(p.stacks as Map<*, *>))
         .put("pul", JSONObject(p.pulleys as Map<*, *>))
@@ -257,6 +259,7 @@ object Json {
         gripRank = o.optBoolean("grip", true),
         extraAnims = o.optBoolean("xa", true),
         dev1rm = o.optBoolean("d1rm"),
+        devGemini = o.optBoolean("dgem"),
         accent = o.optInt("acc", 0xFF2D8CFF.toInt()),
         layouts = o.optJSONObject("lay")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
         stacks = o.optJSONObject("stk")?.let { g -> g.keys().asSequence().associateWith { k -> g.getInt(k) } } ?: emptyMap(),

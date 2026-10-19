@@ -1,5 +1,6 @@
 // Builds the app's strength standards (app/src/main/assets/standards.json) from openly licensed inputs only.
 // Run: node tools/standards/build_standards.js   (writes the asset and tools/standards/build_report.txt)
+//      FAVOR=gemini node tools/standards/build_standards.js   (the developer variant, standards_gemini.json)
 //
 // Levels: Beginner / Novice / Intermediate / Advanced / Elite = 5th / 20th / 50th / 80th / 95th percentile of people who
 // do resistance training, at the lifter's sex and bodyweight. 1RM in lb (dumbbells and kettlebells per hand, cables on
@@ -125,6 +126,10 @@ function pooled(e, sex, bias) { const r = ratios(e, sex), cal = SRC.filter(k => 
   if (!cal.length) return null; const m = median(cal);
   // "Agree" = at least two sources within a 25% band around the median (within 12% either side).
   return { ratio: m, n: cal.length, agree: cal.filter(v => Math.abs(Math.log(v / m)) <= Math.log(1.12)).length }; }
+// Developer variant (FAVOR=gemini, written to standards_gemini.json): every weighted exercise Gemini covers, research
+// lifts included, takes its middle level 80% from Gemini's own number and 20% from the normal build (geometric), with the
+// normal spread and body-weight shape. Stars are unchanged; bodyweight-rep moves are unchanged.
+const FAVOR = process.env.FAVOR || '';
 
 // Hold-out test: predict each calibration research lift from the calibrated AI ratios without using it.
 const loo = { male: {}, female: {} };
@@ -153,6 +158,8 @@ for (const e of weighted) { const o = { e, sex: {} };
     const s = at(e, sex), cal = SRC.filter(k => s[k]).map(k => s[k][2] / Math.exp(BIAS[sex][k].all));
     if (cal.length) { const m50 = median(cal); o.sex[sex] = { m50, conf: 'purple', rows: levelRows(sex, m50, sigmaOf(sex, e.fam), lift), nsrc: cal.length,
       note: `Estimated from ${sourcesUsed(cal.length)}, calibrated against the research lifts.`, approx: 'A rough estimate from AI-generated databases.' }; } }
+  if (FAVOR) for (const sex of SEXES) { const t = o.sex[sex], v = t && val(e, FAVOR, sex); if (!v || !(t.m50 > 0)) continue;
+    const k = Math.exp(0.8 * Math.log(v[2] / t.m50)); t.m50 *= k; t.rows = t.rows.map(r => [r[0], ...r.slice(1).map(x => x * k)]); }
   if (Object.keys(o.sex).length) out.push(o); }
 
 // ---- Bodyweight-rep moves: strength model ----
@@ -202,7 +209,8 @@ if (grip) std.push({ i: grip.i, lift: 'Grip Dynamometer', ln: 'Hand Grip Dynamom
   r: false, d: false, k: 1, ai: false, a: null, u: true, note: null, conf: { male: 'gold', female: 'gold' } });
 std.sort((a, b) => a.lift.localeCompare(b.lift));
 for (const s of std) for (const t of [s.m, s.f]) if (t) for (const row of t) for (let i = 2; i <= 5; i++) if (row[i] < row[i - 1]) throw new Error('levels not rising: ' + s.lift);
-fs.writeFileSync(path.join(ASSETS, 'standards.json'), JSON.stringify(std.map(({ conf, ...s }) => s), null, 0));
+fs.writeFileSync(path.join(ASSETS, FAVOR ? `standards_${FAVOR}.json` : 'standards.json'), JSON.stringify(std.map(({ conf, ...s }) => s), null, 0));
+if (FAVOR) process.exit(0);   // the variant doesn't rewrite the report
 
 // ---- Report ----
 const pc = (a, f) => a && a.length ? quant(a.map(Math.abs), f).toFixed(1) + '%' : '-';

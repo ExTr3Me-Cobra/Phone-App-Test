@@ -10,7 +10,15 @@ import kotlin.math.ln
  * Height isn't used: body weight already accounts for most of the difference in size.
  */
 object Standards {
-    private val table: Map<String, StandardsData.Std> by lazy { StandardsData.all.associateBy { it.id } }
+    private var tableOf: List<StandardsData.Std>? = null
+    private var tableMap: Map<String, StandardsData.Std> = emptyMap()
+    /** By exercise id, rebuilt when the set in use changes (the Gemini developer setting). */
+    private val table: Map<String, StandardsData.Std>
+        get() {
+            val a = StandardsData.all
+            if (a !== tableOf) { tableMap = a.associateBy { it.id }; tableOf = a }
+            return tableMap
+        }
 
     fun covers(id: String) = table.containsKey(id)
     fun isReps(id: String) = table[id]?.reps == true
