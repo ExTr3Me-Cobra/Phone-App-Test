@@ -316,6 +316,14 @@ fun SettingsScreen() {
                     }
                     androidx.compose.material3.Switch(p.dev1rm, { set(p.copy(dev1rm = it)) })
                 }
+                Row(Modifier.fillMaxWidth().clickable { set(p.copy(devResearch = !p.devResearch)) }, verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Research mode")
+                        Text("Adds Research mode under the 1 Rep Max mode button: 1 Rep Max tests on the exercises that help the standards most, with an export.",
+                            color = Sub, fontSize = 13.sp)
+                    }
+                    androidx.compose.material3.Switch(p.devResearch, { set(p.copy(devResearch = it)) })
+                }
                 Row(Modifier.fillMaxWidth().clickable { set(p.copy(devGemini = !p.devGemini)) }, verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("Favor Gemini's data (trial)")
@@ -373,7 +381,7 @@ fun SettingsScreen() {
             packMsg?.let { Text(it, color = Blue) }
 
                 }
-                GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false, dev1rm = false, devGemini = false)) }
+                GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false, dev1rm = false, devGemini = false, devResearch = false)) }
                 Spacer(8)
                 Text("Backup log", fontWeight = FontWeight.Bold)
                 Text("What Android's Google backup has done with Loadout. Empty means Android hasn't asked Loadout for a backup yet.",

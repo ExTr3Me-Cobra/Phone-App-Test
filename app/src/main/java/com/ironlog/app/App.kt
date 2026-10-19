@@ -110,6 +110,7 @@ sealed interface Route {
     data class ExerciseHistory(val id: String) : Route
     data object Share : Route
     data class OneRmTest(val id: String) : Route
+    data object Research : Route
 }
 
 object Nav {
@@ -264,6 +265,7 @@ private fun RouteScreen(route: Route) {
         is Route.ExerciseHistory -> ExerciseHistoryScreen(route.id)
         Route.Share -> ShareScreen()
         is Route.OneRmTest -> OneRmTestScreen(route.id)
+        Route.Research -> ResearchScreen()
     }
 }
 
