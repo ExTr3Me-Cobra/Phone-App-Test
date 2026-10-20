@@ -219,7 +219,8 @@ fun PickerScreen(req: Route.Picker?) {
 @Composable
 fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).background(if (selected) Blue.copy(alpha = 0.12f) else Bg),
+        // Browsing, the row itself does nothing: the ⓘ button opens the exercise. Picking, tapping the row picks it.
+        Modifier.fillMaxWidth().then(if (picking) Modifier.clickable(onClick = onClick) else Modifier).background(if (selected) Blue.copy(alpha = 0.12f) else Bg),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.width(4.dp).height(80.dp).background(if (selected) Blue else Color.Transparent))
@@ -237,7 +238,8 @@ fun ExerciseRow(e: Exercise, selected: Boolean, picking: Boolean, onClick: () ->
             if (picking) Text("ⓘ Info", color = Blue, fontSize = 14.sp, fontWeight = FontWeight.Medium,
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Card2).clickable { Nav.go(Route.ExerciseDetail(e.id)) }
                     .padding(horizontal = 10.dp, vertical = 8.dp))
-            else Text("›", color = Sub, fontSize = 26.sp, modifier = Modifier.clickable { Nav.go(Route.ExerciseDetail(e.id)) }.padding(horizontal = 8.dp))
+            else Text("ⓘ", color = Blue, fontSize = 20.sp, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Card2)
+                .clickable { Nav.go(Route.ExerciseDetail(e.id)) }.padding(horizontal = 9.dp, vertical = 4.dp))
         }
     }
     HorizontalDivider(color = Card, modifier = Modifier.padding(start = 92.dp))

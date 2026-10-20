@@ -317,12 +317,15 @@ fun OneRmListScreen() {
                         Text((if (n == 0) "Not completed yet" else "Completed $n time${if (n == 1) "" else "s"}") +
                             (if (t > 0) " · 1RM tested ${if (t == 1) "once" else "$t times"}" else ""), color = Sub, fontSize = 12.sp)
                     }
-                    if (r != null) Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        RankBadge(r.tier, 34.dp)
-                        Text(r.tier.label, fontSize = 11.sp, color = Color(r.tier.color))
+                    // The rank sits in a fixed-width column, so the ⓘ button lines up whatever the rank's name.
+                    Box(Modifier.width(84.dp), contentAlignment = Alignment.Center) {
+                        if (r != null) Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            RankBadge(r.tier, 34.dp)
+                            Text(r.tier.label, fontSize = 11.sp, color = Color(r.tier.color), maxLines = 1, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        }
                     }
                     // Info: the exercise's own page, as from the Exercises list.
-                    Text("ⓘ", color = Blue, fontSize = 20.sp, modifier = Modifier.padding(start = 6.dp).clip(RoundedCornerShape(8.dp)).background(Card2)
+                    Text("ⓘ", color = Blue, fontSize = 20.sp, modifier = Modifier.padding(start = 8.dp).clip(RoundedCornerShape(8.dp)).background(Card2)
                         .clickable { Nav.go(Route.ExerciseDetail(id)) }.padding(horizontal = 9.dp, vertical = 4.dp))
                     if (n == 0) Text("✕", color = Sub, modifier = Modifier.clickable { OneRm.remove(id); refresh++ }.padding(8.dp))
                 }
