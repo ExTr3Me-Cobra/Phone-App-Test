@@ -168,6 +168,8 @@ data class Profile(
     val devGemini: Boolean = false,
     /** Developer: show Research mode (a standing list of 1 Rep Max tests for improving the standards) under 1 Rep Max mode. */
     val devResearch: Boolean = false,
+    /** Body fat picture you chose, 1 (leanest) to 5; null = not set (no adjustment). See [BodyFat]. */
+    val bodyFat: Int? = null,
     /** App accent colour (ARGB); the light blue by default. */
     val accent: Int = 0xFF2D8CFF.toInt(),
     /** Both-arm cable moves: how many stacks you use (1 or 2), by exercise id; missing = the exercise's usual number. */
@@ -245,7 +247,7 @@ object Json {
         .put("restSound", p.restSound).put("restVibrate", p.restVibrate).put("rankMode", p.rankMode)
         .put("dev", p.devUnlocked).put("devAi", p.devAi).put("range", p.homeRange).put("onb", p.onboarded).put("bk", p.cloud).put("cmp", p.compareAll).put("sort", p.exerciseSort).put("grip", p.gripRank)
         .put("gp", JSONObject(p.groupPicks.mapValues { JSONArray(it.value) } as Map<*, *>))
-        .put("xa", p.extraAnims).put("d1rm", p.dev1rm).put("dgem", p.devGemini).put("dres", p.devResearch).put("acc", p.accent)
+        .put("xa", p.extraAnims).put("d1rm", p.dev1rm).put("dgem", p.devGemini).put("dres", p.devResearch).putOpt2("bf", p.bodyFat).put("acc", p.accent)
         .put("lay", JSONObject(p.layouts.mapValues { JSONArray(it.value) } as Map<*, *>))
         .put("stk", JSONObject(p.stacks as Map<*, *>))
         .put("pul", JSONObject(p.pulleys as Map<*, *>))
@@ -263,6 +265,7 @@ object Json {
         dev1rm = o.optBoolean("d1rm"),
         devGemini = o.optBoolean("dgem"),
         devResearch = o.optBoolean("dres"),
+        bodyFat = o.optIntOrNull("bf")?.takeIf { it in 1..5 },
         accent = o.optInt("acc", 0xFF2D8CFF.toInt()),
         layouts = o.optJSONObject("lay")?.let { g -> g.keys().asSequence().associateWith { k -> g.getJSONArray(k).let { a -> List(a.length()) { a.getString(it) } } } } ?: emptyMap(),
         stacks = o.optJSONObject("stk")?.let { g -> g.keys().asSequence().associateWith { k -> g.getInt(k) } } ?: emptyMap(),

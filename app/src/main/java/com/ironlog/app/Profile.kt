@@ -161,6 +161,7 @@ fun SettingsScreen() {
             }
             Text("Disclaimer: Height doesn't factor into the ranking system.",
                 color = Sub, fontSize = 12.sp)
+            BodyFatDropdown(p) { set(Store.profile.value.copy(bodyFat = it)) }
 
             Spacer(10)
             Text("Units", fontWeight = FontWeight.Bold)

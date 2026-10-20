@@ -40,7 +40,9 @@ object Standards {
                 "Body weight and age aren't used. Source: international grip-strength norms from 2.4 million adults in 69 countries " +
                 "(Tomkinson et al. 2025), hand dynamometer. Your number is your best squeeze with either hand, as in the norms (each person's strongest reading)." + (s.note?.let { " $it" } ?: ""))
         }
-        val bw = p.bodyweight ?: return null
+        val bw0 = p.bodyweight ?: return null
+        // Body fat: compared as if you weighed a little more or less (see BodyFat).
+        val bw = BodyFat.compareWeight(p, bw0, s.reps)
         val rows = (if (p.male) s.male else s.female) ?: return null
         val problems = mutableListOf<String>()
         val lo = rows.first().first; val hi = rows.last().first
@@ -72,7 +74,9 @@ object Standards {
             f >= 0.995 -> "age ${p.age} (no adjustment needed)"
             else -> "age ${p.age} (standards × ${"%.2f".format(f)})"
         }
-        val compared = "Compared with $sex at your body weight of ${Units.weightU(bw)} ($near), $age." + (s.noteFor(p.male)?.let { " $it" } ?: "")
+        val weightText = if (bw == bw0) "your body weight of ${Units.weightU(bw)}"
+            else "a body weight of ${Units.weightU(bw)} (your ${Units.weightU(bw0)}, adjusted for body fat ${BodyFat.label(p)})"
+        val compared = "Compared with $sex at $weightText ($near), $age." + (s.noteFor(p.male)?.let { " $it" } ?: "")
         return Fit(rows, problems, compared)
     }
 
@@ -185,7 +189,7 @@ object Standards {
     fun levels(id: String, p: Profile): DoubleArray? {
         val rows = fit(id, p)?.rows ?: return null
         if (isFlat(id)) return rows.first().second.copyOf()
-        val bw = p.bodyweight ?: return null
+        val bw = BodyFat.compareWeight(p, p.bodyweight ?: return null, isReps(id))
         val f = ageFactor(p.age, p.male) * (table[id]?.factor ?: 1.0)
         return levelsAt(rows, bw).map { it * f }.toDoubleArray()
     }

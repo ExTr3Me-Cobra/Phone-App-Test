@@ -193,6 +193,7 @@ private fun AboutYouPage(p: Profile) {
         OutlinedTextField(inch, { inch = it; saveH() }, Modifier.weight(1f).typing(), label = { Text("in") }, singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
     }
+    BodyFatPicker(p) { set(Store.profile.value.copy(bodyFat = it)) }
 }
 
 @Composable

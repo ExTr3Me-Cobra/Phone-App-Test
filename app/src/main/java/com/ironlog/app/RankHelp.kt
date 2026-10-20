@@ -48,7 +48,8 @@ fun RankHelpScreen() {
                 Point("Your sex and body weight", "You're compared with people of your sex at your body weight (blended between the nearest rows, every 10 lb).")
                 Point("Your age", "Strength peaks from the early 20s to mid 30s. Younger or older, the levels are scaled by how strength changes with age among competition lifters.")
                 Point("Grip Dynamometer", "The exception: compared with everyone aged 20–39 of your sex (not just lifters); body weight and age aren't used.")
-                Para("Set your body weight, age and sex in Settings – ranks need them to be accurate.")
+                Point("Body fat", "Optional, picked from five pictures. Strength comes mostly from lean mass, so with more body fat than the typical lifter (picture 3) you're compared as if you weighed a little less, and leaner as if a little more – half the lean-mass difference, as extra weight also helps some lifts. Bodyweight moves go the other way: fat is extra weight to move, so fewer reps are expected. A rough allowance, not research on body fat itself.")
+                Para("Set your body weight, age, sex and body fat in Settings – ranks need them to be accurate.")
             }
 
             HelpCard("3. The stars") {
