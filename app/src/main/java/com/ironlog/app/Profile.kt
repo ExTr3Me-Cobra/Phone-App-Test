@@ -299,7 +299,7 @@ fun SettingsScreen() {
                     Column(Modifier.weight(1f)) {
                         androidx.compose.material3.Text("Edit app text")
                         androidx.compose.material3.Text("Tap any text to change its words, font size, position or width. Changes show straight away " +
-                            "(everywhere that exact text appears). Pause it from the pill at the bottom to tap around normally.",
+                            "(on that screen only, wherever that exact text appears there). Pause it from the pill at the bottom to tap around normally.",
                             color = Sub, fontSize = 13.sp)
                     }
                     androidx.compose.material3.Switch(AppText.on, { AppText.turn(it) })

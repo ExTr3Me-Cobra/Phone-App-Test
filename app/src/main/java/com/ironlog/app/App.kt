@@ -232,6 +232,9 @@ private fun Root() {
 
 @Composable
 private fun RouteScreen(route: Route) {
+    // Developer text edits apply per screen (see AppText).
+    val textScope = when (route) { is Route.Tabs -> "Tab${route.tab}"; else -> route::class.simpleName ?: "" }
+    androidx.compose.runtime.CompositionLocalProvider(LocalTextScope provides textScope) {
     when (route) {
         // The tab bar belongs to the tab screens, so it moves with them; the screen area never changes size
         // mid-transition (which made leaving screens jump for a frame or two).
@@ -266,6 +269,7 @@ private fun RouteScreen(route: Route) {
         Route.Share -> ShareScreen()
         is Route.OneRmTest -> OneRmTestScreen(route.id)
         Route.Research -> ResearchScreen()
+    }
     }
 }
 

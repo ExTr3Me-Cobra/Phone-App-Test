@@ -49,9 +49,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Developer: edit any text in the app right where it's shown. Changes show straight away (everywhere that exact text
+ * Developer: edit any text in the app right where it's shown. Changes show straight away (on the screen where you made them, wherever that exact text
  * appears) and can be exported as a list of "was → now" to build into the app.
  */
+/** The screen a text is on, so developer edits made on one screen don't change the same words on another. */
+val LocalTextScope = androidx.compose.runtime.staticCompositionLocalOf { "" }
+
 object AppText {
     private const val FILE = "app_text.json"
     /** Original text → your version. */
@@ -64,8 +67,14 @@ object AppText {
     /** Paused from the floating pill, so you can tap around normally. */
     var paused by mutableStateOf(false)
     val active get() = on && !paused
-    /** The text being edited in the editor panel (its original), or null. */
+    /** The text being edited in the editor panel (its key: screen + original), or null; and its original words. */
     var editing by mutableStateOf<String?>(null)
+    var editingText by mutableStateOf("")
+    private const val SEP = "\u0001"
+    /** Edits are kept per screen: "screen<SEP>text". Older edits without a screen still apply everywhere. */
+    fun key(scope: String, text: String) = if (scope.isEmpty()) text else scope + SEP + text
+    fun words(key: String, text: String) = edits[key] ?: edits[text] ?: text
+    private fun lookOf(key: String, text: String) = styles[key] ?: styles[text]
     private var loaded = false
 
     /** Size in sp (null = as designed), moved by dx/dy dp, box width in dp (null = as designed). */
@@ -84,10 +93,11 @@ object AppText {
             on = o.optBoolean("on")
             o.optJSONArray("edits")?.let { a ->
                 for (i in 0 until a.length()) a.getJSONObject(i).let { j ->
-                    j.optString("now", "").takeIf { j.has("now") }?.let { edits[j.getString("was")] = it }
+                    val k = j.optString("screen", "").let { sc -> key(sc, j.getString("was")) }
+                    j.optString("now", "").takeIf { j.has("now") }?.let { edits[k] = it }
                     val look = Look(if (j.has("size")) j.getDouble("size").toFloat() else null, j.optDouble("dx", 0.0).toFloat(),
                         j.optDouble("dy", 0.0).toFloat(), if (j.has("width")) j.getDouble("width").toFloat() else null)
-                    if (!look.isDefault) styles[j.getString("was")] = look
+                    if (!look.isDefault) styles[k] = look
                 }
             }
         }
@@ -97,42 +107,43 @@ object AppText {
 
     fun turn(v: Boolean) { on = v; paused = false; editing = null; save() }
 
-    fun set(original: String, now: String) {
-        if (now == original) edits.remove(original) else edits[original] = now
+    fun set(key: String, original: String, now: String) {
+        if (now == original) edits.remove(key) else edits[key] = now
         save()
     }
 
-    fun setLook(original: String, look: Look) {
-        if (look.isDefault) styles.remove(original) else styles[original] = look
+    fun setLook(key: String, look: Look) {
+        if (look.isDefault) styles.remove(key) else styles[key] = look
         save()
     }
 
-    fun reset(original: String) { edits.remove(original); styles.remove(original); save() }
+    /** Back to as designed here; also drops an older all-screens edit of the same words, if there is one. */
+    fun reset(key: String, original: String) { edits.remove(key); styles.remove(key); edits.remove(original); styles.remove(original); save() }
 
     fun clear() { edits.clear(); styles.clear(); save() }
 
     /** Every change: what it said, what you want it to say, and any size / move / width change. */
     fun export(): JSONArray = JSONArray((edits.keys + styles.keys).sorted().map { k ->
-        JSONObject().put("was", k).apply {
+        JSONObject().apply { if (SEP in k) { put("screen", k.substringBefore(SEP)); put("was", k.substringAfter(SEP)) } else put("was", k) }.apply {
             edits[k]?.let { put("now", it) }
             styles[k]?.let { l -> l.size?.let { put("size", it.toDouble()) }; if (l.dx != 0f) put("dx", l.dx.toDouble()); if (l.dy != 0f) put("dy", l.dy.toDouble()); l.width?.let { put("width", it.toDouble()) } }
         }
     })
 
     /** Your look changes applied to a text's modifier: moved, and a fixed box width. */
-    fun Modifier.look(original: String): Modifier {
-        val l = styles[original] ?: return this
+    fun Modifier.look(key: String, original: String): Modifier {
+        val l = lookOf(key, original) ?: return this
         return this.offset(l.dx.dp, l.dy.dp).then(if (l.width != null) Modifier.width(l.width.dp) else Modifier)
     }
-    fun size(original: String, designed: TextUnit): TextUnit = styles[original]?.size?.sp ?: designed
+    fun size(key: String, original: String, designed: TextUnit): TextUnit = lookOf(key, original)?.size?.sp ?: designed
 
     /** While editing: an outline and a tap that opens the editor (the innermost text wins over a button around it). */
-    fun Modifier.editable(original: String): Modifier {
+    fun Modifier.editable(key: String, original: String): Modifier {
         if (!active) return this
-        val changed = original in edits || original in styles
-        val tint = if (editing == original) Color(0xFFFFCC00) else if (changed) Green else Blue
+        val changed = key in edits || key in styles || original in edits || original in styles
+        val tint = if (editing == key) Color(0xFFFFCC00) else if (changed) Green else Blue
         return this.border(1.dp, tint.copy(alpha = 0.7f), RoundedCornerShape(4.dp)).background(tint.copy(alpha = 0.10f), RoundedCornerShape(4.dp))
-            .clickable { editing = original }
+            .clickable { editing = key; editingText = original }
     }
 }
 
@@ -157,9 +168,10 @@ fun Text(
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current,
 ) {
-    val shown = AppText.edits[text] ?: text
+    val k = AppText.key(LocalTextScope.current, text)
+    val shown = AppText.words(k, text)
     with(AppText) {
-    androidx.compose.material3.Text(text = shown, modifier = modifier.look(text).editable(text), color = color, fontSize = size(text, fontSize), fontStyle = fontStyle, fontWeight = fontWeight,
+    androidx.compose.material3.Text(text = shown, modifier = modifier.look(k, text).editable(k, text), color = color, fontSize = size(k, text, fontSize), fontStyle = fontStyle, fontWeight = fontWeight,
             fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight,
             overflow = overflow, softWrap = softWrap, maxLines = maxLines, minLines = minLines, onTextLayout = onTextLayout ?: {}, style = style)
     }
@@ -186,11 +198,11 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
 ) {
-    val edited = AppText.edits[text.text]
-    val key = text.text
+    val key = AppText.key(LocalTextScope.current, text.text)
+    val edited = AppText.words(key, text.text).takeIf { it != text.text }
     with(AppText) {
-    val m = modifier.look(key).editable(key)
-    val fs = size(key, fontSize)
+    val m = modifier.look(key, text.text).editable(key, text.text)
+    val fs = size(key, text.text, fontSize)
     // Your version is plain text (the original's coloured parts, like stars, aren't kept).
     if (edited != null) androidx.compose.material3.Text(text = edited, modifier = m, color = color, fontSize = fs, fontStyle = fontStyle, fontWeight = fontWeight,
             fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight,
@@ -213,15 +225,15 @@ fun AppTextPill() {
                 .clickable { AppText.paused = !AppText.paused; AppText.editing = null }.padding(horizontal = 12.dp, vertical = 6.dp),
         )
     }
-    AppText.editing?.takeIf { AppText.active }?.let { TextEditorPanel(it) }
+    AppText.editing?.takeIf { AppText.active }?.let { TextEditorPanel(it, AppText.editingText) }
 }
 
 /** The editor: the words, font size, move and box width, all live; Reset puts this text back as designed. */
 @Composable
-private fun TextEditorPanel(original: String) {
-    var words by remember(original) { mutableStateOf(AppText.edits[original] ?: original) }
-    val look = AppText.styles[original] ?: AppText.Look()
-    fun setLook(l: AppText.Look) = AppText.setLook(original, l)
+private fun TextEditorPanel(key: String, original: String) {
+    var words by remember(key) { mutableStateOf(AppText.words(key, original)) }
+    val look = AppText.styles[key] ?: AppText.styles[original] ?: AppText.Look()
+    fun setLook(l: AppText.Look) = AppText.setLook(key, l)
     @Composable fun Btn(label: String, onClick: () -> Unit) = androidx.compose.material3.Text(label, color = Color.White, fontSize = 15.sp,
         textAlign = TextAlign.Center, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Card2).clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 7.dp))
@@ -233,11 +245,11 @@ private fun TextEditorPanel(original: String) {
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 androidx.compose.material3.Text("Edit text", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                Btn("Reset") { AppText.reset(original); words = original }
+                Btn("Reset") { AppText.reset(key, original); words = original }
                 Spacer(Modifier.width(8.dp))
                 Btn("Done") { AppText.editing = null }
             }
-            BasicTextField(words, { words = it; AppText.set(original, it) },
+            BasicTextField(words, { words = it; AppText.set(key, original, it) },
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(8.dp)).background(Color.Black).padding(10.dp),
                 textStyle = TextStyle(color = Color.White, fontSize = 15.sp), cursorBrush = SolidColor(Blue))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -263,7 +275,7 @@ private fun TextEditorPanel(original: String) {
                 Btn("+") { setLook(look.copy(width = ((look.width ?: 200f) + 10f).coerceAtMost(600f))) }
                 if (look.width != null) Btn("Auto") { setLook(look.copy(width = null)) }
             }
-            androidx.compose.material3.Text("Changes show straight away, everywhere this exact text appears.", color = Sub, fontSize = 11.sp)
+            androidx.compose.material3.Text("Changes show straight away, on this screen only.", color = Sub, fontSize = 11.sp)
         }
     }
 }
