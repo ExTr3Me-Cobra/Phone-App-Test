@@ -111,7 +111,7 @@ fun RankHelpScreen() {
                 Point("Bodyweight moves", "Reps at each share of your max: Nuzzo et al. 2024, Sports Medicine (CC BY 4.0).")
                 Point("Estimates", "Exercises without their own research are estimated from four AI-generated databases (Claude, Gemini, ChatGPT and DeepSeek), each checked against the research lifts.")
                 Point("Grip", "Tomkinson et al. 2025, Journal of Sport and Health Science (CC BY 4.0): grip norms from 2.4 million adults in 69 countries.")
-                Point("Exercises", "Names, equipment and muscles: Free Exercise DB (Unlicense). Directions: some from wger.de contributors (CC BY-SA 3.0/4.0 or CC0, split into steps), the rest written for Loadout.")
+                Point("Exercises", "Names, equipment and muscles: Free Exercise DB (Unlicense). Directions: written for Loadout, some adapted from wger.de contributors (CC BY-SA 3.0/4.0 or CC0).")
             }
             Spacer(20)
         }

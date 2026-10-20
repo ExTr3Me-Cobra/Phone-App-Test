@@ -1,5 +1,6 @@
-"""Builds app/src/main/assets/exercises.json from the public-domain Free Exercise DB
-(github.com/yuhonas/free-exercise-db, saved as free-exercise-db.json) plus extra_exercises.py.
+"""Builds app/src/main/assets/exercises.json from exercise_facts.json (names, equipment and muscles from Free Exercise DB,
+github.com/yuhonas/free-exercise-db; its directions are not kept) plus extra_exercises.py. Directions come from
+exercise_text/directions.json (written for Loadout, some adapted from wger.de: see exercise_text/credits.json).
 
 - Adds three muscle groups: rotator cuff, serratus and grip, and moves exercises to them.
 - Fills in secondary muscles the source leaves out, by movement pattern.
@@ -105,12 +106,13 @@ def fix(ex):
     return ex
 
 
-src = json.load(open(os.path.join(HERE, 'free-exercise-db.json')))
+src = json.load(open(os.path.join(HERE, 'exercise_facts.json')))
+DIRECTIONS = json.load(open(os.path.join(HERE, 'exercise_text', 'directions.json')))
 out = []
 for x in src:
     eq = EQ[x['equipment']]
     out.append(fix({'i': x['id'], 'n': x['name'], 'e': eq, 't': kind(x['category'], eq, x['name']),
-                    'p': x['primaryMuscles'], 's': x['secondaryMuscles'], 'c': x['category'], 'h': x['instructions']}))
+                    'p': x['primaryMuscles'], 's': x['secondaryMuscles'], 'c': x['category'], 'h': []}))
 names = {e['n'].lower() for e in out}
 added = 0
 for (name, eq, t, p, s, cat, h) in EXTRA:
@@ -213,6 +215,7 @@ def no_em(v):
     if isinstance(v, dict): return {k: no_em(x) for k, x in v.items()}
     return v
 out = no_em(out)
+for e in out: e['h'] = DIRECTIONS.get(e['i'], e['h'])
 json.dump(out, open(OUT, 'w'), separators=(',', ':'), ensure_ascii=False)
 print('hidden:', sum(1 for e in out if e.get('x')), ' renamed:', len(RENAME), ' shown:', sum(1 for e in out if not e.get('x')))
 from collections import Counter
