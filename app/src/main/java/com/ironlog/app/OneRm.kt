@@ -321,6 +321,9 @@ fun OneRmListScreen() {
                         RankBadge(r.tier, 34.dp)
                         Text(r.tier.label, fontSize = 11.sp, color = Color(r.tier.color))
                     }
+                    // Info: the exercise's own page, as from the Exercises list.
+                    Text("ⓘ", color = Blue, fontSize = 20.sp, modifier = Modifier.padding(start = 6.dp).clip(RoundedCornerShape(8.dp)).background(Card2)
+                        .clickable { Nav.go(Route.ExerciseDetail(id)) }.padding(horizontal = 9.dp, vertical = 4.dp))
                     if (n == 0) Text("✕", color = Sub, modifier = Modifier.clickable { OneRm.remove(id); refresh++ }.padding(8.dp))
                 }
             }
@@ -393,9 +396,10 @@ fun OneRmTestScreen(id: String) {
         TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.quakeRattle(rattle, 0), verticalAlignment = Alignment.CenterVertically) {
-                ExerciseThumb(e, 64.dp)
+                // The picture or name opens the exercise's own page (the test carries on when you come back).
+                Box(Modifier.clickable { Nav.go(Route.ExerciseDetail(id)) }) { ExerciseThumb(e, 64.dp) }
                 Column(Modifier.padding(start = 12.dp)) {
-                    NameText(starredName(e), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    NameText(starredName(e), Modifier.clickable { Nav.go(Route.ExerciseDetail(id)) }, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Text(if (r != null) "Now: ${r.tier.label} (${topLabel(r.percentile)}) · ${fmt(r.value)}" else "Not ranked yet", color = Sub, fontSize = 13.sp)
                     Text(e.weightHint(), color = Sub, fontSize = 12.sp)
                     StackChip(e, Modifier.padding(top = 6.dp))
