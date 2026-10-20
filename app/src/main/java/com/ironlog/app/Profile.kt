@@ -382,6 +382,8 @@ fun SettingsScreen() {
             packMsg?.let { Text(it, color = Blue) }
 
                 }
+                // Replays the first-run welcome; your answers are already filled in and nothing else is reset.
+                GreyButton("Show the welcome screens again") { set(p.copy(onboarded = false)) }
                 GreyButton("Hide developer settings", textColor = Red) { set(p.copy(devUnlocked = false, devAi = false, dev1rm = false, devGemini = false, devResearch = false)) }
                 Spacer(8)
                 Text("Backup log", fontWeight = FontWeight.Bold)
