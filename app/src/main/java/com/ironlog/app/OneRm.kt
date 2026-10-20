@@ -314,8 +314,8 @@ fun OneRmListScreen() {
                     Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                         NameText(starredName(e), fontWeight = FontWeight.Medium)
                         val t = tests[id] ?: 0
-                        Text((if (n == 0) "Not completed yet" else "Completed $n time${if (n == 1) "" else "s"}") +
-                            (if (t > 0) " · 1RM tested ${if (t == 1) "once" else "$t times"}" else ""), color = Sub, fontSize = 12.sp)
+                        Text(if (n == 0) "Not completed yet" else "Completed $n time${if (n == 1) "" else "s"}", color = Sub, fontSize = 12.sp, maxLines = 1)
+                        if (t > 0) Text("1RM tested $t time${if (t == 1) "" else "s"}", color = Sub, fontSize = 12.sp, maxLines = 1)
                     }
                     // The rank sits in a fixed-width column, so the ⓘ button lines up whatever the rank's name.
                     Box(Modifier.width(84.dp), contentAlignment = Alignment.Center) {
