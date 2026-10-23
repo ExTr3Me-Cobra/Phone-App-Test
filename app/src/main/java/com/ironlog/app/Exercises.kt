@@ -118,6 +118,23 @@ fun PickerScreen(req: Route.Picker?) {
     val browsing = words.isEmpty() && equipment == null && muscle == null && showGold && showBlue && showAi && showNone
     val recent = if (browsing) Store.recentExerciseIds().mapNotNull { all[it] }.filter { req?.only?.invoke(it) != false } else emptyList()
 
+    // Create: a new exercise from scratch, or a copy of an existing one to edit.
+    var createMenu by remember { mutableStateOf(false) }
+    if (createMenu) AlertDialog(
+        onDismissRequest = { createMenu = false },
+        title = { Text("Create exercise") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                GreyButton("✚  New exercise from scratch") { createMenu = false; Nav.go(Route.EditExercise(null)) }
+                GreyButton("⧉  Duplicate and edit an existing one") {
+                    createMenu = false
+                    Nav.go(Route.Picker("Duplicate which exercise?", false) { ids -> ids.firstOrNull()?.let { Nav.go(Route.EditExercise(null, it)) } })
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = { createMenu = false }) { Text("Cancel") } },
+    )
+
     fun tap(e: Exercise) {
         when {
             req == null -> Nav.go(Route.ExerciseDetail(e.id))
@@ -127,7 +144,7 @@ fun PickerScreen(req: Route.Picker?) {
     }
 
     Column(Modifier.fillMaxSize()) {
-        TopBar(req?.title ?: "Exercises", action = "Create") { Nav.go(Route.EditExercise(null)) }
+        TopBar(req?.title ?: "Exercises", action = "Create") { createMenu = true }
         // While choosing: stays at the top as you scroll.
         if (req != null) Text(
             "Read Proper Form and How to log (tap ⓘ Info) before choosing, to make sure it's truly the exercise you're looking for and your ranks stay accurate.",
@@ -577,17 +594,19 @@ private fun sharesOf(values: List<Float>): List<Int> {
 /** Edit any exercise (built-in ones are saved as your version and can be reset), or create one. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun EditExerciseScreen(id: String?) {
+fun EditExerciseScreen(id: String?, copyOf: String? = null) {
     val existing = id?.let { Store.exercise(it) }
-    var name by remember { mutableStateOf(existing?.name ?: "") }
-    var equipment by remember { mutableStateOf(existing?.equipment ?: "Barbell") }
-    var type by remember { mutableStateOf(existing?.type ?: ExType.WEIGHT) }
-    var directions by remember { mutableStateOf(existing?.instructions?.joinToString("\n") ?: "") }
+    // Duplicating: start from a copy of another exercise, saved as a new one of your own.
+    val start = existing ?: copyOf?.let { Store.exercise(it) }
+    var name by remember { mutableStateOf(existing?.name ?: start?.let { it.name + " (copy)" } ?: "") }
+    var equipment by remember { mutableStateOf(start?.equipment ?: "Barbell") }
+    var type by remember { mutableStateOf(start?.type ?: ExType.WEIGHT) }
+    var directions by remember { mutableStateOf(start?.instructions?.joinToString("\n") ?: "") }
     val rows = remember {
         mutableStateListOf<MuscleRow>().apply {
-            val list = existing?.muscles?.entries?.sortedByDescending { it.value }.orEmpty()
+            val list = start?.muscles?.entries?.sortedByDescending { it.value }.orEmpty()
             val shares = sharesOf(list.map { it.value })
-            list.forEachIndexed { i, (m, v) -> add(MuscleRow(m, v >= 0.999f && Muscles.group(m) in existing!!.primary, shares[i])) }
+            list.forEachIndexed { i, (m, v) -> add(MuscleRow(m, v >= 0.999f && Muscles.group(m) in start!!.primary, shares[i])) }
         }
     }
     var adding by remember { mutableStateOf(false) }
@@ -599,7 +618,7 @@ fun EditExerciseScreen(id: String?) {
     val levels = rows.filter { it.share > 0 }.associate { it.muscle to it.share.toFloat() / topShare }
 
     Column(Modifier.fillMaxSize()) {
-        TopBar(if (existing == null) "Create Exercise" else "Edit Exercise", action = "Save") {
+        TopBar(if (existing != null) "Edit Exercise" else if (start != null) "Duplicate Exercise" else "Create Exercise", action = "Save") {
             when {
                 name.isBlank() -> error = "Give it a name."
                 credits > 0 -> error = "You have $credits% credits left – give them to muscles so the total is 100%."

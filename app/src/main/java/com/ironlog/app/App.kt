@@ -94,7 +94,7 @@ sealed interface Route {
     /** [confirm]: the button text when picking several (default "Add N exercises"). */
     class Picker(val title: String, val multi: Boolean, val confirm: String? = null, val only: ((Exercise) -> Boolean)? = null, val onPick: (List<String>) -> Unit) : Route
     data class ExerciseDetail(val id: String) : Route
-    data class EditExercise(val id: String?) : Route
+    data class EditExercise(val id: String?, val copyOf: String? = null) : Route
     data object Active : Route
     data class Summary(val id: String) : Route
     data class WorkoutDetail(val id: String) : Route
@@ -257,7 +257,7 @@ private fun RouteScreen(route: Route) {
         is Route.RoutineEdit -> RoutineEditScreen(route.id)
         is Route.Picker -> PickerScreen(route)
         is Route.ExerciseDetail -> ExerciseDetailScreen(route.id)
-        is Route.EditExercise -> EditExerciseScreen(route.id)
+        is Route.EditExercise -> EditExerciseScreen(route.id, route.copyOf)
         Route.Active -> ActiveWorkoutScreen()
         is Route.Summary -> SummaryScreen(route.id)
         is Route.WorkoutDetail -> WorkoutDetailScreen(route.id)

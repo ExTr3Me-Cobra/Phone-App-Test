@@ -197,7 +197,7 @@ const SINGLE = /goblet|pullover|swing|plie|one dumbbell|both hands|single dumbbe
 const r1 = v => Math.round(v * 10) / 10, std = [];
 // Not ranked: the sources split into groups far apart, with nothing to tell which is right.
 const NOT_RANKED = ['Muscle Up', 'Kipping Muscle Up', 'Calf Press'];
-for (const o of out) { if (NOT_RANKED.includes(o.e.exercise)) continue; const x = exById[o.e.exercise]; if (!x) throw new Error('not in exercises.json: ' + o.e.exercise); const m = o.sex.male, f = o.sex.female; if (!m && !f) continue;
+for (const o of out) { if (NOT_RANKED.includes(o.e.exercise)) continue; const x = exById[o.e.exercise]; if (!x) continue; /* removed from the exercise list */ const m = o.sex.male, f = o.sex.female; if (!m && !f) continue;
   // Stars can differ by sex (e.g. research on men only): a / ai are men's, af / aif women's when they differ.
   const sm = m || f, sf = f || m, star = s => ({ a: s.approx || null, ai: s.conf == 'purple' }), M = star(sm), F = star(sf);
   std.push({ i: x.i, lift: o.e.exercise, ln: o.e.exercise, m: m ? m.rows.map(r => r.map(r1)) : null, f: f ? f.rows.map(r => r.map(r1)) : null,
