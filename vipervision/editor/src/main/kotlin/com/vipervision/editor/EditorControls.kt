@@ -95,7 +95,11 @@ internal fun ValueWheel(
     val haptics = LocalHapticFeedback.current
     val density = LocalDensity.current
     val pxPerUnit = with(density) { 4.dp.toPx() }
+    // The gesture handlers below are created once, so they read these to always act on the
+    // currently selected adjustment.
     val currentValue by rememberUpdatedState(value)
+    val currentOnValueChange by rememberUpdatedState(onValueChange)
+    val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
     var dragValue by remember { mutableFloatStateOf(0f) }
 
     Canvas(
@@ -104,23 +108,23 @@ internal fun ValueWheel(
             .height(44.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onDoubleTap = {
-                    onValueChange(0)
-                    onValueChangeFinished()
+                    currentOnValueChange(0)
+                    currentOnValueChangeFinished()
                     haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 })
             }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
                     onDragStart = { dragValue = currentValue.toFloat() },
-                    onDragEnd = onValueChangeFinished,
-                    onDragCancel = onValueChangeFinished,
+                    onDragEnd = { currentOnValueChangeFinished() },
+                    onDragCancel = { currentOnValueChangeFinished() },
                     onHorizontalDrag = { change, dragAmount ->
                         change.consume()
                         val before = dragValue.roundToInt()
                         dragValue = (dragValue - dragAmount / pxPerUnit).coerceIn(-100f, 100f)
                         val after = dragValue.roundToInt()
                         if (after != before) {
-                            onValueChange(after)
+                            currentOnValueChange(after)
                             if (after == 0 || after % 10 == 0 || abs(after) == 100) {
                                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                             }
