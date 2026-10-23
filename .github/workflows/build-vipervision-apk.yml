@@ -13,10 +13,11 @@ on:
 permissions:
   contents: write
 
-# One build at a time, so every build signs with the same saved key.
+# One build at a time. A newer push cancels a build that's still running, since only the newest
+# version matters (the signing key already exists, so a cancelled build can't lose it).
 concurrency:
   group: vipervision-build
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
