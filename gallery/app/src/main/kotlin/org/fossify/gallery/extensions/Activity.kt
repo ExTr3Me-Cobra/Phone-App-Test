@@ -99,9 +99,14 @@ fun Activity.launchGesturePlayer(path: String, extras: HashMap<String, Boolean> 
 // Viper Vision: Image Toolbox's main screen, which is part of this same app.
 private const val IMAGE_TOOLBOX_ACTIVITY = "com.t8rin.imagetoolbox.app.presentation.AppActivity"
 
+// Viper Vision's own photo editor (vipervision/editor), also part of this app.
+private const val VIPER_EDITOR_ACTIVITY = "com.vipervision.editor.EditorActivity"
+private const val VIPER_EDITOR_REAL_PATH = "com.vipervision.editor.REAL_PATH"
+
 /**
- * Viper Vision: opens the image in Image Toolbox (built into this app) instead of Fossify's editor.
- * With [forceChooser], the system "Edit with" list is shown so other apps can be picked.
+ * Viper Vision: opens the image in Viper Vision's editor instead of Fossify's (GIFs go to Image
+ * Toolbox, which can edit animations). With [forceChooser], the system "Edit with" list is shown
+ * so other apps can be picked.
  */
 fun Activity.openEditor(path: String, forceChooser: Boolean = false) {
     val newPath = path.removePrefix("file://")
@@ -112,9 +117,15 @@ fun Activity.openEditor(path: String, forceChooser: Boolean = false) {
 
     ensureBackgroundThread {
         val uri = getFinalUriFromPath(newPath, BuildConfig.APPLICATION_ID) ?: return@ensureBackgroundThread
+        val mimeType = getUriMimeType(newPath, uri)
         Intent(Intent.ACTION_EDIT).apply {
-            setClassName(packageName, IMAGE_TOOLBOX_ACTIVITY)
-            setDataAndType(uri, getUriMimeType(newPath, uri))
+            if (mimeType.contains("gif", ignoreCase = true)) {
+                setClassName(packageName, IMAGE_TOOLBOX_ACTIVITY)
+            } else {
+                setClassName(packageName, VIPER_EDITOR_ACTIVITY)
+                putExtra(VIPER_EDITOR_REAL_PATH, newPath)
+            }
+            setDataAndType(uri, mimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             try {
                 startActivity(this)

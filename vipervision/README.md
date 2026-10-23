@@ -7,7 +7,7 @@ One Android app made from three open-source projects:
 | `gallery/` | Fossify Gallery: browsing, viewing and organising photos | [FossifyOrg/Gallery](https://github.com/FossifyOrg/Gallery) | 1.14.0, commit `a089289` | GPL-3.0 |
 | `fossify-commons/` | Fossify Commons: shared screens, dialogs and themes that Gallery is built on | [FossifyOrg/Commons](https://github.com/FossifyOrg/Commons) | 7.1.3, commit `227e7d3` | GPL-3.0 |
 | `imagetoolbox/` | Image Toolbox: the photo editor (and the build root) | [T8RIN/ImageToolbox](https://github.com/T8RIN/ImageToolbox) | 4.3.0-beta03, commit `7b81a24` | Apache-2.0 |
-| `vipervision/` | The glue: app name/ID, build files for Gallery and Commons, app icon | (this repo) | | |
+| `vipervision/` | Viper Vision's own code: the photo editor, app name/ID, build files for Gallery and Commons, app icon | (this repo) | | |
 
 The combined app is GPL-3.0 (Apache-2.0 code can be included in a GPL-3.0 app).
 
@@ -21,6 +21,28 @@ The combined app is GPL-3.0 (Apache-2.0 code can be included in a GPL-3.0 app).
   source in `gallery/` and `fossify-commons/`, so that code stays in its own folders.
 * Image Toolbox's `Application` class is the only one; it calls `ViperVisionGallery.init()`
   (in `vipervision/gallery/src/`) to do the startup work Gallery's own `App` class used to do.
+
+## The editor (`vipervision/editor`)
+
+Viper Vision's own photo editor, styled after Samsung's: the photo as large as the screen allows
+(press and hold it to compare with the original), and along the bottom:
+
+* **Auto** (sparkle): one-tap automatic brightness, contrast, highlights, shadows and colour.
+* **Rotate and crop**: rotate left/right and flip here; **Crop…** opens Image Toolbox's tools.
+* **Filters**: one-tap looks (Vivid, Warm, Cool, Fade, Dramatic, Mono, Noir).
+* **Adjust**: round "bubbles" for Brightness, Exposure, Contrast, Highlights, Shadows, Saturation,
+  Warmth, Tint, Sharpness and Vignette, each from -100 to 100, set with the tick-mark wheel
+  (double-tap the wheel to reset). **Auto** fills them in automatically.
+* **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
+
+Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
+photo named `<original>_edited` in the same folder (or `Pictures/Viper Vision` if Android doesn't
+allow that folder), keeping the date, camera details and location. Gallery's **Edit** button opens
+this editor for every image except GIFs, which still go to Image Toolbox.
+
+Code: `Adjustments.kt` (the image maths, run on the CPU across all cores), `EditorController.kt`
+(state, undo/redo, looks), `EditorScreen.kt` and `EditorControls.kt` (UI), `ImageFiles.kt`
+(loading and saving), `EditorActivity.kt` (entry point).
 
 ## The icon
 

@@ -171,6 +171,8 @@ dependencies {
 
     // Viper Vision: Fossify Gallery (photo browsing), opened from the launcher icon.
     implementation(projects.vipervisionGallery)
+    // Viper Vision: the Samsung-style photo editor Gallery opens for Edit.
+    implementation(projects.vipervisionEditor)
 
     implementation(projects.feature.root)
     implementation(projects.feature.mediaPicker)

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name=".EditorActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- Hands the edited photo to Image Toolbox's tools (More tab). -->
+        <provider
+            android:name=".EditorFileProvider"
+            android:authorities="${applicationId}.vveditor"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/vv_editor_paths" />
+        </provider>
+    </application>
+
+</manifest>

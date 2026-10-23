@@ -142,3 +142,6 @@ include(":vipervision-gallery")
 project(":vipervision-gallery").projectDir = file("../vipervision/gallery")
 include(":fossify-commons")
 project(":fossify-commons").projectDir = file("../vipervision/commons")
+// Viper Vision's own photo editor (what Gallery's Edit button opens).
+include(":vipervision-editor")
+project(":vipervision-editor").projectDir = file("../vipervision/editor")
