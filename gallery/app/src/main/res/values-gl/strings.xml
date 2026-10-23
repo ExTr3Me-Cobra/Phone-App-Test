@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Reordealos cartafoles arrastrando (Pro)</string>
     <string name="restore_to_path">Restaurando a \'%s\'</string>
     <string name="filter_media">Filtrar medios</string>
-    <string name="images">Imaxes</string>
+    <string name="gallery_images">Imaxes</string>
     <string name="videos">Vídeos</string>
     <string name="raw_images">Imaxes RAW</string>
     <string name="portraits">Retratos</string>
@@ -56,8 +56,8 @@
 \nEngadindo aquí elementos non eliminarás outros.</string>
     <string name="no_media_add_included">Non se atopou ningún ficheiro multimedia. Podes solucionalo engadindo manualmente algúns cartafoles con eses ficheiros.</string>
     <string name="resize_and_save">Selección da redimensión e gardar</string>
-    <string name="width">Ancho</string>
-    <string name="height">Alto</string>
+    <string name="gallery_width">Ancho</string>
+    <string name="gallery_height">Alto</string>
     <string name="keep_aspect_ratio">Manter proporcións</string>
     <string name="invalid_values">Por favor escribe unha resolución válida</string>
     <string name="resize_multiple_images">Cambiar tamaño a varias imaxes</string>

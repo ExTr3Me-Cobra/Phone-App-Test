@@ -13,7 +13,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_margin"
-        android:hint="@string/width">
+        android:hint="@string/gallery_width">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/resize_image_width"
@@ -47,7 +47,7 @@
         android:layout_alignTop="@+id/resize_image_width_hint"
         android:layout_alignBottom="@+id/resize_image_width_hint"
         android:layout_toEndOf="@+id/resize_image_colon"
-        android:hint="@string/height">
+        android:hint="@string/gallery_height">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/resize_image_height"

@@ -30,7 +30,7 @@
     <string name="set_as_default_folder">ডিফল্ট ফোল্ডার হিশেবে সেট করুন</string>
     <string name="unset_as_default_folder">ডিফল্ট ফোল্ডার হিশেবে আর রাখবেন না</string>
     <string name="filter_media">মিডিয়া ফিল্টার করুন</string>
-    <string name="images">ছবিসমূহ</string>
+    <string name="gallery_images">ছবিসমূহ</string>
     <string name="videos">ভিডিওসমূহ</string>
     <string name="gifs">গিফসমূহ</string>
     <string name="raw_images">র ছবিসমূহ</string>
@@ -45,8 +45,8 @@
     <string name="manage_included_folders">অন্তর্ভুক্ত ফোল্ডার ব্যবস্থাপনা করুন</string>
     <string name="add_folder">ফোল্ডার যোগ করুন</string>
     <string name="resize_and_save">নির্বাচিতগুলোর আকার পরিবর্তন ও সংরক্ষণ করুন।</string>
-    <string name="width">প্রস্থ</string>
-    <string name="height">দৈর্ঘ্য</string>
+    <string name="gallery_width">প্রস্থ</string>
+    <string name="gallery_height">দৈর্ঘ্য</string>
     <string name="keep_aspect_ratio">অনুপাত রাখুন</string>
     <string name="invalid_values">দয়া করে একটি বৈধ রেজোলিউশন দিন।</string>
     <string name="editor">সম্পাদক</string>

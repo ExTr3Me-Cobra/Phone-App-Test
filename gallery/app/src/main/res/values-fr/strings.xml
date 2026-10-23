@@ -56,8 +56,8 @@
 \nCet ajout n\'exclura aucun autre dossier.</string>
     <string name="no_media_add_included">Aucun fichier multimédia n\'a été trouvé. Vous pouvez ajouter manuellement des dossiers contenant des fichiers multimédia.</string>
     <string name="resize_and_save">Redimensionner la sélection et enregistrer</string>
-    <string name="width">Largeur</string>
-    <string name="height">Hauteur</string>
+    <string name="gallery_width">Largeur</string>
+    <string name="gallery_height">Hauteur</string>
     <string name="keep_aspect_ratio">Conserver le rapport d\'affichage</string>
     <string name="invalid_values">Veuillez entrer une résolution valide</string>
     <string name="resize_multiple_images">Redimensionner plusieurs images</string>
@@ -246,7 +246,7 @@
     <string name="faq_18_title">Pourquoi des publicités apparaissent elles pendant la lecture d\'une vidéo ?</string>
     <string name="faq_18_text">Nos applications ne comportent aucune publicité. Si vous en voyez pendant la lecture d\'une vidéo, vous devez sûrement utiliser le lecteur vidéo d\'une autre application. Essayez de trouver le lecteur vidéo par défaut dans les paramètres de votre appareil, puis faites "Supprimer les valeurs par défaut". Lors du prochain lancement d\'une vidéo, une invite de sélection d\'application s\'affichera, et vous pourrez choisir l\'application que vous souhaitez utiliser.</string>
     <string name="volume">Volume</string>
-    <string name="images">Images</string>
+    <string name="gallery_images">Images</string>
     <string name="portraits">Portraits</string>
     <string name="by_extension">Extension</string>
     <string name="animation">Animation</string>

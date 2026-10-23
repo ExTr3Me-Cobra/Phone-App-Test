@@ -1,0 +1,680 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.markup_layers.data.project
+
+import android.net.Uri
+import androidx.core.net.toUri
+import com.t8rin.imagetoolbox.core.domain.image.model.BlendingMode
+import com.t8rin.imagetoolbox.core.domain.model.GradientFill
+import com.t8rin.imagetoolbox.core.domain.model.GradientGeometry
+import com.t8rin.imagetoolbox.core.domain.model.GradientPalette
+import com.t8rin.imagetoolbox.core.domain.model.GradientType
+import com.t8rin.imagetoolbox.core.domain.model.IntegerSize
+import com.t8rin.imagetoolbox.core.domain.model.Outline
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.settings.domain.SettingsManager
+import com.t8rin.imagetoolbox.core.settings.domain.model.DomainFontFamily
+import com.t8rin.imagetoolbox.core.settings.domain.model.FontType
+import com.t8rin.imagetoolbox.core.settings.presentation.model.UiFontFamily
+import com.t8rin.imagetoolbox.core.settings.presentation.model.asFontType
+import com.t8rin.imagetoolbox.core.settings.presentation.model.asUi
+import com.t8rin.imagetoolbox.core.ui.utils.helper.entries
+import com.t8rin.imagetoolbox.core.utils.appContext
+import com.t8rin.imagetoolbox.core.utils.extension
+import com.t8rin.imagetoolbox.core.utils.getString
+import com.t8rin.imagetoolbox.core.utils.makeLog
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.DropShadow
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.LayerPosition
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.LayerType
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.MarkupLayer
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.MarkupProject
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.MarkupProjectHistorySnapshot
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.MarkupProjectResult
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.ProjectBackground
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.TextGeometricTransform
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.arrowAngle
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.arrowSizeScale
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.cornerRadius
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.innerRadiusRatio
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.isRegular
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.layerCornerRadiusPercent
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.ordinal
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.outlinedFillColorInt
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.resolveMarkupLayerShapeMode
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.rotationDegrees
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.updateArrow
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.updatePolygon
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.updateRect
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.updateStar
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.vertices
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.withImageBackgroundLayer
+import com.t8rin.imagetoolbox.feature.markup_layers.domain.withOutlinedFillColor
+import java.io.File
+import javax.inject.Inject
+
+internal class MarkupMapper @Inject constructor(
+    private val settingsManager: SettingsManager
+) {
+
+    fun map(project: MarkupProject, registry: AssetRegistry) = project.toSnapshot(registry)
+
+    suspend fun map(
+        project: MarkupProjectFile,
+        extractionDir: File
+    ) = project.toDomain(extractionDir)
+
+    private fun MarkupProject.toSnapshot(
+        assetRegistry: AssetRegistry
+    ): MarkupProjectFile = MarkupProjectFile(
+        version = MarkupProjectVersion,
+        background = background.toSnapshot(assetRegistry),
+        layers = layers.toSnapshotList(assetRegistry, prefix = "layer"),
+        lastLayers = lastLayers.toSnapshotList(assetRegistry, prefix = "last"),
+        undoneLayers = undoneLayers.toSnapshotList(assetRegistry, prefix = "undone"),
+        history = history.toEditorSnapshots(assetRegistry, prefix = "history"),
+        redoHistory = redoHistory.toEditorSnapshots(assetRegistry, prefix = "redo")
+    )
+
+    private suspend fun MarkupProjectFile.toDomain(
+        extractionDir: File
+    ): MarkupProjectResult {
+        if (version !in 1..MarkupProjectVersion) {
+            return MarkupProjectResult.Error.UnsupportedVersion(
+                version = version,
+                message = getString(R.string.unsupported_markup_project_version, version)
+            )
+        }
+
+        return MarkupProjectResult.Success(
+            project = MarkupProject(
+                background = background.toDomain(extractionDir),
+                layers = layers.toDomainLayers(extractionDir),
+                lastLayers = lastLayers.toDomainLayers(extractionDir),
+                undoneLayers = undoneLayers.toDomainLayers(extractionDir),
+                history = history.toDomainSnapshots(extractionDir),
+                redoHistory = redoHistory.toDomainSnapshots(extractionDir)
+            ).withImageBackgroundLayer()
+        )
+    }
+
+    private fun List<MarkupProjectHistorySnapshot>.toEditorSnapshots(
+        assetRegistry: AssetRegistry,
+        prefix: String
+    ): List<EditorSnapshot> = mapIndexed { index, snapshot ->
+        snapshot.toSnapshot(
+            assetRegistry = assetRegistry,
+            prefix = "$prefix-$index"
+        )
+    }
+
+    private fun MarkupProjectHistorySnapshot.toSnapshot(
+        assetRegistry: AssetRegistry,
+        prefix: String
+    ): EditorSnapshot = EditorSnapshot(
+        background = background.toSnapshot(assetRegistry),
+        layers = layers.toSnapshotList(
+            assetRegistry = assetRegistry,
+            prefix = prefix
+        )
+    )
+
+    private fun List<MarkupLayer>.toSnapshotList(
+        assetRegistry: AssetRegistry,
+        prefix: String
+    ): List<LayerSnapshot> = mapIndexed { index, layer ->
+        layer.toSnapshot(
+            index = index,
+            assetRegistry = assetRegistry,
+            prefix = prefix
+        )
+    }
+
+    private fun ProjectBackground.toSnapshot(
+        assetRegistry: AssetRegistry
+    ): BackgroundSnapshot = when (this) {
+        is ProjectBackground.Color -> BackgroundSnapshot(
+            type = BackgroundType.Color,
+            width = width,
+            height = height,
+            color = color,
+            gradientPalette = gradient?.palette?.toSerializedString(),
+            gradientAngle = gradient?.angle ?: 0f,
+            gradientType = gradient?.type?.name,
+            gradientCenterX = gradient?.centerX ?: 0.5f,
+            gradientCenterY = gradient?.centerY ?: 0.5f,
+            gradientRadius = gradient?.radius ?: 1f
+        )
+
+        is ProjectBackground.Image -> {
+            val source = uri
+            val entryName = assetRegistry.register(
+                source = source,
+                proposedEntryName = assetEntryName(
+                    prefix = "background",
+                    extension = sourceExtension(source)
+                )
+            )
+            BackgroundSnapshot(
+                type = BackgroundType.Image,
+                assetPath = entryName
+            )
+        }
+
+        ProjectBackground.None -> BackgroundSnapshot(type = BackgroundType.None)
+    }
+
+    private fun MarkupLayer.toSnapshot(
+        index: Int,
+        assetRegistry: AssetRegistry,
+        prefix: String
+    ): LayerSnapshot {
+        val layerType = type
+        return LayerSnapshot(
+            type = layerType.toSnapshotType(),
+            position = position.toSnapshot(),
+            contentWidth = contentSize.width,
+            contentHeight = contentSize.height,
+            visibleLineCount = visibleLineCount,
+            cornerRadiusPercent = layerType.layerCornerRadiusPercent(cornerRadiusPercent),
+            isLocked = isLocked,
+            isBackground = isBackground,
+            blendingMode = blendingMode.value,
+            text = (layerType as? LayerType.Text)?.toSnapshot(
+                assetRegistry = assetRegistry,
+                fontPrefix = "$prefix-$index-font"
+            ),
+            picture = layerType.toPictureSnapshot(
+                assetRegistry = assetRegistry,
+                prefix = "$prefix-$index"
+            ),
+            shape = (layerType as? LayerType.Shape)?.toSnapshot(),
+            groupedLayers = groupedLayers.toSnapshotList(
+                assetRegistry = assetRegistry,
+                prefix = "$prefix-$index-group"
+            )
+        )
+    }
+
+    private fun LayerPosition.toSnapshot(): PositionSnapshot = PositionSnapshot(
+        scale = scale,
+        rotation = rotation,
+        isFlippedHorizontally = isFlippedHorizontally,
+        isFlippedVertically = isFlippedVertically,
+        offsetX = offsetX,
+        offsetY = offsetY,
+        alpha = alpha,
+        canvasWidth = currentCanvasSize.width,
+        canvasHeight = currentCanvasSize.height,
+        coerceToBounds = coerceToBounds,
+        isVisible = isVisible
+    )
+
+    private fun LayerType.toSnapshotType(): LayerSnapshotType = when (this) {
+        is LayerType.Text -> LayerSnapshotType.Text
+        is LayerType.Picture.Image -> LayerSnapshotType.Image
+        is LayerType.Picture.Sticker -> LayerSnapshotType.Sticker
+        is LayerType.Shape -> LayerSnapshotType.Shape
+    }
+
+    private fun LayerType.Text.toSnapshot(
+        assetRegistry: AssetRegistry,
+        fontPrefix: String
+    ): TextSnapshot = TextSnapshot(
+        color = color,
+        size = size,
+        font = font?.toSnapshot(
+            assetRegistry = assetRegistry,
+            prefix = fontPrefix
+        ),
+        backgroundColor = backgroundColor,
+        text = text,
+        decorations = decorations.map(Enum<*>::name),
+        outline = outline?.toSnapshot(),
+        alignment = alignment.name,
+        geometricTransform = geometricTransform?.toSnapshot(),
+        shadow = shadow?.toSnapshot(),
+        gradientPalette = gradientPalette?.toSerializedString(),
+        backgroundGradientPalette = backgroundGradientPalette?.toSerializedString(),
+        outlineGradientPalette = outlineGradientPalette?.toSerializedString(),
+        backgroundGradientType = backgroundGradientGeometry.type.name,
+        backgroundGradientAngle = backgroundGradientGeometry.angle,
+        backgroundGradientCenterX = backgroundGradientGeometry.centerX,
+        backgroundGradientCenterY = backgroundGradientGeometry.centerY,
+        backgroundGradientRadius = backgroundGradientGeometry.radius
+    )
+
+    private fun LayerType.toPictureSnapshot(
+        assetRegistry: AssetRegistry,
+        prefix: String
+    ): PictureSnapshot? = when (this) {
+        is LayerType.Picture.Image -> {
+            val source = imageData.toPersistableSource()
+            val entryName = assetRegistry.register(
+                source = source,
+                proposedEntryName = assetEntryName(
+                    prefix = prefix,
+                    extension = sourceExtension(source)
+                )
+            )
+            PictureSnapshot(
+                assetPath = entryName,
+                shadow = shadow?.toSnapshot()
+            )
+        }
+
+        is LayerType.Picture.Sticker -> PictureSnapshot(
+            value = imageData.toString(),
+            shadow = shadow?.toSnapshot()
+        )
+
+        is LayerType.Text,
+        is LayerType.Shape -> null
+    }
+
+    private fun LayerType.Shape.toSnapshot(): ShapeSnapshot = ShapeSnapshot(
+        modeName = shapeMode.kind.name,
+        modeOrdinal = shapeMode.ordinal,
+        color = color,
+        strokeWidth = strokeWidth,
+        widthRatio = widthRatio,
+        heightRatio = heightRatio,
+        isPaddingEnabled = isPaddingEnabled,
+        fillColor = shapeMode.outlinedFillColorInt(),
+        rotationDegrees = shapeMode.rotationDegrees(),
+        cornerRadius = shapeMode.cornerRadius(),
+        vertices = shapeMode.vertices(),
+        isRegular = shapeMode.isRegular(),
+        innerRadiusRatio = shapeMode.innerRadiusRatio(),
+        sizeScale = shapeMode.arrowSizeScale(),
+        angle = shapeMode.arrowAngle(),
+        shadow = shadow?.toSnapshot(),
+        gradientPalette = gradientPalette?.toSerializedString(),
+        fillGradientPalette = fillGradientPalette?.toSerializedString(),
+        gradientType = gradientGeometry.type.name,
+        fillGradientType = fillGradientGeometry.type.name,
+        gradientAngle = gradientGeometry.angle,
+        gradientCenterX = gradientGeometry.centerX,
+        gradientCenterY = gradientGeometry.centerY,
+        gradientRadius = gradientGeometry.radius,
+        fillGradientAngle = fillGradientGeometry.angle,
+        fillGradientCenterX = fillGradientGeometry.centerX,
+        fillGradientCenterY = fillGradientGeometry.centerY,
+        fillGradientRadius = fillGradientGeometry.radius
+    )
+
+    private fun Outline.toSnapshot(): OutlineSnapshot = OutlineSnapshot(
+        color = color,
+        width = width
+    )
+
+    private fun TextGeometricTransform.toSnapshot(): TextGeometricTransformSnapshot =
+        TextGeometricTransformSnapshot(
+            scaleX = scaleX,
+            skewX = skewX
+        )
+
+    private fun DropShadow.toSnapshot(): DropShadowSnapshot = DropShadowSnapshot(
+        color = color,
+        offsetX = offsetX,
+        offsetY = offsetY,
+        blurRadius = blurRadius
+    )
+
+    private suspend fun List<LayerSnapshot>.toDomainLayers(
+        extractionDir: File
+    ): List<MarkupLayer> = map { it.toDomain(extractionDir) }
+
+    private suspend fun List<EditorSnapshot>.toDomainSnapshots(
+        extractionDir: File
+    ): List<MarkupProjectHistorySnapshot> = map { snapshot ->
+        MarkupProjectHistorySnapshot(
+            background = snapshot.background.toDomain(extractionDir),
+            layers = snapshot.layers.toDomainLayers(extractionDir)
+        )
+    }
+
+    private fun BackgroundSnapshot.toDomain(
+        extractionDir: File
+    ): ProjectBackground = when (type) {
+        BackgroundType.Image -> ProjectBackground.Image(
+            uri = File(extractionDir, assetPath.orEmpty()).toUri().toString()
+        )
+
+        BackgroundType.Color -> ProjectBackground.Color(
+            width = width ?: 1,
+            height = height ?: 1,
+            color = color ?: 0,
+            gradient = gradientPalette?.let(GradientPalette::fromSerializedString)?.let {
+                GradientFill(
+                    palette = it,
+                    angle = gradientAngle,
+                    type = gradientType.toGradientType(),
+                    centerX = gradientCenterX,
+                    centerY = gradientCenterY,
+                    radius = gradientRadius
+                )
+            }
+        )
+
+        BackgroundType.None -> ProjectBackground.None
+    }
+
+    private suspend fun LayerSnapshot.toDomain(
+        extractionDir: File
+    ): MarkupLayer {
+        val layerType = toDomainType(extractionDir)
+        return MarkupLayer(
+            type = layerType,
+            position = position.toDomain(),
+            contentSize = IntegerSize(
+                width = (contentWidth ?: 0).coerceAtLeast(0),
+                height = (contentHeight ?: 0).coerceAtLeast(0)
+            ),
+            visibleLineCount = visibleLineCount,
+            cornerRadiusPercent = layerType.layerCornerRadiusPercent(cornerRadiusPercent),
+            isLocked = isLocked,
+            isBackground = isBackground,
+            blendingMode = BlendingMode.entries.find { it.value == blendingMode }
+                ?: BlendingMode.SrcOver,
+            groupedLayers = groupedLayers.toDomainLayers(extractionDir)
+        )
+    }
+
+    private suspend fun LayerSnapshot.toDomainType(
+        extractionDir: File
+    ): LayerType = when (type) {
+        LayerSnapshotType.Text -> {
+            val value = text ?: error("Missing text layer data")
+            value.toDomain(extractionDir)
+        }
+
+        LayerSnapshotType.Image -> LayerType.Picture.Image(
+            imageData = File(extractionDir, picture?.assetPath.orEmpty()).toUri().toString(),
+            shadow = picture?.shadow?.toDomain()
+        )
+
+        LayerSnapshotType.Sticker -> LayerType.Picture.Sticker(
+            imageData = picture?.value.orEmpty(),
+            shadow = picture?.shadow?.toDomain()
+        )
+
+        LayerSnapshotType.Shape -> {
+            val value = shape ?: error("Missing shape layer data")
+            value.toDomain()
+        }
+    }
+
+    private suspend fun TextSnapshot.toDomain(
+        extractionDir: File
+    ): LayerType.Text = LayerType.Text(
+        color = color,
+        size = size,
+        font = font?.toDomain(extractionDir),
+        backgroundColor = backgroundColor,
+        text = text,
+        decorations = decorations.toDomainDecorations(),
+        outline = outline?.toDomain(),
+        alignment = alignment.toDomainAlignment(),
+        geometricTransform = geometricTransform?.toDomain(),
+        shadow = shadow?.toDomain(),
+        gradientPalette = gradientPalette?.let(GradientPalette::fromSerializedString),
+        backgroundGradientPalette = backgroundGradientPalette?.let(GradientPalette::fromSerializedString),
+        outlineGradientPalette = outlineGradientPalette?.let(GradientPalette::fromSerializedString),
+        backgroundGradientGeometry = backgroundGradientType.toGradientGeometry(
+            backgroundGradientAngle,
+            backgroundGradientCenterX,
+            backgroundGradientCenterY,
+            backgroundGradientRadius
+        )
+    )
+
+    private fun ShapeSnapshot.toDomain(): LayerType.Shape {
+        val baseMode = resolveMarkupLayerShapeMode(
+            modeName = modeName,
+            modeOrdinal = modeOrdinal
+        )
+
+        val shapeMode = baseMode
+            .updateArrow(
+                sizeScale = sizeScale,
+                angle = angle
+            )
+            .updateRect(
+                rotationDegrees = rotationDegrees,
+                cornerRadius = cornerRadius
+            )
+            .updatePolygon(
+                vertices = vertices,
+                rotationDegrees = rotationDegrees,
+                isRegular = isRegular
+            )
+            .updateStar(
+                vertices = vertices,
+                innerRadiusRatio = innerRadiusRatio,
+                rotationDegrees = rotationDegrees,
+                isRegular = isRegular
+            )
+            .withOutlinedFillColor(fillColor)
+
+        return LayerType.Shape(
+            shapeMode = shapeMode,
+            color = color,
+            strokeWidth = strokeWidth,
+            widthRatio = widthRatio,
+            heightRatio = heightRatio,
+            isPaddingEnabled = isPaddingEnabled,
+            shadow = shadow?.toDomain(),
+            gradientPalette = gradientPalette?.let(GradientPalette::fromSerializedString),
+            fillGradientPalette = fillGradientPalette?.let(GradientPalette::fromSerializedString),
+            gradientGeometry = gradientType.toGradientGeometry(
+                gradientAngle, gradientCenterX, gradientCenterY, gradientRadius
+            ),
+            fillGradientGeometry = fillGradientType.toGradientGeometry(
+                fillGradientAngle, fillGradientCenterX, fillGradientCenterY, fillGradientRadius
+            )
+        )
+    }
+
+    private fun List<String>.toDomainDecorations(): List<LayerType.Text.Decoration> {
+        return mapNotNull { value ->
+            runCatching {
+                LayerType.Text.Decoration.valueOf(value)
+            }.onFailure(Throwable::makeLog).getOrNull()
+        }
+    }
+
+    private fun String.toDomainAlignment(): LayerType.Text.Alignment {
+        return runCatching {
+            LayerType.Text.Alignment.valueOf(this)
+        }.getOrDefault(LayerType.Text.Alignment.Start)
+    }
+
+    private fun PositionSnapshot.toDomain(): LayerPosition = LayerPosition(
+        scale = scale,
+        rotation = rotation,
+        isFlippedHorizontally = isFlippedHorizontally,
+        isFlippedVertically = isFlippedVertically,
+        offsetX = offsetX,
+        offsetY = offsetY,
+        alpha = alpha,
+        currentCanvasSize = IntegerSize(
+            width = canvasWidth,
+            height = canvasHeight
+        ),
+        coerceToBounds = coerceToBounds,
+        isVisible = isVisible
+    )
+
+    private fun OutlineSnapshot.toDomain(): Outline = Outline(
+        color = color,
+        width = width
+    )
+
+    private fun TextGeometricTransformSnapshot.toDomain(): TextGeometricTransform =
+        TextGeometricTransform(
+            scaleX = scaleX,
+            skewX = skewX
+        )
+
+    private fun DropShadowSnapshot.toDomain(): DropShadow = DropShadow(
+        color = color,
+        offsetX = offsetX,
+        offsetY = offsetY,
+        blurRadius = blurRadius
+    )
+
+    private fun FontType.toSnapshot(
+        assetRegistry: AssetRegistry,
+        prefix: String
+    ): FontSnapshot =
+        when (this) {
+            is FontType.File -> {
+                val source = path
+                val fileName = File(path).name.takeIf(String::isNotBlank)
+                    ?: "$prefix.ttf"
+                val entryName = assetRegistry.register(
+                    source = source,
+                    proposedEntryName = "assets/fonts/$prefix/$fileName"
+                )
+                FontSnapshot(
+                    type = FontSnapshotType.File,
+                    path = path,
+                    assetPath = entryName,
+                    filename = fileName
+                )
+            }
+
+            is FontType.Resource -> {
+                val source = "android.resource://${appContext.packageName}/$resId"
+                val entryName = assetRegistry.register(
+                    source = source,
+                    proposedEntryName = "assets/fonts/$prefix/resource-$resId.font"
+                )
+                FontSnapshot(
+                    type = FontSnapshotType.Resource,
+                    resourceId = resId,
+                    resourceName = runCatching {
+                        appContext.resources.getResourceEntryName(resId)
+                    }.getOrNull(),
+                    familyKey = asUi()
+                        .takeIf { (it.type as? FontType.Resource)?.resId == resId }
+                        ?.asDomain()
+                        ?.asString(),
+                    assetPath = entryName,
+                    filename = "resource-$resId.font"
+                )
+            }
+        }
+
+    private suspend fun FontSnapshot.toDomain(
+        extractionDir: File
+    ): FontType? =
+        when (type) {
+            FontSnapshotType.File -> path
+                ?.takeIf { File(it).exists() }
+                ?.let { FontType.File(it) }
+                ?: restoreFontFromAsset(extractionDir)
+
+            FontSnapshotType.Resource -> familyKey
+                ?.let { DomainFontFamily.fromString(familyKey)?.asFontType() }
+                ?: resourceName
+                    ?.let(::resolveResourceByKnownFonts)
+                    ?.let { FontType.Resource(it) }
+                ?: resourceId
+                    ?.takeIf(::isValidFontResource)
+                    ?.let { FontType.Resource(it) }
+                ?: restoreFontFromAsset(extractionDir)
+        }
+
+    private fun Any.toPersistableSource(): String = when (this) {
+        is Uri -> toString()
+        is File -> toUri().toString()
+        else -> toString()
+    }
+
+    private fun assetEntryName(
+        prefix: String,
+        extension: String
+    ): String = "assets/$prefix.$extension"
+
+    private fun sourceExtension(
+        source: String
+    ): String = source.toUri().extension()
+        ?.takeIf(String::isNotBlank)
+        ?: source.substringAfterLast('.', "")
+            .takeIf(String::isNotBlank)
+        ?: "png"
+
+    private suspend fun FontSnapshot.restoreFontFromAsset(
+        extractionDir: File
+    ): FontType.File? {
+        val fontAsset = assetPath
+            ?.let { File(extractionDir, it) }
+            ?.takeIf(File::exists)
+            ?: return null
+
+        val preferredFilename = filename
+            ?.let { File(it).name }
+            ?.takeIf(String::isNotBlank)
+
+        val existingFont = settingsManager.settingsState.value.customFonts
+            .firstOrNull { custom ->
+                val file = File(custom.filePath)
+                file.exists() && preferredFilename != null && file.name.equals(
+                    preferredFilename,
+                    ignoreCase = true
+                )
+            }
+            ?.filePath
+            ?.let(FontType::File)
+
+        if (existingFont != null) return existingFont
+
+        return settingsManager.importCustomFont(fontAsset.toUri().toString())
+            ?.let { imported ->
+                FontType.File(imported.filePath)
+            } ?: FontType.File(fontAsset.absolutePath)
+    }
+
+    private fun resolveResourceByKnownFonts(
+        resourceName: String
+    ): Int? = UiFontFamily.defaultEntries
+        .mapNotNull { (it.type as? FontType.Resource)?.resId }
+        .firstOrNull { resId ->
+            runCatching {
+                appContext.resources.getResourceEntryName(resId) == resourceName
+            }.getOrDefault(false)
+        }
+
+    private fun isValidFontResource(
+        resourceId: Int
+    ): Boolean = runCatching {
+        appContext.resources.getResourceTypeName(resourceId) == "font"
+    }.getOrDefault(false)
+
+    private fun String?.toGradientType(): GradientType =
+        GradientType.entries.firstOrNull { it.name == this } ?: GradientType.Linear
+
+    private fun String?.toGradientGeometry(
+        angle: Float,
+        centerX: Float,
+        centerY: Float,
+        radius: Float
+    ): GradientGeometry = GradientGeometry(toGradientType(), angle, centerX, centerY, radius)
+
+}

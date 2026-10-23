@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Razporedi mape z vlečenjem (Pro)</string>
     <string name="restore_to_path">Obnovitev v \'%s\'</string>
     <string name="filter_media">Filtriranje datotek</string>
-    <string name="images">Slike</string>
+    <string name="gallery_images">Slike</string>
     <string name="videos">Video</string>
     <string name="gifs">GIFi</string>
     <string name="raw_images">RAW slike</string>
@@ -56,8 +56,8 @@
 \nDodajanje novih elementov ne bo izključilo drugih.</string>
     <string name="no_media_add_included">Medijske datoteke niso bile najdene. To rešite, da mape z medijskimi datotekami dodate ročno.</string>
     <string name="resize_and_save">Spremeni velikost izbora in shrani</string>
-    <string name="width">Širina</string>
-    <string name="height">Višina</string>
+    <string name="gallery_width">Širina</string>
+    <string name="gallery_height">Višina</string>
     <string name="keep_aspect_ratio">Obdrži razmerje stranic</string>
     <string name="invalid_values">Vnesite veljavno ločljivost</string>
     <string name="editor">Urejevalnik</string>

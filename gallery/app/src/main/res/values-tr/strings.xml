@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Sürükleyerek klasörleri yeniden sırala (Pro)</string>
     <string name="restore_to_path">\'%s\' konumuna geri yükle</string>
     <string name="filter_media">Medyayı süzgeçle</string>
-    <string name="images">Resimler</string>
+    <string name="gallery_images">Resimler</string>
     <string name="videos">Videolar</string>
     <string name="gifs">GIFler</string>
     <string name="raw_images">RAW resimler</string>
@@ -61,8 +61,8 @@
 \nBuraya bazı ögeler eklemek başka bir klasörü hariç tutmaz.</string>
     <string name="no_media_add_included">Hiçbir medya dosyası bulunamadı. Medya dosyalarını içeren klasörleri elle ekleyerek çözebilirsiniz.</string>
     <string name="resize_and_save">Seçimi yeniden boyutlandır ve kaydet</string>
-    <string name="width">Genişlik</string>
-    <string name="height">Yükseklik</string>
+    <string name="gallery_width">Genişlik</string>
+    <string name="gallery_height">Yükseklik</string>
     <string name="keep_aspect_ratio">En-boy oranını koru</string>
     <string name="invalid_values">Lütfen geçerli bir çözünürlük girin</string>
     <string name="resize_multiple_images">Birden fazla resmi yeniden boyutlandır</string>

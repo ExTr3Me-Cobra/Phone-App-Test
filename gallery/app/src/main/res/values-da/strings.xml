@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Omarranger mapper ved at trække (Pro)</string>
     <string name="restore_to_path">Gendanner til \'%s\'</string>
     <string name="filter_media">Filtrér medier</string>
-    <string name="images">Billeder</string>
+    <string name="gallery_images">Billeder</string>
     <string name="videos">Videoer</string>
     <string name="gifs">GIF\'er</string>
     <string name="raw_images">RAW-billeder</string>
@@ -54,8 +54,8 @@
     <string name="included_activity_placeholder">Hvis nogle mediemapper ikke blev genkendt af appen, kan du tilføje dem manuelt her.\n\nTilføjelse af mapper her ekskluderer ikke andre.</string>
     <string name="no_media_add_included">Ingen mediefiler fundet. Det kan løses ved at tilføje mapperne med mediefiler manuelt.</string>
     <string name="resize_and_save">Skaler valgte elementer og gem</string>
-    <string name="width">Bredde</string>
-    <string name="height">Højde</string>
+    <string name="gallery_width">Bredde</string>
+    <string name="gallery_height">Højde</string>
     <string name="keep_aspect_ratio">Behold billedformat</string>
     <string name="invalid_values">Indtast en gyldig opløsning</string>
     <string name="resize_multiple_images">Skaler flere billeder</string>

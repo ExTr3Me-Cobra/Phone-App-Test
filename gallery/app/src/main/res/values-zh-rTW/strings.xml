@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">拖曳以重新排序資料夾（專業版）</string>
     <string name="restore_to_path">還原至「%s」</string>
     <string name="filter_media">篩選媒體檔案</string>
-    <string name="images">圖片</string>
+    <string name="gallery_images">圖片</string>
     <string name="videos">影片</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">RAW 圖檔</string>
@@ -55,8 +55,8 @@
     <string name="included_activity_placeholder">如要新增包含媒體檔案但未被應用程式辨識的資料夾，可在此處手動新增。 \n \n新增項目不會排除其他資料夾。</string>
     <string name="no_media_add_included">未發現媒體檔案。您可以手動加入包含媒體檔案的資料夾來解決。</string>
     <string name="resize_and_save">調整選取項目尺寸並儲存</string>
-    <string name="width">寬度</string>
-    <string name="height">高度</string>
+    <string name="gallery_width">寬度</string>
+    <string name="gallery_height">高度</string>
     <string name="keep_aspect_ratio">維持長寬比</string>
     <string name="invalid_values">請輸入有效的解析度</string>
     <string name="resize_multiple_images">批次調整圖片尺寸</string>

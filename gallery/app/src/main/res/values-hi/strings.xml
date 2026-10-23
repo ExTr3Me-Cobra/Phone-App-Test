@@ -26,7 +26,7 @@
     <string name="resize_and_save">चयन का आकार बदलें और सहेजें</string>
     <string name="keep_aspect_ratio">पहलू अनुपात रखना</string>
     <string name="no_media_add_included">कोई मीडिया फाइल नहीं मिली. आप मीडिया फाइलों वाले फोल्डरों को मैन्युअल रूप से जोड़कर इसे हल कर सकते हैं।</string>
-    <string name="height">ऊंचाई</string>
+    <string name="gallery_height">ऊंचाई</string>
     <string name="manage_included_folders">सम्मिलित फोल्डर प्रबंधित करें</string>
     <string name="included_activity_placeholder">यदि आपके पास कुछ फोल्डर हैं जिनमें मीडिया है, लेकिन ऐप द्वारा पहचाना नहीं गया है, तो आप उन्हें यहां मैन्युअल रूप से जोड़ सकते हैं।
 \n
@@ -141,7 +141,7 @@
     <string name="hidden">(छिपा हुआ)</string>
     <string name="excluded">(छोड़ा गया)</string>
     <string name="pin_folder">फोल्डर पिन करें</string>
-    <string name="images">छवियां</string>
+    <string name="gallery_images">छवियां</string>
     <string name="unpin_folder">फोल्डर अनपिन करें</string>
     <string name="change_orientation">ओरिएंटेशन बदलें</string>
     <string name="force_portrait">फोर्स पोर्ट्रेट</string>
@@ -166,7 +166,7 @@
 \n
 \nअगर आप इन्हें अन्य ऐप्स से भी छिपाना चाहते हैं, तो छिपाओ फ़ंक्शन का उपयोग करें।</string>
     <string name="add_folder">फोल्डर जोड़ें</string>
-    <string name="width">चौड़ाई</string>
+    <string name="gallery_width">चौड़ाई</string>
     <string name="resize_factor_error">10 और 90 के बीच कोई संख्या दर्ज करें</string>
     <string name="image_editing_cancelled">छवि संपादन रद्द किया गया</string>
     <plurals name="failed_to_resize_images">

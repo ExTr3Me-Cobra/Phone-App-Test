@@ -1,0 +1,607 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.ai_tools.presentation.screenLogic
+
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.core.net.toUri
+import com.arkivanov.decompose.ComponentContext
+import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
+import com.t8rin.imagetoolbox.core.domain.image.ImageCompressor
+import com.t8rin.imagetoolbox.core.domain.image.ImageGetter
+import com.t8rin.imagetoolbox.core.domain.image.ImageShareProvider
+import com.t8rin.imagetoolbox.core.domain.image.model.ImageFormat
+import com.t8rin.imagetoolbox.core.domain.image.model.ImageInfo
+import com.t8rin.imagetoolbox.core.domain.image.model.alphaContainedEntries
+import com.t8rin.imagetoolbox.core.domain.remote.DownloadProgress
+import com.t8rin.imagetoolbox.core.domain.saving.FileController
+import com.t8rin.imagetoolbox.core.domain.saving.model.ImageSaveTarget
+import com.t8rin.imagetoolbox.core.domain.saving.model.SaveResult
+import com.t8rin.imagetoolbox.core.domain.saving.model.onSuccess
+import com.t8rin.imagetoolbox.core.domain.utils.runSuspendCatching
+import com.t8rin.imagetoolbox.core.domain.utils.smartJob
+import com.t8rin.imagetoolbox.core.domain.utils.update
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.resources.icons.CheckCircle
+import com.t8rin.imagetoolbox.core.resources.icons.Info
+import com.t8rin.imagetoolbox.core.ui.utils.BaseComponent
+import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
+import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
+import com.t8rin.imagetoolbox.core.ui.utils.state.savable
+import com.t8rin.imagetoolbox.core.ui.utils.state.update
+import com.t8rin.imagetoolbox.core.ui.utils.state.updateNotNull
+import com.t8rin.imagetoolbox.core.utils.getString
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiProgressListener
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.DepthEffect
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.DepthParams
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.NeuralModel
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.NeuralParams
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.SavableNeuralParams
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.withAuxiliaryImage
+import com.t8rin.imagetoolbox.feature.ai_tools.presentation.components.AiDetectionPreviewResult
+import com.t8rin.imagetoolbox.feature.ai_tools.presentation.components.AiToolsPreviewResult
+import com.t8rin.imagetoolbox.feature.ai_tools.presentation.components.NeuralSaveProgress
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.stateIn
+
+class AiToolsComponent @AssistedInject internal constructor(
+    @Assisted componentContext: ComponentContext,
+    @Assisted val initialUris: List<Uri>?,
+    @Assisted val onGoBack: () -> Unit,
+    @Assisted val onNavigate: (Screen) -> Unit,
+    private val aiToolsRepository: AiToolsRepository<Bitmap>,
+    private val shareProvider: ImageShareProvider<Bitmap>,
+    private val imageGetter: ImageGetter<Bitmap>,
+    private val fileController: FileController,
+    private val imageCompressor: ImageCompressor<Bitmap>,
+    dispatchersHolder: DispatchersHolder
+) : BaseComponent(dispatchersHolder, componentContext) {
+
+    init {
+        debounce {
+            initialUris?.let(::updateUris)
+        }
+    }
+
+    private val _uris = mutableStateOf<List<Uri>?>(null)
+    val uris by _uris
+
+    private val _saveProgress: MutableState<NeuralSaveProgress?> = mutableStateOf(null)
+    val saveProgress by _saveProgress
+
+    private var savingJob: Job? by smartJob {
+        _saveProgress.update { null }
+    }
+
+    private var downloadJobs: MutableMap<String, Job> = mutableMapOf()
+
+    val occupiedStorageSize: StateFlow<Long> = aiToolsRepository.occupiedStorageSize
+
+    val downloadedModels: StateFlow<List<NeuralModel>> = aiToolsRepository.downloadedModels
+
+    val notDownloadedModels: StateFlow<List<NeuralModel>> = downloadedModels.map {
+        NeuralModel.entries - it.toSet()
+    }.stateIn(
+        scope = componentScope,
+        started = SharingStarted.Eagerly,
+        initialValue = NeuralModel.entries
+    )
+
+    val selectedModel: StateFlow<NeuralModel?> = aiToolsRepository.selectedModel
+
+    val isAiDetectionMode = selectedModel.map { it?.isAiDetector == true }.stateIn(
+        scope = componentScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false
+    )
+
+    private val _downloadProgresses: SnapshotStateMap<String, DownloadProgress> =
+        mutableStateMapOf()
+    val downloadProgresses: Map<String, DownloadProgress> = _downloadProgresses
+
+    private val _params = fileController.savable(
+        scope = componentScope,
+        initial = SavableNeuralParams.Default
+    )
+    private val savableParams by _params
+    private val _depthParams = fileController.savable(
+        scope = componentScope,
+        initial = DepthParams.Default
+    )
+    val depthParams by _depthParams
+    private val auxiliaryImage = mutableStateOf<String?>(null)
+    private val customDepthMap = mutableStateOf<String?>(null)
+    val params: NeuralParams
+        get() = savableParams.withAuxiliaryImage(auxiliaryImage.value).copy(
+            customDepthMap = customDepthMap.value,
+            depthParams = depthParams
+        )
+    val styleUri: Uri?
+        get() = auxiliaryImage.value?.toUri()
+    val customDepthMapUri: Uri?
+        get() = customDepthMap.value?.toUri()
+
+    private val _imageFormat: MutableState<ImageFormat?> = mutableStateOf(null)
+    val imageFormat by _imageFormat
+    val requiresAlphaOutput: Boolean
+        get() = selectedModel.value?.type == NeuralModel.Type.REMOVE_BG ||
+                selectedModel.value?.type == NeuralModel.Type.DEPTH &&
+                depthParams.effect == DepthEffect.Cutout
+
+    private val _previewResults = mutableStateOf<List<AiToolsPreviewResult>>(emptyList())
+    val previewResults by _previewResults
+
+    private val _aiDetectionResults =
+        mutableStateOf<List<AiDetectionPreviewResult>>(emptyList())
+    val aiDetectionResults by _aiDetectionResults
+
+    private val aiProgressListener = object : AiProgressListener {
+        override fun onError(error: String) {
+            AppToastHost.showFailureToast(error)
+        }
+
+        override fun onProgress(
+            currentChunkIndex: Int,
+            totalChunks: Int
+        ) {
+            _saveProgress.updateNotNull {
+                it.copy(
+                    doneChunks = currentChunkIndex,
+                    totalChunks = totalChunks
+                )
+            }
+        }
+    }
+
+    fun selectModel(model: NeuralModel) {
+        componentScope.launch {
+            aiToolsRepository.selectModel(model)
+            clearResults()
+            registerChanges()
+        }
+    }
+
+    fun downloadModel(model: NeuralModel) {
+        if (downloadJobs.contains(model.name)) return
+
+        downloadJobs[model.name] = componentScope.launch {
+            aiToolsRepository
+                .downloadModel(model)
+                .onCompletion {
+                    _downloadProgresses.remove(model.name)
+                    downloadJobs.remove(model.name)
+                }
+                .catch {
+                    _downloadProgresses.remove(model.name)
+                    downloadJobs.remove(model.name)
+                }
+                .collect { progress ->
+                    _downloadProgresses[model.name] = progress
+                }
+        }
+    }
+
+    fun cancelDownload(model: NeuralModel) {
+        downloadJobs.remove(model.name)?.cancel()
+    }
+
+    fun importModel(uri: Uri) {
+        componentScope.launch {
+            _isImageLoading.update { true }
+
+            when (val result = aiToolsRepository.importModel(uri.toString())) {
+                is SaveResult.Skipped -> {
+                    AppToastHost.showToast(
+                        message = getString(R.string.model_already_downloaded),
+                        icon = Icons.Outlined.Info
+                    )
+                }
+
+                is SaveResult.Success -> {
+                    AppToastHost.showToast(
+                        message = getString(R.string.model_successfully_imported),
+                        icon = Icons.Outlined.CheckCircle
+                    )
+                }
+
+                else -> parseFileSaveResult(result)
+            }
+
+            _isImageLoading.update { false }
+        }
+    }
+
+    fun deleteModel(model: NeuralModel) {
+        componentScope.launch {
+            aiToolsRepository.deleteModel(model)
+        }
+    }
+
+    fun updateParams(
+        action: SavableNeuralParams.() -> SavableNeuralParams
+    ) {
+        _params.update { action(it) }
+        registerChanges()
+    }
+
+    fun updateDepthParams(
+        action: DepthParams.() -> DepthParams
+    ) {
+        _depthParams.update { action(it) }
+        registerChanges()
+    }
+
+    fun updateUris(uris: List<Uri>?) {
+        _uris.value = null
+        _uris.value = uris
+        clearResults()
+    }
+
+    fun detectAiImages() {
+        savingJob = trackProgress {
+            delay(400)
+            _saveProgress.update {
+                NeuralSaveProgress(
+                    doneImages = 0,
+                    totalImages = uris.orEmpty().size,
+                    doneChunks = 0,
+                    totalChunks = 1
+                )
+            }
+
+            val results = mutableListOf<AiDetectionPreviewResult>()
+            try {
+                uris.orEmpty().forEach { uri ->
+                    runSuspendCatching {
+                        val image = imageGetter.getImage(uri.toString())?.image
+                            ?: return@runSuspendCatching null
+                        aiToolsRepository.detectAiImage(
+                            image = image,
+                            listener = aiProgressListener
+                        )
+                    }.onFailure(AppToastHost::showFailureToast)
+                        .getOrNull()
+                        ?.let { result ->
+                            results.add(
+                                AiDetectionPreviewResult(
+                                    uri = uri,
+                                    result = result
+                                )
+                            )
+                        }
+
+                    _saveProgress.updateNotNull {
+                        it.copy(doneImages = it.doneImages + 1)
+                    }
+                }
+                _aiDetectionResults.value = results
+            } finally {
+                _saveProgress.update { null }
+                aiToolsRepository.cleanup()
+            }
+        }
+    }
+
+    fun updateStyleUri(uri: Uri) {
+        auxiliaryImage.value = uri.toString()
+        registerChanges()
+    }
+
+    fun updateCustomDepthMapUri(uri: Uri?) {
+        customDepthMap.value = uri?.toString()
+        registerChanges()
+    }
+
+    fun saveBitmaps(
+        oneTimeSaveLocationUri: String?
+    ) {
+        savingJob = trackProgress {
+            if (selectedModel.value?.isStyleTransfer == true && params.auxiliaryImage == null) {
+                AppToastHost.showFailureToast(getString(R.string.style_image_not_selected))
+                return@trackProgress
+            }
+            if (selectedModel.value?.isStyleTransfer == true) aiToolsRepository.cleanup()
+            ensureAlphaOutput()
+            delay(400)
+            _saveProgress.update {
+                NeuralSaveProgress(
+                    doneImages = 0,
+                    totalImages = uris.orEmpty().size,
+                    doneChunks = 0,
+                    totalChunks = 0
+                )
+            }
+
+            val results = mutableListOf<SaveResult>()
+            uris?.forEach { uri ->
+                runSuspendCatching {
+                    val (image, imageInfo) = imageGetter.getImage(uri.toString())
+                        ?: return@runSuspendCatching null
+
+                    aiToolsRepository.processImage(
+                        image = image,
+                        listener = aiProgressListener,
+                        params = params
+                    )?.let {
+                        it to imageInfo.copy(
+                            width = it.width,
+                            height = it.height,
+                            originalUri = uri.toString(),
+                            imageFormat = imageFormat ?: imageInfo.imageFormat
+                        )
+                    }
+                }.onFailure {
+                    results.add(
+                        SaveResult.Error.Exception(it)
+                    )
+                }.getOrNull()?.let { (image, imageInfo) ->
+                    results.add(
+                        fileController.save(
+                            ImageSaveTarget(
+                                imageInfo = imageInfo,
+                                originalUri = uri.toString(),
+                                sequenceNumber = _saveProgress.value?.doneImages?.plus(1),
+                                data = imageCompressor.compressAndTransform(
+                                    image = image,
+                                    imageInfo = imageInfo
+                                )
+                            ),
+                            keepOriginalMetadata = false,
+                            oneTimeSaveLocationUri = oneTimeSaveLocationUri
+                        )
+                    )
+                }
+
+                _saveProgress.updateNotNull {
+                    it.copy(
+                        doneImages = it.doneImages + 1
+                    )
+                }
+            }
+            parseSaveResults(results.onSuccess(::registerSave))
+            _saveProgress.update { null }
+
+            aiToolsRepository.cleanup()
+        }
+    }
+
+    fun cancelSaving() {
+        savingJob?.cancel()
+        savingJob = null
+        _saveProgress.update { null }
+    }
+
+    fun cacheImages(
+        onComplete: (List<Uri>) -> Unit
+    ) {
+        savingJob = trackProgress {
+            val list = mutableListOf<Uri>()
+            processImagesToCache { _, cachedUri, _ ->
+                list.add(cachedUri)
+            }
+            onComplete(list)
+            _saveProgress.update { null }
+        }
+    }
+
+    fun processToPreview() {
+        savingJob = trackProgress {
+            val results = mutableListOf<AiToolsPreviewResult>()
+            processImagesToCache { originalUri, cachedUri, imageInfo ->
+                results.add(
+                    AiToolsPreviewResult(
+                        originalUri = originalUri,
+                        cachedUri = cachedUri,
+                        imageInfo = imageInfo
+                    )
+                )
+            }
+            _previewResults.value = results
+            _saveProgress.update { null }
+        }
+    }
+
+    private suspend fun processImagesToCache(
+        onCached: (originalUri: Uri, cachedUri: Uri, imageInfo: ImageInfo) -> Unit
+    ) {
+        if (selectedModel.value?.isStyleTransfer == true && params.auxiliaryImage == null) {
+            AppToastHost.showFailureToast(getString(R.string.style_image_not_selected))
+            return
+        }
+        if (selectedModel.value?.isStyleTransfer == true) aiToolsRepository.cleanup()
+        ensureAlphaOutput()
+        delay(400)
+        _saveProgress.update {
+            NeuralSaveProgress(
+                doneImages = 0,
+                totalImages = uris.orEmpty().size,
+                doneChunks = 0,
+                totalChunks = 0
+            )
+        }
+
+        try {
+            uris?.forEach { uri ->
+                runSuspendCatching {
+                    val (image, imageInfo) = imageGetter.getImage(uri.toString())
+                        ?: return@runSuspendCatching null
+
+                    aiToolsRepository.processImage(
+                        image = image,
+                        listener = aiProgressListener,
+                        params = params
+                    )?.let {
+                        it to imageInfo.copy(
+                            width = it.width,
+                            height = it.height,
+                            originalUri = uri.toString(),
+                            imageFormat = imageFormat ?: imageInfo.imageFormat
+                        )
+                    }
+                }.onFailure(AppToastHost::showFailureToast)
+                    .getOrNull()?.let { (image, imageInfo) ->
+                        shareProvider.cacheImage(
+                            image = image,
+                            imageInfo = imageInfo
+                        )?.let { cachedUri ->
+                            onCached(uri, cachedUri.toUri(), imageInfo)
+                        }
+                    }
+
+                _saveProgress.updateNotNull {
+                    it.copy(doneImages = it.doneImages + 1)
+                }
+            }
+        } finally {
+            aiToolsRepository.cleanup()
+        }
+    }
+
+    fun savePreviewResults(oneTimeSaveLocationUri: String?) {
+        savingJob = trackProgress {
+            val previews = previewResults
+            _saveProgress.update {
+                NeuralSaveProgress(
+                    doneImages = 0,
+                    totalImages = previews.size,
+                    doneChunks = 0,
+                    totalChunks = 0
+                )
+            }
+
+            val results = previews.mapIndexed { index, preview ->
+                val result = runSuspendCatching {
+                    fileController.move(
+                        sourceUri = preview.cachedUri.toString(),
+                        saveTarget = ImageSaveTarget(
+                            imageInfo = preview.imageInfo,
+                            originalUri = preview.originalUri.toString(),
+                            sequenceNumber = index + 1,
+                            data = ByteArray(0)
+                        ),
+                        keepOriginalMetadata = false,
+                        oneTimeSaveLocationUri = oneTimeSaveLocationUri
+                    )
+                }.getOrElse { SaveResult.Error.Exception(it) }
+
+                _saveProgress.updateNotNull {
+                    it.copy(doneImages = it.doneImages + 1)
+                }
+                result
+            }
+
+            parseSaveResults(results.onSuccess(::registerSave))
+            _previewResults.value = previews.zip(results)
+                .filterNot { (_, result) -> result is SaveResult.Success }
+                .map { (preview, _) -> preview }
+            _saveProgress.update { null }
+        }
+    }
+
+    fun clearPreviewResults() {
+        _previewResults.value = emptyList()
+    }
+
+    fun clearAiDetectionResults() {
+        _aiDetectionResults.value = emptyList()
+    }
+
+    private fun clearResults() {
+        clearPreviewResults()
+        clearAiDetectionResults()
+    }
+
+    private fun removeAiDetectionResult(uri: Uri) {
+        _aiDetectionResults.update { results ->
+            results.filterNot { it.uri == uri }
+        }
+    }
+
+    fun removePreviewResult(uri: Uri) {
+        _previewResults.update { results ->
+            results.filterNot { it.cachedUri == uri }
+        }
+    }
+
+    fun shareBitmaps() {
+        cacheImages { uris ->
+            componentScope.launch {
+                shareProvider.shareUris(uris.map { it.toString() })
+                AppToastHost.showConfetti()
+            }
+        }
+    }
+
+    fun sharePreviewResults() {
+        componentScope.launch {
+            shareProvider.shareUris(previewResults.map { it.cachedUri.toString() })
+            AppToastHost.showConfetti()
+        }
+    }
+
+    fun removeUri(uri: Uri) {
+        _uris.update { it.orEmpty() - uri }
+        removeAiDetectionResult(uri)
+    }
+
+    fun addUris(uris: List<Uri>) {
+        _uris.update { it.orEmpty() + uris }
+    }
+
+    fun setImageFormat(imageFormat: ImageFormat?) {
+        _imageFormat.update { imageFormat }
+    }
+
+    private fun ensureAlphaOutput() {
+        if (requiresAlphaOutput && imageFormat !in ImageFormat.alphaContainedEntries) {
+            setImageFormat(ImageFormat.Png.Lossless)
+        }
+    }
+
+    fun getFormatForFilenameSelection(): ImageFormat? = imageFormat?.takeIf {
+        uris?.size == 1
+    }
+
+    @AssistedFactory
+    fun interface Factory {
+        operator fun invoke(
+            componentContext: ComponentContext,
+            initialUris: List<Uri>?,
+            onGoBack: () -> Unit,
+            onNavigate: (Screen) -> Unit,
+        ): AiToolsComponent
+    }
+
+
+}

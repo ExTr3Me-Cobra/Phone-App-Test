@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Seřadit složky přetažením (Pro)</string>
     <string name="restore_to_path">Obnovuje se do \'%s\'</string>
     <string name="filter_media">Filtr médií</string>
-    <string name="images">Obrázky</string>
+    <string name="gallery_images">Obrázky</string>
     <string name="videos">Videa</string>
     <string name="gifs">Soubory GIF</string>
     <string name="raw_images">Obrázky RAW</string>
@@ -57,8 +57,8 @@
 \nPřidání nových položek nezpůsobí vyloučení žádné jiné složky.</string>
     <string name="no_media_add_included">Nebyly nalezeny žádné mediální soubory. Můžete to napravit ručním přidáním složek, které obsahují média.</string>
     <string name="resize_and_save">Změnit velikost a uložit</string>
-    <string name="width">Šířka</string>
-    <string name="height">Výška</string>
+    <string name="gallery_width">Šířka</string>
+    <string name="gallery_height">Výška</string>
     <string name="keep_aspect_ratio">Zachovat poměr stran</string>
     <string name="invalid_values">Prosím zadejte platné rozlišení</string>
     <string name="resize_multiple_images">Změnit velikost obrázků</string>

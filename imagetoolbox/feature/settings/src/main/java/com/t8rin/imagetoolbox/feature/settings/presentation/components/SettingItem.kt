@@ -1,0 +1,861 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.settings.presentation.components
+
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.resources.icons.Save
+import com.t8rin.imagetoolbox.core.resources.icons.TextFields
+import com.t8rin.imagetoolbox.core.settings.presentation.model.Setting
+import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
+import com.t8rin.imagetoolbox.core.ui.utils.helper.ContextUtils.isInstalledFromPlayStore
+import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
+import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalComponentActivity
+import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalContainerShape
+import com.t8rin.imagetoolbox.core.ui.utils.provider.ProvideContainerDefaults
+import com.t8rin.imagetoolbox.core.ui.utils.provider.rememberCurrentLifecycleEvent
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.ShapeDefaults
+import com.t8rin.imagetoolbox.core.utils.appContext
+import com.t8rin.imagetoolbox.core.utils.getString
+import com.t8rin.imagetoolbox.feature.settings.presentation.screenLogic.SettingsComponent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@Composable
+internal fun SettingItem(
+    setting: Setting,
+    component: SettingsComponent,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+) {
+    val isUpdateAvailable by component.isUpdateAvailable.subscribeAsState()
+    val shape = LocalContainerShape.current
+
+    ProvideContainerDefaults(
+        color = containerColor,
+        shape = when (setting) {
+            Setting.SavingFolder, Setting.NightMode, Setting.ImagePickerMode -> null
+            else -> shape
+        }
+    ) {
+        when (setting) {
+            Setting.AddFileSize -> {
+                AddFileSizeSettingItem(onClick = component::toggleAddFileSize)
+            }
+
+            Setting.AddOriginalFilename -> {
+                AddOriginalFilenameSettingItem(onClick = component::toggleAddOriginalFilename)
+            }
+
+            Setting.AllowBetas -> {
+                if (!appContext.isInstalledFromPlayStore()) {
+                    AllowBetasSettingItem(
+                        onClick = {
+                            component.toggleAllowBetas()
+                            component.tryGetUpdate()
+                        }
+                    )
+                }
+            }
+
+            Setting.AllowImageMonet -> {
+                AllowImageMonetSettingItem(onClick = component::toggleAllowImageMonet)
+            }
+
+            Setting.AmoledMode -> {
+                AmoledModeSettingItem(onClick = component::toggleAmoledMode)
+            }
+
+            Setting.Analytics -> {
+                AnalyticsSettingItem(onClick = component::toggleAllowCollectAnalytics)
+            }
+
+            Setting.Author -> {
+                AuthorSettingItem()
+            }
+
+            Setting.AppLogs -> {
+                AppLogsSettingItem(
+                    onClick = {
+                        component.onNavigate(Screen.AppLogs)
+                    }
+                )
+            }
+
+            Setting.AppUsageStatistics -> {
+                AppUsageStatisticsSettingItem(
+                    onClick = {
+                        component.onNavigate(Screen.UsageStatistics)
+                    }
+                )
+            }
+
+            Setting.AutoCacheClear -> {
+                AutoCacheClearSettingItem(onClick = component::toggleClearCacheOnLaunch)
+            }
+
+            Setting.AutoCheckUpdates -> {
+                AutoCheckUpdatesSettingItem(onClick = component::toggleShowUpdateDialog)
+            }
+
+            Setting.Backup -> {
+                BackupSettingItem(
+                    onCreateBackupFilename = component::createBackupFilename,
+                    onCreateBackup = component::createBackup
+                )
+            }
+
+            Setting.BorderThickness -> {
+                BorderThicknessSettingItem(onValueChange = component::setBorderWidth)
+            }
+
+            Setting.ChangeFont -> {
+                val context = LocalComponentActivity.current
+                ChangeFontSettingItem(
+                    onValueChange = { font ->
+                        component.setFont(font.asDomain())
+                        context.recreate()
+                    },
+                    onAddFont = {
+                        component.importCustomFont(
+                            uri = it,
+                            onSuccess = AppToastHost::showConfetti,
+                            onFailure = {
+                                AppToastHost.showToast(
+                                    message = getString(R.string.wrong_font),
+                                    icon = Icons.Rounded.TextFields
+                                )
+                            }
+                        )
+                    },
+                    onRemoveFont = component::removeCustomFont,
+                    onExportFonts = component::exportFonts
+                )
+            }
+
+            Setting.ChangeLanguage -> {
+                ChangeLanguageSettingItem()
+            }
+
+            Setting.ClearCache -> {
+                val lifecycleEvent = rememberCurrentLifecycleEvent()
+                ClearCacheSettingItem(
+                    value = remember(lifecycleEvent) {
+                        component.getReadableCacheSize()
+                    },
+                    onClearCache = component::clearCache
+                )
+            }
+
+            Setting.ColorScheme -> {
+                ColorSchemeSettingItem(
+                    onToggleInvertColors = component::toggleInvertColors,
+                    onSetThemeStyle = component::setThemeStyle,
+                    onUpdateThemeContrast = component::setThemeContrast,
+                    onUpdateColorTuple = component::setColorTuple,
+                    onUpdateColorTuples = component::setColorTuples,
+                    onToggleUseEmojiAsPrimaryColor = component::toggleUseEmojiAsPrimaryColor
+                )
+            }
+
+            Setting.Crashlytics -> {
+                CrashlyticsSettingItem(onClick = component::toggleAllowCollectCrashlytics)
+            }
+
+            Setting.CurrentVersionCode -> {
+                var clicks by rememberSaveable {
+                    mutableIntStateOf(0)
+                }
+                LaunchedEffect(clicks) {
+                    if (clicks >= 3) {
+                        component.onNavigate(Screen.EasterEgg)
+                        clicks = 0
+                    }
+
+                    delay(500L) //debounce
+
+                    if (clicks == 0) return@LaunchedEffect
+
+                    AppToastHost.dismissToasts()
+                    if (clicks == 1) {
+                        component.tryGetUpdate(true)
+                    }
+                }
+
+                CurrentVersionCodeSettingItem(
+                    isUpdateAvailable = isUpdateAvailable,
+                    onClick = { clicks++ }
+                )
+            }
+
+            Setting.Donate -> {
+                DonateSettingItem()
+            }
+
+            Setting.DynamicColors -> {
+                DynamicColorsSettingItem(onClick = component::toggleDynamicColors)
+            }
+
+            Setting.Emoji -> {
+                EmojiSettingItem(
+                    onAddColorTupleFromEmoji = component::addColorTupleFromEmoji,
+                    selectedEmojiIndex = component.settingsState.selectedEmoji ?: 0,
+                    onUpdateEmoji = component::setEmoji
+                )
+            }
+
+            Setting.EmojisCount -> {
+                EmojisCountSettingItem(onValueChange = component::setEmojisCount)
+            }
+
+            Setting.FabAlignment -> {
+                FabAlignmentSettingItem(onValueChange = component::setAlignment)
+            }
+
+            Setting.FilenamePrefix -> {
+                FilenamePrefixSettingItem(onValueChange = component::setFilenamePrefix)
+            }
+
+            Setting.FilenameSuffix -> {
+                FilenameSuffixSettingItem(onValueChange = component::setFilenameSuffix)
+            }
+
+            Setting.FontScale -> {
+                val context = LocalComponentActivity.current
+                FontScaleSettingItem(
+                    onValueChange = {
+                        component.setFontScale(it)
+                        context.recreate()
+                    }
+                )
+            }
+
+            Setting.GroupOptions -> {
+                GroupOptionsSettingItem(onClick = component::toggleGroupOptionsByType)
+            }
+
+            Setting.FavoriteToolsInGroupedMode -> {
+                FavoriteToolsInGroupedModeSettingItem(
+                    onClick = component::toggleFavoriteToolsInGroupedMode
+                )
+            }
+
+            Setting.ShowFavoriteAsLast -> {
+                ShowFavoriteAsLastSettingItem(onClick = component::toggleFavoriteAsLast)
+            }
+
+            Setting.HelpTranslate -> {
+                HelpTranslateSettingItem()
+            }
+
+            Setting.HelpTips -> {
+                HelpTipsSettingItem(
+                    onClick = {
+                        component.onNavigate(Screen.Help())
+                    }
+                )
+            }
+
+            Setting.AiAssistant -> {
+                AiAssistantSettingItem(
+                    onValueChange = component::setAiAssistantEnabled
+                )
+            }
+
+            Setting.ImagePickerMode -> {
+                ImagePickerModeSettingItemGroup(
+                    onValueChange = component::setImagePickerMode,
+                    shape = shape
+                )
+            }
+
+            Setting.SemanticSearch -> {
+                val state by component.semanticSearchState.collectAsStateWithLifecycle()
+                SemanticSearchSettingItem(
+                    state = state,
+                    onValueChange = component::setSemanticSearchEnabled
+                )
+            }
+
+            Setting.IssueTracker -> {
+                IssueTrackerSettingItem()
+            }
+
+            Setting.LockDrawOrientation -> {
+                LockDrawOrientationSettingItem(onClick = component::toggleLockDrawOrientation)
+            }
+
+            Setting.NightMode -> {
+                NightModeSettingItemGroup(
+                    value = component.settingsState.nightMode,
+                    onValueChange = component::setNightMode,
+                    shape = shape
+                )
+            }
+
+            Setting.Presets -> {
+                PresetsSettingItem()
+            }
+
+            Setting.RandomizeFilename -> {
+                RandomizeFilenameSettingItem(onClick = component::toggleRandomizeFilename)
+            }
+
+            Setting.ReplaceSequenceNumber -> {
+                ReplaceSequenceNumberSettingItem(onClick = component::toggleAddSequenceNumber)
+            }
+
+            Setting.OverwriteFiles -> {
+                OverwriteFilesSettingItem(onClick = component::toggleOverwriteFiles)
+            }
+
+            Setting.Reset -> {
+                ResetSettingsSettingItem(onReset = component::resetSettings)
+            }
+
+            Setting.Restore -> {
+                val scope = rememberCoroutineScope()
+                val context = LocalActivity.current
+
+                RestoreSettingItem(
+                    onObtainBackupFile = { uri ->
+                        component.restoreBackupFrom(
+                            uri = uri,
+                            onSuccess = {
+                                scope.launch {
+                                    AppToastHost.showConfetti()
+                                    //Wait for confetti to appear, then trigger font scale adjustment
+                                    delay(300L)
+                                    context?.recreate()
+                                }
+                                AppToastHost.showToast(
+                                    message = getString(R.string.settings_restored),
+                                    icon = Icons.Rounded.Save
+                                )
+                            },
+                            onFailure = AppToastHost::showFailureToast
+                        )
+                    }
+                )
+            }
+
+            Setting.SavingFolder -> {
+                SavingFolderSettingItemGroup(
+                    onValueChange = component::setSaveFolderUri,
+                    shape = shape
+                )
+            }
+
+            Setting.SaveToOriginalFolder -> {
+                SaveToOriginalFolderSettingItem(onClick = component::toggleSaveToOriginalFolder)
+            }
+
+            Setting.DeleteOriginalsAfterSave -> {
+                DeleteOriginalsAfterSaveSettingItem(
+                    onClick = component::toggleDeleteOriginalsAfterSave
+                )
+            }
+
+            Setting.ReturnToExternalAppAfterSave -> {
+                ReturnToExternalAppAfterSaveSettingItem(
+                    onClick = component::toggleReturnToExternalAppAfterSave
+                )
+            }
+
+            Setting.ScreenOrder -> {
+                ScreenOrderSettingItem(onValueChange = component::setScreenOrder)
+            }
+
+            Setting.ShowHelpTipsButton -> {
+                ShowHelpTipsButtonSettingItem(onClick = component::toggleHelpTipsButton)
+            }
+
+            Setting.ScreenSearch -> {
+                ScreenSearchSettingItem(onClick = component::toggleScreenSearchEnabled)
+            }
+
+            Setting.SourceCode -> {
+                SourceCodeSettingItem()
+            }
+
+            Setting.TelegramGroup -> {
+                TelegramGroupSettingItem()
+            }
+
+            Setting.TelegramChannel -> {
+                TelegramChannelSettingItem()
+            }
+
+            Setting.FreeSoftwarePartner -> {
+                FreeSoftwarePartnerSettingItem()
+            }
+
+            Setting.CheckUpdatesButton -> {
+                CheckUpdatesButtonSettingItem(
+                    onClick = {
+                        component.tryGetUpdate(true)
+                    }
+                )
+            }
+
+            Setting.ContainerShadows -> {
+                ContainerShadowsSettingItem(onClick = component::toggleDrawContainerShadows)
+            }
+
+            Setting.ButtonShadows -> {
+                ButtonShadowsSettingItem(onClick = component::toggleDrawButtonShadows)
+            }
+
+            Setting.FABShadows -> {
+                FabShadowsSettingItem(onClick = component::toggleDrawFabShadows)
+            }
+
+            Setting.SliderShadows -> {
+                SliderShadowsSettingItem(onClick = component::toggleDrawSliderShadows)
+            }
+
+            Setting.SwitchShadows -> {
+                SwitchShadowsSettingItem(onClick = component::toggleDrawSwitchShadows)
+            }
+
+            Setting.AppBarShadows -> {
+                AppBarShadowsSettingItem(onClick = component::toggleDrawAppBarShadows)
+            }
+
+            Setting.AutoPinClipboard -> {
+                AutoPinClipboardSettingItem(onClick = component::toggleAutoPinClipboard)
+            }
+
+            Setting.AutoPinClipboardOnlyClip -> {
+                AutoPinClipboardOnlyClipSettingItem(onClick = component::toggleAutoPinClipboardOnlyClip)
+            }
+
+            Setting.VibrationStrength -> {
+                VibrationStrengthSettingItem(onValueChange = component::setVibrationStrength)
+            }
+
+            Setting.DefaultScaleMode -> {
+                DefaultScaleModeSettingItem(onValueChange = component::setDefaultImageScaleMode)
+            }
+
+            Setting.DefaultColorSpace -> {
+                DefaultColorSpaceSettingItem(onValueChange = component::setDefaultImageScaleMode)
+            }
+
+            Setting.SwitchType -> {
+                SwitchTypeSettingItem(onValueChange = component::setSwitchType)
+            }
+
+            Setting.Magnifier -> {
+                MagnifierSettingItem(onClick = component::toggleMagnifierEnabled)
+            }
+
+            Setting.DrawBitmapBorder -> {
+                DrawBitmapBorderSettingItem(onClick = component::toggleDrawBitmapBorder)
+            }
+
+            Setting.ExifWidgetInitialState -> {
+                ExifWidgetInitialStateSettingItem(onClick = component::toggleExifWidgetInitialState)
+            }
+
+            Setting.BrightnessEnforcement -> {
+                BrightnessEnforcementSettingItem(onValueChange = component::setScreensWithBrightnessEnforcement)
+            }
+
+            Setting.Confetti -> {
+                ConfettiSettingItem(onClick = component::toggleConfettiEnabled)
+            }
+
+            Setting.SecureMode -> {
+                SecureModeSettingItem(onClick = component::toggleSecureMode)
+            }
+
+            Setting.UseRandomEmojis -> {
+                UseRandomEmojisSettingItem(onClick = component::toggleUseRandomEmojis)
+            }
+
+            Setting.UseAnimatedEmojis -> {
+                UseAnimatedEmojisSettingItem(onClick = component::toggleUseAnimatedEmojis)
+            }
+
+            Setting.IconShape -> {
+                IconShapeSettingItem(
+                    value = component.settingsState.iconShape,
+                    onValueChange = component::setIconShape
+                )
+            }
+
+            Setting.DragHandleWidth -> {
+                DragHandleWidthSettingItem(onValueChange = component::setDragHandleWidth)
+            }
+
+            Setting.ShapeByInteractionThrottle -> {
+                ShapeByInteractionThrottleSettingItem(
+                    onValueChange = component::setShapeByInteractionThrottle
+                )
+            }
+
+            Setting.ConfettiType -> {
+                ConfettiTypeSettingItem(onValueChange = component::setConfettiType)
+            }
+
+            Setting.AllowAutoClipboardPaste -> {
+                AllowAutoClipboardPasteSettingItem(onClick = component::toggleAllowAutoClipboardPaste)
+            }
+
+            Setting.ConfettiHarmonizer -> {
+                ConfettiHarmonizationColorSettingItem(onValueChange = component::setConfettiHarmonizer)
+            }
+
+            Setting.ConfettiHarmonizationLevel -> {
+                ConfettiHarmonizationLevelSettingItem(onValueChange = component::setConfettiHarmonizationLevel)
+            }
+
+            Setting.GeneratePreviews -> {
+                GeneratePreviewsSettingItem(onClick = component::toggleGeneratePreviews)
+            }
+
+            Setting.EnableSheetGestures -> {
+                EnableSheetGesturesSettingItem(onClick = component::toggleEnableSheetGestures)
+            }
+
+            Setting.SheetNestedScroll -> {
+                SheetNestedScrollSettingItem(onClick = component::toggleSheetNestedScroll)
+            }
+
+            Setting.SkipFilePicking -> {
+                SkipImagePickingSettingItem(onClick = component::toggleSkipImagePicking)
+            }
+
+            Setting.ShowSettingsInLandscape -> {
+                ShowSettingsInLandscapeSettingItem(onClick = component::toggleShowSettingsInLandscape)
+            }
+
+            Setting.UseFullscreenSettings -> {
+                UseFullscreenSettingsSettingItem(
+                    onClick = component::toggleUseFullscreenSettings,
+                    onNavigateToSettings = {
+                        component.onNavigate(Screen.Settings())
+                    }
+                )
+            }
+
+            Setting.UseCategorizedSettings -> {
+                UseCategorizedSettingsSettingItem(
+                    onClick = component::toggleUseCategorizedSettings
+                )
+            }
+
+            Setting.AllowCollapsingSettingsGroups -> {
+                AllowCollapsingSettingsGroupsSettingItem(
+                    onClick = component::toggleAllowCollapsingSettingsGroups
+                )
+            }
+
+            Setting.DefaultDrawLineWidth -> {
+                DefaultDrawLineWidthSettingItem(onValueChange = component::setDefaultDrawLineWidth)
+            }
+
+            Setting.OpenEditInsteadOfPreview -> {
+                OpenEditInsteadOfPreviewSettingItem(onClick = component::toggleOpenEditInsteadOfPreview)
+            }
+
+            Setting.CanEnterPresetsByTextField -> {
+                CanEnterPresetsByTextFieldSettingItem(onClick = component::toggleCanEnterPresetsByTextField)
+            }
+
+            Setting.ColorBlindScheme -> {
+                ColorBlindSchemeSettingItem(onValueChange = component::setColorBlindScheme)
+            }
+
+            Setting.EnableLinksPreview -> {
+                EnableLinksPreviewSettingItem(onClick = component::toggleIsLinksPreviewEnabled)
+            }
+
+            Setting.DefaultDrawColor -> {
+                DefaultDrawColorSettingItem(onValueChange = component::setDefaultDrawColor)
+            }
+
+            Setting.DefaultDrawPathMode -> {
+                DefaultDrawPathModeSettingItem(onValueChange = component::setDefaultDrawPathMode)
+            }
+
+            Setting.AddTimestampToFilename -> {
+                AddTimestampToFilenameSettingItem(onClick = component::toggleAddTimestampToFilename)
+            }
+
+            Setting.UseFormattedFilenameTimestamp -> {
+                UseFormattedFilenameTimestampSettingItem(onClick = component::toggleUseFormattedFilenameTimestamp)
+            }
+
+            Setting.OneTimeSaveLocation -> {
+                OneTimeSaveLocationSettingItem()
+            }
+
+            Setting.DefaultResizeType -> {
+                DefaultResizeTypeSettingItem(onValueChange = component::setDefaultResizeType)
+            }
+
+            Setting.SystemBarsVisibility -> {
+                SystemBarsVisibilitySettingItem(onValueChange = component::setSystemBarsVisibility)
+            }
+
+            Setting.ShowSystemBarsBySwipe -> {
+                ShowSystemBarsBySwipeSettingItem(onClick = component::toggleIsSystemBarsVisibleBySwipe)
+            }
+
+            Setting.UseCompactSelectors -> {
+                UseCompactSelectorsSettingItem(onClick = component::toggleUseCompactSelectors)
+            }
+
+            Setting.MainScreenTitle -> {
+                MainScreenTitleSettingItem(onValueChange = component::setMainScreenTitle)
+            }
+
+            Setting.SliderType -> {
+                SliderTypeSettingItem(onValueChange = component::setSliderType)
+            }
+
+            Setting.DialogPosition -> {
+                DialogPositionSettingItem(onValueChange = component::setDialogPosition)
+            }
+
+            Setting.CenterAlignDialogButtons -> {
+                CenterAlignDialogButtonsSettingItem(onClick = component::toggleIsCenterAlignDialogButtons)
+            }
+
+            Setting.OpenSourceLicenses -> {
+                OpenSourceLicensesSettingItem(
+                    onClick = {
+                        component.onNavigate(Screen.LibrariesInfo)
+                    }
+                )
+            }
+
+            Setting.FastSettingsSide -> {
+                FastSettingsSideSettingItem(onValueChange = component::setFastSettingsSide)
+            }
+
+            Setting.ChecksumAsFilename -> {
+                ChecksumAsFilenameSettingItem(onValueChange = component::setChecksumTypeForFilename)
+            }
+
+            Setting.EnableToolExitConfirmation -> {
+                EnableToolExitConfirmationSettingItem(onClick = component::toggleEnableToolExitConfirmation)
+            }
+
+            Setting.SendLogs -> {
+                SendLogsSettingItem(
+                    onClick = component::shareLogs,
+                    isSendingLogs = component.isSendingLogs
+                )
+            }
+
+            Setting.AddPresetToFilename -> {
+                AddPresetToFilenameSettingItem(onClick = component::toggleAddPresetInfoToFilename)
+            }
+
+            Setting.AddImageScaleModeToFilename -> {
+                AddImageScaleModeToFilenameSettingItem(onClick = component::toggleAddImageScaleModeInfoToFilename)
+            }
+
+            Setting.AllowSkipIfLarger -> {
+                AllowSkipIfLargerSettingItem(onClick = component::toggleAllowSkipIfLarger)
+            }
+
+            Setting.EnableLauncherMode -> {
+                EnableLauncherModeSettingItem(onClick = component::toggleIsScreenSelectionLauncherMode)
+            }
+
+            Setting.SnowfallMode -> {
+                SnowfallModeSettingItem(onValueChange = component::setSnowfallMode)
+            }
+
+            Setting.DefaultImageFormat -> {
+                DefaultImageFormatSettingItem(onValueChange = component::setDefaultImageFormat)
+            }
+
+            Setting.DefaultQuality -> {
+                DefaultQualitySettingItem(onValueChange = component::setDefaultQuality)
+            }
+
+            Setting.MarkupLayerTextDefaults -> {
+                MarkupLayerTextDefaultsSettingItem(
+                    onValueChange = component::setMarkupLayerTextDefaults
+                )
+            }
+
+            Setting.ShapeType -> {
+                ShapeTypeSettingItem(onValueChange = component::setShapesType)
+            }
+
+            Setting.CornersSize -> {
+                CornersSizeSettingItem(onValueChange = component::setShapesType)
+            }
+
+            Setting.FilenamePattern -> {
+                FilenamePatternSettingItem(
+                    onValueChange = component::setFilenamePattern,
+                    filenameCreator = component
+                )
+            }
+
+            Setting.FlingType -> {
+                FlingTypeSettingItem(onValueChange = component::setFlingType)
+            }
+
+            Setting.MotionDurationScale -> {
+                MotionDurationScaleSettingItem(onValueChange = component::setMotionDurationScale)
+            }
+
+            Setting.ToolsHiddenForShare -> {
+                ToolsHiddenForShareSettingItem(onValueChange = component::setHiddenForShareScreens)
+            }
+
+            Setting.KeepDateTime -> {
+                KeepDateTimeSettingItem(onClick = component::toggleKeepDateTime)
+            }
+
+            Setting.AlwaysClearExif -> {
+                AlwaysClearExifSettingItem(onClick = component::toggleAlwaysClearExif)
+            }
+
+            Setting.AddImageToolboxMetadata -> {
+                AddImageToolboxMetadataSettingItem(
+                    onClick = component::toggleAddImageToolboxMetadata
+                )
+            }
+
+            Setting.EnableBackgroundColorForAlphaFormats -> {
+                EnableBackgroundColorForAlphaFormatsSettingItem(onClick = component::toggleEnableBackgroundColorForAlphaFormats)
+            }
+
+            Setting.DebugMenu -> {
+                DebugMenuSettingItem()
+            }
+
+            Setting.ShowToolsHistory -> {
+                ShowToolsHistorySettingItem(onClick = component::toggleShowToolsHistory)
+            }
+
+            Setting.CacheAutoClearLimit -> {
+                CacheAutoClearLimitSettingItem(
+                    onValueChange = component::setCacheAutoClearLimitBytes
+                )
+            }
+
+            Setting.CacheAutoClearInterval -> {
+                CacheAutoClearIntervalSettingItem(
+                    onValueChange = component::setCacheAutoClearInterval
+                )
+            }
+
+            Setting.RawWhiteBalance -> {
+                RawWhiteBalanceSettingItem(
+                    onValueChange = component::setRawWhiteBalance
+                )
+            }
+
+            Setting.RawOutputColorSpace -> {
+                RawOutputColorSpaceSettingItem(
+                    onValueChange = component::setRawOutputColorSpace
+                )
+            }
+
+            Setting.RawHighlightRecovery -> {
+                RawHighlightRecoverySettingItem(
+                    onValueChange = component::setRawHighlightRecovery
+                )
+            }
+
+            Setting.RawExposureCompensation -> {
+                RawExposureCompensationSettingItem(
+                    onValueChange = component::setRawExposureCompensation
+                )
+            }
+
+            Setting.RawHighlightPreservation -> {
+                RawHighlightPreservationSettingItem(
+                    onValueChange = component::setRawHighlightPreservation
+                )
+            }
+
+            Setting.RawAutoBrightness -> {
+                RawAutoBrightnessSettingItem(
+                    onClick = component::toggleRawAutoBrightness,
+                    onValueChange = component::setRawBrightness
+                )
+            }
+
+            Setting.RawDemosaicQuality -> {
+                RawDemosaicQualitySettingItem(
+                    onValueChange = component::setRawDemosaicQuality
+                )
+            }
+
+            Setting.RawHalfSize -> {
+                RawHalfSizeSettingItem(
+                    onClick = component::toggleRawHalfSize
+                )
+            }
+
+            Setting.RawApplyOrientation -> {
+                RawApplyOrientationSettingItem(
+                    onClick = component::toggleRawApplyOrientation
+                )
+            }
+
+            Setting.RawUseEmbeddedPreview -> {
+                RawUseEmbeddedPreviewSettingItem(
+                    onClick = component::toggleRawUseEmbeddedPreview
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun settingsGroupItemShape(
+    index: Int,
+    size: Int,
+    shape: Shape?
+): Shape {
+    val itemShape = ShapeDefaults.byIndex(index, size)
+    if (shape !is CornerBasedShape || itemShape !is CornerBasedShape) return itemShape
+
+    return itemShape.copy(
+        topStart = if (index == 0) shape.topStart else itemShape.topStart,
+        topEnd = if (index == 0) shape.topEnd else itemShape.topEnd,
+        bottomStart = if (index == size - 1) shape.bottomStart else itemShape.bottomStart,
+        bottomEnd = if (index == size - 1) shape.bottomEnd else itemShape.bottomEnd
+    )
+}

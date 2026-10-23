@@ -230,33 +230,8 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="org.fossify.gallery.activities.EditActivity"
-            android:configChanges="orientation"
-            android:exported="true"
-            android:label="@string/basic_editor">
-
-            <intent-filter android:name="foss-editor">
-
-                <action android:name="android.intent.action.EDIT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="image/*" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="com.android.camera.action.CROP" />
-
-                <data android:scheme="content" />
-                <data android:scheme="file" />
-                <data android:mimeType="image/*" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.ALTERNATIVE" />
-                <category android:name="android.intent.category.SELECTED_ALTERNATIVE" />
-            </intent-filter>
-        </activity>
+        <!-- PhotoBox: Fossify's built-in editor (EditActivity) was removed. Editing opens
+             Image Toolbox, which is part of the same app (see openEditor in Activity.kt). -->
 
         <activity
             android:name=".activities.SetWallpaperActivity"
@@ -288,8 +263,9 @@
             </intent-filter>
         </activity>
 
+        <!-- PhotoBox: own provider class, since Image Toolbox uses androidx's FileProvider. -->
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".PhotoBoxFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">

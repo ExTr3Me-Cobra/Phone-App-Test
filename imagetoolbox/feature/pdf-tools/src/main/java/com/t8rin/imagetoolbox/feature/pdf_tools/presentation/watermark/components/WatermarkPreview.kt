@@ -1,0 +1,147 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.pdf_tools.presentation.watermark.components
+
+import android.net.Uri
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.t8rin.imagetoolbox.core.data.coil.PdfImageRequest
+import com.t8rin.imagetoolbox.core.ui.utils.helper.ImageUtils.safeAspectRatio
+import com.t8rin.imagetoolbox.core.ui.widget.image.Picture
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.animateContentSizeNoClip
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
+import com.t8rin.imagetoolbox.feature.pdf_tools.domain.model.PdfWatermarkParams
+import com.t8rin.imagetoolbox.feature.pdf_tools.presentation.common.PageSwitcher
+import com.t8rin.imagetoolbox.feature.pdf_tools.presentation.common.asPdfPreviewText
+import com.t8rin.imagetoolbox.feature.pdf_tools.presentation.common.rememberPdfTextStyle
+
+@Composable
+internal fun WatermarkPreview(
+    uri: Uri?,
+    params: PdfWatermarkParams,
+    pageCount: Int
+) {
+    val pdfTextStyle = rememberPdfTextStyle()
+    val previewText = params.text.asPdfPreviewText()
+
+    PageSwitcher(
+        activePages = params.pages,
+        pageCount = pageCount
+    ) { page ->
+        Box(
+            modifier = Modifier
+                .container()
+                .padding(4.dp)
+                .animateContentSizeNoClip(
+                    alignment = Alignment.Center
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            var aspectRatio by rememberSaveable {
+                mutableFloatStateOf(1f)
+            }
+
+            Box(
+                modifier = Modifier.aspectRatio(aspectRatio)
+            ) {
+                Picture(
+                    model = remember(uri, page) {
+                        PdfImageRequest(
+                            data = uri,
+                            pdfPage = page
+                        )
+                    },
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.matchParentSize(),
+                    onSuccess = {
+                        aspectRatio = it.result.image.safeAspectRatio
+                    },
+                    shape = MaterialTheme.shapes.medium
+                )
+
+                if (page in params.pages) {
+                    BoxWithConstraints(
+                        modifier = Modifier.matchParentSize()
+                    ) {
+                        val density = LocalDensity.current
+                        val textMeasurer = rememberTextMeasurer()
+
+                        val targetWidth = maxWidth * params.fontSize / 100f
+                        val textLayoutWidth = targetWidth + 8.dp
+                        val scaledFontSize = remember(
+                            density,
+                            params.fontSize,
+                            previewText,
+                            targetWidth,
+                            pdfTextStyle
+                        ) {
+                            val baseFontSize = 100.sp
+                            val textWidth = textMeasurer.measure(
+                                text = previewText,
+                                style = pdfTextStyle.copy(fontSize = baseFontSize),
+                                maxLines = 1,
+                                softWrap = false
+                            ).size.width.coerceAtLeast(1)
+
+                            with(density) {
+                                baseFontSize * (targetWidth.toPx() / textWidth)
+                            }
+                        }
+
+                        Text(
+                            text = previewText,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .requiredWidth(textLayoutWidth)
+                                .graphicsLayer {
+                                    rotationZ = params.rotation
+                                    alpha = params.opacity
+                                },
+                            color = Color(params.color),
+                            maxLines = 1,
+                            softWrap = false,
+                            textAlign = TextAlign.Center,
+                            style = pdfTextStyle.copy(fontSize = scaledFontSize)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

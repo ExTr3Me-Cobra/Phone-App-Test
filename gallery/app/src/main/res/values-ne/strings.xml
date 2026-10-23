@@ -15,12 +15,12 @@
     <string name="unknown_location">थाहानभएको ठाउ</string>
     <string name="volume">भोलुम</string>
     <string name="brightness">उज्यालोपन</string>
-    <string name="images">तस्बिरहरु</string>
+    <string name="gallery_images">तस्बिरहरु</string>
     <string name="videos">भिडियोहरु</string>
     <string name="raw_images">RAW ईमेजहरु</string>
     <string name="add_folder">फोल्डर थप्नुहोस</string>
-    <string name="width">चाैडाई</string>
-    <string name="height">उचाई</string>
+    <string name="gallery_width">चाैडाई</string>
+    <string name="gallery_height">उचाई</string>
     <string name="editor">सम्पादक</string>
     <string name="rotate">घुमाउने</string>
     <string name="free_aspect_ratio">स्वतन्त्र</string>

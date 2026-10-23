@@ -1,0 +1,123 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.palette_tools.presentation.components
+
+import android.graphics.Bitmap
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.t8rin.colors.parser.ColorWithName
+import com.t8rin.colors.rememberImageColorPaletteState
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.resources.icons.FileExport
+import com.t8rin.imagetoolbox.core.resources.icons.GridOn
+import com.t8rin.imagetoolbox.core.ui.theme.mixedContainer
+import com.t8rin.imagetoolbox.core.ui.theme.onMixedContainer
+import com.t8rin.imagetoolbox.core.ui.widget.dialogs.ColorCopyFormatSelectionDialog
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.ShapeDefaults
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
+import com.t8rin.imagetoolbox.core.ui.widget.preferences.PreferenceItem
+import com.t8rin.imagetoolbox.feature.palette_tools.presentation.components.model.NamedColor
+
+@Composable
+internal fun DefaultPaletteControls(
+    bitmap: Bitmap,
+    onOpenExport: (List<NamedColor>) -> Unit,
+    onOpenPdfExport: () -> Unit
+) {
+    var count by rememberSaveable { mutableIntStateOf(32) }
+    var colorCopyTarget by remember {
+        mutableStateOf<ColorWithName?>(null)
+    }
+
+    val state = rememberImageColorPaletteState(
+        imageBitmap = bitmap.asImageBitmap(),
+        maximumColorCount = count
+    )
+
+    PaletteColorsCountSelector(
+        value = count,
+        onValueChange = { count = it }
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+
+    PreferenceItem(
+        title = stringResource(R.string.export),
+        subtitle = stringResource(R.string.export_palette_sub),
+        onClick = {
+            onOpenExport(
+                state.paletteData.map {
+                    NamedColor(
+                        color = it.colorData.color,
+                        name = it.colorData.name
+                    )
+                }
+            )
+        },
+        endIcon = Icons.Rounded.FileExport,
+        shape = ShapeDefaults.top,
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.mixedContainer.copy(0.5f),
+        contentColor = MaterialTheme.colorScheme.onMixedContainer
+    )
+    Spacer(modifier = Modifier.height(4.dp))
+    PreferenceItem(
+        title = stringResource(R.string.palette_pdf),
+        subtitle = stringResource(R.string.palette_pdf_sub),
+        onClick = onOpenPdfExport,
+        endIcon = Icons.Outlined.GridOn,
+        shape = ShapeDefaults.bottom,
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(0.5f),
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    ImageColorPalette(
+        paletteDataList = state.paletteData,
+        modifier = Modifier
+            .fillMaxSize()
+            .container(ShapeDefaults.large)
+            .padding(4.dp),
+        onColorClick = {
+            colorCopyTarget = ColorWithName(
+                color = it.color,
+                name = it.name
+            )
+        }
+    )
+
+    ColorCopyFormatSelectionDialog(
+        target = colorCopyTarget,
+        onDismiss = { colorCopyTarget = null }
+    )
+}

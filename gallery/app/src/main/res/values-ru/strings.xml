@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Сортировка папок перетаскиванием (Pro)</string>
     <string name="restore_to_path">Восстановление в \"%s\"</string>
     <string name="filter_media">Фильтр медиа</string>
-    <string name="images">Изображения</string>
+    <string name="gallery_images">Изображения</string>
     <string name="videos">Видео</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">RAW</string>
@@ -57,8 +57,8 @@
 \nДобавление папки не приводит к исключению каких-либо других.</string>
     <string name="no_media_add_included">Медиафайлы не найдены. Вы можете исправить данную проблему, добавив папки с медиафайлами вручную.</string>
     <string name="resize_and_save">Изменить и сохранить</string>
-    <string name="width">Ширина</string>
-    <string name="height">Высота</string>
+    <string name="gallery_width">Ширина</string>
+    <string name="gallery_height">Высота</string>
     <string name="keep_aspect_ratio">Сохранять соотношение сторон</string>
     <string name="invalid_values">Указано недопустимое разрешение</string>
     <string name="resize_multiple_images">Изменить размер изображений</string>

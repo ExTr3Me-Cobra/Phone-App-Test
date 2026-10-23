@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Przeorganizuj foldery przeciągając (Pro)</string>
     <string name="restore_to_path">Przywracanie do „%s”</string>
     <string name="filter_media">Filtruj multimedia</string>
-    <string name="images">Obrazy</string>
+    <string name="gallery_images">Obrazy</string>
     <string name="videos">Wideo</string>
     <string name="gifs">GIF-y</string>
     <string name="raw_images">Obrazy RAW</string>
@@ -61,8 +61,8 @@
 \nDodanie tutaj niektórych elementów nie wykluczy żadnego innego folderu.</string>
     <string name="no_media_add_included">Nie znaleziono żadnych plików multimedialnych. Możesz to naprawić, ręcznie dodając foldery zawierające pliki multimedialne.</string>
     <string name="resize_and_save">Zmień rozmiar zaznaczenia i zapisz</string>
-    <string name="width">Szerokość</string>
-    <string name="height">Wysokość</string>
+    <string name="gallery_width">Szerokość</string>
+    <string name="gallery_height">Wysokość</string>
     <string name="keep_aspect_ratio">Zachowaj proporcje</string>
     <string name="invalid_values">Podaj prawidłową rozdzielczość</string>
     <string name="resize_multiple_images">Zmień rozmiar obrazów</string>

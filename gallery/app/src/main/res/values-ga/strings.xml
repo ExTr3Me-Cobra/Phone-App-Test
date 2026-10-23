@@ -11,7 +11,7 @@
     <string name="exclude_folder_parent">Tuismitheoir a eisiamh ina ionad?</string>
     <string name="excluded_activity_placeholder">Gan fillteáin a áireamh, beidh siad mar aon lena bhfofhillteáin i bhfolach díreach i nGailearaí Fossify, beidh siad fós le feiceáil in iarratais eile.\n\nMás mian leat iad a cheilt ó fheidhmchláir eile freisin, bain úsáid as an bhfeidhm Folaigh.</string>
     <string name="hidden_folders">Fillteáin fholaithe</string>
-    <string name="height">Airde</string>
+    <string name="gallery_height">Airde</string>
     <string name="keep_aspect_ratio">Coinnigh cóimheas treoíochta</string>
     <plurals name="failed_to_resize_images">
         <item quantity="one">Theip ar athrú méide %d íomhá</item>
@@ -77,7 +77,7 @@
     <string name="set_as_default_folder">Socraigh mar fhillteán réamhshocraithe</string>
     <string name="restore_to_path">Ag aischur go \'%s\'</string>
     <string name="filter_media">Scag meáin</string>
-    <string name="images">Íomhánna</string>
+    <string name="gallery_images">Íomhánna</string>
     <string name="videos">Físeáin</string>
     <string name="gifs">GIFanna</string>
     <string name="raw_images">Íomhánna RAW</string>
@@ -96,7 +96,7 @@
     <string name="included_activity_placeholder">Má tá roinnt fillteáin agat ina bhfuil meáin, ach nár aithin an aip iad, is féidir leat iad a chur leis de láimh anseo.\n\nMá chuirtear roinnt míreanna anseo, ní chuirfear aon fhillteán eile as an áireamh.</string>
     <string name="no_media_add_included">Níor aimsíodh aon chomhaid meán. Is féidir leat é a réiteach trí na fillteáin ina bhfuil comhaid meán a chur leis de láimh.</string>
     <string name="resize_and_save">Athraigh méid an roghnaithe agus sábháil</string>
-    <string name="width">Leithead</string>
+    <string name="gallery_width">Leithead</string>
     <string name="invalid_values">Iontráil taifeach bailí le do thoil</string>
     <string name="resize_multiple_images">Athraigh méid na n-íomhánna iomadúla</string>
     <string name="resize_factor">Athraigh méid an fhachtóra</string>

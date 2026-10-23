@@ -58,10 +58,12 @@ a new release. The code is in `app/src/main/java/com/vibrateonly/app/`.
 
 ---
 
-# Gallery (photo app, based on Fossify Gallery)
+# PhotoBox (photo gallery + editor)
 
-The `gallery/` folder holds a photo storing/viewing/editing app, imported from the open-source
-[Fossify Gallery](https://github.com/FossifyOrg/Gallery) (GPL-3.0, upstream commit `a089289`,
-version 1.14.0). GitHub Actions (`.github/workflows/build-gallery-apk.yml`) builds it whenever
-something in `gallery/` changes and posts **Gallery.apk** on the Releases page as
-"Gallery (build N)".
+One app for storing, viewing and editing photos: [Fossify Gallery](https://github.com/FossifyOrg/Gallery)
+for browsing, with [Image Toolbox](https://github.com/T8RIN/ImageToolbox) built in as the editor
+(tap **Edit** on a photo). The code is in `gallery/`, `fossify-commons/`, `imagetoolbox/` and
+`photobox/`; see `photobox/README.md` for how they fit together and what was changed.
+
+GitHub Actions (`.github/workflows/build-photobox-apk.yml`) builds it whenever one of those
+folders changes and posts **PhotoBox.apk** on the Releases page as "PhotoBox (build N)".

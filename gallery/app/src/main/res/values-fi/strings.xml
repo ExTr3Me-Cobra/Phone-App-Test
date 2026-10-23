@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Järjestä kansiot uudelleen vetämällä (Pro)</string>
     <string name="restore_to_path">Palautetaan kohteeseen \'%s\'</string>
     <string name="filter_media">Suodata media</string>
-    <string name="images">Kuvat</string>
+    <string name="gallery_images">Kuvat</string>
     <string name="videos">Videot</string>
     <string name="gifs">GIFit</string>
     <string name="raw_images">RAW-kuvat</string>
@@ -57,8 +57,8 @@
 \nLisääminen ei poissulje muita kansioita.</string>
     <string name="no_media_add_included">Mediatiedostoja ei löytynyt. Lisää mediatiedostoja sisältävät kansiot manuaalisesti.</string>
     <string name="resize_and_save">Rajaa valinta ja tallenna</string>
-    <string name="width">Leveys</string>
-    <string name="height">Korkeus</string>
+    <string name="gallery_width">Leveys</string>
+    <string name="gallery_height">Korkeus</string>
     <string name="keep_aspect_ratio">Säilytä kuvasuhde</string>
     <string name="invalid_values">Aseta oikea resoluutio</string>
     <string name="resize_multiple_images">Muuta useamman kuvan kokoa</string>

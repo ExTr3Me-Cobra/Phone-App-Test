@@ -1,0 +1,375 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.core.data.saving
+
+import android.content.ContentValues
+import android.content.Context
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.DocumentsContract
+import android.provider.MediaStore
+import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
+import com.t8rin.imagetoolbox.core.data.saving.io.StreamWriteable
+import com.t8rin.imagetoolbox.core.domain.saving.model.ImageSaveTarget
+import com.t8rin.imagetoolbox.core.domain.saving.model.SaveTarget
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.utils.UriReplacements
+import com.t8rin.imagetoolbox.core.utils.makeLog
+import com.t8rin.imagetoolbox.core.utils.path
+import com.t8rin.imagetoolbox.core.utils.tryExtractOriginal
+import kotlinx.coroutines.coroutineScope
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
+
+@ConsistentCopyVisibility
+internal data class SavingFolder private constructor(
+    val outputStream: OutputStream,
+    val fileUri: Uri,
+    private val savingPath: String? = null
+) : StreamWriteable by StreamWriteable(outputStream) {
+
+    val normalizedSavingPath = savingPath?.removeSuffix("/")?.removePrefix("/storage/emulated/0/")
+
+    companion object {
+        suspend fun getInstance(
+            context: Context,
+            treeUri: Uri?,
+            saveTarget: SaveTarget,
+            saveToOriginalFolder: Boolean
+        ): SavingFolder? = coroutineScope {
+            val originalFolder = if (saveToOriginalFolder) {
+                runCatching {
+                    val documentFolder = saveTarget.originalDocumentFolder(context)
+                    if (documentFolder != null) {
+                        context.createViaDocumentFile(saveTarget, documentFolder)
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        saveTarget.originalRelativePath(context)?.let {
+                            context.createViaMediaStore(
+                                saveTarget = saveTarget,
+                                relativePath = it
+                            )
+                        }
+                    } else {
+                        createLegacyFile(
+                            context = context,
+                            saveTarget = saveTarget,
+                            parent = saveTarget.originalParentFile(context)
+                        )
+                    }
+                }.onFailure { it.makeLog("saveToOriginalFolder") }.getOrThrow()
+            } else null
+
+            if (originalFolder != null) return@coroutineScope originalFolder
+            if (saveToOriginalFolder && treeUri == null) return@coroutineScope null
+
+            if (treeUri == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    context.createViaMediaStore(
+                        saveTarget = saveTarget,
+                        relativePath = null
+                    )
+                } else {
+                    createDefaultFolderFile(
+                        context = context,
+                        saveTarget = saveTarget
+                    )
+                }
+            } else if (DocumentFile.isDocumentUri(context, treeUri)) {
+                SavingFolder(
+                    outputStream = context.contentResolver.openOutputStream(treeUri)
+                        ?: return@coroutineScope null,
+                    fileUri = treeUri,
+                    savingPath = treeUri.path()
+                )
+            } else {
+                val documentFile = DocumentFile.fromTreeUri(context, treeUri)
+                    ?: return@coroutineScope null
+
+                context.createViaDocumentFile(saveTarget, documentFile)
+            }
+        }
+
+        private fun Context.createViaDocumentFile(
+            saveTarget: SaveTarget,
+            documentFile: DocumentFile
+        ): SavingFolder? {
+            if (!documentFile.exists()) return null
+
+            val filename = saveTarget.filename ?: return null
+            if (documentFile.findFile(filename) != null) {
+                throw filenameCollision(filename)
+            }
+
+            val file = documentFile.createFile(saveTarget.mimeType.entry, filename) ?: return null
+            if (file.name != filename) {
+                file.delete()
+                throw filenameCollision(filename)
+            }
+
+            return SavingFolder(
+                outputStream = contentResolver.openOutputStream(file.uri) ?: return null,
+                fileUri = file.uri,
+                savingPath = documentFile.uri.path()
+            )
+        }
+
+        private fun SaveTarget.originalDocumentFolder(context: Context): DocumentFile? {
+            val uri = UriReplacements.resolve(originalUri.toUri())
+            if (!DocumentsContract.isTreeUri(uri) || !DocumentsContract.isDocumentUri(
+                    context,
+                    uri
+                )
+            ) {
+                return null
+            }
+
+            val parentId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                runCatching {
+                    DocumentsContract.findDocumentPath(context.contentResolver, uri)
+                        ?.path
+                        ?.dropLast(1)
+                        ?.lastOrNull()
+                }.onFailure { it.makeLog("originalDocumentFolder") }.getOrNull()
+            } else null
+
+            val documentId =
+                parentId ?: if (uri.authority == "com.android.externalstorage.documents") {
+                    val originalId = DocumentsContract.getDocumentId(uri)
+                    if (originalId == DocumentsContract.getTreeDocumentId(uri)) return null
+
+                    originalId.substringBeforeLast('/', originalId.substringBefore(':') + ':')
+                } else return null
+
+            return DocumentFile.fromTreeUri(
+                context,
+                DocumentsContract.buildDocumentUriUsingTree(uri, documentId)
+            )?.takeIf { it.isDirectory && it.canWrite() }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        private fun Context.createViaMediaStore(
+            saveTarget: SaveTarget,
+            relativePath: String?
+        ): SavingFolder? {
+            val filename = saveTarget.filename ?: return null
+            val mimeType = saveTarget.mimeType.entry
+
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    relativePath ?: "${Environment.DIRECTORY_DOCUMENTS}/ImageToolbox"
+                )
+            }
+
+            val primaryDirectory = relativePath
+                ?.trimStart('/')
+                ?.substringBefore('/')
+
+            val collectionUri = when {
+                relativePath == null -> MediaStore.Files.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+
+                primaryDirectory.equals(Environment.DIRECTORY_DOWNLOADS, ignoreCase = true) -> {
+                    MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                }
+
+                primaryDirectory.equals(Environment.DIRECTORY_DOCUMENTS, ignoreCase = true) -> {
+                    MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                }
+
+                mimeType.startsWith("image/") -> MediaStore.Images.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+
+                mimeType.startsWith("video/") -> MediaStore.Video.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+
+                mimeType.startsWith("audio/") -> MediaStore.Audio.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL_PRIMARY
+                )
+
+                else -> MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            }
+
+            val filesCollectionUri = MediaStore.Files.getContentUri(
+                MediaStore.VOLUME_EXTERNAL_PRIMARY
+            )
+            val uri = listOf(collectionUri, filesCollectionUri)
+                .distinct()
+                .firstNotNullOfOrNull { uri ->
+                    runCatching {
+                        contentResolver.insert(uri, contentValues)
+                    }.onFailure {
+                        it.makeLog("createViaMediaStore")
+                    }.getOrNull()
+                } ?: return null
+
+            val actualFilename = contentResolver.query(
+                uri,
+                arrayOf(MediaStore.MediaColumns.DISPLAY_NAME),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                    )
+                } else null
+            }
+            if (actualFilename != null && actualFilename != filename) {
+                runCatching {
+                    contentResolver.delete(uri, null, null)
+                }.onFailure {
+                    it.makeLog("createViaMediaStore collision cleanup")
+                }
+                throw filenameCollision(filename)
+            }
+
+            return SavingFolder(
+                outputStream = contentResolver.openOutputStream(uri)
+                    ?: return null,
+                fileUri = uri,
+                savingPath = relativePath ?: "${Environment.DIRECTORY_DOCUMENTS}/ImageToolbox"
+            )
+        }
+
+        private fun createDefaultFolderFile(
+            context: Context,
+            saveTarget: SaveTarget
+        ): SavingFolder? = createLegacyFile(
+            context = context,
+            saveTarget = saveTarget,
+            parent = File(
+                Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS
+                ),
+                "ImageToolbox"
+            )
+        )
+
+        private fun createLegacyFile(
+            context: Context,
+            saveTarget: SaveTarget,
+            parent: File?
+        ): SavingFolder? {
+            val filename = saveTarget.filename ?: return null
+            val dir = parent ?: return null
+
+            if (!dir.exists()) dir.mkdirs()
+            if (!dir.exists() || !dir.isDirectory) return null
+
+            val file = File(dir, filename)
+            if (file.exists()) throw context.filenameCollision(filename)
+
+            return SavingFolder(
+                outputStream = FileOutputStream(file),
+                fileUri = file.toUri(),
+                savingPath = dir.absolutePath
+            )
+        }
+
+        private fun SaveTarget.originalParentFile(context: Context): File? {
+            val originalUri = (this as? ImageSaveTarget)
+                ?.originalUri
+                ?.toUri()
+                ?: return null
+
+            val originalPath = originalUri.externalStoragePath(context) ?: originalUri.path()
+                ?.takeIf { it.isNotBlank() }
+            ?: return null
+
+            return File(originalPath)
+                .parentFile
+                ?.takeIf { it.exists() && it.isDirectory }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.Q)
+        private fun SaveTarget.originalRelativePath(
+            context: Context
+        ): String? {
+            val originalUri = (this as? ImageSaveTarget)
+                ?.originalUri
+                ?.toUri()
+                ?.tryExtractOriginal()
+                ?: return null
+
+            originalUri.externalStorageRelativePath(context)?.let { return it }
+
+            context.contentResolver.query(
+                originalUri,
+                arrayOf(MediaStore.MediaColumns.RELATIVE_PATH),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (!cursor.moveToFirst()) return@use null
+
+                cursor.getString(
+                    cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
+                )
+            }?.takeIf {
+                it.isNotBlank() && ".transforms" !in it
+            }?.let { return it }
+
+            return originalParentFile(context)
+                ?.relativeToOrNull(Environment.getExternalStorageDirectory())
+                ?.path
+                ?.takeIf { it.isNotBlank() && !it.startsWith("..") }
+                ?.plus('/')
+        }
+
+        private fun Uri.externalStorageRelativePath(context: Context): String? = runCatching {
+            if (!DocumentsContract.isDocumentUri(context, this)) return@runCatching null
+
+            val documentId = DocumentsContract.getDocumentId(this)
+            val type = documentId.substringBefore(':')
+            val path = documentId.substringAfter(':', "")
+
+            if (type.equals("primary", ignoreCase = true)) {
+                path.substringBeforeLast('/', "")
+                    .takeIf { it.isNotBlank() }
+                    ?.plus('/')
+            } else null
+        }.onFailure { it.makeLog("externalStorageRelativePath") }.getOrNull()
+
+        private fun Uri.externalStoragePath(context: Context): String? = runCatching {
+            if (!DocumentsContract.isDocumentUri(context, this)) return@runCatching null
+
+            val documentId = DocumentsContract.getDocumentId(this)
+            val type = documentId.substringBefore(':')
+            val path = documentId.substringAfter(':', "")
+
+            if (type.equals("primary", ignoreCase = true) && path.isNotBlank()) {
+                File(Environment.getExternalStorageDirectory(), path).absolutePath
+            } else null
+        }.onFailure { it.makeLog("externalStoragePath") }.getOrNull()
+
+        private fun Context.filenameCollision(filename: String) = IllegalArgumentException(
+            getString(R.string.filename_already_exists, filename)
+        )
+    }
+}

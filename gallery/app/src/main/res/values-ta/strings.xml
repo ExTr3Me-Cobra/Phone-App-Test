@@ -32,7 +32,7 @@
     <string name="reorder_by_dragging">பிடித்திழுத்து அடைவுகளை மறுசீரமை</string>
     <string name="reorder_by_dragging_pro">பிடித்திழுத்து அடைவுகளை மறுசீரமை (Pro)</string>
     <string name="filter_media">ஊடகத்தை வடிகட்டு</string>
-    <string name="images">படங்கள்</string>
+    <string name="gallery_images">படங்கள்</string>
     <string name="videos">காணொளிகள்</string>
     <string name="gifs">GIFகள்</string>
     <string name="raw_images">RAW படங்கள்</string>
@@ -53,8 +53,8 @@
 \nசில உருப்படிகளை இங்கே சேர்ப்பது வேறு எவ்வடைவையும் விலக்காது.</string>
     <string name="no_media_add_included">ஊடக கோப்புகள் ஏதுமில்லை. ஊடக கோப்புகளைக் கொண்ட அடைவுகளை கைமுறையாகச் சேர்த்து அதைத் தீர்க்கலாம்.</string>
     <string name="resize_and_save">தெரிவை மறுஅளவிட்டுச் சேமி</string>
-    <string name="width">அகலம்</string>
-    <string name="height">உயரம்</string>
+    <string name="gallery_width">அகலம்</string>
+    <string name="gallery_height">உயரம்</string>
     <string name="keep_aspect_ratio">கூறுவிகிதத்தை வைத்திரு</string>
     <string name="invalid_values">செல்லத்தக்க தீர்மானத்தை உள்ளிடவும்</string>
     <string name="editor">திருத்தி</string>

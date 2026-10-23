@@ -2,7 +2,7 @@
 <resources>
     <string name="fix_date_taken">Corrigir data de captura</string>
     <string name="set_as_default_folder">Utilizar como pasta padrão</string>
-    <string name="images">Imagens</string>
+    <string name="gallery_images">Imagens</string>
     <string name="share_resized">Partilhar foto redimensionada</string>
     <string name="filter_media">Filtrar multimédia</string>
     <string name="no_media_with_filters">Não foram encontrados ficheiros que cumpram os requisitos.</string>
@@ -72,8 +72,8 @@
     <string name="volume">Volume</string>
     <string name="hidden_folders">Pastas ocultas</string>
     <string name="manage_included_folders">Gerir pastas incluídas</string>
-    <string name="width">Largura</string>
-    <string name="height">Altura</string>
+    <string name="gallery_width">Largura</string>
+    <string name="gallery_height">Altura</string>
     <string name="invalid_values">Introduza uma resolução válida</string>
     <string name="resize_multiple_images">Redimensionar várias imagens</string>
     <string name="images_resized_successfully">Imagens redimensionadas com sucesso</string>

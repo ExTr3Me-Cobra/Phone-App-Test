@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Organizar pastas por arrasto (Pro)</string>
     <string name="restore_to_path">A restaurar para \'%s\'</string>
     <string name="filter_media">Filtrar multimédia</string>
-    <string name="images">Imagens</string>
+    <string name="gallery_images">Imagens</string>
     <string name="videos">Vídeos</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">Imagens RAW</string>
@@ -55,8 +55,8 @@
 \nAdicionar itens aqui não exclui as restantes pastas.</string>
     <string name="no_media_add_included">Não foram encontrados ficheiros multimédia. Pode adicionar manualmente as pastas que contenham esses ficheiros.</string>
     <string name="resize_and_save">Redimensionar seleção e guardar</string>
-    <string name="width">Largura</string>
-    <string name="height">Altura</string>
+    <string name="gallery_width">Largura</string>
+    <string name="gallery_height">Altura</string>
     <string name="keep_aspect_ratio">Manter proporção</string>
     <string name="invalid_values">Introduza uma resolução válida</string>
     <string name="resize_multiple_images">Redimensionar várias imagens</string>

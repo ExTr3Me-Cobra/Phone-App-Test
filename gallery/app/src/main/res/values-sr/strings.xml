@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Промените редослед директоријума превлачењем (Про)</string>
     <string name="restore_to_path">Враћање на \'%s\'</string>
     <string name="filter_media">Филтрирај медију</string>
-    <string name="images">Слике</string>
+    <string name="gallery_images">Слике</string>
     <string name="videos">Видео снимци</string>
     <string name="gifs">ГИФови</string>
     <string name="raw_images">Сирове слике</string>
@@ -55,8 +55,8 @@
 \nДодавањем неких ставки овде нећете изузети неку другу фасциклу.</string>
     <string name="no_media_add_included">Није пронађена ниједна медијска датотека. Можете га решити тако што ћете ручно додати фасцикле које садрже медијске датотеке.</string>
     <string name="resize_and_save">Промени величину одабраног и сачувај</string>
-    <string name="width">Ширина</string>
-    <string name="height">Висина</string>
+    <string name="gallery_width">Ширина</string>
+    <string name="gallery_height">Висина</string>
     <string name="keep_aspect_ratio">Задржи пропорције</string>
     <string name="invalid_values">Унесите исправну резолуцију</string>
     <string name="editor">Едитор</string>

@@ -32,7 +32,7 @@
     <string name="reorder_by_dragging">Susun ulang folder dengan menyeret</string>
     <string name="reorder_by_dragging_pro">Susun ulang folder dengan menyeret (Pro)</string>
     <string name="restore_to_path">Memulihkan ke \'%s\'</string>
-    <string name="images">Gambar</string>
+    <string name="gallery_images">Gambar</string>
     <string name="videos">Video</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">Gambar RAW</string>
@@ -54,8 +54,8 @@
 \nMenambahkan beberapa item di sini tidak akan mengecualikan folder yang lain.</string>
     <string name="no_media_add_included">Tidak ada file media yang ditemukan. Anda bisa memperbaikinya dengan menambahkan folder yang berisi file media secara manual.</string>
     <string name="resize_and_save">Ubah ukuran dan simpan</string>
-    <string name="width">Lebar</string>
-    <string name="height">Tinggi</string>
+    <string name="gallery_width">Lebar</string>
+    <string name="gallery_height">Tinggi</string>
     <string name="keep_aspect_ratio">Jaga aspek rasio</string>
     <string name="invalid_values">Silakan masukkan resolusi yang valid</string>
     <string name="editor">Penyunting</string>

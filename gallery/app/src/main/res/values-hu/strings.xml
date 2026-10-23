@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Mappák átrendezése húzással (Pro)</string>
     <string name="restore_to_path">Helyreállítás ide: „%s”</string>
     <string name="filter_media">Médiafájlok szűrése</string>
-    <string name="images">Képek</string>
+    <string name="gallery_images">Képek</string>
     <string name="videos">Videók</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">Nyers kép</string>
@@ -57,8 +57,8 @@
 \nAz elemek hozzáadása nem zár ki más mappákat.</string>
     <string name="no_media_add_included">Nem talált médiafájlokat. Ezt megoldhatja a médiafájlokat tartalmazó mappák kézi hozzáadásával.</string>
     <string name="resize_and_save">Kiválasztás átméretezése és mentés</string>
-    <string name="width">Szélesség</string>
-    <string name="height">Magasság</string>
+    <string name="gallery_width">Szélesség</string>
+    <string name="gallery_height">Magasság</string>
     <string name="keep_aspect_ratio">Képarány megtartása</string>
     <string name="invalid_values">Írjon be érvényes felbontást</string>
     <string name="resize_multiple_images">Több kép átméretezése</string>

@@ -1,0 +1,415 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.gif_tools.data
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.RectF
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.applyCanvas
+import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
+import com.awxkee.jxlcoderlibjxl.JxlCoder
+import com.awxkee.jxlcoderlibjxl.JxlDecodingSpeed
+import com.awxkee.jxlcoderlibjxl.JxlEffort
+import com.t8rin.awebp.encoder.AnimatedWebpEncoder
+import com.t8rin.gif_converter.GifDecoder
+import com.t8rin.gif_converter.GifEncoder
+import com.t8rin.imagetoolbox.core.data.image.utils.drawBitmap
+import com.t8rin.imagetoolbox.core.data.utils.outputStream
+import com.t8rin.imagetoolbox.core.data.utils.safeConfig
+import com.t8rin.imagetoolbox.core.data.utils.toSoftware
+import com.t8rin.imagetoolbox.core.domain.coroutines.DispatchersHolder
+import com.t8rin.imagetoolbox.core.domain.image.ImageGetter
+import com.t8rin.imagetoolbox.core.domain.image.ImageShareProvider
+import com.t8rin.imagetoolbox.core.domain.image.model.ImageFormat
+import com.t8rin.imagetoolbox.core.domain.image.model.ImageFrames
+import com.t8rin.imagetoolbox.core.domain.image.model.ImageInfo
+import com.t8rin.imagetoolbox.core.domain.image.model.Quality
+import com.t8rin.imagetoolbox.core.domain.saving.FailureNotifier
+import com.t8rin.imagetoolbox.core.domain.utils.runSuspendCatching
+import com.t8rin.imagetoolbox.feature.gif_tools.domain.GifConverter
+import com.t8rin.imagetoolbox.feature.gif_tools.domain.GifMergeItem
+import com.t8rin.imagetoolbox.feature.gif_tools.domain.GifMergeParams
+import com.t8rin.imagetoolbox.feature.gif_tools.domain.GifParams
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
+import oupson.apng.encoder.ApngEncoder
+import java.io.ByteArrayOutputStream
+import javax.inject.Inject
+
+private const val MIN_FRAME_DELAY_MILLIS = 10
+
+internal class AndroidGifConverter @Inject constructor(
+    private val imageGetter: ImageGetter<Bitmap>,
+    private val imageShareProvider: ImageShareProvider<Bitmap>,
+    @ApplicationContext private val context: Context,
+    private val failureNotifier: FailureNotifier,
+    dispatchersHolder: DispatchersHolder
+) : DispatchersHolder by dispatchersHolder, GifConverter {
+
+    override fun extractFramesFromGif(
+        gifUri: String,
+        imageFormat: ImageFormat,
+        imageFrames: ImageFrames,
+        quality: Quality,
+        onGetFramesCount: (frames: Int) -> Unit
+    ): Flow<String> = extractFramesFromGif(
+        gifUri = gifUri,
+        imageFrames = imageFrames,
+        onGetFramesCount = onGetFramesCount
+    ).mapNotNull { (frame) ->
+        imageShareProvider.cacheImage(
+            image = frame,
+            imageInfo = ImageInfo(
+                width = frame.width,
+                height = frame.height,
+                imageFormat = imageFormat,
+                quality = quality
+            )
+        )
+    }
+
+    override suspend fun createGifFromImageUris(
+        imageUris: List<String>,
+        params: GifParams,
+        onFailure: (Throwable) -> Unit,
+        onProgress: () -> Unit
+    ): String? = withContext(defaultDispatcher) {
+        params.size?.let { size ->
+            if (size.width <= 0 || size.height <= 0) {
+                onFailure(IllegalArgumentException("Width and height must be > 0"))
+                return@withContext null
+            }
+        }
+
+        runSuspendCatching {
+            imageShareProvider.cacheDataOrThrow(
+                filename = "temp_gif.gif"
+            ) { writeable ->
+                val encoder = GifEncoder()
+                    .setRepeat(params.repeatCount)
+                    .setQuality(params.quality.qualityValue)
+                    .setFrameRate(params.fps.toFloat())
+                    .setDispose(if (params.dontStack) 2 else 0)
+                    .setTransparent(Color.Transparent.toArgb())
+                    .apply {
+                        params.size?.let { size ->
+                            setSize(
+                                width = size.width,
+                                height = size.height
+                            )
+                        }
+                        start(writeable.outputStream())
+                }
+                imageUris.forEachIndexed { index, uri ->
+                    imageGetter.getImage(
+                        data = uri,
+                        size = params.size
+                    )!!.apply { setHasAlpha(true) }.let { frame ->
+                        encoder.addFrame(frame)
+                        if (params.crossfadeCount > 1) {
+                            val list = mutableSetOf(0, 255)
+                            for (a in 0..255 step (255 / params.crossfadeCount)) {
+                                list.add(a)
+                            }
+                            val alphas = list.sortedDescending()
+
+
+                            imageGetter.getImage(
+                                data = imageUris.getOrNull(index + 1) ?: Unit,
+                                size = params.size
+                            )?.let { next ->
+                                alphas.forEach { alpha ->
+                                    encoder.addFrame(
+                                        next.overlay(
+                                            frame.copy(frame.safeConfig, true).applyCanvas {
+                                                drawColor(
+                                                    Color.Black.copy(alpha / 255f).toArgb(),
+                                                    PorterDuff.Mode.DST_IN
+                                                )
+                                            }
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    onProgress()
+                }
+                encoder.finish()
+            }
+        }.onFailure {
+            onFailure(it)
+        }.getOrNull()
+    }
+
+    private fun Bitmap.overlay(overlay: Bitmap): Bitmap {
+        return createBitmap(width, height, safeConfig.toSoftware()).applyCanvas {
+            drawBitmap(this@overlay)
+            drawBitmap(overlay.toSoftware())
+        }
+    }
+
+    override suspend fun mergeGifs(
+        items: List<GifMergeItem>,
+        params: GifMergeParams,
+        onFailure: (Throwable) -> Unit,
+        onProgress: () -> Unit
+    ): String? = withContext(defaultDispatcher) {
+        runSuspendCatching {
+            require(items.size >= 2)
+            val outputSize = items.map { item ->
+                val decoder = GifDecoder().apply {
+                    read(requireNotNull(item.uri.bytes))
+                }
+                require(decoder.frameCount > 0)
+                decoder.advance()
+                requireNotNull(decoder.nextFrame).let { it.width to it.height }
+            }
+            val outputWidth = outputSize.maxOf { it.first }
+            val outputHeight = outputSize.maxOf { it.second }
+
+            imageShareProvider.cacheDataOrThrow(filename = "merged_gif.gif") { writeable ->
+                val encoder = GifEncoder()
+                    .setRepeat(params.repeatCount)
+                    .setQuality(params.quality.coerceIn(1, 100))
+                    .setDispose(0)
+                    .setTransparent(Color.Transparent.toArgb())
+                    .setSize(outputWidth, outputHeight)
+                encoder.start(writeable.outputStream())
+
+                items.forEachIndexed { clipIndex, item ->
+                    currentCoroutineContext().ensureActive()
+                    val decoder = GifDecoder().apply {
+                        read(requireNotNull(item.uri.bytes))
+                    }
+                    val frames = buildList {
+                        repeat(decoder.frameCount) {
+                            decoder.advance()
+                            decoder.nextFrame?.let { frame ->
+                                add(
+                                    GifFrame(
+                                        frame.toSoftware(),
+                                        decoder.nextDelay.coerceAtLeast(10)
+                                    )
+                                )
+                            }
+                        }
+                    }.transform(item)
+                    frames.forEachIndexed { frameIndex, frame ->
+                        currentCoroutineContext().ensureActive()
+                        val isClipEnd =
+                            frameIndex == frames.lastIndex && clipIndex < items.lastIndex
+                        encoder
+                            .setDelay(
+                                frame.durationMillis + if (isClipEnd) {
+                                    params.transitionDelayMillis.coerceAtLeast(0)
+                                } else 0
+                            )
+                            .addFrame(
+                                frame.bitmap.placeOnCanvas(
+                                    width = outputWidth,
+                                    height = outputHeight,
+                                    scaleToFit = params.normalizeFrameSizes
+                                )
+                            )
+                    }
+                    onProgress()
+                }
+                encoder.finish()
+            }
+        }.onFailure(onFailure).getOrNull()
+    }
+
+    private data class GifFrame(
+        val bitmap: Bitmap,
+        val durationMillis: Int
+    )
+
+    private fun List<GifFrame>.transform(item: GifMergeItem): List<GifFrame> {
+        val transformed = if (item.reverse) reversed() else this
+        return if (item.boomerang && transformed.size > 1) {
+            transformed + transformed.dropLast(1).reversed()
+        } else transformed
+    }
+
+    private fun Bitmap.placeOnCanvas(
+        width: Int,
+        height: Int,
+        scaleToFit: Boolean
+    ): Bitmap {
+        if (this.width == width && this.height == height) return this
+        val scale = if (scaleToFit) {
+            minOf(width.toFloat() / this.width, height.toFloat() / this.height)
+        } else 1f
+        val targetWidth = this.width * scale
+        val targetHeight = this.height * scale
+        val left = (width - targetWidth) / 2f
+        val top = (height - targetHeight) / 2f
+        return createBitmap(width, height, Bitmap.Config.ARGB_8888).also { output ->
+            Canvas(output).drawBitmap(
+                this,
+                null,
+                RectF(left, top, left + targetWidth, top + targetHeight),
+                Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+            )
+        }
+    }
+
+    override suspend fun convertGifToJxl(
+        gifUris: List<String>,
+        quality: Quality.Jxl,
+        onProgress: suspend (String, ByteArray) -> Unit
+    ) = withContext(defaultDispatcher) {
+        gifUris.forEach { uri ->
+            runSuspendCatching {
+                uri.bytes?.let { gifData ->
+                    JxlCoder.Convenience.gif2JXL(
+                        gifData = gifData,
+                        quality = quality.qualityValue.coerceIn(0, 99),
+                        effort = JxlEffort.entries.first { it.ordinal == quality.effort },
+                        decodingSpeed = JxlDecodingSpeed.entries.first { it.ordinal == quality.speed }
+                    ).let {
+                        onProgress(uri, it)
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun convertGifToWebp(
+        gifUris: List<String>,
+        quality: Quality.Base,
+        onProgress: suspend (String, ByteArray) -> Unit
+    ) = withContext(defaultDispatcher) {
+        gifUris.forEach { uri ->
+            runSuspendCatching {
+                val encoder = AnimatedWebpEncoder(
+                    quality = quality.qualityValue,
+                    loopCount = 1,
+                    backgroundColor = Color.Transparent.toArgb()
+                )
+
+                extractFramesFromGif(
+                    gifUri = uri,
+                    imageFrames = ImageFrames.All,
+                    onGetFramesCount = {}
+                ).collect { (frame, duration) ->
+                    encoder.addFrame(
+                        bitmap = frame.copy(frame.safeConfig, false),
+                        duration = duration
+                    )
+                }
+
+                onProgress(uri, encoder.encode())
+            }
+        }
+    }
+
+    override suspend fun convertGifToApng(
+        gifUris: List<String>,
+        onProgress: suspend (String, ByteArray) -> Unit
+    ) = withContext(defaultDispatcher) {
+        gifUris.forEach { uri ->
+            runSuspendCatching {
+                val decoder = GifDecoder().apply {
+                    read(requireNotNull(uri.bytes))
+                }
+                require(decoder.frameCount > 0)
+                decoder.advance()
+                val firstFrame = requireNotNull(decoder.nextFrame)
+                val output = ByteArrayOutputStream()
+                val encoder = ApngEncoder(
+                    outputStream = output,
+                    width = firstFrame.width,
+                    height = firstFrame.height,
+                    numberOfFrames = decoder.frameCount
+                ).apply {
+                    setEncodeAlpha(true)
+                    setOptimiseApng(false)
+                    setRepetitionCount(decoder.loopCount.coerceAtLeast(0))
+                }
+                encoder.writeFrame(
+                    btm = firstFrame,
+                    delay = decoder.nextDelay.coerceAtLeast(MIN_FRAME_DELAY_MILLIS).toFloat()
+                )
+                repeat(decoder.frameCount - 1) {
+                    currentCoroutineContext().ensureActive()
+                    decoder.advance()
+                    encoder.writeFrame(
+                        btm = requireNotNull(decoder.nextFrame),
+                        delay = decoder.nextDelay.coerceAtLeast(MIN_FRAME_DELAY_MILLIS).toFloat()
+                    )
+                }
+                encoder.writeEnd()
+                onProgress(uri, output.toByteArray())
+            }
+        }
+    }
+
+    private fun extractFramesFromGif(
+        gifUri: String,
+        imageFrames: ImageFrames,
+        onGetFramesCount: (frames: Int) -> Unit
+    ): Flow<Pair<Bitmap, Int>> = flow {
+        val bytes = gifUri.bytes
+        val decoder = GifDecoder().apply {
+            read(bytes)
+        }
+        onGetFramesCount(decoder.frameCount)
+        val indexes = imageFrames
+            .getFramePositions(decoder.frameCount)
+            .map { it - 1 }
+        repeat(decoder.frameCount) { pos ->
+            if (!currentCoroutineContext().isActive) {
+                currentCoroutineContext().cancel(null)
+                return@repeat
+            }
+            decoder.advance()
+            decoder.nextFrame?.let { frame ->
+                frame to decoder.nextDelay
+            }?.takeIf {
+                pos in indexes
+            }?.let { emit(it) }
+        }
+    }.catch {
+        failureNotifier.send(it)
+    }
+
+    private val String.bytes: ByteArray?
+        get() = context
+            .contentResolver
+            .openInputStream(toUri())
+            ?.use {
+                it.readBytes()
+            }
+
+}

@@ -2,7 +2,7 @@
 <resources>
     <string name="edit">دەستکاری</string>
     <string name="app_launcher_name">گەلەری</string>
-    <string name="images">وێنەکان</string>
+    <string name="gallery_images">وێنەکان</string>
     <string name="videos">ڤیدیۆکان</string>
     <string name="open_camera">کردنەوەی کامێرە</string>
     <string name="hidden">(شاراوە)</string>

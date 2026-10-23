@@ -17,7 +17,7 @@
     <string name="unlock_orientation">Malŝlosi orientiĝon</string>
     <string name="change_orientation">Ŝanĝi orientiĝon</string>
     <string name="fixing">Korektado…</string>
-    <string name="images">Bildoj</string>
+    <string name="gallery_images">Bildoj</string>
     <string name="videos">Filmetoj</string>
     <string name="gifs">GIF-filmetoj</string>
     <string name="raw_images">RAW-bildoj</string>
@@ -59,8 +59,8 @@
     <string name="hidden_folders_placeholder">Ŝajnas, ke vi havas neniun kaŝitan dosierujon kun \".nomedia\"-dosiero.</string>
     <string name="manage_included_folders">Administri inkluzivitajn dosierujojn</string>
     <string name="resize_and_save">Regrandigi elekton kaj konservi</string>
-    <string name="width">Larĝo</string>
-    <string name="height">Alto</string>
+    <string name="gallery_width">Larĝo</string>
+    <string name="gallery_height">Alto</string>
     <string name="resize_factor_info">Regrandigi bildojn al donata procento, kiu devas esti inter 10 kaj 90.</string>
     <string name="basic_editor">Simple redaktilo</string>
     <string name="manage_hidden_folders">Administri kaŝitajn dosierujojn</string>

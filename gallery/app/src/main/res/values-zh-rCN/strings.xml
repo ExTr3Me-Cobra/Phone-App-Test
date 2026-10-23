@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">通过拖动重新排列文件夹 (专业版)</string>
     <string name="restore_to_path">恢复至“%s”</string>
     <string name="filter_media">过滤显示的文件</string>
-    <string name="images">图片</string>
+    <string name="gallery_images">图片</string>
     <string name="videos">视频</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">RAW 图像</string>
@@ -61,8 +61,8 @@
 \n在此处添加项目并不会自动排除其他的文件夹。</string>
     <string name="no_media_add_included">没有找到媒体文件。请手动添加包含媒体文件的文件夹。</string>
     <string name="resize_and_save">调整选定项目的大小并保存</string>
-    <string name="width">宽度</string>
-    <string name="height">高度</string>
+    <string name="gallery_width">宽度</string>
+    <string name="gallery_height">高度</string>
     <string name="keep_aspect_ratio">保持宽高比</string>
     <string name="invalid_values">请输入有效的分辨率</string>
     <string name="resize_multiple_images">批量调整图像大小</string>

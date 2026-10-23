@@ -42,7 +42,7 @@
 
     <!-- Filter -->
     <string name="filter_media">Filter media</string>
-    <string name="images">Images</string>
+    <string name="gallery_images">Images</string>
     <string name="videos">Videos</string>
     <string name="gifs">GIFs</string>
     <string name="raw_images">RAW images</string>
@@ -71,8 +71,8 @@
 
     <!-- Resizing -->
     <string name="resize_and_save">Resize selection and save</string>
-    <string name="width">Width</string>
-    <string name="height">Height</string>
+    <string name="gallery_width">Width</string>
+    <string name="gallery_height">Height</string>
     <string name="keep_aspect_ratio">Keep aspect ratio</string>
     <string name="invalid_values">Please enter a valid resolution</string>
     <string name="resize_multiple_images">Resize multiple images</string>

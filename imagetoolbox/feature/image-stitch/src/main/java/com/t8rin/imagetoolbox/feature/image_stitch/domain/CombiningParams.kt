@@ -1,0 +1,42 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.image_stitch.domain
+
+import com.t8rin.imagetoolbox.core.domain.image.model.BlendingMode
+import com.t8rin.imagetoolbox.core.domain.image.model.ImageScaleDirection
+import com.t8rin.imagetoolbox.core.domain.model.GradientFill
+
+data class CombiningParams(
+    val stitchMode: StitchMode = StitchMode.Horizontal,
+    val horizontalSpacing: Int = 0,
+    val verticalSpacing: Int = 0,
+    val scaleDirection: ImageScaleDirection = ImageScaleDirection.None,
+    val backgroundColor: Int = 0x00000000,
+    val fadingEdgesMode: StitchFadeSide = StitchFadeSide.Start,
+    val alignment: StitchAlignment = StitchAlignment.Start,
+    val outputScale: Float = 0.5f,
+    val blendingMode: BlendingMode = BlendingMode.SrcOver,
+    val fadeStrength: Float = 1f,
+    val backgroundGradient: GradientFill? = null
+) {
+    fun spacingFor(
+        isHorizontal: Boolean
+    ): Int = if (isHorizontal) horizontalSpacing else verticalSpacing
+
+    fun hasNegativeSpacing(): Boolean = horizontalSpacing < 0 || verticalSpacing < 0
+}

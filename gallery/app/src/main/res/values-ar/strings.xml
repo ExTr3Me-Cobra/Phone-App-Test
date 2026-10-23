@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">أعد ترتيب المجلدات عن طريق السحب (Pro)</string>
     <string name="restore_to_path">الاستعادة إلى \'%s\'</string>
     <string name="filter_media">تصفية الوسائط</string>
-    <string name="images">الصور</string>
+    <string name="gallery_images">الصور</string>
     <string name="videos">الفيديوهات</string>
     <string name="gifs">الصور المتحركة (GIF)</string>
     <string name="raw_images">صور الخام (RAW)</string>
@@ -57,8 +57,8 @@
 \nلن تؤدي إضافة بعض العناصر هنا إلى استبعاد أي مجلد آخر.</string>
     <string name="no_media_add_included">لم يُعثر علي أي ملفات وسائط. يمكنك حل المشكلة عن طريق إضافة المجلدات التي تحتوي على ملفات وسائط يدويًا.</string>
     <string name="resize_and_save">غيِّر حجم التحديد والحفظ</string>
-    <string name="width">العرض</string>
-    <string name="height">الارتفاع</string>
+    <string name="gallery_width">العرض</string>
+    <string name="gallery_height">الارتفاع</string>
     <string name="keep_aspect_ratio">الحفاظ على نسبة الأبعاد</string>
     <string name="invalid_values">يُرجى إدخال دقة صالحة</string>
     <string name="resize_multiple_images">تغيير حجم صور متعددة</string>

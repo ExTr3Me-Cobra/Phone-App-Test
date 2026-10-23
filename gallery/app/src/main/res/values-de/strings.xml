@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Ordner durch Ziehen neu anordnen (Pro)</string>
     <string name="restore_to_path">Wiederherstellung nach „%s“</string>
     <string name="filter_media">Medien filtern</string>
-    <string name="images">Bilder</string>
+    <string name="gallery_images">Bilder</string>
     <string name="raw_images">RAW-Bilder</string>
     <string name="portraits">Porträts</string>
     <string name="no_media_with_filters">Keine Medien für die ausgewählten Filter gefunden.</string>
@@ -52,8 +52,8 @@
     <string name="included_activity_placeholder">Wenn du einige Ordner hast, die Medien enthalten, aber von der App nicht erkannt wurden, kannst du sie hier manuell hinzufügen.\n\nDas Hinzufügen einiger Elemente schließt keine anderen Ordner aus.</string>
     <string name="no_media_add_included">Es konnten keine Mediendateien gefunden werden. Das Problem kann behoben werden, indem die Ordner mit den Mediendateien manuell hinzugefügt werden.</string>
     <string name="resize_and_save">Größe ändern und speichern</string>
-    <string name="width">Breite</string>
-    <string name="height">Höhe</string>
+    <string name="gallery_width">Breite</string>
+    <string name="gallery_height">Höhe</string>
     <string name="keep_aspect_ratio">Seitenverhältnis beibehalten</string>
     <string name="invalid_values">Bitte eine gültige Auflösung eingeben</string>
     <string name="resize_multiple_images">Größe mehrerer Bilder ändern</string>

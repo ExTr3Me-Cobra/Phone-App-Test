@@ -4,7 +4,10 @@ on:
   push:
     paths-ignore:
       - 'gallery/**'
-      - '.github/workflows/build-gallery-apk.yml'
+      - 'fossify-commons/**'
+      - 'imagetoolbox/**'
+      - 'photobox/**'
+      - '.github/workflows/build-photobox-apk.yml'
   workflow_dispatch:
 
 permissions:

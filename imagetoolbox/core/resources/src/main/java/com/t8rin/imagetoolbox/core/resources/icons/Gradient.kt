@@ -1,0 +1,497 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.core.resources.icons
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
+import com.t8rin.imagetoolbox.core.resources.Icons
+
+val Icons.Rounded.Gradient: ImageVector by lazy(LazyThreadSafetyMode.NONE) {
+    ImageVector.Builder(
+        name = "Rounded.Gradient",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 960f,
+        viewportHeight = 960f
+    ).apply {
+        path(fill = SolidColor(Color.Black)) {
+            moveTo(200f, 840f)
+            quadTo(167f, 840f, 143.5f, 816.5f)
+            quadTo(120f, 793f, 120f, 760f)
+            lineTo(120f, 200f)
+            quadTo(120f, 167f, 143.5f, 143.5f)
+            quadTo(167f, 120f, 200f, 120f)
+            lineTo(760f, 120f)
+            quadTo(793f, 120f, 816.5f, 143.5f)
+            quadTo(840f, 167f, 840f, 200f)
+            lineTo(840f, 760f)
+            quadTo(840f, 793f, 816.5f, 816.5f)
+            quadTo(793f, 840f, 760f, 840f)
+            lineTo(200f, 840f)
+            close()
+            moveTo(440f, 440f)
+            lineTo(440f, 520f)
+            lineTo(520f, 520f)
+            lineTo(520f, 440f)
+            lineTo(440f, 440f)
+            close()
+            moveTo(280f, 440f)
+            lineTo(280f, 520f)
+            lineTo(360f, 520f)
+            lineTo(360f, 440f)
+            lineTo(280f, 440f)
+            close()
+            moveTo(360f, 520f)
+            lineTo(360f, 600f)
+            lineTo(440f, 600f)
+            lineTo(440f, 520f)
+            lineTo(360f, 520f)
+            close()
+            moveTo(520f, 520f)
+            lineTo(520f, 600f)
+            lineTo(600f, 600f)
+            lineTo(600f, 520f)
+            lineTo(520f, 520f)
+            close()
+            moveTo(200f, 520f)
+            lineTo(200f, 600f)
+            lineTo(280f, 600f)
+            lineTo(280f, 520f)
+            lineTo(200f, 520f)
+            close()
+            moveTo(600f, 440f)
+            lineTo(600f, 520f)
+            lineTo(680f, 520f)
+            lineTo(680f, 600f)
+            lineTo(760f, 600f)
+            lineTo(760f, 520f)
+            lineTo(680f, 520f)
+            lineTo(680f, 440f)
+            lineTo(600f, 440f)
+            close()
+            moveTo(280f, 600f)
+            lineTo(280f, 680f)
+            lineTo(200f, 680f)
+            lineTo(200f, 760f)
+            quadTo(200f, 760f, 200f, 760f)
+            quadTo(200f, 760f, 200f, 760f)
+            lineTo(280f, 760f)
+            lineTo(280f, 680f)
+            lineTo(360f, 680f)
+            lineTo(360f, 760f)
+            lineTo(440f, 760f)
+            lineTo(440f, 680f)
+            lineTo(520f, 680f)
+            lineTo(520f, 760f)
+            lineTo(600f, 760f)
+            lineTo(600f, 680f)
+            lineTo(680f, 680f)
+            lineTo(680f, 760f)
+            lineTo(760f, 760f)
+            quadTo(760f, 760f, 760f, 760f)
+            quadTo(760f, 760f, 760f, 760f)
+            lineTo(760f, 680f)
+            lineTo(680f, 680f)
+            lineTo(680f, 600f)
+            lineTo(600f, 600f)
+            lineTo(600f, 680f)
+            lineTo(520f, 680f)
+            lineTo(520f, 600f)
+            lineTo(440f, 600f)
+            lineTo(440f, 680f)
+            lineTo(360f, 680f)
+            lineTo(360f, 600f)
+            lineTo(280f, 600f)
+            close()
+            moveTo(760f, 440f)
+            lineTo(760f, 440f)
+            lineTo(760f, 520f)
+            lineTo(760f, 520f)
+            lineTo(760f, 440f)
+            close()
+            moveTo(760f, 600f)
+            lineTo(760f, 680f)
+            lineTo(760f, 680f)
+            lineTo(760f, 600f)
+            close()
+        }
+    }.build()
+}
+
+val Icons.Outlined.Gradient: ImageVector by lazy(LazyThreadSafetyMode.NONE) {
+    ImageVector.Builder(
+        name = "Outlined.Gradient",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 960f,
+        viewportHeight = 960f
+    ).apply {
+        path(fill = SolidColor(Color.Black)) {
+            moveTo(440f, 520f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(-80f)
+            close()
+            moveTo(360f, 600f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(-80f)
+            close()
+            moveTo(520f, 600f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(-80f)
+            close()
+            moveTo(600f, 520f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(-80f)
+            close()
+            moveTo(280f, 520f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(-80f)
+            close()
+            moveTo(200f, 840f)
+            quadToRelative(-33f, 0f, -56.5f, -23.5f)
+            reflectiveQuadTo(120f, 760f)
+            verticalLineToRelative(-560f)
+            quadToRelative(0f, -33f, 23.5f, -56.5f)
+            reflectiveQuadTo(200f, 120f)
+            horizontalLineToRelative(560f)
+            quadToRelative(33f, 0f, 56.5f, 23.5f)
+            reflectiveQuadTo(840f, 200f)
+            verticalLineToRelative(560f)
+            quadToRelative(0f, 33f, -23.5f, 56.5f)
+            reflectiveQuadTo(760f, 840f)
+            lineTo(200f, 840f)
+            close()
+            moveTo(280f, 760f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(-80f)
+            verticalLineToRelative(80f)
+            close()
+            moveTo(440f, 760f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(-80f)
+            verticalLineToRelative(80f)
+            close()
+            moveTo(760f, 760f)
+            verticalLineToRelative(-80f)
+            verticalLineToRelative(80f)
+            close()
+            moveTo(200f, 680f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(-80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-320f)
+            lineTo(200f, 200f)
+            verticalLineToRelative(320f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(-80f)
+            verticalLineToRelative(80f)
+            close()
+            moveTo(200f, 760f)
+            verticalLineToRelative(-560f)
+            verticalLineToRelative(560f)
+            close()
+            moveTo(760f, 520f)
+            verticalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            close()
+            moveTo(600f, 680f)
+            verticalLineToRelative(80f)
+            horizontalLineToRelative(80f)
+            verticalLineToRelative(-80f)
+            horizontalLineToRelative(-80f)
+            close()
+        }
+    }.build()
+}
+
+val Icons.TwoTone.Gradient: ImageVector by lazy(LazyThreadSafetyMode.NONE) {
+    ImageVector.Builder(
+        name = "TwoTone.Gradient",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).apply {
+        path(fill = SolidColor(Color.Black)) {
+            moveTo(11f, 13f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+            moveTo(9f, 15f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+            moveTo(13f, 15f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+            moveTo(15f, 13f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+            moveTo(7f, 13f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+            moveTo(5f, 21f)
+            curveToRelative(-0.55f, 0f, -1.021f, -0.196f, -1.413f, -0.587f)
+            curveToRelative(-0.392f, -0.392f, -0.587f, -0.863f, -0.587f, -1.413f)
+            verticalLineTo(5f)
+            curveToRelative(0f, -0.55f, 0.196f, -1.021f, 0.587f, -1.413f)
+            curveToRelative(0.392f, -0.392f, 0.863f, -0.587f, 1.413f, -0.587f)
+            horizontalLineToRelative(14f)
+            curveToRelative(0.55f, 0f, 1.021f, 0.196f, 1.413f, 0.587f)
+            reflectiveCurveToRelative(0.587f, 0.863f, 0.587f, 1.413f)
+            verticalLineToRelative(14f)
+            curveToRelative(0f, 0.55f, -0.196f, 1.021f, -0.587f, 1.413f)
+            curveToRelative(-0.392f, 0.392f, -0.863f, 0.587f, -1.413f, 0.587f)
+            horizontalLineTo(5f)
+            close()
+            moveTo(7f, 19f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(-2f)
+            verticalLineToRelative(2f)
+            close()
+            moveTo(11f, 19f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(-2f)
+            verticalLineToRelative(2f)
+            close()
+            moveTo(19f, 19f)
+            verticalLineToRelative(-2f)
+            verticalLineToRelative(2f)
+            close()
+            moveTo(5f, 17f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(-2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(2f)
+            verticalLineTo(5f)
+            horizontalLineTo(5f)
+            verticalLineToRelative(8f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            verticalLineToRelative(2f)
+            close()
+            moveTo(5f, 19f)
+            verticalLineTo(5f)
+            verticalLineToRelative(14f)
+            close()
+            moveTo(19f, 13f)
+            verticalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            close()
+            moveTo(15f, 17f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(-2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(7f, 17f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(11f, 17f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(15f, 17f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(9f, 11f)
+            lineToRelative(0f, 2f)
+            lineToRelative(2f, 0f)
+            lineToRelative(0f, -2f)
+            lineToRelative(2f, 0f)
+            lineToRelative(0f, 2f)
+            lineToRelative(2f, 0f)
+            lineToRelative(0f, -2f)
+            lineToRelative(2f, 0f)
+            lineToRelative(0f, 2f)
+            lineToRelative(2f, 0f)
+            lineToRelative(0f, -8f)
+            lineToRelative(-14f, 0f)
+            lineToRelative(0f, 8f)
+            lineToRelative(2f, 0f)
+            lineToRelative(0f, -2f)
+            lineToRelative(2f, 0f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(5f, 15f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(9f, 15f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(13f, 15f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(17f, 15f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(11f, 13f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(15f, 13f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+        path(
+            fill = SolidColor(Color.Black),
+            fillAlpha = 0.3f,
+            strokeAlpha = 0.3f
+        ) {
+            moveTo(7f, 13f)
+            horizontalLineToRelative(2f)
+            verticalLineToRelative(2f)
+            horizontalLineToRelative(-2f)
+            close()
+        }
+    }.build()
+}

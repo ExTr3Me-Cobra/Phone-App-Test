@@ -12,11 +12,11 @@
     <string name="other_folder">دوبلگه یل دیری</string>
     <string name="unknown_location">جاگه ن دیاری</string>
     <string name="volume">هندا دونگ</string>
-    <string name="images">شؽواتا</string>
+    <string name="gallery_images">شؽواتا</string>
     <string name="videos">ویدیویل</string>
     <string name="gifs">گیفا</string>
     <string name="add_folder">ٱووردن دوبلگه</string>
-    <string name="width">پئنا</string>
+    <string name="gallery_width">پئنا</string>
     <string name="editor">آلشتگر</string>
     <string name="basic_editor">آلشتگر پایه</string>
     <string name="advanced_editor">آلشتگر پؽش رئڌه</string>

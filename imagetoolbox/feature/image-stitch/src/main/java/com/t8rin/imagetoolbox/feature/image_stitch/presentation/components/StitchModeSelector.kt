@@ -1,0 +1,314 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.image_stitch.presentation.components
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.resources.icons.Blender
+import com.t8rin.imagetoolbox.core.resources.icons.BorderBottom
+import com.t8rin.imagetoolbox.core.resources.icons.BorderLeft
+import com.t8rin.imagetoolbox.core.resources.icons.BorderRight
+import com.t8rin.imagetoolbox.core.resources.icons.BorderTop
+import com.t8rin.imagetoolbox.core.resources.icons.ScissorsSmall
+import com.t8rin.imagetoolbox.core.resources.icons.TableRows
+import com.t8rin.imagetoolbox.core.resources.icons.ViewColumn
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedButtonGroup
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedSliderItem
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.ShapeDefaults
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
+import com.t8rin.imagetoolbox.core.ui.widget.preferences.PreferenceRowSwitch
+import com.t8rin.imagetoolbox.feature.image_stitch.domain.StitchMode
+import kotlin.math.roundToInt
+
+@Composable
+fun StitchModeSelector(
+    modifier: Modifier = Modifier,
+    value: StitchMode,
+    onValueChange: (StitchMode) -> Unit
+) {
+    Column(
+        modifier = modifier
+            .container(shape = ShapeDefaults.extraLarge)
+    ) {
+        EnhancedButtonGroup(
+            modifier = Modifier.padding(start = 3.dp, end = 2.dp),
+            title = stringResource(id = R.string.stitch_mode),
+            entries = StitchMode.entries,
+            value = value,
+            onValueChange = onValueChange,
+            itemContent = {
+                Text(it.title())
+            },
+            useClassFinding = true
+        )
+        AnimatedVisibility(
+            visible = value is StitchMode.Grid.Horizontal,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            EnhancedSliderItem(
+                modifier = Modifier.padding(8.dp),
+                value = value.gridCellsCount(),
+                title = stringResource(R.string.rows_count),
+                sliderModifier = Modifier
+                    .padding(
+                        top = 14.dp,
+                        start = 12.dp,
+                        end = 12.dp,
+                        bottom = 10.dp
+                    ),
+                icon = Icons.Rounded.TableRows,
+                valueRange = 2f..20f,
+                steps = 17,
+                internalStateTransformation = {
+                    it.roundToInt()
+                },
+                onValueChangeFinished = {
+                    onValueChange(
+                        StitchMode.Grid.Horizontal(it.roundToInt())
+                    )
+                },
+                onValueChange = {},
+                shape = ShapeDefaults.default,
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        }
+        AnimatedVisibility(
+            visible = value is StitchMode.Grid.Vertical,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            EnhancedSliderItem(
+                modifier = Modifier.padding(8.dp),
+                value = value.gridCellsCount(),
+                title = stringResource(R.string.columns_count),
+                sliderModifier = Modifier
+                    .padding(
+                        top = 14.dp,
+                        start = 12.dp,
+                        end = 12.dp,
+                        bottom = 10.dp
+                    ),
+                icon = Icons.Rounded.ViewColumn,
+                valueRange = 2f..20f,
+                steps = 17,
+                internalStateTransformation = {
+                    it.roundToInt()
+                },
+                onValueChangeFinished = {
+                    onValueChange(
+                        StitchMode.Grid.Vertical(it.roundToInt())
+                    )
+                },
+                onValueChange = {},
+                shape = ShapeDefaults.default,
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        }
+        AnimatedVisibility(
+            visible = value.isAuto(),
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Column {
+                Spacer(Modifier.height(8.dp))
+                EnhancedSliderItem(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    value = value.topDrop,
+                    title = stringResource(R.string.top_drop),
+                    sliderModifier = Modifier
+                        .padding(
+                            top = 14.dp,
+                            start = 12.dp,
+                            end = 12.dp,
+                            bottom = 10.dp
+                        ),
+                    icon = Icons.Rounded.BorderTop,
+                    valueRange = 0f..512f,
+                    internalStateTransformation = {
+                        it.roundToInt()
+                    },
+                    onValueChangeFinished = {
+                        onValueChange(
+                            value.copyWithDrops(
+                                topDrop = it.roundToInt()
+                            )
+                        )
+                    },
+                    onValueChange = {},
+                    shape = ShapeDefaults.top,
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+                Spacer(Modifier.height(4.dp))
+                EnhancedSliderItem(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    value = value.bottomDrop,
+                    title = stringResource(R.string.bottom_drop),
+                    sliderModifier = Modifier
+                        .padding(
+                            top = 14.dp,
+                            start = 12.dp,
+                            end = 12.dp,
+                            bottom = 10.dp
+                        ),
+                    icon = Icons.Rounded.BorderBottom,
+                    valueRange = 0f..512f,
+                    internalStateTransformation = {
+                        it.roundToInt()
+                    },
+                    onValueChangeFinished = {
+                        onValueChange(
+                            value.copyWithDrops(
+                                bottomDrop = it.roundToInt()
+                            )
+                        )
+                    },
+                    onValueChange = {},
+                    shape = ShapeDefaults.center,
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+                Spacer(Modifier.height(4.dp))
+                EnhancedSliderItem(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    value = value.startDrop,
+                    title = stringResource(R.string.start_drop),
+                    sliderModifier = Modifier
+                        .padding(
+                            top = 14.dp,
+                            start = 12.dp,
+                            end = 12.dp,
+                            bottom = 10.dp
+                        ),
+                    icon = Icons.Rounded.BorderLeft,
+                    valueRange = 0f..512f,
+                    internalStateTransformation = {
+                        it.roundToInt()
+                    },
+                    onValueChangeFinished = {
+                        onValueChange(
+                            value.copyWithDrops(
+                                startDrop = it.roundToInt()
+                            )
+                        )
+                    },
+                    onValueChange = {},
+                    shape = ShapeDefaults.center,
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+                Spacer(Modifier.height(4.dp))
+                EnhancedSliderItem(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    value = value.endDrop,
+                    title = stringResource(R.string.end_drop),
+                    sliderModifier = Modifier
+                        .padding(
+                            top = 14.dp,
+                            start = 12.dp,
+                            end = 12.dp,
+                            bottom = 10.dp
+                        ),
+                    icon = Icons.Rounded.BorderRight,
+                    valueRange = 0f..512f,
+                    internalStateTransformation = {
+                        it.roundToInt()
+                    },
+                    onValueChangeFinished = {
+                        onValueChange(
+                            value.copyWithDrops(
+                                endDrop = it.roundToInt()
+                            )
+                        )
+                    },
+                    onValueChange = {},
+                    shape = ShapeDefaults.center,
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+                Spacer(Modifier.height(4.dp))
+                AnimatedVisibility(value !is StitchMode.Screenshot) {
+                    EnhancedSliderItem(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        value = value.blendRadius,
+                        title = stringResource(R.string.seam_blending),
+                        sliderModifier = Modifier
+                            .padding(
+                                top = 14.dp,
+                                start = 12.dp,
+                                end = 12.dp,
+                                bottom = 10.dp
+                            ),
+                        icon = Icons.Rounded.Blender,
+                        valueRange = 0f..128f,
+                        internalStateTransformation = {
+                            it.roundToInt()
+                        },
+                        onValueChangeFinished = {
+                            onValueChange(
+                                value.copyWithDrops(
+                                    blendRadius = it.roundToInt()
+                                )
+                            )
+                        },
+                        onValueChange = {},
+                        shape = ShapeDefaults.center,
+                        containerColor = MaterialTheme.colorScheme.surface
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
+                PreferenceRowSwitch(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    title = stringResource(R.string.crop_to_content),
+                    subtitle = stringResource(R.string.crop_stitched_image_sub),
+                    checked = value.cropToContent,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    shape = ShapeDefaults.bottom,
+                    onClick = {
+                        onValueChange(value.copyWithDrops(cropToContent = it))
+                    },
+                    startIcon = Icons.Outlined.ScissorsSmall
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun StitchMode.title(): String = when (this) {
+    is StitchMode.Auto -> stringResource(R.string.auto)
+    is StitchMode.Screenshot -> stringResource(R.string.screenshot)
+    is StitchMode.Panorama -> stringResource(R.string.panorama)
+    is StitchMode.Grid.Horizontal -> stringResource(R.string.horizontal_grid)
+    is StitchMode.Grid.Vertical -> stringResource(R.string.vertical_grid)
+    StitchMode.Horizontal -> stringResource(R.string.horizontal)
+    StitchMode.Vertical -> stringResource(R.string.vertical)
+}

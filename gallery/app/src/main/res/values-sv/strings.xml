@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Ordna om mappar genom att dra (Pro)</string>
     <string name="restore_to_path">Återställer till \'%s\'</string>
     <string name="filter_media">Filtrera media</string>
-    <string name="images">Bilder</string>
+    <string name="gallery_images">Bilder</string>
     <string name="videos">Videor</string>
     <string name="gifs">GIF-bilder</string>
     <string name="raw_images">RAW-bilder</string>
@@ -57,8 +57,8 @@
 \nAtt lägga till några föremål här kommer inte att utseluta någon annan mapp.</string>
     <string name="no_media_add_included">Inga mediefiler hittades. Du kan lägga till de mappar som innehåller mediefiler manuellt.</string>
     <string name="resize_and_save">Ändra storlek och spara</string>
-    <string name="width">Bredd</string>
-    <string name="height">Höjd</string>
+    <string name="gallery_width">Bredd</string>
+    <string name="gallery_height">Höjd</string>
     <string name="keep_aspect_ratio">Behåll bildförhållande</string>
     <string name="invalid_values">Ange en giltig bildupplösning</string>
     <string name="resize_multiple_images">Ändra storlek på flera bilder</string>

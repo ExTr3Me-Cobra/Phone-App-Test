@@ -39,7 +39,7 @@
     </plurals>
     <string name="full_storage_permission_required">Fossify Gallery ต้องการสิทธิ์เข้าถึงแบบเต็มเพื่อแสดงรูปภาพและวิดีโอทั้งหมดของคุณ ไปที่ ตั้งค่า &gt; สิทธิ์ &gt; รูปภาพและวิดีโอ &gt; อนุญาตทั้งหมด</string>
     <string name="filter_media">กรองสื่อ</string>
-    <string name="images">รูปภาพ</string>
+    <string name="gallery_images">รูปภาพ</string>
     <string name="videos">วิดีโอ</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">ภาพ RAW</string>
@@ -62,8 +62,8 @@
     <string name="included_activity_placeholder">หากคุณมีโฟลเดอร์ที่มีสื่อแต่ไม่ถูกแอปตรวจพบ คุณสามารถเพิ่มได้ที่นี่\n\nการเพิ่มรายการที่นี่จะไม่ยกเว้นโฟลเดอร์อื่นใด</string>
     <string name="no_media_add_included">ไม่พบไฟล์สื่อ คุณสามารถแก้ไขได้โดยเพิ่มโฟลเดอร์ที่มีไฟล์สื่อด้วยตนเอง</string>
     <string name="resize_and_save">ปรับขนาดที่เลือกและบันทึก</string>
-    <string name="width">ความกว้าง</string>
-    <string name="height">ความสูง</string>
+    <string name="gallery_width">ความกว้าง</string>
+    <string name="gallery_height">ความสูง</string>
     <string name="keep_aspect_ratio">คงอัตราส่วนภาพ</string>
     <string name="invalid_values">กรุณาใส่ความละเอียดที่ถูกต้อง</string>
     <string name="resize_multiple_images">ปรับขนาดหลายรูปภาพ</string>

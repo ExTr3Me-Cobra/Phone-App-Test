@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Reordonează dosarele prin tragere (Pro)</string>
     <string name="restore_to_path">Restaurare la \"%s</string>
     <string name="filter_media">Filtrează elementele media</string>
-    <string name="images">Imagini</string>
+    <string name="gallery_images">Imagini</string>
     <string name="videos">Videoclipuri</string>
     <string name="gifs">GIF-uri</string>
     <string name="raw_images">Imagini RAW</string>
@@ -54,8 +54,8 @@
 \nAdăugarea unor elemente aici nu va exclude niciun alt dosar.</string>
     <string name="no_media_add_included">Nu a fost găsit niciun fișier media. Poţi rezolva această problemă adăugând manual dosarele care conțin fișiere media.</string>
     <string name="resize_and_save">Redimensionează selecția și salvează</string>
-    <string name="width">Lățime</string>
-    <string name="height">Înălțime</string>
+    <string name="gallery_width">Lățime</string>
+    <string name="gallery_height">Înălțime</string>
     <string name="keep_aspect_ratio">Păstrează raportul de aspect</string>
     <string name="invalid_values">Vă rugăm să introduceți o rezoluție validă</string>
     <string name="rotate">Rotire</string>

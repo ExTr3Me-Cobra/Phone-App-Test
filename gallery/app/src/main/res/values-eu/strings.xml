@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Berrordenatu karpetak arrastatuz (Pro)</string>
     <string name="restore_to_path">\'%s\'-ra leheneratzen</string>
     <string name="filter_media">Iragazi multimedia</string>
-    <string name="images">Irudiak</string>
+    <string name="gallery_images">Irudiak</string>
     <string name="videos">Bideoak</string>
     <string name="gifs">GIFak</string>
     <string name="raw_images">RAW irudiak</string>
@@ -57,8 +57,8 @@
 \nHainbat elementu hemen gehitzeak ez du beste karpetarik baztertuko.</string>
     <string name="no_media_add_included">Multimedia fitxategirik ez da aurkitu. Fitxategi horiek dituzten karpetak eskuz gehituz konpondu dezakezu.</string>
     <string name="resize_and_save">Aldatu hautatutakoaren tamaina eta gorde</string>
-    <string name="width">Zabalera</string>
-    <string name="height">Altuera</string>
+    <string name="gallery_width">Zabalera</string>
+    <string name="gallery_height">Altuera</string>
     <string name="keep_aspect_ratio">Mantendu aspektu-erlazioa</string>
     <string name="invalid_values">Sartu baliozko bereizmena</string>
     <string name="resize_multiple_images">Hainbat irudiren tamaina aldatu</string>

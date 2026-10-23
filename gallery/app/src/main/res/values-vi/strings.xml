@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Đổi vị trí thư mục (Phiên bản Pro)</string>
     <string name="restore_to_path">Đang khôi phục \'%s\'</string>
     <string name="filter_media">Lọc</string>
-    <string name="images">Hình ảnh</string>
+    <string name="gallery_images">Hình ảnh</string>
     <string name="videos">Video</string>
     <string name="gifs">Ảnh GIF</string>
     <string name="raw_images">Ảnh RAW</string>
@@ -53,8 +53,8 @@
     <string name="included_activity_placeholder">Nếu bạn có một số thư mục chứa tệp phương tiện, nhưng ứng dụng không nhận ra, bạn có thể thêm chúng theo cách thủ công tại đây. \n \nThêm một số mục ở đây sẽ không bỏ qua bất kỳ thư mục nào khác.</string>
     <string name="no_media_add_included">Không có tệp phương tiện được tìm thấy. Bạn có thể thêm các thư mục chứa tệp phương tiện theo cách thủ công.</string>
     <string name="resize_and_save">Thay đổi theo kích thước đã chọn và lưu</string>
-    <string name="width">Chiều rộng</string>
-    <string name="height">Chiều cao</string>
+    <string name="gallery_width">Chiều rộng</string>
+    <string name="gallery_height">Chiều cao</string>
     <string name="keep_aspect_ratio">Giữ tỷ lệ khung hình</string>
     <string name="invalid_values">Vui lòng nhập độ phân giải hợp lệ</string>
     <string name="resize_multiple_images">Thay đổi kích thước nhiều hình ảnh</string>

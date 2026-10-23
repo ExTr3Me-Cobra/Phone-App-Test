@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Reordenar carpetas arrastrándolas (Pro)</string>
     <string name="restore_to_path">Restaurando a \'%s\'</string>
     <string name="filter_media">Filtro de medios</string>
-    <string name="images">Imágenes</string>
+    <string name="gallery_images">Imágenes</string>
     <string name="videos">Vídeos</string>
     <string name="gifs">Imágenes con animación</string>
     <string name="raw_images">Imágenes RAW</string>
@@ -57,8 +57,8 @@
 \nAñadir elementos aquí no excluirá ninguna otra carpeta.</string>
     <string name="no_media_add_included">Ningún archivo multimedia ha sido encontrado. Puede resolverlo añadiendo las carpetas que contengan archivos multimedia manualmente.</string>
     <string name="resize_and_save">Redimensionar la selección y guardar</string>
-    <string name="width">Ancho</string>
-    <string name="height">Alto</string>
+    <string name="gallery_width">Ancho</string>
+    <string name="gallery_height">Alto</string>
     <string name="keep_aspect_ratio">Mantener proporciones</string>
     <string name="invalid_values">Por favor, introduzca una resolución válida</string>
     <string name="resize_multiple_images">Redimensionar varias imágenes</string>

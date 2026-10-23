@@ -32,7 +32,7 @@
     <string name="reorder_by_dragging">مرتب‌سازی پوشه‌ها با کشیدن</string>
     <string name="reorder_by_dragging_pro">مرتب‌سازی پوشه‌ها با کشیدن (حرفه‌ای)</string>
     <string name="filter_media">پالایش رسانه</string>
-    <string name="images">تصاویر</string>
+    <string name="gallery_images">تصاویر</string>
     <string name="videos">ویدیوها</string>
     <string name="gifs">تصاویر متحرک</string>
     <string name="raw_images">تصاویر خام</string>
@@ -50,8 +50,8 @@
     <string name="toggle_favorite">نمایش دادن یا ندادن برگزیده‌ها</string>
     <string name="exclude_folder_description">این کار انتخاب را همراه با زیرپوشه‌هایش تنها از گالری Fossify مستثنا می‌کند. شما می‌توانید پوشه‌های مستثنا شده را در تنظیمات مدیریت کنید.</string>
     <string name="add_folder">افزودن پوشه</string>
-    <string name="width">پهنا</string>
-    <string name="height">ارتفاع</string>
+    <string name="gallery_width">پهنا</string>
+    <string name="gallery_height">ارتفاع</string>
     <string name="keep_aspect_ratio">نسبت ابعاد را حفظ کنید</string>
     <string name="hidden_folders">پوشه‌های پنهان</string>
     <string name="manage_hidden_folders">مدیریت پوشه‌های پنهان</string>

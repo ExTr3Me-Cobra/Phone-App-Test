@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">ארגון מחדש של התיקיות על ידי גרירה (Pro)</string>
     <string name="restore_to_path">שחזור ל-\'%s\'</string>
     <string name="filter_media">סינון מדיה</string>
-    <string name="images">תמונות</string>
+    <string name="gallery_images">תמונות</string>
     <string name="videos">סרטונים</string>
     <string name="gifs">קובצי GIF</string>
     <string name="raw_images">תמונות RAW</string>
@@ -51,8 +51,8 @@
     <string name="included_activity_placeholder">אם יש לך מספר תיקיות המכילות מדיה, אך לא זוהו על ידי האפליקציה, ניתן להוסיף אותן ידנית כאן.\n\nהוספת מספר פריטים כאן לא תכלול אף תיקייה אחרת.</string>
     <string name="no_media_add_included">לא נמצאו קבצי מדיה. ניתן לפתור זאת על ידי הוספת התיקיות המכילות קבצי מדיה באופן ידני.</string>
     <string name="resize_and_save">שינוי גודל הבחירה ושמירה</string>
-    <string name="width">רוחב</string>
-    <string name="height">גובה</string>
+    <string name="gallery_width">רוחב</string>
+    <string name="gallery_height">גובה</string>
     <string name="keep_aspect_ratio">שימור יחס קבוע של גובה־רוחב</string>
     <string name="invalid_values">נא להזין רזולוציה חוקית</string>
     <string name="editor">עורך</string>

@@ -96,9 +96,33 @@ fun Activity.launchGesturePlayer(path: String, extras: HashMap<String, Boolean> 
     }
 }
 
+// PhotoBox: Image Toolbox's main screen, which is part of this same app.
+private const val IMAGE_TOOLBOX_ACTIVITY = "com.t8rin.imagetoolbox.app.presentation.AppActivity"
+
+/**
+ * PhotoBox: opens the image in Image Toolbox (built into this app) instead of Fossify's editor.
+ * With [forceChooser], the system "Edit with" list is shown so other apps can be picked.
+ */
 fun Activity.openEditor(path: String, forceChooser: Boolean = false) {
     val newPath = path.removePrefix("file://")
-    openEditorIntent(newPath, forceChooser, BuildConfig.APPLICATION_ID)
+    if (forceChooser) {
+        openEditorIntent(newPath, true, BuildConfig.APPLICATION_ID)
+        return
+    }
+
+    ensureBackgroundThread {
+        val uri = getFinalUriFromPath(newPath, BuildConfig.APPLICATION_ID) ?: return@ensureBackgroundThread
+        Intent(Intent.ACTION_EDIT).apply {
+            setClassName(packageName, IMAGE_TOOLBOX_ACTIVITY)
+            setDataAndType(uri, getUriMimeType(newPath, uri))
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            try {
+                startActivity(this)
+            } catch (e: Exception) {
+                showErrorToast(e)
+            }
+        }
+    }
 }
 
 fun Activity.launchCamera() {

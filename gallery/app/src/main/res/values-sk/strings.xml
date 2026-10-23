@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Zmeniť poradie priečinkov presunutím (Pro)</string>
     <string name="restore_to_path">Obnovuje sa do \'%s\'</string>
     <string name="filter_media">Filter médií</string>
-    <string name="images">Obrázky</string>
+    <string name="gallery_images">Obrázky</string>
     <string name="videos">Videá</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">RAW obrázky</string>
@@ -57,8 +57,8 @@
 \nPridanie nových položiek sem nevylúči žiadny iný priečinok.</string>
     <string name="no_media_add_included">Nenašli sa žiadne súbory s médiami. Viete to napraviť manuálnym pridaním priečinkov, ktoré obsahujú médiá.</string>
     <string name="resize_and_save">Zmeniť veľkosť a uložiť</string>
-    <string name="width">Šǐrka</string>
-    <string name="height">Výška</string>
+    <string name="gallery_width">Šǐrka</string>
+    <string name="gallery_height">Výška</string>
     <string name="keep_aspect_ratio">Zachovať pomer strán</string>
     <string name="invalid_values">Prosím zadajte platné rozlíšenie</string>
     <string name="resize_multiple_images">Zmeniť veľkosť obrázkov</string>

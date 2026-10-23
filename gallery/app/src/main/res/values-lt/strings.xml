@@ -20,7 +20,7 @@
     <string name="unlock_orientation">Atrakinti orientaciją</string>
     <string name="change_orientation">Keisti orientaciją</string>
     <string name="filter_media">Filtruoti mediją</string>
-    <string name="images">Vaizdai</string>
+    <string name="gallery_images">Vaizdai</string>
     <string name="videos">Vaizdo įrašai</string>
     <string name="gifs">GIF\'ai</string>
     <string name="no_media_with_filters">Su pasirinktais filtrais nerasta medijos bylų.</string>
@@ -35,8 +35,8 @@
     <string name="add_folder">Įtraukti aplanką</string>
     <string name="included_activity_placeholder">"Jei turite tam tikrų aplankų, kuriuose yra medijos , bet kurių neneatpažįsta programėlė, galite juos pridėti rankiniu būdu.  N  nPridedant kai kuriuos elementus, neišskirsite jokio kito aplanko."</string>
     <string name="resize_and_save">Pakeisti pasirinkto dydį ir išsaugoti</string>
-    <string name="width">Plotis</string>
-    <string name="height">Aukštis</string>
+    <string name="gallery_width">Plotis</string>
+    <string name="gallery_height">Aukštis</string>
     <string name="keep_aspect_ratio">Išlaikyti proporcijas</string>
     <string name="invalid_values">Prašome įvesti tinkamą raišką</string>
     <string name="editor">Redaktorius</string>

@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Riordina cartelle trascinandole (Pro)</string>
     <string name="restore_to_path">Ripristino a «%s»</string>
     <string name="filter_media">Filtra i file</string>
-    <string name="images">Immagini</string>
+    <string name="gallery_images">Immagini</string>
     <string name="videos">Video</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">Immagini RAW</string>
@@ -60,8 +60,8 @@
 \nL\'aggiunta di alcuni elementi qui non escluderà nessun\'altra cartella.</string>
     <string name="no_media_add_included">Nessun file multimediale trovato. È risolvibile aggiungendo a mano le cartelle contenenti i file multimediali.</string>
     <string name="resize_and_save">Ridimensiona la selezione e salva</string>
-    <string name="width">Larghezza</string>
-    <string name="height">Altezza</string>
+    <string name="gallery_width">Larghezza</string>
+    <string name="gallery_height">Altezza</string>
     <string name="keep_aspect_ratio">Mantieni proporzioni</string>
     <string name="invalid_values">Inserisci una risoluzione valida</string>
     <string name="resize_multiple_images">Ridimensiona più immagini</string>

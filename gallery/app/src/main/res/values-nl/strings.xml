@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Mappen sorteren met sleepgebaren (Pro)</string>
     <string name="restore_to_path">Herstellen naar \'%s\'</string>
     <string name="filter_media">Media filteren</string>
-    <string name="images">Afbeeldingen</string>
+    <string name="gallery_images">Afbeeldingen</string>
     <string name="videos">Video\'s</string>
     <string name="gifs">GIFs</string>
     <string name="raw_images">RAW-afbeeldingen</string>
@@ -56,8 +56,8 @@
 \nHet hier toevoegen van mappen zal andere mappen niet uitsluiten.</string>
     <string name="no_media_add_included">Er zijn geen mediabestanden gevonden. Dit is op te lossen door de mappen met mediabestanden handmatig toe te voegen.</string>
     <string name="resize_and_save">Grootte aanpassen en opslaan</string>
-    <string name="width">Breedte</string>
-    <string name="height">Hoogte</string>
+    <string name="gallery_width">Breedte</string>
+    <string name="gallery_height">Hoogte</string>
     <string name="keep_aspect_ratio">Beeldverhouding vergrendelen</string>
     <string name="invalid_values">Voer geldige afmetingen in</string>
     <string name="resize_multiple_images">Afbeeldingsgrootte aanpassen</string>

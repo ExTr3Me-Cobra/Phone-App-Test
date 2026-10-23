@@ -40,8 +40,8 @@
     <string name="included_activity_placeholder">Ma yella ɣur-k ikaramen igebren imidyaten, maca ur ten-id-yeɛqil ara usnas, tzemreḍ ad ten-ternuḍ s ufus dagi.\n\nMa terniḍ kra n yiferdisen da, ur d-tessufuɣeḍ ara ula d yiwen ukaram niḍen.</string>
     <string name="no_media_add_included">Ulac ifuyla n umidya. Tzemreḍ ad tefruḍ aya s tmerna n ikaramen igebren ifuyla n umidya s ufus.</string>
     <string name="resize_and_save">Ales tisekta n ufran syin sekles</string>
-    <string name="width">Tehri</string>
-    <string name="height">Tibeddi</string>
+    <string name="gallery_width">Tehri</string>
+    <string name="gallery_height">Tibeddi</string>
     <string name="keep_aspect_ratio">Eǧǧ aktassaɣ n tmeẓri</string>
     <string name="invalid_values">Ma ulac aɣilif, sekcem tabadut tameɣtut</string>
     <string name="resize_multiple_images">Ales tisekta n waṭas n tugniwin</string>
@@ -71,7 +71,7 @@
     <string name="set_as_wallpaper_with">Sbadu am tugna n ugdil s:</string>
     <string name="setting_wallpaper">Asbadu n tugna n ugdil…</string>
     <string name="wallpaper_set_successfully">Tugna n ugdil tettwasbedd akken iwata</string>
-    <string name="images">Tugniwin</string>
+    <string name="gallery_images">Tugniwin</string>
     <string name="videos">Tividyutin</string>
     <string name="exclude_folder_description">Ayagi ad d-iṣṭixer afran akked wid yellan s yikaramen inaddawen si Timidelt Fossify kan. Tzemreḍ ad tesferkeḍ ikaramen yettwaɛezlen deg iɣewwaṛen.</string>
     <string name="excluded_activity_placeholder">Asṭaxer n yikaramen ad ten-yerr d wid n yikaramen inaddawen imuffiren deg timidelt Fossy kan, ad d-banen daɣen deg yisnasen-nniḍen.\n\nMa tebɣiḍ ad ten-teffreḍ seg yisnasen-nniḍen, seqdec tawuri n tuffirt.</string>

@@ -1,0 +1,591 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.single_edit.presentation.components
+
+import android.graphics.Bitmap
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.t8rin.imagetoolbox.core.domain.model.GradientPalette
+import com.t8rin.imagetoolbox.core.domain.model.coerceIn
+import com.t8rin.imagetoolbox.core.domain.model.pt
+import com.t8rin.imagetoolbox.core.domain.utils.notNullAnd
+import com.t8rin.imagetoolbox.core.filters.domain.model.Filter
+import com.t8rin.imagetoolbox.core.filters.presentation.widget.FilterTemplateCreationSheetComponent
+import com.t8rin.imagetoolbox.core.filters.presentation.widget.addFilters.AddFiltersSheetComponent
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.resources.icons.Done
+import com.t8rin.imagetoolbox.core.resources.icons.Healing
+import com.t8rin.imagetoolbox.core.resources.icons.Redo
+import com.t8rin.imagetoolbox.core.resources.icons.Undo
+import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
+import com.t8rin.imagetoolbox.core.ui.theme.outlineVariant
+import com.t8rin.imagetoolbox.core.ui.widget.buttons.EraseModeButton
+import com.t8rin.imagetoolbox.core.ui.widget.buttons.PanModeButton
+import com.t8rin.imagetoolbox.core.ui.widget.controls.UndoRedoButtons
+import com.t8rin.imagetoolbox.core.ui.widget.controls.selection.AlphaSelector
+import com.t8rin.imagetoolbox.core.ui.widget.controls.selection.HelperGridParamsSelector
+import com.t8rin.imagetoolbox.core.ui.widget.controls.selection.MagnifierEnabledSelector
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedFloatingActionButton
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedIconButton
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedTopAppBar
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedTopAppBarType
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.HelperGridParams
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.ShapeDefaults
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.container
+import com.t8rin.imagetoolbox.core.ui.widget.other.DrawLockScreenOrientation
+import com.t8rin.imagetoolbox.core.ui.widget.saver.ColorSaver
+import com.t8rin.imagetoolbox.core.ui.widget.saver.GradientPaletteSaver
+import com.t8rin.imagetoolbox.core.ui.widget.saver.PtSaver
+import com.t8rin.imagetoolbox.core.ui.widget.text.marquee
+import com.t8rin.imagetoolbox.feature.draw.domain.DrawLineStyle
+import com.t8rin.imagetoolbox.feature.draw.domain.DrawMode
+import com.t8rin.imagetoolbox.feature.draw.domain.DrawPathMode
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.BitmapDrawer
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.BrushSoftnessSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.DrawColorSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.DrawLineAngleSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.DrawLineStyleSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.DrawModeSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.DrawPathModeSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.LineWidthSelector
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.OpenColorPickerCard
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.UiPathPaint
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.canShowLineAngle
+import com.t8rin.imagetoolbox.feature.draw.presentation.components.utils.DrawRenderCache
+import com.t8rin.imagetoolbox.feature.pick_color.presentation.components.PickColorFromImageSheet
+import kotlinx.coroutines.launch
+
+@Composable
+fun DrawEditOption(
+    visible: Boolean,
+    onRequestFiltering: suspend (Bitmap, List<Filter<*>>) -> Bitmap?,
+    drawMode: DrawMode,
+    onUpdateDrawMode: (DrawMode) -> Unit,
+    drawPathMode: DrawPathMode,
+    onUpdateDrawPathMode: (DrawPathMode) -> Unit,
+    drawLineStyle: DrawLineStyle,
+    onUpdateDrawLineStyle: (DrawLineStyle) -> Unit,
+    onDismiss: () -> Unit,
+    useScaffold: Boolean,
+    bitmap: Bitmap?,
+    onGetBitmap: (Bitmap) -> Unit,
+    undo: () -> Unit,
+    redo: () -> Unit,
+    paths: List<UiPathPaint>,
+    renderCache: DrawRenderCache,
+    isDetectingFaces: Boolean,
+    onDetectFaces: (Bitmap, Boolean) -> Unit,
+    lastPaths: List<UiPathPaint>,
+    undonePaths: List<UiPathPaint>,
+    addPath: (UiPathPaint) -> Unit,
+    onApplySpotHeal: () -> Unit,
+    helperGridParams: HelperGridParams,
+    onUpdateHelperGridParams: (HelperGridParams) -> Unit,
+    addFiltersSheetComponent: AddFiltersSheetComponent,
+    filterTemplateCreationSheetComponent: FilterTemplateCreationSheetComponent,
+    onRemovePath: (UiPathPaint) -> Unit
+) {
+    bitmap?.let {
+        val scope = rememberCoroutineScope()
+        var panEnabled by rememberSaveable { mutableStateOf(false) }
+
+        val switch = @Composable {
+            PanModeButton(
+                selected = panEnabled,
+                onClick = {
+                    panEnabled = !panEnabled
+                }
+            )
+        }
+
+        var showPickColorSheet by rememberSaveable { mutableStateOf(false) }
+
+        var isEraserOn by rememberSaveable { mutableStateOf(false) }
+
+        val settingsState = LocalSettingsState.current
+        val appliedPaths = remember(paths) { paths.filterNot { it.isPendingSpotHeal } }
+        val pendingSpotHealPaths = remember(paths) { paths.filter { it.isPendingSpotHeal } }
+        val hasPendingSpotHeal = pendingSpotHealPaths.isNotEmpty()
+        var strokeWidth by rememberSaveable(stateSaver = PtSaver) { mutableStateOf(settingsState.defaultDrawLineWidth.pt) }
+        var drawColor by rememberSaveable(stateSaver = ColorSaver) { mutableStateOf(settingsState.defaultDrawColor) }
+        var gradientPalette by rememberSaveable(stateSaver = GradientPaletteSaver) {
+            mutableStateOf<GradientPalette>(GradientPalette.SoftRainbow)
+        }
+        var gradientLength by rememberSaveable { mutableFloatStateOf(1f) }
+        var isGradientMirrored by rememberSaveable { mutableStateOf(false) }
+        var isGradientEnabled by rememberSaveable { mutableStateOf(false) }
+
+        var alpha by rememberSaveable(drawMode) {
+            mutableFloatStateOf(if (drawMode is DrawMode.Highlighter) 0.4f else 1f)
+        }
+        var showLineAngle by rememberSaveable { mutableStateOf(false) }
+        var brushSoftness by rememberSaveable(drawMode, stateSaver = PtSaver) {
+            mutableStateOf(if (drawMode is DrawMode.Neon) 35.pt else 0.pt)
+        }
+        val isGradientAvailable = drawLineStyle.supportsGradient && (
+                drawMode is DrawMode.Pen ||
+                        drawMode is DrawMode.Highlighter ||
+                        drawMode is DrawMode.Text
+                )
+        val activeGradientPalette = gradientPalette.takeIf {
+            isGradientEnabled && isGradientAvailable && !isEraserOn
+        }
+
+        LaunchedEffect(drawMode, strokeWidth) {
+            strokeWidth = if (drawMode is DrawMode.Image) {
+                strokeWidth.coerceIn(10.pt, 120.pt)
+            } else {
+                strokeWidth.coerceIn(1.pt, 100.pt)
+            }
+        }
+
+        val secondaryControls = @Composable {
+            Row(
+                modifier = Modifier.then(
+                    if (!useScaffold) {
+                        Modifier
+                            .padding(16.dp)
+                            .container(shape = ShapeDefaults.circle)
+                    } else Modifier
+                )
+            ) {
+                switch()
+                if (useScaffold) {
+                    UndoRedoButtons(
+                        canUndo = lastPaths.isNotEmpty() || paths.isNotEmpty(),
+                        canRedo = undonePaths.isNotEmpty(),
+                        onUndo = undo,
+                        onRedo = redo
+                    )
+                } else {
+                    EnhancedIconButton(
+                        containerColor = Color.Transparent,
+                        borderColor = MaterialTheme.colorScheme.outlineVariant(
+                            luminance = 0.1f
+                        ),
+                        onClick = undo,
+                        enabled = lastPaths.isNotEmpty() || paths.isNotEmpty()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Undo,
+                            contentDescription = "Undo"
+                        )
+                    }
+                    EnhancedIconButton(
+                        containerColor = Color.Transparent,
+                        borderColor = MaterialTheme.colorScheme.outlineVariant(
+                            luminance = 0.1f
+                        ),
+                        onClick = redo,
+                        enabled = undonePaths.isNotEmpty()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Redo,
+                            contentDescription = "Redo"
+                        )
+                    }
+                }
+                EraseModeButton(
+                    selected = isEraserOn,
+                    enabled = !panEnabled,
+                    onClick = {
+                        isEraserOn = !isEraserOn
+                    }
+                )
+            }
+        }
+
+        var stateBitmap by remember(bitmap, visible) { mutableStateOf(bitmap) }
+        var renderedPaths by remember(bitmap, visible) { mutableStateOf<List<UiPathPaint>?>(null) }
+        val isRenderReady = renderedPaths == paths
+        FullscreenEditOption(
+            canGoBack = paths.isEmpty(),
+            visible = visible,
+            onDismiss = onDismiss,
+            useScaffold = useScaffold,
+            controls = { scaffoldState ->
+                Column(
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val focus = LocalFocusManager.current
+                    LaunchedEffect(scaffoldState?.bottomSheetState?.currentValue, focus) {
+                        val current = scaffoldState?.bottomSheetState?.currentValue
+                        if (current.notNullAnd { it != SheetValue.Expanded }) {
+                            focus.clearFocus()
+                        }
+                    }
+
+                    if (!useScaffold) secondaryControls()
+                    AnimatedVisibility(
+                        visible = drawMode !is DrawMode.SpotHeal && drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OpenColorPickerCard(
+                            onOpen = {
+                                showPickColorSheet = true
+                            }
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = drawMode !is DrawMode.PathEffect && drawMode !is DrawMode.Image && drawMode !is DrawMode.SpotHeal && drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        DrawColorSelector(
+                            value = drawColor,
+                            onValueChange = { drawColor = it },
+                            allowGradient = isGradientAvailable,
+                            gradientPalette = gradientPalette,
+                            onGradientPaletteChange = { gradientPalette = it },
+                            gradientLength = gradientLength,
+                            isGradientMirrored = isGradientMirrored,
+                            onGradientLengthChange = { gradientLength = it },
+                            onGradientMirroredChange = { isGradientMirrored = it },
+                            isGradientEnabled = isGradientEnabled && isGradientAvailable,
+                            onGradientEnabledChange = { isGradientEnabled = it },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = drawPathMode.canChangeStrokeWidth,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        LineWidthSelector(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            title = if (drawMode is DrawMode.Text) {
+                                stringResource(R.string.font_size)
+                            } else stringResource(R.string.line_width),
+                            valueRange = if (drawMode is DrawMode.Image) {
+                                10f..120f
+                            } else 1f..100f,
+                            value = strokeWidth.value,
+                            onValueChange = { strokeWidth = it.pt }
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = drawMode !is DrawMode.Highlighter && drawMode !is DrawMode.PathEffect && drawMode !is DrawMode.SpotHeal && drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        BrushSoftnessSelector(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            value = brushSoftness.value,
+                            onValueChange = { brushSoftness = it.pt }
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = drawMode !is DrawMode.Neon && drawMode !is DrawMode.PathEffect && drawMode !is DrawMode.SpotHeal && drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        AlphaSelector(
+                            value = alpha,
+                            onValueChange = { alpha = it },
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                    DrawModeSelector(
+                        addFiltersSheetComponent = addFiltersSheetComponent,
+                        filterTemplateCreationSheetComponent = filterTemplateCreationSheetComponent,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        value = drawMode,
+                        strokeWidth = strokeWidth,
+                        canDetectFaces = true,
+                        isDetectingFaces = isDetectingFaces,
+                        isFaceDetectionEnabled = isRenderReady && !hasPendingSpotHeal,
+                        onDetectFaces = { useYuNet ->
+                            if (isRenderReady && !hasPendingSpotHeal) {
+                                onDetectFaces(stateBitmap, useYuNet)
+                                scope.launch { scaffoldState?.bottomSheetState?.partialExpand() }
+                            }
+                        },
+                        onValueChange = {
+                            if (it is DrawMode.Warp) {
+                                onUpdateDrawPathMode(DrawPathMode.Free)
+                                onUpdateDrawLineStyle(DrawLineStyle.None)
+                            }
+                            onUpdateDrawMode(it)
+                        },
+                        values = remember(drawLineStyle) {
+                            derivedStateOf {
+                                if (drawLineStyle == DrawLineStyle.None) {
+                                    DrawMode.entries
+                                } else {
+                                    listOf(
+                                        DrawMode.Pen,
+                                        DrawMode.Highlighter,
+                                        DrawMode.Neon
+                                    )
+                                }
+                            }
+                        }.value
+                    )
+                    AnimatedVisibility(
+                        visible = drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        DrawPathModeSelector(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            value = drawPathMode,
+                            onValueChange = onUpdateDrawPathMode,
+                            values = remember(drawMode, drawLineStyle) {
+                                derivedStateOf {
+                                    if (drawMode !is DrawMode.Text && drawMode !is DrawMode.Image) {
+                                        when (drawLineStyle) {
+                                            DrawLineStyle.None -> DrawPathMode.entries
+
+                                            !is DrawLineStyle.Stamped<*> -> listOf(
+                                                DrawPathMode.Free,
+                                                DrawPathMode.Line,
+                                                DrawPathMode.LinePointingArrow(),
+                                                DrawPathMode.PointingArrow(),
+                                                DrawPathMode.DoublePointingArrow(),
+                                                DrawPathMode.DoubleLinePointingArrow(),
+                                            ) + DrawPathMode.outlinedEntries
+
+                                            else -> listOf(
+                                                DrawPathMode.Free,
+                                                DrawPathMode.Line
+                                            ) + DrawPathMode.outlinedEntries
+                                        }
+                                    } else {
+                                        listOf(
+                                            DrawPathMode.Free,
+                                            DrawPathMode.Line
+                                        ) + DrawPathMode.outlinedEntries
+                                    }
+                                }
+                            }.value,
+                            drawMode = drawMode
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = drawPathMode.canShowLineAngle() && drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        DrawLineAngleSelector(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            checked = showLineAngle,
+                            onCheckedChange = { showLineAngle = it }
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = drawMode !is DrawMode.Warp,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        DrawLineStyleSelector(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            value = drawLineStyle,
+                            onValueChange = onUpdateDrawLineStyle
+                        )
+                    }
+                    HelperGridParamsSelector(
+                        value = helperGridParams,
+                        onValueChange = onUpdateHelperGridParams,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                    MagnifierEnabledSelector(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        shape = ShapeDefaults.extraLarge,
+                    )
+                }
+            },
+            fabButtonsVisible = hasPendingSpotHeal,
+            fabButtons = {
+                EnhancedFloatingActionButton(
+                    onClick = onApplySpotHeal.takeIf { isRenderReady },
+                    containerColor = if (isRenderReady) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = if (isRenderReady) MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.outline
+                ) {
+                    Spacer(Modifier.width(16.dp))
+                    Icon(
+                        imageVector = Icons.Outlined.Healing,
+                        contentDescription = null
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    Text(stringResource(R.string.apply))
+                    Spacer(Modifier.width(16.dp))
+                }
+            },
+            actions = {
+                if (useScaffold) {
+                    secondaryControls()
+                    Spacer(Modifier.weight(1f))
+                }
+            },
+            topAppBar = { closeButton ->
+                EnhancedTopAppBar(
+                    type = EnhancedTopAppBarType.Center,
+                    navigationIcon = closeButton,
+                    actions = {
+                        AnimatedVisibility(
+                            visible = paths.isNotEmpty(),
+                            enter = fadeIn() + scaleIn(),
+                            exit = fadeOut() + scaleOut()
+                        ) {
+                            EnhancedIconButton(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                enabled = isRenderReady && !hasPendingSpotHeal,
+                                onClick = {
+                                    onGetBitmap(stateBitmap)
+                                    onDismiss()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Done,
+                                    contentDescription = stringResource(R.string.confirm)
+                                )
+                            }
+                        }
+                    },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.draw),
+                            modifier = Modifier.marquee()
+                        )
+                    }
+                )
+            }
+        ) {
+            val direction = LocalLayoutDirection.current
+            Box(contentAlignment = Alignment.Center) {
+                remember(bitmap) { bitmap.asImageBitmap() }.let { imageBitmap ->
+                    val aspectRatio = imageBitmap.width / imageBitmap.height.toFloat()
+                    BitmapDrawer(
+                        imageBitmap = imageBitmap,
+                        renderCache = renderCache,
+                        sourceKey = bitmap,
+                        paths = appliedPaths,
+                        pendingSpotHealPaths = pendingSpotHealPaths,
+                        applySpotHealManually = settingsState.applySpotHealManually,
+                        onRequestFiltering = onRequestFiltering,
+                        strokeWidth = strokeWidth,
+                        brushSoftness = brushSoftness,
+                        drawColor = drawColor.copy(alpha),
+                        gradientPalette = activeGradientPalette,
+                        gradientLength = gradientLength,
+                        isGradientMirrored = isGradientMirrored,
+                        onAddPath = addPath,
+                        isEraserOn = isEraserOn,
+                        drawMode = drawMode,
+                        modifier = Modifier
+                            .padding(
+                                start = WindowInsets
+                                    .displayCutout
+                                    .asPaddingValues()
+                                    .calculateStartPadding(direction)
+                            )
+                            .padding(16.dp)
+                            .aspectRatio(aspectRatio, !useScaffold)
+                            .fillMaxSize(),
+                        panEnabled = panEnabled,
+                        onDraw = {
+                            stateBitmap = it
+                        },
+                        onRenderReady = { renderedPaths = paths.takeIf { _ -> it } },
+                        drawPathMode = drawPathMode,
+                        backgroundColor = Color.Transparent,
+                        drawLineStyle = drawLineStyle,
+                        helperGridParams = helperGridParams,
+                        showLineAngle = showLineAngle,
+                        onRemovePath = onRemovePath
+                    )
+                }
+            }
+        }
+        var color by rememberSaveable(stateSaver = ColorSaver) {
+            mutableStateOf(Color.Black)
+        }
+        PickColorFromImageSheet(
+            visible = showPickColorSheet,
+            onDismiss = {
+                showPickColorSheet = false
+            },
+            bitmap = stateBitmap,
+            onColorChange = { color = it },
+            color = color
+        )
+
+        if (visible) {
+            DrawLockScreenOrientation()
+        }
+    }
+}

@@ -33,7 +33,7 @@
     <string name="reorder_by_dragging_pro">Reordenar as pastas ao arrastar (Pro)</string>
     <string name="restore_to_path">Restaurando para \'%s\'</string>
     <string name="filter_media">Filtrar mídia</string>
-    <string name="images">Imagens</string>
+    <string name="gallery_images">Imagens</string>
     <string name="videos">Vídeos</string>
     <string name="raw_images">Imagens RAW</string>
     <string name="portraits">Retratos</string>
@@ -52,8 +52,8 @@
     <string name="included_activity_placeholder">Se você possuir pastas contendo mídia, mas que não foram reconhecidas pelo aplicativo, você pode adicioná-las manualmente aqui.\n\nA adição de alguns itens aqui não vai ignorar nenhuma outra pasta.</string>
     <string name="no_media_add_included">Nenhum arquivo de mídia foi encontrado. Você pode resolver isso incluindo manualmente as pastas com arquivos de mídia.</string>
     <string name="resize_and_save">Redimensionar seleção e salvar</string>
-    <string name="width">Largura</string>
-    <string name="height">Altura</string>
+    <string name="gallery_width">Largura</string>
+    <string name="gallery_height">Altura</string>
     <string name="keep_aspect_ratio">Manter proporção</string>
     <string name="invalid_values">Digite uma resolução válida</string>
     <string name="resize_multiple_images">Redimensionar várias imagens</string>

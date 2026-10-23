@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Подреждане на папките с влачене (про)</string>
     <string name="restore_to_path">Възстановяване в „%s“</string>
     <string name="filter_media">Филтриране</string>
-    <string name="images">Изображения</string>
+    <string name="gallery_images">Изображения</string>
     <string name="videos">Видео</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">RAW</string>
@@ -55,8 +55,8 @@
     <string name="included_activity_placeholder">Ако има папки с медия, които обаче не са били автоматично разпознати от приложението, може да ги добавите ръчно тук.\n\nДобавянето на елементи тук няма да изключи други папки.</string>
     <string name="no_media_add_included">Не са открити медийни файлове. Можете ръчно да добавите папки с медия.</string>
     <string name="resize_and_save">Преоразмеряване на избраното и запазване</string>
-    <string name="width">Ширина</string>
-    <string name="height">Височина</string>
+    <string name="gallery_width">Ширина</string>
+    <string name="gallery_height">Височина</string>
     <string name="keep_aspect_ratio">Запазване съотнош. на страните</string>
     <string name="invalid_values">Въведете действителна разделителна способност</string>
     <string name="resize_multiple_images">Преоразмеряване на няколко изображения</string>

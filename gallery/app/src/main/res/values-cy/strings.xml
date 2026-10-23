@@ -27,7 +27,7 @@
     <string name="set_as_default_folder">Gosod fel ffolder ddiofyn</string>
     <string name="unset_as_default_folder">Dad-osod fel ffolder ddiofyn</string>
     <string name="filter_media">Hidlo cyfryngau</string>
-    <string name="images">Delweddau</string>
+    <string name="gallery_images">Delweddau</string>
     <string name="videos">Fideos</string>
     <string name="raw_images">delweddau RAW</string>
     <string name="image_editing_failed">Wedi methu golygu delwedd</string>
@@ -41,8 +41,8 @@
     <string name="manage_hidden_folders">Rheoli ffolderi cudd</string>
     <string name="change_filters_underlined"><u>Newid hidlyddion</u></string>
     <string name="include_folders">Ffolderi cynwysedig</string>
-    <string name="width">Lled</string>
-    <string name="height">Uchder</string>
+    <string name="gallery_width">Lled</string>
+    <string name="gallery_height">Uchder</string>
     <string name="editor">Golygydd</string>
     <string name="basic_editor">Golygydd Syml</string>
     <string name="advanced_editor">Golygydd Uwch</string>

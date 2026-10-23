@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Αναδιάταξη φακέλων με μεταφορά (Pro)</string>
     <string name="restore_to_path">Επαναφορά σε \'%s\'</string>
     <string name="filter_media">Φιλτράρισμα πολυμέσων</string>
-    <string name="images">Εικόνες</string>
+    <string name="gallery_images">Εικόνες</string>
     <string name="videos">Βίντεο</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">RAW Εικόνες</string>
@@ -57,8 +57,8 @@
 \nΗ προσθήκη στοιχείων εδώ, δεν θα εξαιρέσει κάποιον άλλο φάκελο.</string>
     <string name="no_media_add_included">Δεν βρέθηκαν αρχεία πολυμέσων. Μπορεί να λυθεί αυτό, προσθέτοντας τους φακέλους που περιέχουν αρχεία πολυμέσων με μη αυτόματο τρόπο.</string>
     <string name="resize_and_save">Αλλαγή μεγέθους και αποθήκευση</string>
-    <string name="width">Πλάτος</string>
-    <string name="height">Ύψος</string>
+    <string name="gallery_width">Πλάτος</string>
+    <string name="gallery_height">Ύψος</string>
     <string name="keep_aspect_ratio">Διατήρηση αναλογίας</string>
     <string name="invalid_values">Παρακαλώ εισάγετε σωστή ανάλυση</string>
     <string name="resize_multiple_images">Αλλαγή μεγέθους πολλών εικόνων</string>

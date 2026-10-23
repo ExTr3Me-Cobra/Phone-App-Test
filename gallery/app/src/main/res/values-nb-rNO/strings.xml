@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Endre mapperekkefølge ved å dra (Pro)</string>
     <string name="restore_to_path">Gjenoppretter til \'%s\'</string>
     <string name="filter_media">Filtrer media</string>
-    <string name="images">Bilder</string>
+    <string name="gallery_images">Bilder</string>
     <string name="videos">Videoer</string>
     <string name="gifs">GIF-bilder</string>
     <string name="raw_images">RAW-format-bilder</string>
@@ -56,8 +56,8 @@
 \nÅ legge til noen elementer her, ekskluderer ikke noen annen mappe.</string>
     <string name="no_media_add_included">Ingen mediafiler er funnet. Dette kan løses ved å legge til mapper som inneholder mediafiler manuelt.</string>
     <string name="resize_and_save">Endre størrelse og lagre</string>
-    <string name="width">Bredde</string>
-    <string name="height">Høyde</string>
+    <string name="gallery_width">Bredde</string>
+    <string name="gallery_height">Høyde</string>
     <string name="keep_aspect_ratio">Behold sideforhold</string>
     <string name="invalid_values">Oppfør en gyldig oppløsning</string>
     <string name="resize_multiple_images">Endre størrelse på flere bilder</string>

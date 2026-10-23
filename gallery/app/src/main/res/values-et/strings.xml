@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Muuda kaustade järjekorda lohistades (Pro)</string>
     <string name="restore_to_path">Taastame kausta „%s“</string>
     <string name="filter_media">Sirvi meediat</string>
-    <string name="images">Pildid</string>
+    <string name="gallery_images">Pildid</string>
     <string name="videos">Videod</string>
     <string name="gifs">GIF\'id</string>
     <string name="raw_images">RAW-failid</string>
@@ -57,8 +57,8 @@
 \nSiia kaustade lisamine ei välista muude kaustade tuvastamist ja kasutamist.</string>
     <string name="no_media_add_included">Meediafaile ei leidunud. Selle saad lahendada, lisades meediafaile sisaldavad kaustad käsitsi.</string>
     <string name="resize_and_save">Muuda suurust ja salvesta</string>
-    <string name="width">Laius</string>
-    <string name="height">Kõrgus</string>
+    <string name="gallery_width">Laius</string>
+    <string name="gallery_height">Kõrgus</string>
     <string name="keep_aspect_ratio">Jäta proportsioon samaks</string>
     <string name="invalid_values">Palun sisesta kehtiv resolutsioon</string>
     <string name="resize_multiple_images">Muuda mitme pildi suurust</string>

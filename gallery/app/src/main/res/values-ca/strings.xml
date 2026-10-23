@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Reordeneu les carpetes arrossegant-les (Pro)</string>
     <string name="restore_to_path">S\'està restaurant a «%s»</string>
     <string name="filter_media">Filtre multimèdia</string>
-    <string name="images">Imatges</string>
+    <string name="gallery_images">Imatges</string>
     <string name="videos">Vídeos</string>
     <string name="gifs">GIF</string>
     <string name="raw_images">Imatges RAW</string>
@@ -57,8 +57,8 @@
 \nSi aquí s\'afegeixen elements, no s\'exclourà cap altra carpeta.</string>
     <string name="no_media_add_included">No s\'ha trobat cap fitxer multimèdia. Podeu resoldre-ho afegint manualment les carpetes que contenen fitxers multimèdia.</string>
     <string name="resize_and_save">Redimensiona la selecció i desa</string>
-    <string name="width">Amplada</string>
-    <string name="height">Alçada</string>
+    <string name="gallery_width">Amplada</string>
+    <string name="gallery_height">Alçada</string>
     <string name="keep_aspect_ratio">Mantén la relació d\'aspecte</string>
     <string name="invalid_values">Introduïu una resolució vàlida</string>
     <string name="resize_multiple_images">Canvia la mida de diverses imatges</string>

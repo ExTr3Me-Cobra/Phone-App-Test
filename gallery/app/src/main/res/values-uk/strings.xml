@@ -34,7 +34,7 @@
     <string name="reorder_by_dragging_pro">Сортувати теки шляхом переміщення (Pro)</string>
     <string name="restore_to_path">Відновлення в «%s»</string>
     <string name="filter_media">Фільтр мультимедійних файлів</string>
-    <string name="images">Зображення</string>
+    <string name="gallery_images">Зображення</string>
     <string name="videos">Відео</string>
     <string name="gifs">GIF-зображення</string>
     <string name="raw_images">RAW-зображення</string>
@@ -57,8 +57,8 @@
 \nДодавання елементів сюди не виключить будь-яку іншу теку.</string>
     <string name="no_media_add_included">Жоден медіафайл не знайдено. Ви можете додати теки з медіафайлами вручну, щоб вирішити цю проблему.</string>
     <string name="resize_and_save">Змінити розмір вибраного і зберегти</string>
-    <string name="width">Ширина</string>
-    <string name="height">Висота</string>
+    <string name="gallery_width">Ширина</string>
+    <string name="gallery_height">Висота</string>
     <string name="keep_aspect_ratio">Зберігати співвідношення сторін</string>
     <string name="invalid_values">Введіть допустиму роздільну здатність</string>
     <string name="resize_multiple_images">Змінити розмір кількох зображень</string>

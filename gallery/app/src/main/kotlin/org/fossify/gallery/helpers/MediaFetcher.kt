@@ -903,7 +903,7 @@ class MediaFetcher(val context: Context) {
 
     private fun getFileTypeString(key: String): String {
         val stringId = when (key.toInt()) {
-            TYPE_IMAGES -> R.string.images
+            TYPE_IMAGES -> R.string.gallery_images
             TYPE_VIDEOS -> R.string.videos
             TYPE_GIFS -> R.string.gifs
             TYPE_RAWS -> R.string.raw_images
