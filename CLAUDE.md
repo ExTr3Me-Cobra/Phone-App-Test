@@ -28,8 +28,6 @@ Loadout (package `com.ironlog.app`): Kotlin + Jetpack Compose. No local SDK; CI 
   6. Bottom levels bunched together: widen the spread back to 0.30 (men) / 0.35 (women).
   7. Count at most ~12 reps toward the estimated max on machine and isolation lifts.
   Fix from our own sources and build code; don't copy a reviewer's remembered numbers.
-- **Name for the "_____" rank** (top 10%, between Diamond 3 and Legend, pink). The owner wants a title like
-  "Legend", not a material or gem. Avoid "Elite" (a level name), "Olympian", and exact game rank names.
 - The 72 medium-confidence exercise removal candidates.
 - A link for the tip button.
 - Weighted-vest calf raises (two- and one-leg) need new standards.

@@ -36,10 +36,10 @@ fun RankHelpScreen() {
             HelpCard("1. The ranks") {
                 Para("There are 20 ranks. Each one is a 5% slice of people: Wood 1 is the bottom 5%, Legend is the top 5%.")
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    listOf(Tier.WOOD_1, Tier.BRONZE_1, Tier.SILVER_1, Tier.GOLD_1, Tier.PLATINUM_1, Tier.DIAMOND_1, Tier.OLYMPIAN, Tier.LEGEND)
+                    listOf(Tier.WOOD_1, Tier.BRONZE_1, Tier.SILVER_1, Tier.GOLD_1, Tier.PLATINUM_1, Tier.DIAMOND_1, Tier.CHAMPION, Tier.LEGEND)
                         .forEach { RankBadge(it, 30.dp) }
                 }
-                Para("Wood → Bronze → Silver → Gold → Platinum → Diamond (each 1, 2, 3), then _____ (top 10%) and Legend (top 5%).")
+                Para("Wood → Bronze → Silver → Gold → Platinum → Diamond (each 1, 2, 3), then Champion (top 10%) and Legend (top 5%).")
                 Para("\"Top 42%\" means you're stronger than 58% of the people you're compared with.")
             }
 

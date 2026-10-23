@@ -287,7 +287,7 @@ object Standards {
         (p.bodyweight?.let { " around ${Units.weightU(it)}" } ?: "") + (p.age?.let { ", age $it" } ?: "")
 }
 
-/** The 20 ranks: Wood 1 (everyone) … Diamond 3 (top 15%), _____ (top 10%, name to be chosen), Legend (top 5%). */
+/** The 20 ranks: Wood 1 (everyone) … Diamond 3 (top 15%), Champion (top 10%), Legend (top 5%). */
 enum class Tier(val label: String, val badge: String, val color: Long) {
     WOOD_1("Wood 1", "wood_1", 0xFFD9B48A), WOOD_2("Wood 2", "wood_2", 0xFFC1925F), WOOD_3("Wood 3", "wood_3", 0xFFA06A3A),
     BRONZE_1("Bronze 1", "bronze_1", 0xFFF3A774), BRONZE_2("Bronze 2", "bronze_2", 0xFFE0803F), BRONZE_3("Bronze 3", "bronze_3", 0xFFC0601F),
@@ -295,7 +295,7 @@ enum class Tier(val label: String, val badge: String, val color: Long) {
     GOLD_1("Gold 1", "gold_1", 0xFFFFE27D), GOLD_2("Gold 2", "gold_2", 0xFFF7C743), GOLD_3("Gold 3", "gold_3", 0xFFDDA21A),
     PLATINUM_1("Platinum 1", "platinum_1", 0xFF97F2EA), PLATINUM_2("Platinum 2", "platinum_2", 0xFF52D8D0), PLATINUM_3("Platinum 3", "platinum_3", 0xFF1FB4AE),
     DIAMOND_1("Diamond 1", "diamond_1", 0xFF94C8FF), DIAMOND_2("Diamond 2", "diamond_2", 0xFF529DFF), DIAMOND_3("Diamond 3", "diamond_3", 0xFF2371E0),
-    OLYMPIAN("_____", "olympian", 0xFFFF6FB5), LEGEND("Legend", "legend", 0xFFA64DFF);
+    CHAMPION("Champion", "champion", 0xFFFF6FB5), LEGEND("Legend", "legend", 0xFFA64DFF);
 
     /** "Top 45%": the share of lifters at this rank or above. */
     val topPct get() = 100 - ordinal * 5

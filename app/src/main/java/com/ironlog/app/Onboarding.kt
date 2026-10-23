@@ -222,7 +222,7 @@ private fun RanksPage(p: Profile) {
     Body("Exercises with strength data get a rank against people your size, sex and age – from Wood to Legend. The star after a name shows how solid that data is.")
     InfoCard {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.Bottom) {
-            listOf(Tier.WOOD_1, Tier.BRONZE_2, Tier.SILVER_2, Tier.GOLD_2, Tier.PLATINUM_2, Tier.DIAMOND_2, Tier.OLYMPIAN, Tier.LEGEND)
+            listOf(Tier.WOOD_1, Tier.BRONZE_2, Tier.SILVER_2, Tier.GOLD_2, Tier.PLATINUM_2, Tier.DIAMOND_2, Tier.CHAMPION, Tier.LEGEND)
                 .forEachIndexed { i, t -> RankBadge(t, (26 + i * 3).dp) }
         }
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
