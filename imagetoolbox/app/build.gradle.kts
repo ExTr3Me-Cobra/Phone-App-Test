@@ -197,6 +197,9 @@ baselineProfile {
 androidComponents {
     onVariants(selector().withBuildType("release")) { variant ->
         variant.packaging.jniLibs.keepDebugSymbols.set(emptySet())
+        // Viper Vision: the extra recompression below takes ~10 minutes per APK to save ~4% of
+        // the download size, so it's off unless OPTIMIZE_APK=true in vipervision.properties.
+        if (!vipervision["OPTIMIZE_APK"].toString().toBoolean()) return@onVariants
         val buildToolsVersion = android.buildToolsVersion
         val executable = if (System.getProperty("os.name").startsWith("Windows")) {
             "zipalign.exe"

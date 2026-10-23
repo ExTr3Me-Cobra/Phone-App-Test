@@ -49,7 +49,8 @@ Android treat it as a different app (you'd have both).
 GitHub Actions (`.github/workflows/build-vipervision-apk.yml`) builds a signed release whenever any of
 the four folders change, and posts **ViperVision.apk** on the Releases page. It's built for arm64
 phones only (every current Samsung Galaxy and practically every phone from the last ~8 years),
-which keeps builds faster; add more processor types under `ABIS` in `vipervision.properties` if
+which keeps builds faster (and Image Toolbox's slow extra APK recompression is off, see
+`OPTIMIZE_APK`); add more processor types under `ABIS` in `vipervision.properties` if
 needed. A build takes roughly 25-40 minutes from scratch, less once GitHub's build cache is warm.
 
 Locally (Android SDK + JDK 21):
