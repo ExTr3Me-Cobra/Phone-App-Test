@@ -26,12 +26,19 @@ import com.t8rin.imagetoolbox.core.domain.model.ExtraDataType
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
 import com.t8rin.imagetoolbox.core.ui.utils.helper.ContextUtils.getExtension
 import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
+import com.t8rin.imagetoolbox.core.ui.utils.navigation.isRemovedTool
 import com.t8rin.imagetoolbox.core.utils.filename
 import com.t8rin.palette.PaletteFormat
 
+// Viper Vision: removed tools are never offered.
 fun List<Uri>.screensFor(
     extraDataType: ExtraDataType?,
     includeAllModes: Boolean = false
+): List<Screen> = allScreensFor(extraDataType, includeAllModes).filterNot { it.isRemovedTool() }
+
+private fun List<Uri>.allScreensFor(
+    extraDataType: ExtraDataType?,
+    includeAllModes: Boolean
 ): List<Screen> {
     val uris = this
 

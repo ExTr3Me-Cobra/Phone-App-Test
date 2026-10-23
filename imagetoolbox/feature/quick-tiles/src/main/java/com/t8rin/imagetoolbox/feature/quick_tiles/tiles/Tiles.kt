@@ -17,7 +17,6 @@
 
 package com.t8rin.imagetoolbox.feature.quick_tiles.tiles
 
-import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
 import com.t8rin.imagetoolbox.feature.quick_tiles.tiles.TileAction.OpenApp
 import com.t8rin.imagetoolbox.feature.quick_tiles.tiles.TileAction.OpenScreen
 import com.t8rin.imagetoolbox.feature.quick_tiles.tiles.TileAction.Screenshot
@@ -33,28 +32,4 @@ class TakeScreenshotTile : QuickTile(
 
 class EditScreenshotTile : QuickTile(
     tileAction = ScreenshotAndOpenScreen(null)
-)
-
-class GeneratePaletteTile : QuickTile(
-    tileAction = ScreenshotAndOpenScreen(Screen.PaletteTools())
-)
-
-class ColorPickerTile : QuickTile(
-    tileAction = ScreenshotAndOpenScreen(Screen.PickColorFromImage())
-)
-
-class QrTile : QuickTile(
-    tileAction = OpenScreen(Screen.ScanQrCode())
-)
-
-class DocumentScannerTile : QuickTile(
-    tileAction = OpenScreen(Screen.DocumentScanner)
-)
-
-class TextRecognitionTile : QuickTile(
-    tileAction = OpenScreen(Screen.RecognizeText())
-)
-
-class ResizeAndConvertTile : QuickTile(
-    tileAction = OpenScreen(Screen.ResizeAndConvert())
 )

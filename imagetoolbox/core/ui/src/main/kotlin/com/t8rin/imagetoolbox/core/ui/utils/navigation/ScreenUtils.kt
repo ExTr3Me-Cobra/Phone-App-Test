@@ -607,12 +607,14 @@ private object ScreenConstantsImpl : ScreenConstants {
                 selectedIcon = Icons.Rounded.ServiceToolbox,
                 baseIcon = Icons.Outlined.ServiceToolbox
             )
-        )
+        ).map { group ->
+            // Viper Vision: removed tools are left out.
+            group.copy(entries = group.entries.filterNot { it.isRemovedTool() })
+        }
     }
 
     override val entries by lazy {
         typedEntries.flatMap { it.entries }
-            .plus(PdfTools.options)
             .distinctBy { it.id }
             .sortedBy { it.id }
     }

@@ -18,7 +18,6 @@
 package com.t8rin.imagetoolbox.app.presentation.components
 
 import com.t8rin.imagetoolbox.app.presentation.components.functions.attachLogWriter
-import com.t8rin.imagetoolbox.app.presentation.components.functions.initCollages
 import com.t8rin.imagetoolbox.app.presentation.components.functions.initColorNames
 import com.t8rin.imagetoolbox.app.presentation.components.functions.initNeuralTool
 import com.t8rin.imagetoolbox.app.presentation.components.functions.initOpenCV
@@ -83,7 +82,6 @@ class ImageToolboxApplication : ComposeApplication() {
             registerSecurityProviders()
             initPdfBox()
             injectBaseComponent()
-            initCollages()
             semanticSearchScheduler.start()
             // Viper Vision: start up the Gallery side of the app too.
             ViperVisionGallery.init(this)

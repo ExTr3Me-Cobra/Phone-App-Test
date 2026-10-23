@@ -79,6 +79,16 @@ upstream, these are the things to carry over.
   Application name, icon and theme from Gallery's manifest.
 * `ImageToolboxApplication.kt`: calls `ViperVisionGallery.init(this)`.
 * `gradle.properties`: Jetifier on (Gallery's pattern lock library uses the old support library).
+* **Trimmed to 16 tools:** Single Edit, Format Conversion, Crop, Filter, Draw, Background
+  Remover, Markup Layers, AI Tools, Tone Curves, Gradient Maker, Multi-frame Fusion, Texture
+  Generation, Compare, Gallery, Image Preview and Wallpapers Export. The other 38 tools' modules
+  (and `lib/collages`) are deleted and dropped from `settings.gradle.kts` and
+  `feature/root/build.gradle.kts`. `core/ui/.../navigation/ViperVisionRemovedTools.kt` lists
+  them; tool lists, the "open with" picker, help tips and navigation all skip anything on it.
+  Color Picker and Archive Tools are hidden the same way but their modules stay, because Draw,
+  Filter and Gradient Maker use them. Their quick-settings tiles are gone, the random filename
+  helper moved from Cipher into `core/data`, and `instrumentation-tests` is left out of the
+  build. To bring a tool back, restore its module folder from git history and undo these.
 * Update checker off: it looks at Image Toolbox's own GitHub releases, which aren't Viper Vision
   updates. The first-launch "Updates" dialog is never shown (`FirstLaunchSetupDialog.kt`),
   `RootComponent.tryGetUpdate()` returns straight away, and the Updates settings section and its

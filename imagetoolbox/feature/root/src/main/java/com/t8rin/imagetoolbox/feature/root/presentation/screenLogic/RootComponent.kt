@@ -54,6 +54,7 @@ import com.t8rin.imagetoolbox.core.ui.utils.BaseComponent
 import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
 import com.t8rin.imagetoolbox.core.ui.utils.helper.handleDeeplinks
 import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
+import com.t8rin.imagetoolbox.core.ui.utils.navigation.isRemovedTool
 import com.t8rin.imagetoolbox.core.ui.utils.state.update
 import com.t8rin.imagetoolbox.core.utils.isNeedUpdate
 import com.t8rin.imagetoolbox.core.utils.makeLog
@@ -408,6 +409,7 @@ class RootComponent @AssistedInject internal constructor(
     }
 
     fun navigateTo(screen: Screen) {
+        if (screen.isRemovedTool()) return // Viper Vision: tool removed from the app
         componentScope.launch {
             delay(100)
             screen.saveToHistory().simpleName.makeLog("Navigator")
@@ -418,6 +420,7 @@ class RootComponent @AssistedInject internal constructor(
     }
 
     fun replaceTo(screen: Screen) {
+        if (screen.isRemovedTool()) return // Viper Vision: tool removed from the app
         componentScope.launch {
             delay(100)
             screen.saveToHistory().simpleName.makeLog("Navigator")
@@ -432,6 +435,7 @@ class RootComponent @AssistedInject internal constructor(
     }
 
     fun navigateToNew(screen: Screen) {
+        if (screen.isRemovedTool()) return // Viper Vision: tool removed from the app
         val currentScreen = childStack.items.lastOrNull()?.configuration
         if (currentScreen != Screen.Main && currentScreen !is Screen.Settings && currentScreen !is Screen.SettingsCategory) {
             navigateBack()

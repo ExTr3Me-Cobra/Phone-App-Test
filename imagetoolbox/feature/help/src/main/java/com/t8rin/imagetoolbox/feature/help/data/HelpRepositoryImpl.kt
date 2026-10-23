@@ -242,6 +242,7 @@ import com.t8rin.imagetoolbox.core.resources.icons.ZoomIn
 import com.t8rin.imagetoolbox.core.settings.presentation.model.Setting
 import com.t8rin.imagetoolbox.core.settings.presentation.model.SettingsGroup
 import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
+import com.t8rin.imagetoolbox.core.ui.utils.navigation.isRemovedTool
 import com.t8rin.imagetoolbox.core.utils.appContext
 import com.t8rin.imagetoolbox.feature.help.domain.HelpRepository
 import com.t8rin.imagetoolbox.feature.help.domain.model.HelpCategory
@@ -488,7 +489,12 @@ internal class HelpRepositoryImpl @Inject constructor() : HelpRepository {
         troubleshooting
     )
 
-    override val tips: List<HelpTip> = listOf(
+    // Viper Vision: tips for removed tools are left out.
+    override val tips: List<HelpTip> by lazy {
+        allTips.filterNot { it.deepLink?.isRemovedTool() == true }
+    }
+
+    private val allTips: List<HelpTip> = listOf(
         pagesTip(
             id = "depth-effects",
             title = R.string.help_tip_depth_effects_title,
