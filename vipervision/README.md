@@ -24,20 +24,22 @@ The combined app is GPL-3.0 (Apache-2.0 code can be included in a GPL-3.0 app).
 
 ## The icon
 
-`icon/viper_eye_1024.png` is the master image: a macro close-up of a pit viper's eye, rendered
-by `icon/snake_eye.py` (run `python3 icon/snake_eye.py out.png 1024`). `res/` holds the app-level
-resources built from it, which win over anything with the same name in Gallery, Commons or Image
-Toolbox:
+`icon/viper_eye_original.jpg` is the icon picture (a blue macro snake eye), and
+`icon/viper_eye_1024.png` is the same picture with its dark frame trimmed. `res/` holds the
+app-level resources built from it, which win over anything with the same name in Gallery, Commons
+or Image Toolbox:
 
-* `drawable-*/vv_launcher_photo.png`: the eye, used as the adaptive icon layer.
+* `drawable-*/vv_launcher_photo.png`: the icon layer. The picture is shrunk a little inside it
+  so the part launchers show (the middle two thirds) still includes the scales around the eye.
 * `mipmap-anydpi-v26/ic_launcher*.xml`: every launcher icon, including all of Gallery's
   "change icon colour" variants, so the icon stays the snake eye whichever colour is picked.
 * `drawable/ic_launcher_monochrome.xml`: eye outline for Android's themed icons.
-* `drawable/ic_launcher_foreground.xml`: same outline in gold, used for notifications and on
+* `drawable/ic_launcher_foreground.xml`: same outline in blue, used for notifications and on
   Image Toolbox's settings screen.
 
-To use a different picture, replace `icon/viper_eye_1024.png` with any square image and
-regenerate the five `vv_launcher_photo.png` sizes (108, 162, 216, 324 and 432 px).
+To use a different picture, regenerate the five `vv_launcher_photo.png` sizes (108, 162, 216,
+324 and 432 px) from it. `icon/snake_eye.py` is the generator for the earlier rendered (green)
+icon, kept in case it's useful.
 
 ## Changing the name, ID or version
 
