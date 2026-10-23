@@ -86,7 +86,7 @@ const val FAKE_VERSION_APP_LABEL =
 fun Context.fakeVersionCheck(
     showConfirmationDialog: () -> Unit
 ) {
-    // PhotoBox: removed the random "fake version of the app" warning.
+    // Viper Vision: removed the random "fake version of the app" warning.
 }
 
 fun ComponentActivity.appOnSdCardCheckCompose(

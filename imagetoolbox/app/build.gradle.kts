@@ -21,9 +21,9 @@ import com.android.build.api.artifact.SingleArtifact
 import com.t8rin.imagetoolbox.OptimizeReleaseApksTask
 import java.util.Properties
 
-// PhotoBox: the combined app's identity.
-val photobox = Properties().apply {
-    rootDir.resolve("../photobox/photobox.properties").inputStream().use(::load)
+// Viper Vision: the combined app's identity.
+val vipervision = Properties().apply {
+    rootDir.resolve("../vipervision/vipervision.properties").inputStream().use(::load)
 }
 
 plugins {
@@ -40,13 +40,13 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
 
-        // PhotoBox: the app's name, ID and version come from ../photobox/photobox.properties.
-        applicationId = photobox["APP_ID"].toString()
+        // Viper Vision: the app's name, ID and version come from ../vipervision/vipervision.properties.
+        applicationId = vipervision["APP_ID"].toString()
         // Gallery needs Android 8.0 (API 26) or newer.
         minSdk = 26
 
-        versionCode = photobox["VERSION_CODE"].toString().toInt()
-        versionName = photobox["VERSION_NAME"].toString()
+        versionCode = vipervision["VERSION_CODE"].toString().toInt()
+        versionName = vipervision["VERSION_NAME"].toString()
 
         ndk {
             abiFilters.clear()
@@ -76,10 +76,10 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
-            // PhotoBox: own names, so it never clashes with an installed Image Toolbox.
-            resValue("string", "app_launcher_name", "${photobox["APP_NAME"]} DEBUG")
-            resValue("string", "app_name", "${photobox["APP_NAME"]} DEBUG")
-            resValue("string", "file_provider", "${photobox["APP_ID"]}.fileprovider.debug")
+            // Viper Vision: own names, so it never clashes with an installed Image Toolbox.
+            resValue("string", "app_launcher_name", "${vipervision["APP_NAME"]} DEBUG")
+            resValue("string", "app_name", "${vipervision["APP_NAME"]} DEBUG")
+            resValue("string", "file_provider", "${vipervision["APP_ID"]}.fileprovider.debug")
         }
         release {
             isMinifyEnabled = true
@@ -88,10 +88,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // PhotoBox: own names, so it never clashes with an installed Image Toolbox.
-            resValue("string", "app_launcher_name", photobox["APP_NAME"].toString())
-            resValue("string", "app_name", photobox["APP_NAME"].toString())
-            resValue("string", "file_provider", "${photobox["APP_ID"]}.fileprovider")
+            // Viper Vision: own names, so it never clashes with an installed Image Toolbox.
+            resValue("string", "app_launcher_name", vipervision["APP_NAME"].toString())
+            resValue("string", "app_name", vipervision["APP_NAME"].toString())
+            resValue("string", "file_provider", "${vipervision["APP_ID"]}.fileprovider")
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
@@ -147,16 +147,16 @@ android {
         resValues = true
     }
 
-    // PhotoBox: app-level resources (the app icon) from ../photobox/res.
+    // Viper Vision: app-level resources (the app icon) from ../vipervision/res.
     sourceSets {
         getByName("main") {
-            res.directories.add(rootDir.resolve("../photobox/res").path)
+            res.directories.add(rootDir.resolve("../vipervision/res").path)
         }
     }
 }
 
 base {
-    archivesName = "photobox-${android.defaultConfig.versionName}"
+    archivesName = "vipervision-${android.defaultConfig.versionName}"
 }
 
 aboutLibraries {
@@ -166,8 +166,8 @@ aboutLibraries {
 dependencies {
     baselineProfile(project(":benchmark"))
 
-    // PhotoBox: Fossify Gallery (photo browsing), opened from the launcher icon.
-    implementation(projects.photoboxGallery)
+    // Viper Vision: Fossify Gallery (photo browsing), opened from the launcher icon.
+    implementation(projects.vipervisionGallery)
 
     implementation(projects.feature.root)
     implementation(projects.feature.mediaPicker)

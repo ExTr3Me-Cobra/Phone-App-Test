@@ -6,8 +6,8 @@ on:
       - 'gallery/**'
       - 'fossify-commons/**'
       - 'imagetoolbox/**'
-      - 'photobox/**'
-      - '.github/workflows/build-photobox-apk.yml'
+      - 'vipervision/**'
+      - '.github/workflows/build-vipervision-apk.yml'
   workflow_dispatch:
 
 permissions:

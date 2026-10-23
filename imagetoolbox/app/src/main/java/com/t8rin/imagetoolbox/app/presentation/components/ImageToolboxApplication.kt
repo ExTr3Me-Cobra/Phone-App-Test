@@ -38,7 +38,7 @@ import com.t8rin.imagetoolbox.core.ui.utils.ComposeApplication
 import com.t8rin.imagetoolbox.core.utils.initAppContext
 import com.t8rin.imagetoolbox.feature.media_picker.domain.SemanticSearchScheduler
 import dagger.hilt.android.HiltAndroidApp
-import org.fossify.gallery.PhotoBoxGallery
+import org.fossify.gallery.ViperVisionGallery
 import javax.inject.Inject
 
 
@@ -85,8 +85,8 @@ class ImageToolboxApplication : ComposeApplication() {
             injectBaseComponent()
             initCollages()
             semanticSearchScheduler.start()
-            // PhotoBox: start up the Gallery side of the app too.
-            PhotoBoxGallery.init(this)
+            // Viper Vision: start up the Gallery side of the app too.
+            ViperVisionGallery.init(this)
 
             isSetupCompleted = true
         }

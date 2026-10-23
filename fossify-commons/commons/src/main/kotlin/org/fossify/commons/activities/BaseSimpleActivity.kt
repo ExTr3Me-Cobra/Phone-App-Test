@@ -194,7 +194,7 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         useBinaryStorageUnits = baseConfig.useBinaryStorageUnits
         WindowCompat.enableEdgeToEdge(window)
         registerBackPressedCallback()
-        // PhotoBox: removed the random "fake version of the app" warning.
+        // Viper Vision: removed the random "fake version of the app" warning.
     }
 
     private fun installFontInflaterFactory() {
@@ -644,7 +644,7 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
     }
 
     fun startCustomizationActivity() {
-        // PhotoBox: removed the check that blocked this screen after 100 launches.
+        // Viper Vision: removed the check that blocked this screen after 100 launches.
 
         Intent(applicationContext, CustomizationActivity::class.java).apply {
             putExtra(APP_ICON_IDS, getAppIconIDs())
@@ -675,7 +675,7 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
     // synchronous return value determines only if we are showing the SAF dialog, callback result tells if the SD or OTG permission has been granted
     fun handleSAFDialog(path: String, callback: (success: Boolean) -> Unit): Boolean {
         hideKeyboard()
-        // PhotoBox: no longer skipped for app IDs outside "org.fossify".
+        // Viper Vision: no longer skipped for app IDs outside "org.fossify".
         return if (isShowingSAFDialog(path) || isShowingOTGDialog(path)) {
             funAfterSAFPermission = callback
             true
@@ -691,7 +691,7 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         callback: (success: Boolean) -> Unit
     ): Boolean {
         hideKeyboard()
-        // PhotoBox: no longer skipped for app IDs outside "org.fossify".
+        // Viper Vision: no longer skipped for app IDs outside "org.fossify".
         return if (isShowingSAFDialogSdk30(path, showRationale)) {
             funAfterSdk30Action = callback
             true
@@ -719,7 +719,7 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         callback: (success: Boolean) -> Unit
     ): Boolean {
         hideKeyboard()
-        // PhotoBox: no longer skipped for app IDs outside "org.fossify".
+        // Viper Vision: no longer skipped for app IDs outside "org.fossify".
         return if (isShowingSAFCreateDocumentDialogSdk30(path)) {
             funAfterSdk30Action = callback
             true
@@ -735,7 +735,7 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         callback: (success: Boolean) -> Unit
     ): Boolean {
         hideKeyboard()
-        // PhotoBox: no longer skipped for app IDs outside "org.fossify".
+        // Viper Vision: no longer skipped for app IDs outside "org.fossify".
         return if (isShowingAndroidSAFDialog(path, openInSystemAppAllowed)) {
             funAfterSAFPermission = callback
             true

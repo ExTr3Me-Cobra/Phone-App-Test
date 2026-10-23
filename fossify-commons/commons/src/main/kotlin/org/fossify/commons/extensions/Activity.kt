@@ -596,7 +596,7 @@ fun Activity.openPathIntent(
             setDataAndType(newUri, mimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-            // PhotoBox: also when Gallery runs under PhotoBox's own app ID.
+            // Viper Vision: also when Gallery runs under Viper Vision's own app ID.
             if (applicationId == "org.fossify.gallery" || applicationId == "org.fossify.gallery.debug" || applicationId == packageName) {
                 putExtra(IS_FROM_GALLERY, true)
             }

@@ -230,7 +230,7 @@
             </intent-filter>
         </activity>
 
-        <!-- PhotoBox: Fossify's built-in editor (EditActivity) was removed. Editing opens
+        <!-- Viper Vision: Fossify's built-in editor (EditActivity) was removed. Editing opens
              Image Toolbox, which is part of the same app (see openEditor in Activity.kt). -->
 
         <activity
@@ -263,9 +263,9 @@
             </intent-filter>
         </activity>
 
-        <!-- PhotoBox: own provider class, since Image Toolbox uses androidx's FileProvider. -->
+        <!-- Viper Vision: own provider class, since Image Toolbox uses androidx's FileProvider. -->
         <provider
-            android:name=".PhotoBoxFileProvider"
+            android:name=".ViperVisionFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">

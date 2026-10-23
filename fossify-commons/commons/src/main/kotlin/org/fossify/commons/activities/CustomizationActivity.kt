@@ -757,7 +757,7 @@ class CustomizationActivity : BaseSimpleActivity() {
     }
 
     private fun pickPrimaryColor() {
-        // PhotoBox: removed the check that closed this screen after 50 launches.
+        // Viper Vision: removed the check that closed this screen after 50 launches.
         curPrimaryLineColorPicker = LineColorPickerDialog(
             activity = this,
             color = curPrimaryColor,

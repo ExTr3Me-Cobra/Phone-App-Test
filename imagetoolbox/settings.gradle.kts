@@ -166,15 +166,15 @@ include(":lib:archive")
 include(":benchmark")
 include(":instrumentation-tests")
 
-// PhotoBox: Fossify Gallery and Fossify Commons, built from their own folders next to this one.
-// The build files for these two live in ../photobox; their source stays untouched in place.
+// Viper Vision: Fossify Gallery and Fossify Commons, built from their own folders next to this one.
+// The build files for these two live in ../vipervision; their source stays untouched in place.
 dependencyResolutionManagement {
     versionCatalogs {
         create("galleryLibs") { from(files("../gallery/gradle/libs.versions.toml")) }
         create("commonsLibs") { from(files("../fossify-commons/gradle/libs.versions.toml")) }
     }
 }
-include(":photobox-gallery")
-project(":photobox-gallery").projectDir = file("../photobox/gallery")
+include(":vipervision-gallery")
+project(":vipervision-gallery").projectDir = file("../vipervision/gallery")
 include(":fossify-commons")
-project(":fossify-commons").projectDir = file("../photobox/commons")
+project(":fossify-commons").projectDir = file("../vipervision/commons")

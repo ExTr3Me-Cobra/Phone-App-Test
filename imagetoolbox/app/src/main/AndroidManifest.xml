@@ -96,7 +96,7 @@
             android:exported="true"
             android:launchMode="singleTop">
 
-            <!-- PhotoBox: no launcher icon of its own. The launcher opens Gallery, and Gallery's
+            <!-- Viper Vision: no launcher icon of its own. The launcher opens Gallery, and Gallery's
                  Edit button opens this screen. -->
 
             <intent-filter android:label="@string/app_launcher_name">

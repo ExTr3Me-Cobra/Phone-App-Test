@@ -58,12 +58,12 @@ a new release. The code is in `app/src/main/java/com/vibrateonly/app/`.
 
 ---
 
-# PhotoBox (photo gallery + editor)
+# Viper Vision (photo gallery + editor)
 
 One app for storing, viewing and editing photos: [Fossify Gallery](https://github.com/FossifyOrg/Gallery)
 for browsing, with [Image Toolbox](https://github.com/T8RIN/ImageToolbox) built in as the editor
 (tap **Edit** on a photo). The code is in `gallery/`, `fossify-commons/`, `imagetoolbox/` and
-`photobox/`; see `photobox/README.md` for how they fit together and what was changed.
+`vipervision/`; see `vipervision/README.md` for how they fit together and what was changed.
 
-GitHub Actions (`.github/workflows/build-photobox-apk.yml`) builds it whenever one of those
-folders changes and posts **PhotoBox.apk** on the Releases page as "PhotoBox (build N)".
+GitHub Actions (`.github/workflows/build-vipervision-apk.yml`) builds it whenever one of those
+folders changes and posts **ViperVision.apk** on the Releases page as "Viper Vision (build N)".

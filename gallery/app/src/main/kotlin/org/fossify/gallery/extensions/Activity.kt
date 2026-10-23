@@ -96,11 +96,11 @@ fun Activity.launchGesturePlayer(path: String, extras: HashMap<String, Boolean> 
     }
 }
 
-// PhotoBox: Image Toolbox's main screen, which is part of this same app.
+// Viper Vision: Image Toolbox's main screen, which is part of this same app.
 private const val IMAGE_TOOLBOX_ACTIVITY = "com.t8rin.imagetoolbox.app.presentation.AppActivity"
 
 /**
- * PhotoBox: opens the image in Image Toolbox (built into this app) instead of Fossify's editor.
+ * Viper Vision: opens the image in Image Toolbox (built into this app) instead of Fossify's editor.
  * With [forceChooser], the system "Edit with" list is shown so other apps can be picked.
  */
 fun Activity.openEditor(path: String, forceChooser: Boolean = false) {
