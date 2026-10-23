@@ -115,7 +115,8 @@ android {
                 gradle.startParameter.taskNames.any { it.lowercase().contains("bundle") }
 
             // Disable split abis when building appBundle
-            isEnable = !isBuildingBundle
+            // Viper Vision: and when only one ABI is built (one plain APK, no splits).
+            isEnable = !isBuildingBundle && supportedAbi.size > 1
             reset()
             //noinspection ChromeOsAbiSupport
             include(*supportedAbi)
