@@ -1,0 +1,4866 @@
+{
+ "All_Fours_Quad_Stretch": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 1,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.8
+  },
+  "why": "Hip-extended, knee-flexed stretch targets rectus femoris most"
+ },
+ "Alternate_Hammer_Curl": {
+  "muscles": {
+   "biceps (long head)": 0.65,
+   "biceps (short head)": 0.5,
+   "brachialis": 1.0,
+   "forearms (brachioradialis)": 0.85,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.35,
+   "forearms (finger flexors)": 0.3
+  },
+  "why": "Neutral grip: brachioradialis nearly as active as brachialis"
+ },
+ "Cross_Body_Hammer_Curl": {
+  "muscles": {
+   "biceps (long head)": 0.65,
+   "biceps (short head)": 0.5,
+   "brachialis": 1.0,
+   "forearms (brachioradialis)": 0.85,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.35,
+   "forearms (finger flexors)": 0.3
+  },
+  "why": "Neutral grip: brachioradialis nearly as active as brachialis"
+ },
+ "Cable_Hammer_Curls_-_Rope_Attachment": {
+  "muscles": {
+   "biceps (long head)": 0.65,
+   "biceps (short head)": 0.5,
+   "brachialis": 1.0,
+   "forearms (brachioradialis)": 0.85,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.35,
+   "forearms (finger flexors)": 0.3
+  },
+  "why": "Neutral grip: brachioradialis nearly as active as brachialis"
+ },
+ "Alternate_Heel_Touchers": {
+  "muscles": {
+   "obliques": 1.0,
+   "abs (upper)": 0.5,
+   "abs (lower)": 0.45
+  },
+  "why": "Supine lateral flexion; erectors barely involved"
+ },
+ "Alternate_Leg_Diagonal_Bound": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4
+  },
+  "why": "Bounding is hip-extension and ankle-plantarflexion heavy"
+ },
+ "Alternating_Hang_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "biceps (long head)": 0.3,
+   "biceps (short head)": 0.3,
+   "brachialis": 0.25,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.2,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.25,
+   "glutes (maximus)": 1,
+   "lower back (erector spinae)": 0.5,
+   "traps (upper)": 0.6,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "quadriceps (rectus femoris)": 0.35,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "forearms (finger flexors)": 0.35,
+   "adductors (magnus)": 0.4
+  },
+  "why": "Explosive hip extension led by glute max; glutes outweigh hamstrings"
+ },
+ "Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.2,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 1,
+   "lower back (erector spinae)": 0.5,
+   "quadriceps (rectus femoris)": 0.35,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.6,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35,
+   "adductors (magnus)": 0.4
+  },
+  "why": "Explosive triple extension: glutes lead, hamstrings/quads close behind"
+ },
+ "Bottoms-Up_Clean_From_The_Hang_Position": {
+  "muscles": {
+   "forearms (brachioradialis)": 0.5,
+   "forearms (wrist flexors)": 0.7,
+   "forearms (wrist extensors)": 0.5,
+   "biceps (long head)": 0.3,
+   "biceps (short head)": 0.3,
+   "brachialis": 0.25,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.6,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "quadriceps (rectus femoris)": 0.35,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "forearms (finger flexors)": 0.75,
+   "lower back (erector spinae)": 0.5,
+   "adductors (magnus)": 0.4,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.2
+  },
+  "why": "Hips drive the clean; grip is secondary even bottoms-up"
+ },
+ "Clean_from_Blocks": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.7,
+   "quadriceps (vastus medialis)": 0.65,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.6,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35,
+   "lower back (erector spinae)": 0.5
+  },
+  "why": "From blocks the pull is hip-extension dominated"
+ },
+ "Clean_Pull": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 0.9,
+   "hamstrings (biceps femoris)": 0.7,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "lower back (erector spinae)": 0.55,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Second pull is glute-driven; glutes/hamstrings underweighted"
+ },
+ "Clean_Deadlift": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1,
+   "lower back (erector spinae)": 0.6,
+   "middle back (rhomboids)": 0.35,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "quadriceps (rectus femoris)": 0.35,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.8,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "adductors (magnus)": 0.45
+  },
+  "why": "Upright clean-start deadlift: glutes and quads lead, delts barely work"
+ },
+ "Clean_and_Jerk": {
+  "muscles": {
+   "shoulders (front delt)": 0.7,
+   "shoulders (side delt)": 0.5,
+   "shoulders (rear delt)": 0.25,
+   "obliques": 0.15,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1,
+   "glutes (maximus)": 0.9,
+   "hamstrings (biceps femoris)": 0.65,
+   "hamstrings (semitendinosus & semimembranosus)": 0.65,
+   "lower back (erector spinae)": 0.5,
+   "quadriceps (rectus femoris)": 0.45,
+   "quadriceps (vastus lateralis)": 1,
+   "quadriceps (vastus medialis)": 0.95,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "triceps (long head)": 0.45,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "forearms (finger flexors)": 0.35,
+   "serratus (serratus anterior)": 0.35,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.25
+  },
+  "why": "Legs drive both clean and jerk; delts secondary"
+ },
+ "Clean_and_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.55,
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "lower back (erector spinae)": 0.4,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.5,
+   "traps (upper)": 0.55,
+   "triceps (long head)": 0.35,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Strict press needs triceps like other presses"
+ },
+ "Alternating_Kettlebell_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55
+  },
+  "why": "Triceps underweighted vs other overhead presses"
+ },
+ "Alternating_Kettlebell_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 0.85,
+   "teres major": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Lats and rear delts work nearly as hard as rhomboids in rows"
+ },
+ "Bent_Over_Barbell_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 0.85,
+   "teres major": 0.45,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Lats and rear delts work nearly as hard as rhomboids in rows"
+ },
+ "Bent_Over_Two-Arm_Long_Bar_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 0.85,
+   "teres major": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Lats and rear delts work nearly as hard as rhomboids in rows"
+ },
+ "Bent_Over_Two-Dumbbell_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 0.85,
+   "teres major": 0.45,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Lats and rear delts work nearly as hard as rhomboids in rows"
+ },
+ "Bent_Over_Two-Dumbbell_Row_With_Palms_In": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 0.85,
+   "teres major": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Lats and rear delts work nearly as hard as rhomboids in rows"
+ },
+ "Bent_Over_One-Arm_Long_Bar_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 0.8,
+   "traps (middle)": 0.75,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 1,
+   "teres major": 0.6,
+   "lower back (erector spinae)": 0.25,
+   "traps (upper)": 0.25,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.55,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "One-arm landmine row with tucked elbow is lat-dominant"
+ },
+ "Alternating_Renegade_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "obliques": 0.6,
+   "abs (upper)": 0.55,
+   "abs (lower)": 0.5,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "chest (upper)": 0.25,
+   "chest (middle)": 0.3,
+   "chest (lower)": 0.25,
+   "lats": 0.85,
+   "teres major": 0.45,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Plank anti-rotation makes core work heavy; lats underweighted"
+ },
+ "Ankle_Circles": {
+  "muscles": {
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.8,
+   "shins (tibialis anterior)": 0.7
+  },
+  "why": "Ankle circles cycle dorsiflexion too (tibialis anterior)"
+ },
+ "Anterior_Tibialis-SMR": {
+  "muscles": {
+   "shins (tibialis anterior)": 1
+  },
+  "why": "Rolling the shins targets tibialis anterior, not calves"
+ },
+ "Barbell_Deadlift": {
+  "muscles": {
+   "lower back (erector spinae)": 0.75,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.9,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "quadriceps (rectus femoris)": 0.25,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.55,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "adductors (magnus)": 0.5
+  },
+  "why": "Glutes and hamstrings are the prime hip extensors; erectors work isometrically"
+ },
+ "Deadlift_with_Bands": {
+  "muscles": {
+   "lower back (erector spinae)": 0.75,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.9,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "middle back (rhomboids)": 0.35,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "quadriceps (rectus femoris)": 0.25,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.55,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "adductors (magnus)": 0.5
+  },
+  "why": "Glutes and hamstrings are the prime hip extensors; erectors work isometrically"
+ },
+ "Axle_Deadlift": {
+  "muscles": {
+   "lower back (erector spinae)": 0.75,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.5,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.9,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "middle back (rhomboids)": 0.35,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "quadriceps (rectus femoris)": 0.25,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.55,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.8,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "adductors (magnus)": 0.5
+  },
+  "why": "Glutes/hamstrings lead; thick axle raises grip demand"
+ },
+ "Cable_Deadlifts": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.25,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.55,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.85,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "lower back (erector spinae)": 0.6,
+   "traps (upper)": 0.5,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "forearms (finger flexors)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "adductors (magnus)": 0.4
+  },
+  "why": "Hip hinge: glutes/hamstrings lead, not quads"
+ },
+ "Back_Flyes_-_With_Bands": {
+  "muscles": {
+   "shoulders (front delt)": 0.1,
+   "shoulders (side delt)": 0.55,
+   "shoulders (rear delt)": 1.0,
+   "middle back (rhomboids)": 0.55,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.15,
+   "rotator cuff (infraspinatus)": 0.45,
+   "rotator cuff (teres minor)": 0.35
+  },
+  "why": "Reverse fly works rhomboids/mid traps, not triceps"
+ },
+ "Balance_Board": {
+  "muscles": {
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.8,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "quadriceps (rectus femoris)": 0.2,
+   "quadriceps (vastus lateralis)": 0.3,
+   "quadriceps (vastus medialis)": 0.25,
+   "shins (tibialis anterior)": 0.75
+  },
+  "why": "Tibialis anterior works as much as calves to balance"
+ },
+ "Band_Good_Morning": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "glutes (maximus)": 0.65,
+   "lower back (erector spinae)": 0.75,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.2,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.1
+  },
+  "why": "Erectors hold the spine under heavy isometric load"
+ },
+ "Band_Good_Morning_Pull_Through": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "glutes (maximus)": 1,
+   "lower back (erector spinae)": 0.4,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.2,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.1
+  },
+  "why": "Pull-through is a glute-dominant hinge"
+ },
+ "Barbell_Incline_Shoulder_Raise": {
+  "muscles": {
+   "shoulders (front delt)": 0.4,
+   "chest (upper)": 0.3,
+   "chest (middle)": 0.2,
+   "serratus (serratus anterior)": 1
+  },
+  "why": "Scapular protraction drill: serratus anterior is the mover"
+ },
+ "Barbell_Side_Split_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "lower back (erector spinae)": 0.35,
+   "glutes (maximus)": 0.65,
+   "adductors (longus & brevis)": 0.55,
+   "adductors (magnus)": 0.6,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "abductors (glute medius)": 0.3
+  },
+  "why": "Lateral split squat loads the adductors heavily"
+ },
+ "Barbell_Step_Ups": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "abductors (glute medius)": 0.35
+  },
+  "why": "Step-ups are strongly glute-driven"
+ },
+ "Bench_Jump": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.55,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3
+  },
+  "why": "Jumping relies on glutes and calves, not just quads"
+ },
+ "Bench_Dips": {
+  "muscles": {
+   "triceps (long head)": 0.55,
+   "triceps (lateral head)": 1.0,
+   "triceps (medial head)": 1.0,
+   "chest (upper)": 0.1,
+   "chest (middle)": 0.2,
+   "chest (lower)": 0.25,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05
+  },
+  "why": "Bench dips load triceps and front delts; little chest"
+ },
+ "Bench_Press_-_Powerlifting": {
+  "muscles": {
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.65,
+   "triceps (medial head)": 0.65,
+   "chest (upper)": 0.7,
+   "chest (middle)": 1,
+   "chest (lower)": 0.9,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "lats": 0.3,
+   "teres major": 0.2,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.05,
+   "serratus (serratus anterior)": 0.15
+  },
+  "why": "Pecs remain the prime mover even in powerlifting bench"
+ },
+ "Bent-Knee_Hip_Raise": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.2,
+   "hip flexors (iliopsoas)": 0.5
+  },
+  "why": "Hip flexion/posterior tilt: hip flexors, not vasti, assist"
+ },
+ "Butt-Ups": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.2,
+   "hip flexors (iliopsoas)": 0.3
+  },
+  "why": "Hip flexion/posterior tilt: hip flexors, not vasti, assist"
+ },
+ "Cable_Reverse_Crunch": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.2,
+   "hip flexors (iliopsoas)": 0.5
+  },
+  "why": "Hip flexion/posterior tilt: hip flexors, not vasti, assist"
+ },
+ "Cocoons": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.8,
+   "quadriceps (rectus femoris)": 0.25,
+   "hip flexors (iliopsoas)": 0.5
+  },
+  "why": "Tuck crunch flexes hips (iliopsoas), no knee extension"
+ },
+ "Bent_Over_Low-Pulley_Side_Lateral": {
+  "muscles": {
+   "shoulders (front delt)": 0.1,
+   "shoulders (side delt)": 0.6,
+   "shoulders (rear delt)": 1,
+   "lower back (erector spinae)": 0.25,
+   "middle back (rhomboids)": 0.5,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.15,
+   "traps (upper)": 0.3,
+   "rotator cuff (infraspinatus)": 0.45
+  },
+  "why": "Bent-over raise is a rear-delt exercise"
+ },
+ "Bicycling": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 0.5,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3
+  },
+  "why": "Cycling EMG shows substantial glute and calf activity"
+ },
+ "Bicycling_Stationary": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 0.5,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3
+  },
+  "why": "Cycling EMG shows substantial glute and calf activity"
+ },
+ "Box_Jump_Multiple_Response": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.45,
+   "glutes (maximus)": 0.8,
+   "quadriceps (rectus femoris)": 0.6,
+   "quadriceps (vastus lateralis)": 1,
+   "quadriceps (vastus medialis)": 0.95
+  },
+  "why": "Jumping is quad/glute/calf dominant; hamstrings secondary"
+ },
+ "Box_Skip": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.45,
+   "glutes (maximus)": 0.7,
+   "quadriceps (rectus femoris)": 0.65,
+   "quadriceps (vastus lateralis)": 1,
+   "quadriceps (vastus medialis)": 0.9,
+   "hip flexors (iliopsoas)": 0.4
+  },
+  "why": "Skipping is quad/glute/calf driven; hamstrings secondary"
+ },
+ "Box_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4,
+   "lower back (erector spinae)": 0.35,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15
+  },
+  "why": "Sitting back to a box raises glute/hamstring demand"
+ },
+ "Box_Squat_with_Bands": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4,
+   "lower back (erector spinae)": 0.35,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15
+  },
+  "why": "Sitting back to a box raises glute/hamstring demand"
+ },
+ "Brachialis-SMR": {
+  "muscles": {
+   "biceps (long head)": 0.5,
+   "biceps (short head)": 0.5,
+   "brachialis": 1
+  },
+  "why": "Foam rolling the brachialis targets brachialis itself"
+ },
+ "Calf_Press_On_The_Leg_Press_Machine": {
+  "muscles": {
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.8
+  },
+  "why": "Straight-leg calf press barely loads hips"
+ },
+ "Chair_Lower_Back_Stretch": {
+  "muscles": {
+   "lats": 0.5,
+   "teres major": 0.3,
+   "lower back (erector spinae)": 1
+  },
+  "why": "Stretch targets the lower back (erectors)"
+ },
+ "Chin-Up": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "biceps (long head)": 0.7,
+   "biceps (short head)": 0.7,
+   "brachialis": 0.55,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "middle back (rhomboids)": 0.5,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.45,
+   "forearms (finger flexors)": 0.4,
+   "traps (upper)": 0.1,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15
+  },
+  "why": "Supinated grip makes biceps a major contributor"
+ },
+ "Crossover_Reverse_Lunge": {
+  "muscles": {
+   "lower back (erector spinae)": 0.25,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "abductors (glute medius)": 0.5,
+   "abductors (TFL)": 0.2,
+   "glutes (maximus)": 1,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "quadriceps (rectus femoris)": 0.4,
+   "quadriceps (vastus lateralis)": 0.85,
+   "quadriceps (vastus medialis)": 0.8,
+   "adductors (longus & brevis)": 0.35
+  },
+  "why": "Lunge driven by glutes/quads; lower back only stabilises"
+ },
+ "Crucifix": {
+  "muscles": {
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 1,
+   "shoulders (rear delt)": 0.4,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "traps (upper)": 0.5,
+   "rotator cuff (supraspinatus)": 0.4
+  },
+  "why": "Arms held out laterally: side delts carry the load"
+ },
+ "Deficit_Deadlift": {
+  "muscles": {
+   "lower back (erector spinae)": 0.75,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.85,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "middle back (rhomboids)": 0.35,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.6,
+   "quadriceps (vastus medialis)": 0.55,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "adductors (magnus)": 0.6
+  },
+  "why": "Glutes/hams are the prime hip extensors; erectors work isometrically; deficit adds quad and adductor magnus work"
+ },
+ "Decline_Push-Up": {
+  "muscles": {
+   "chest (upper)": 1.0,
+   "chest (middle)": 0.85,
+   "chest (lower)": 0.5,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "serratus (serratus anterior)": 0.45,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2
+  },
+  "why": "Feet-elevated push-up shifts load to upper chest and front delts, not lower chest"
+ },
+ "Decline_Reverse_Crunch": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.3,
+   "hip flexors (iliopsoas)": 0.55
+  },
+  "why": "Vasti don't act in a reverse crunch; hip flexion is iliopsoas/rectus femoris"
+ },
+ "Double_Kettlebell_Alternating_Hang_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "biceps (long head)": 0.3,
+   "biceps (short head)": 0.3,
+   "brachialis": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.5,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Hinge-driven clean: glute max is the main hip extensor, hamstrings close second"
+ },
+ "Dumbbell_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.5,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Hinge-driven clean: glute max is the main hip extensor, hamstrings close second"
+ },
+ "Kettlebell_Dead_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.5,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Hinge-driven clean: glute max is the main hip extensor, hamstrings close second"
+ },
+ "Kettlebell_Hang_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.5,
+   "forearms (finger flexors)": 0.35,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25
+  },
+  "why": "Hinge-driven clean: glute max is the main hip extensor, hamstrings close second"
+ },
+ "Hang_Clean": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.5,
+   "quadriceps (vastus lateralis)": 0.85,
+   "quadriceps (vastus medialis)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.75,
+   "lower back (erector spinae)": 0.6,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.7,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Pull from hang is hip-extension dominant (glutes, hams); quads drive and catch"
+ },
+ "Hang_Clean_-_Below_the_Knees": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.5,
+   "quadriceps (vastus lateralis)": 0.85,
+   "quadriceps (vastus medialis)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.75,
+   "lower back (erector spinae)": 0.6,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.7,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Pull from hang is hip-extension dominant (glutes, hams); quads drive and catch"
+ },
+ "Hang_Snatch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.6,
+   "quadriceps (rectus femoris)": 0.45,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.7,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35,
+   "triceps (long head)": 0.2,
+   "triceps (lateral head)": 0.25,
+   "triceps (medial head)": 0.25
+  },
+  "why": "Snatch pull is hip-extension dominant: glutes lead, hams/quads/traps/erectors follow"
+ },
+ "Hang_Snatch_-_Below_Knees": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.6,
+   "quadriceps (rectus femoris)": 0.45,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.7,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35,
+   "triceps (long head)": 0.2,
+   "triceps (lateral head)": 0.25,
+   "triceps (medial head)": 0.25
+  },
+  "why": "Snatch pull is hip-extension dominant: glutes lead, hams/quads/traps/erectors follow"
+ },
+ "Double_Kettlebell_Snatch": {
+  "muscles": {
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.3,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.75,
+   "quadriceps (rectus femoris)": 0.25,
+   "quadriceps (vastus lateralis)": 0.4,
+   "quadriceps (vastus medialis)": 0.35,
+   "traps (upper)": 0.6,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35,
+   "lower back (erector spinae)": 0.5,
+   "triceps (lateral head)": 0.2,
+   "triceps (medial head)": 0.2,
+   "triceps (long head)": 0.15
+  },
+  "why": "KB snatch is a ballistic hip hinge; glutes/hams drive, shoulders stabilise overhead"
+ },
+ "Double_Kettlebell_Jerk": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.2,
+   "quadriceps (rectus femoris)": 0.4,
+   "quadriceps (vastus lateralis)": 0.6,
+   "quadriceps (vastus medialis)": 0.55,
+   "triceps (long head)": 0.45,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "serratus (serratus anterior)": 0.35,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "obliques": 0.1,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.25,
+   "glutes (maximus)": 0.4
+  },
+  "why": "Leg dip-and-drive supplies much of the force; glutes were missing, quads too low"
+ },
+ "Double_Kettlebell_Push_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "calves (gastrocnemius)": 0.25,
+   "calves (soleus)": 0.1,
+   "quadriceps (rectus femoris)": 0.35,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.45,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "serratus (serratus anterior)": 0.35,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "obliques": 0.15,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1,
+   "rotator cuff (supraspinatus)": 0.2,
+   "rotator cuff (infraspinatus)": 0.15,
+   "rotator cuff (teres minor)": 0.1,
+   "rotator cuff (subscapularis)": 0.3,
+   "glutes (maximus)": 0.35
+  },
+  "why": "Leg drive contributes heavily; glutes were missing, quads too low"
+ },
+ "Double_Leg_Butt_Kick": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.8,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.15,
+   "adductors (magnus)": 0.15,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.35,
+   "glutes (maximus)": 0.5,
+   "hamstrings (biceps femoris)": 0.6,
+   "hamstrings (semitendinosus & semimembranosus)": 0.6
+  },
+  "why": "Jumping drill: vasti and calves propel, hamstrings kick; vasti at 0.1 was wrong"
+ },
+ "Dumbbell_Floor_Press": {
+  "muscles": {
+   "triceps (long head)": 0.5,
+   "triceps (lateral head)": 0.85,
+   "triceps (medial head)": 0.85,
+   "chest (upper)": 0.75,
+   "chest (middle)": 1.0,
+   "chest (lower)": 0.8,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.05,
+   "serratus (serratus anterior)": 0.15
+  },
+  "why": "Floor press is still a pec-dominant horizontal press; chest at 0.3 was far too low"
+ },
+ "Floor_Press": {
+  "muscles": {
+   "triceps (long head)": 0.5,
+   "triceps (lateral head)": 0.85,
+   "triceps (medial head)": 0.85,
+   "chest (upper)": 0.75,
+   "chest (middle)": 1.0,
+   "chest (lower)": 0.8,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.05,
+   "serratus (serratus anterior)": 0.15
+  },
+  "why": "Floor press is still a pec-dominant horizontal press; chest at 0.3 was far too low"
+ },
+ "Dumbbell_Incline_Shoulder_Raise": {
+  "muscles": {
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.2,
+   "triceps (long head)": 0.1,
+   "triceps (lateral head)": 0.15,
+   "triceps (medial head)": 0.15,
+   "serratus (serratus anterior)": 1.0,
+   "chest (upper)": 0.35,
+   "chest (middle)": 0.2
+  },
+  "why": "Scapular protraction with locked arms is a serratus anterior drill"
+ },
+ "Dumbbell_Lying_One-Arm_Rear_Lateral_Raise": {
+  "muscles": {
+   "shoulders (front delt)": 0.1,
+   "shoulders (side delt)": 0.55,
+   "shoulders (rear delt)": 1.0,
+   "middle back (rhomboids)": 0.45,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.3,
+   "traps (upper)": 0.25,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.45,
+   "rotator cuff (teres minor)": 0.4
+  },
+  "why": "Rear lateral raise: rear delt leads, front delt barely active, mid-traps/rhomboids/ER cuff assist"
+ },
+ "Dumbbell_Lying_Rear_Lateral_Raise": {
+  "muscles": {
+   "shoulders (front delt)": 0.1,
+   "shoulders (side delt)": 0.55,
+   "shoulders (rear delt)": 1.0,
+   "traps (upper)": 0.25,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.3,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.45,
+   "rotator cuff (teres minor)": 0.4,
+   "middle back (rhomboids)": 0.45
+  },
+  "why": "Rear lateral raise: rear delt leads, front delt barely active, mid-traps/rhomboids/ER cuff assist"
+ },
+ "Dumbbell_Lying_Supination": {
+  "muscles": {
+   "forearms (brachioradialis)": 0.6,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 1.0,
+   "forearms (finger flexors)": 0.2,
+   "biceps (long head)": 0.4,
+   "biceps (short head)": 0.4
+  },
+  "why": "No muscle was at 1.0; supinator sits with the extensor group, biceps is a strong supinator"
+ },
+ "Dumbbell_Lying_Pronation": {
+  "muscles": {
+   "forearms (brachioradialis)": 0.6,
+   "forearms (wrist flexors)": 1.0,
+   "forearms (wrist extensors)": 0.35,
+   "forearms (finger flexors)": 0.2
+  },
+  "why": "No muscle was at 1.0; pronator teres/quadratus sit with the flexor group"
+ },
+ "Dumbbell_One-Arm_Upright_Row": {
+  "muscles": {
+   "shoulders (front delt)": 0.7,
+   "shoulders (side delt)": 1.0,
+   "shoulders (rear delt)": 0.45,
+   "biceps (long head)": 0.25,
+   "biceps (short head)": 0.25,
+   "brachialis": 0.3,
+   "traps (upper)": 0.75,
+   "traps (middle)": 0.4,
+   "traps (lower)": 0.2,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1
+  },
+  "why": "Upright row loads upper traps far more than middle traps"
+ },
+ "Dumbbell_Seated_Box_Jump": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.3,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3
+  },
+  "why": "Jumping: glutes and calves contribute much more than listed"
+ },
+ "Dumbbell_Seated_One-Leg_Calf_Raise": {
+  "muscles": {
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 1.0
+  },
+  "why": "Seated (bent-knee) calf raise targets soleus; gastrocnemius is slackened"
+ },
+ "Dumbbell_Step_Ups": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "abductors (glute medius)": 0.3
+  },
+  "why": "Step-ups are strongly glute-driven; glute med stabilises"
+ },
+ "Elbow_to_Knee": {
+  "muscles": {
+   "obliques": 0.9,
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.9,
+   "quadriceps (rectus femoris)": 0.25,
+   "hip flexors (iliopsoas)": 0.4
+  },
+  "why": "Knee drive is hip flexion (iliopsoas/RF), not vasti"
+ },
+ "Exercise_Ball_Pull-In": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.3,
+   "hip flexors (iliopsoas)": 0.55
+  },
+  "why": "Knee tuck is hip flexion (iliopsoas/RF), not vasti"
+ },
+ "Flat_Bench_Leg_Pull-In": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.3,
+   "hip flexors (iliopsoas)": 0.55
+  },
+  "why": "Knee tuck is hip flexion (iliopsoas/RF), not vasti"
+ },
+ "External_Rotation": {
+  "muscles": {
+   "rotator cuff (supraspinatus)": 0.45,
+   "rotator cuff (infraspinatus)": 1.0,
+   "rotator cuff (teres minor)": 0.9,
+   "rotator cuff (subscapularis)": 0.2,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.35
+  },
+  "why": "Rear delt assists external rotation; front delt does not"
+ },
+ "External_Rotation_with_Band": {
+  "muscles": {
+   "rotator cuff (supraspinatus)": 0.45,
+   "rotator cuff (infraspinatus)": 1.0,
+   "rotator cuff (teres minor)": 0.9,
+   "rotator cuff (subscapularis)": 0.2,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.35
+  },
+  "why": "Rear delt assists external rotation; front delt does not"
+ },
+ "External_Rotation_with_Cable": {
+  "muscles": {
+   "rotator cuff (supraspinatus)": 0.45,
+   "rotator cuff (infraspinatus)": 1.0,
+   "rotator cuff (teres minor)": 0.9,
+   "rotator cuff (subscapularis)": 0.2,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.35
+  },
+  "why": "Rear delt assists external rotation; front delt does not"
+ },
+ "Fast_Skipping": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.7,
+   "calves (soleus)": 0.5,
+   "glutes (maximus)": 0.4,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "hip flexors (iliopsoas)": 0.45
+  },
+  "why": "Skipping is calf- and hip-flexor heavy"
+ },
+ "Flutter_Kicks": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "lower back (erector spinae)": 0.3
+  },
+  "why": "Prone flutter kick (this version) is hip extension; hip flexors aren't loaded"
+ },
+ "Freehand_Jump_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.45,
+   "calves (soleus)": 0.3,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.35,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15
+  },
+  "why": "Jumping adds substantial calf and glute work"
+ },
+ "Frog_Hops": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.45,
+   "calves (soleus)": 0.3,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "adductors (longus & brevis)": 0.25,
+   "adductors (magnus)": 0.35
+  },
+  "why": "Deep squat jumps: glutes, calves and adductors work hard"
+ },
+ "Front_Box_Jump": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4,
+   "abductors (glute medius)": 0.2,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.3,
+   "glutes (maximus)": 0.7,
+   "quadriceps (rectus femoris)": 0.65,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9
+  },
+  "why": "Box jump is quad/glute-driven; hamstrings are secondary"
+ },
+ "Gironda_Sternum_Chins": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "biceps (long head)": 0.5,
+   "biceps (short head)": 0.5,
+   "brachialis": 0.45,
+   "middle back (rhomboids)": 0.6,
+   "traps (middle)": 0.55,
+   "traps (lower)": 0.45,
+   "shoulders (rear delt)": 0.3,
+   "forearms (finger flexors)": 0.3
+  },
+  "why": "Pulling to the sternum with retraction loads rhomboids/mid traps and arms more"
+ },
+ "Good_Morning": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "glutes (maximus)": 0.65,
+   "lower back (erector spinae)": 0.8,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.2,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.1,
+   "adductors (magnus)": 0.4
+  },
+  "why": "Erectors work very hard against the long moment arm; adductor magnus assists hip extension"
+ },
+ "Good_Morning_off_Pins": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "glutes (maximus)": 0.65,
+   "lower back (erector spinae)": 0.8,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.2,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.1,
+   "adductors (magnus)": 0.4
+  },
+  "why": "Erectors work very hard against the long moment arm; adductor magnus assists hip extension"
+ },
+ "Hanging_Bar_Good_Morning": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "glutes (maximus)": 0.65,
+   "lower back (erector spinae)": 0.8,
+   "forearms (finger flexors)": 0.3,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "traps (upper)": 0.2,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.1,
+   "adductors (magnus)": 0.4
+  },
+  "why": "No hip-flexor work in a good morning; erectors work very hard"
+ },
+ "Gorilla_Chin_Crunch": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.8,
+   "biceps (long head)": 0.6,
+   "biceps (short head)": 0.6,
+   "brachialis": 0.5,
+   "lats": 0.6,
+   "teres major": 0.4,
+   "forearms (finger flexors)": 0.45,
+   "hip flexors (iliopsoas)": 0.5
+  },
+  "why": "Isometric chin hold heavily loads lats, biceps and grip"
+ },
+ "Groin_and_Back_Stretch": {
+  "muscles": {
+   "adductors (longus & brevis)": 1.0,
+   "adductors (magnus)": 0.75,
+   "lower back (erector spinae)": 0.5
+  },
+  "why": "Stretch also targets the lower back"
+ },
+ "Hack_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.55,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.1,
+   "obliques": 0.1,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1
+  },
+  "why": "Back-supported machine: little erector or core demand"
+ },
+ "Hammer_Grip_Incline_DB_Bench_Press": {
+  "muscles": {
+   "chest (upper)": 1.0,
+   "chest (middle)": 0.8,
+   "chest (lower)": 0.5,
+   "shoulders (front delt)": 0.7,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.45,
+   "triceps (medial head)": 0.45,
+   "serratus (serratus anterior)": 0.25,
+   "forearms (wrist flexors)": 0.1
+  },
+  "why": "Forearm values were copied from hammer curls; a press barely loads them"
+ },
+ "Handstand_Push-Ups": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "triceps (long head)": 0.45,
+   "triceps (lateral head)": 0.65,
+   "triceps (medial head)": 0.65,
+   "chest (upper)": 0.35,
+   "chest (middle)": 0.15,
+   "serratus (serratus anterior)": 0.45,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2,
+   "traps (upper)": 0.45
+  },
+  "why": "Vertical press: little mid/lower chest; triceps and upper traps work hard"
+ },
+ "Hip_Flexion_with_Band": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.8,
+   "quadriceps (vastus lateralis)": 0.1,
+   "quadriceps (vastus medialis)": 0.1,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "hip flexors (iliopsoas)": 1.0
+  },
+  "why": "Iliopsoas is the prime hip flexor; rectus femoris assists"
+ },
+ "Hurdle_Hops": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4,
+   "abductors (glute medius)": 0.3,
+   "abductors (TFL)": 0.2,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.2,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 0.6,
+   "quadriceps (rectus femoris)": 0.7,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "hip flexors (iliopsoas)": 0.5
+  },
+  "why": "Hops are quad/glute/calf driven with hip flexors tucking; quads were barely listed"
+ },
+ "Hyperextensions_Back_Extensions": {
+  "muscles": {
+   "lower back (erector spinae)": 1.0,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.7,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7
+  },
+  "why": "Glutes and hamstrings drive hip extension nearly as much as the erectors"
+ },
+ "Hyperextensions_With_No_Hyperextension_Bench": {
+  "muscles": {
+   "lower back (erector spinae)": 1.0,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.7,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7
+  },
+  "why": "Glutes and hamstrings drive hip extension nearly as much as the erectors"
+ },
+ "IT_Band_and_Glute_Stretch": {
+  "muscles": {
+   "abductors (glute medius)": 1.0,
+   "abductors (TFL)": 0.8,
+   "glutes (maximus)": 0.5
+  },
+  "why": "Stretch also targets glute max"
+ },
+ "Iliotibial_Tract-SMR": {
+  "muscles": {
+   "abductors (glute medius)": 0.4,
+   "abductors (TFL)": 1.0,
+   "quadriceps (vastus lateralis)": 0.7
+  },
+  "why": "Rolling the IT band hits TFL and vastus lateralis"
+ },
+ "Inchworm": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "calves (gastrocnemius)": 0.4,
+   "abs (upper)": 0.3,
+   "abs (lower)": 0.3,
+   "shoulders (front delt)": 0.3
+  },
+  "why": "Walk-out to plank adds calf stretch and core/shoulder work"
+ },
+ "Incline_Bench_Pull": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "traps (lower)": 0.55,
+   "lats": 0.6,
+   "teres major": 0.45,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.6,
+   "biceps (long head)": 0.4,
+   "biceps (short head)": 0.4,
+   "brachialis": 0.45,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (finger flexors)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "traps (upper)": 0.3
+  },
+  "why": "Prone row: values for delts/triceps/serratus were copied from a press; arms and rear delts pull"
+ },
+ "Incline_Dumbbell_Press": {
+  "muscles": {
+   "chest (upper)": 1.0,
+   "chest (middle)": 0.8,
+   "chest (lower)": 0.5,
+   "shoulders (front delt)": 0.7,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.45,
+   "triceps (medial head)": 0.45,
+   "serratus (serratus anterior)": 0.25
+  },
+  "why": "Side/rear delt values too high for an incline press"
+ },
+ "Incline_Push-Up": {
+  "muscles": {
+   "chest (upper)": 0.5,
+   "chest (middle)": 0.85,
+   "chest (lower)": 1.0,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "serratus (serratus anterior)": 0.45,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2
+  },
+  "why": "Hands-elevated push-up shifts emphasis to the lower chest, not upper"
+ },
+ "Incline_Push-Up_Medium": {
+  "muscles": {
+   "chest (upper)": 0.5,
+   "chest (middle)": 0.85,
+   "chest (lower)": 1.0,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "serratus (serratus anterior)": 0.45
+  },
+  "why": "Hands-elevated push-up shifts emphasis to the lower chest, not upper"
+ },
+ "Incline_Push-Up_Wide": {
+  "muscles": {
+   "chest (upper)": 0.5,
+   "chest (middle)": 0.85,
+   "chest (lower)": 1.0,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "serratus (serratus anterior)": 0.45
+  },
+  "why": "Hands-elevated push-up shifts emphasis to the lower chest, not upper"
+ },
+ "Incline_Push-Up_Reverse_Grip": {
+  "muscles": {
+   "chest (upper)": 0.75,
+   "chest (middle)": 1.0,
+   "chest (lower)": 0.85,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.65,
+   "triceps (medial head)": 0.65,
+   "serratus (serratus anterior)": 0.45
+  },
+  "why": "Hands-elevated push-up; reverse grip spreads chest work and adds triceps"
+ },
+ "Incline_Push-Up_Close-Grip": {
+  "muscles": {
+   "triceps (long head)": 0.55,
+   "triceps (lateral head)": 1.0,
+   "triceps (medial head)": 1.0,
+   "chest (upper)": 0.4,
+   "chest (middle)": 0.7,
+   "chest (lower)": 0.65,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "serratus (serratus anterior)": 0.45,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2
+  },
+  "why": "Hands-elevated close grip: mid/lower chest still work substantially"
+ },
+ "Intermediate_Groin_Stretch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "adductors (longus & brevis)": 1.0,
+   "adductors (magnus)": 0.85
+  },
+  "why": "Leg abducted to the side stretches the adductors (groin), plus medial hamstrings"
+ },
+ "Intermediate_Hip_Flexor_and_Quad_Stretch": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 1.0,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.5,
+   "hip flexors (iliopsoas)": 0.9
+  },
+  "why": "Rectus femoris and iliopsoas are the muscles most stretched"
+ },
+ "Iron_Crosses_stretch": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 1.0,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.5,
+   "hip flexors (iliopsoas)": 0.9,
+   "obliques": 0.4,
+   "lower back (erector spinae)": 0.3
+  },
+  "why": "Prone scorpion stretches hip flexors/rectus femoris and rotates the trunk"
+ },
+ "Internal_Rotation_with_Band": {
+  "muscles": {
+   "rotator cuff (supraspinatus)": 0.25,
+   "rotator cuff (infraspinatus)": 0.15,
+   "rotator cuff (teres minor)": 0.15,
+   "rotator cuff (subscapularis)": 1.0,
+   "shoulders (front delt)": 0.3,
+   "chest (middle)": 0.35,
+   "lats": 0.25,
+   "teres major": 0.3
+  },
+  "why": "Pec major, lats and teres major are strong internal rotators"
+ },
+ "Jerk_Balance": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "glutes (maximus)": 0.45,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "quadriceps (rectus femoris)": 0.35,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.5,
+   "triceps (long head)": 0.45,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "serratus (serratus anterior)": 0.35,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "obliques": 0.1,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.25
+  },
+  "why": "Split-step lunge loads quads and glutes more"
+ },
+ "Jerk_Dip_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "obliques": 0.15,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.25,
+   "triceps (long head)": 0.1,
+   "triceps (lateral head)": 0.2,
+   "triceps (medial head)": 0.2,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.15,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "glutes (maximus)": 0.55,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.35
+  },
+  "why": "Dip-and-drive involves no real pressing; chest/triceps values were wrong"
+ },
+ "Jogging_Treadmill": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.55,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "calves (gastrocnemius)": 0.8,
+   "calves (soleus)": 0.9,
+   "hip flexors (iliopsoas)": 0.4
+  },
+  "why": "Running is calf-heavy (soleus/gastroc) with strong glute and hamstring work"
+ },
+ "Kettlebell_Figure_8": {
+  "muscles": {
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.9,
+   "obliques": 0.7,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "lower back (erector spinae)": 0.4,
+   "glutes (maximus)": 0.35
+  },
+  "why": "Held half-squat hinge loads erectors and glutes"
+ },
+ "Kettlebell_One-Legged_Deadlift": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 0.85,
+   "glutes (maximus)": 0.9,
+   "lower back (erector spinae)": 0.55,
+   "traps (upper)": 0.3,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "forearms (finger flexors)": 0.5,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "abductors (glute medius)": 0.5,
+   "adductors (magnus)": 0.35
+  },
+  "why": "Single-leg RDL: glute max near-equal to hams, glute med stabilises, less erector and trap load"
+ },
+ "Muscle_Snatch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.75,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.5,
+   "quadriceps (rectus femoris)": 0.42,
+   "quadriceps (vastus lateralis)": 0.7,
+   "quadriceps (vastus medialis)": 0.66,
+   "shoulders (front delt)": 0.7,
+   "shoulders (side delt)": 0.6,
+   "shoulders (rear delt)": 0.35,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "traps (upper)": 0.8,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Glutes/quads drive the pull; hamstrings were overstated vs glutes; snatch press-out loads delts."
+ },
+ "Power_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "quadriceps (rectus femoris)": 0.48,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.76,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.75,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Triple extension is glute/quad dominant; hamstrings 1.0 with glutes 0.55 was inverted."
+ },
+ "Power_Clean_from_Blocks": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "quadriceps (rectus femoris)": 0.48,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.76,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.75,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "glutes (maximus)": 1.0,
+   "forearms (finger flexors)": 0.35,
+   "lower back (erector spinae)": 0.55
+  },
+  "why": "Triple extension is glute/quad dominant; hamstrings 1.0 with glutes 0.55 was inverted."
+ },
+ "Power_Snatch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "quadriceps (rectus femoris)": 0.48,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.76,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.75,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Triple extension is glute/quad dominant; hamstrings 1.0 with glutes 0.55 was inverted."
+ },
+ "Power_Snatch_from_Blocks": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.48,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.76,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "lower back (erector spinae)": 0.55,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.75,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Triple extension is glute/quad dominant; hamstrings 1.0 with glutes 0.55 was inverted."
+ },
+ "One-Arm_Kettlebell_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.5,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.45,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "quadriceps (rectus femoris)": 0.24,
+   "quadriceps (vastus lateralis)": 0.4,
+   "quadriceps (vastus medialis)": 0.38,
+   "forearms (finger flexors)": 0.5
+  },
+  "why": "KB clean is a swing-style hip hinge: glute max leads, quads minor."
+ },
+ "One-Arm_Open_Palm_Kettlebell_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.5,
+   "quadriceps (rectus femoris)": 0.24,
+   "quadriceps (vastus lateralis)": 0.4,
+   "quadriceps (vastus medialis)": 0.38,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.45,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.5
+  },
+  "why": "KB clean is a swing-style hip hinge: glute max leads, quads minor."
+ },
+ "Open_Palm_Kettlebell_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.5,
+   "quadriceps (rectus femoris)": 0.24,
+   "quadriceps (vastus lateralis)": 0.4,
+   "quadriceps (vastus medialis)": 0.38,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.45,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.5
+  },
+  "why": "KB clean is a swing-style hip hinge: glute max leads, quads minor."
+ },
+ "One-Arm_Kettlebell_Snatch": {
+  "muscles": {
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "lower back (erector spinae)": 0.5,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "quadriceps (rectus femoris)": 0.24,
+   "quadriceps (vastus lateralis)": 0.4,
+   "quadriceps (vastus medialis)": 0.38,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "KB snatch is hip-driven (swing); glutes/hams lead, delts stabilise overhead."
+ },
+ "One-Arm_Kettlebell_Swings": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.85,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.55,
+   "shoulders (front delt)": 0.2,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.1,
+   "forearms (finger flexors)": 0.45,
+   "abs (upper)": 0.3,
+   "abs (lower)": 0.3,
+   "obliques": 0.25
+  },
+  "why": "Swing EMG shows glute max as high as or above hamstrings; glutes 0.3 far too low."
+ },
+ "One-Arm_Kettlebell_Split_Snatch": {
+  "muscles": {
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.35,
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.75,
+   "quadriceps (rectus femoris)": 0.36,
+   "quadriceps (vastus lateralis)": 0.6,
+   "quadriceps (vastus medialis)": 0.57,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "glutes (maximus)": 1.0,
+   "forearms (finger flexors)": 0.35,
+   "lower back (erector spinae)": 0.5
+  },
+  "why": "KB snatch is hip-driven; glutes lead, split catch adds quads, delts stabilise."
+ },
+ "Power_Jerk": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.48,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.76,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "obliques": 0.1,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.5,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.25,
+   "triceps (long head)": 0.56,
+   "triceps (lateral head)": 0.7,
+   "triceps (medial head)": 0.7,
+   "traps (upper)": 0.45,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "serratus (serratus anterior)": 0.35,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.25
+  },
+  "why": "Jerk lockout is a delt/triceps job; legs drive the dip but delts were only 0.3."
+ },
+ "Push_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "quadriceps (rectus femoris)": 0.33,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.52,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "serratus (serratus anterior)": 0.35,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "obliques": 0.15,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1,
+   "rotator cuff (supraspinatus)": 0.2,
+   "rotator cuff (infraspinatus)": 0.15,
+   "rotator cuff (teres minor)": 0.1,
+   "rotator cuff (subscapularis)": 0.3,
+   "glutes (maximus)": 0.4
+  },
+  "why": "Leg drive initiates the push press; quads were 0.3, glutes missing."
+ },
+ "One-Arm_Kettlebell_Push_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "quadriceps (rectus femoris)": 0.33,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.52,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "serratus (serratus anterior)": 0.35,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "obliques": 0.15,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1,
+   "rotator cuff (supraspinatus)": 0.2,
+   "rotator cuff (infraspinatus)": 0.15,
+   "rotator cuff (teres minor)": 0.1,
+   "rotator cuff (subscapularis)": 0.3,
+   "glutes (maximus)": 0.4
+  },
+  "why": "Leg drive initiates the push press; quads were 0.3, glutes missing."
+ },
+ "Kettlebell_Thruster": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "quadriceps (rectus femoris)": 0.6,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "glutes (maximus)": 0.75,
+   "adductors (magnus)": 0.4,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25
+  },
+  "why": "Thruster is a full front squat plus press; quads equal to delts, glutes missing."
+ },
+ "Landmine_Linear_Jammer": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.75,
+   "shoulders (rear delt)": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "chest (upper)": 0.55,
+   "chest (middle)": 0.45,
+   "chest (lower)": 0.35,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "quadriceps (rectus femoris)": 0.33,
+   "quadriceps (vastus lateralis)": 0.55,
+   "quadriceps (vastus medialis)": 0.52,
+   "triceps (long head)": 0.48,
+   "triceps (lateral head)": 0.6,
+   "triceps (medial head)": 0.6,
+   "serratus (serratus anterior)": 0.2,
+   "glutes (maximus)": 0.45
+  },
+  "why": "Jammer is a full-body push; triceps, chest and quads were underweighted."
+ },
+ "Kettlebell_Turkish_Get-Up_Lunge_style": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "obliques": 0.65,
+   "abs (upper)": 0.55,
+   "abs (lower)": 0.45,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "quadriceps (rectus femoris)": 0.4,
+   "quadriceps (vastus lateralis)": 0.7,
+   "quadriceps (vastus medialis)": 0.65,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "glutes (maximus)": 0.6,
+   "adductors (longus & brevis)": 0.15,
+   "adductors (magnus)": 0.35,
+   "calves (gastrocnemius)": 0.2,
+   "calves (soleus)": 0.15
+  },
+  "why": "Rolling and sitting up loads obliques/abs heavily; core was only 0.2."
+ },
+ "Kettlebell_Turkish_Get-Up_Squat_style": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "obliques": 0.65,
+   "abs (upper)": 0.55,
+   "abs (lower)": 0.45,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "quadriceps (rectus femoris)": 0.4,
+   "quadriceps (vastus lateralis)": 0.7,
+   "quadriceps (vastus medialis)": 0.65,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "glutes (maximus)": 0.55,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.35
+  },
+  "why": "Rolling and sitting up loads obliques/abs heavily; core was only 0.2."
+ },
+ "Kettlebell_Sumo_High_Pull": {
+  "muscles": {
+   "traps (upper)": 1.0,
+   "traps (middle)": 0.7,
+   "traps (lower)": 0.5,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.45,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.55,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "quadriceps (rectus femoris)": 0.3,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.47,
+   "shoulders (front delt)": 0.35,
+   "shoulders (side delt)": 0.6,
+   "shoulders (rear delt)": 0.35
+  },
+  "why": "Hip extension drives the high pull; glutes/hams/quads at 0.3 too low, side delts lift."
+ },
+ "Muscle_Up": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "biceps (long head)": 0.55,
+   "biceps (short head)": 0.5,
+   "brachialis": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "middle back (rhomboids)": 0.5,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.45,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.25,
+   "traps (upper)": 0.1,
+   "triceps (long head)": 0.48,
+   "triceps (lateral head)": 0.6,
+   "triceps (medial head)": 0.6,
+   "forearms (finger flexors)": 0.4,
+   "chest (lower)": 0.4,
+   "chest (middle)": 0.3,
+   "shoulders (front delt)": 0.35
+  },
+  "why": "Transition and dip-out phase loads triceps/chest more than 0.3."
+ },
+ "Kipping_Muscle_Up": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "biceps (long head)": 0.55,
+   "biceps (short head)": 0.5,
+   "brachialis": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "middle back (rhomboids)": 0.5,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.45,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.25,
+   "traps (upper)": 0.1,
+   "triceps (long head)": 0.48,
+   "triceps (lateral head)": 0.6,
+   "triceps (medial head)": 0.6,
+   "forearms (finger flexors)": 0.4,
+   "chest (lower)": 0.4,
+   "chest (middle)": 0.3,
+   "shoulders (front delt)": 0.35
+  },
+  "why": "Transition and dip-out phase loads triceps/chest more than 0.3."
+ },
+ "Mixed_Grip_Chin": {
+  "muscles": {
+   "middle back (rhomboids)": 0.6,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.45,
+   "biceps (long head)": 0.7,
+   "biceps (short head)": 0.7,
+   "brachialis": 0.65,
+   "lats": 1.0,
+   "teres major": 0.7,
+   "forearms (finger flexors)": 0.45
+  },
+  "why": "Chin-ups are lat-dominant with strong biceps; lats were only 0.3."
+ },
+ "One_Arm_Chin-Up": {
+  "muscles": {
+   "middle back (rhomboids)": 0.55,
+   "traps (middle)": 0.5,
+   "traps (lower)": 0.45,
+   "biceps (long head)": 0.75,
+   "biceps (short head)": 0.75,
+   "brachialis": 0.75,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "lats": 1.0,
+   "teres major": 0.7,
+   "forearms (finger flexors)": 0.6,
+   "traps (upper)": 0.1,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.35
+  },
+  "why": "One-arm chin is lat/biceps dominant; lats were only 0.3."
+ },
+ "One-Arm_Dumbbell_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 0.85,
+   "traps (middle)": 0.75,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 1.0,
+   "teres major": 0.65,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Single-arm rows with elbow tucked are lat-dominant per EMG; rhomboids close behind."
+ },
+ "One-Arm_Kettlebell_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 0.85,
+   "traps (middle)": 0.75,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 1.0,
+   "teres major": 0.65,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.45,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Single-arm rows with elbow tucked are lat-dominant per EMG; rhomboids close behind."
+ },
+ "One-Arm_Long_Bar_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 0.85,
+   "traps (middle)": 0.75,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "lats": 1.0,
+   "teres major": 0.65,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.45,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Single-arm rows with elbow tucked are lat-dominant per EMG; rhomboids close behind."
+ },
+ "Leverage_High_Row": {
+  "muscles": {
+   "middle back (rhomboids)": 0.8,
+   "traps (middle)": 0.7,
+   "traps (lower)": 0.55,
+   "lats": 1.0,
+   "teres major": 0.65,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "brachialis": 0.4,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.45,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "High row pulls from above at an angle: lats lead, rhomboids/mid traps close."
+ },
+ "One_Handed_Hang": {
+  "muscles": {
+   "lats": 0.6,
+   "teres major": 0.4,
+   "biceps (long head)": 0.3,
+   "biceps (short head)": 0.3,
+   "brachialis": 0.25,
+   "forearms (finger flexors)": 1.0,
+   "forearms (wrist flexors)": 0.5
+  },
+  "why": "A dead hang is limited by grip; finger flexors do the work, lats are stretched/stabilise."
+ },
+ "Leverage_Deadlift": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.51,
+   "quadriceps (vastus lateralis)": 0.85,
+   "quadriceps (vastus medialis)": 0.81,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "lower back (erector spinae)": 0.55,
+   "traps (upper)": 0.5,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "forearms (finger flexors)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15
+  },
+  "why": "Glutes and hamstrings out-work the spinal erectors; lower back should be secondary."
+ },
+ "One-Arm_Side_Deadlift": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.51,
+   "quadriceps (vastus lateralis)": 0.85,
+   "quadriceps (vastus medialis)": 0.81,
+   "obliques": 0.6,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.65,
+   "hamstrings (semitendinosus & semimembranosus)": 0.6,
+   "lower back (erector spinae)": 0.55,
+   "traps (upper)": 0.5,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "forearms (finger flexors)": 0.7,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35
+  },
+  "why": "Suitcase deadlift: glutes/quads lead, obliques resist side bend, erectors secondary."
+ },
+ "Narrow_Stance_Hack_Squats": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.55,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.25
+  },
+  "why": "Removed back/biceps/rotator cuff weights that are not involved in a squat/press pattern."
+ },
+ "Narrow_Stance_Leg_Press": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.1,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.45,
+   "hamstrings (biceps femoris)": 0.2,
+   "hamstrings (semitendinosus & semimembranosus)": 0.2,
+   "adductors (longus & brevis)": 0.15,
+   "adductors (magnus)": 0.35,
+   "lower back (erector spinae)": 0.25
+  },
+  "why": "Removed back/biceps/rotator cuff weights that are not involved in a squat/press pattern."
+ },
+ "Narrow_Stance_Squats": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.55,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45
+  },
+  "why": "Removed back/biceps/rotator cuff weights that are not involved in a squat/press pattern."
+ },
+ "Lunge_Pass_Through": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4,
+   "calves (gastrocnemius)": 0.2,
+   "calves (soleus)": 0.15,
+   "glutes (maximus)": 0.8,
+   "quadriceps (rectus femoris)": 0.6,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "adductors (longus & brevis)": 0.15,
+   "adductors (magnus)": 0.35
+  },
+  "why": "A lunge is quad/glute dominant; hamstrings are secondary."
+ },
+ "Plie_Dumbbell_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "obliques": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "adductors (longus & brevis)": 0.6,
+   "adductors (magnus)": 0.75,
+   "lower back (erector spinae)": 0.35
+  },
+  "why": "Wide plie stance markedly raises adductor and glute demand."
+ },
+ "Lateral_Bound": {
+  "muscles": {
+   "adductors (longus & brevis)": 0.5,
+   "adductors (magnus)": 0.45,
+   "abductors (glute medius)": 0.7,
+   "abductors (TFL)": 0.4,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.35,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.35,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35,
+   "quadriceps (rectus femoris)": 0.48,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.76
+  },
+  "why": "Lateral bounds are driven by glutes (max/med) and quads; adductors secondary."
+ },
+ "Lateral_Box_Jump": {
+  "muscles": {
+   "adductors (longus & brevis)": 0.5,
+   "adductors (magnus)": 0.45,
+   "abductors (glute medius)": 0.65,
+   "abductors (TFL)": 0.4,
+   "calves (gastrocnemius)": 0.55,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.35,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35,
+   "quadriceps (rectus femoris)": 0.54,
+   "quadriceps (vastus lateralis)": 0.9,
+   "quadriceps (vastus medialis)": 0.85
+  },
+  "why": "Lateral jumps are driven by glutes (max/med) and quads; adductors secondary."
+ },
+ "Knee_Tuck_Jump": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.35,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.45,
+   "glutes (maximus)": 0.7,
+   "quadriceps (rectus femoris)": 0.6,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "hip flexors (iliopsoas)": 0.75,
+   "abs (upper)": 0.35,
+   "abs (lower)": 0.4
+  },
+  "why": "Jump is quad/glute/calf driven, tuck is hip flexors; hamstrings were wrongly primary."
+ },
+ "Linear_Depth_Jump": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.7,
+   "calves (soleus)": 0.55,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3
+  },
+  "why": "Depth jumps rely heavily on calves and glutes for the rebound."
+ },
+ "Pull_Through": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.65,
+   "hamstrings (semitendinosus & semimembranosus)": 0.65,
+   "lower back (erector spinae)": 0.35
+  },
+  "why": "Hip hinge: hamstrings work substantially alongside glutes."
+ },
+ "Pelvic_Tilt_Into_Bridge": {
+  "muscles": {
+   "lower back (erector spinae)": 0.3,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "abs (upper)": 0.35,
+   "abs (lower)": 0.4
+  },
+  "why": "A bridge is glute-driven; erectors are minor."
+ },
+ "Mountain_Climbers": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.27,
+   "quadriceps (vastus lateralis)": 0.45,
+   "quadriceps (vastus medialis)": 0.43,
+   "chest (upper)": 0.25,
+   "chest (middle)": 0.3,
+   "chest (lower)": 0.25,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "shoulders (front delt)": 0.45,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "hip flexors (iliopsoas)": 0.9,
+   "abs (upper)": 1.0,
+   "abs (lower)": 1.0,
+   "obliques": 0.6
+  },
+  "why": "Mountain climbers are a core/hip-flexor drill; quads are not the main mover."
+ },
+ "Leg_Pull-In": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.2,
+   "quadriceps (vastus lateralis)": 0.3,
+   "quadriceps (vastus medialis)": 0.25,
+   "hip flexors (iliopsoas)": 0.65
+  },
+  "why": "Hip flexors work hard pulling the knees in; were missing."
+ },
+ "Knee_Hip_Raise_On_Parallel_Bars": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.2,
+   "quadriceps (vastus lateralis)": 0.3,
+   "quadriceps (vastus medialis)": 0.25,
+   "hip flexors (iliopsoas)": 0.8
+  },
+  "why": "Hip flexors do a large share of a hanging knee raise."
+ },
+ "One-Arm_Medicine_Ball_Slam": {
+  "muscles": {
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.9,
+   "obliques": 0.7,
+   "lats": 0.75,
+   "teres major": 0.5,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3
+  },
+  "why": "Slams are a lat-driven pull-down with abs; lats underweighted."
+ },
+ "Overhead_Slam": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "abs (upper)": 0.7,
+   "abs (lower)": 0.6,
+   "obliques": 0.45,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.2,
+   "triceps (medial head)": 0.25
+  },
+  "why": "Abs flex the trunk hard in a slam; core only 0.2."
+ },
+ "Overhead_Squat": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "obliques": 0.4,
+   "abs (upper)": 0.35,
+   "abs (lower)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.55,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "lower back (erector spinae)": 0.35,
+   "shoulders (front delt)": 0.55,
+   "shoulders (side delt)": 0.5,
+   "shoulders (rear delt)": 0.15,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.2,
+   "triceps (medial head)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "traps (upper)": 0.45,
+   "traps (lower)": 0.35
+  },
+  "why": "Overhead hold heavily loads delts, traps and core."
+ },
+ "Kneeling_Hip_Flexor": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.7,
+   "hip flexors (iliopsoas)": 1.0
+  },
+  "why": "Stretch targets iliopsoas and rectus femoris, not the vasti."
+ },
+ "Knee_Circles": {
+  "muscles": {
+   "calves (gastrocnemius)": 0.4,
+   "hamstrings (biceps femoris)": 0.7,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "quadriceps (rectus femoris)": 0.6,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95
+  },
+  "why": "Knee mobility drill moves the knee joint (quads/hams), not mainly calves."
+ },
+ "Neck_Press": {
+  "muscles": {
+   "chest (upper)": 0.8,
+   "chest (middle)": 1.0,
+   "chest (lower)": 0.85,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "triceps (long head)": 0.36,
+   "triceps (lateral head)": 0.45,
+   "triceps (medial head)": 0.45
+  },
+  "why": "Guillotine press still loads front delts and triceps substantially."
+ },
+ "One_Arm_Floor_Press": {
+  "muscles": {
+   "triceps (long head)": 0.55,
+   "triceps (lateral head)": 1.0,
+   "triceps (medial head)": 1.0,
+   "chest (upper)": 0.65,
+   "chest (middle)": 0.8,
+   "chest (lower)": 0.7,
+   "shoulders (front delt)": 0.6,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.05,
+   "serratus (serratus anterior)": 0.15
+  },
+  "why": "Floor press keeps the pecs heavily involved; chest at 0.3 was too low."
+ },
+ "Kettlebell_Seated_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.44,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55
+  },
+  "why": "Triceps extend the elbow throughout a press; 0.3 too low."
+ },
+ "Kettlebell_Seesaw_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.44,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55
+  },
+  "why": "Triceps extend the elbow throughout a press; 0.3 too low."
+ },
+ "Machine_Shoulder_Military_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.44,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55
+  },
+  "why": "Triceps extend the elbow throughout a press; 0.3 too low."
+ },
+ "One-Arm_Kettlebell_Para_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.44,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55
+  },
+  "why": "Triceps extend the elbow throughout a press; 0.3 too low."
+ },
+ "Rack_Pull_with_Bands": {
+  "muscles": {
+   "lower back (erector spinae)": 0.85,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.65,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "quadriceps (rectus femoris)": 0.4,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.45,
+   "traps (upper)": 0.65,
+   "traps (middle)": 0.4,
+   "traps (lower)": 0.2,
+   "forearms (finger flexors)": 0.5,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2
+  },
+  "why": "Partial-range lockout is hip-extension dominant: glutes lead, erectors second, traps high."
+ },
+ "Rack_Pulls": {
+  "muscles": {
+   "lower back (erector spinae)": 0.85,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.65,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "traps (upper)": 0.65,
+   "traps (middle)": 0.4,
+   "traps (lower)": 0.2,
+   "forearms (finger flexors)": 0.5,
+   "quadriceps (rectus femoris)": 0.4,
+   "quadriceps (vastus lateralis)": 0.5,
+   "quadriceps (vastus medialis)": 0.45,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "obliques": 0.2
+  },
+  "why": "Partial-range lockout is hip-extension dominant: glutes lead, erectors second, traps high."
+ },
+ "Reverse_Barbell_Curl": {
+  "muscles": {
+   "biceps (long head)": 0.65,
+   "biceps (short head)": 0.5,
+   "brachialis": 1.0,
+   "forearms (brachioradialis)": 0.85,
+   "forearms (wrist flexors)": 0.1,
+   "forearms (wrist extensors)": 0.35,
+   "forearms (finger flexors)": 0.15
+  },
+  "why": "Pronated grip makes brachioradialis a major contributor."
+ },
+ "Reverse_Cable_Curl": {
+  "muscles": {
+   "biceps (long head)": 0.65,
+   "biceps (short head)": 0.5,
+   "brachialis": 1.0,
+   "forearms (brachioradialis)": 0.85,
+   "forearms (wrist flexors)": 0.1,
+   "forearms (wrist extensors)": 0.35,
+   "forearms (finger flexors)": 0.15
+  },
+  "why": "Pronated grip makes brachioradialis a major contributor."
+ },
+ "Reverse_Hyperextension": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.85,
+   "hamstrings (semitendinosus & semimembranosus)": 0.75,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.6
+  },
+  "why": "Glutes are the main hip extensor here; erectors work hard too."
+ },
+ "Reverse_Grip_Bent-Over_Rows": {
+  "muscles": {
+   "middle back (rhomboids)": 0.85,
+   "traps (middle)": 0.75,
+   "traps (lower)": 0.55,
+   "biceps (long head)": 0.6,
+   "biceps (short head)": 0.65,
+   "brachialis": 0.6,
+   "lats": 1.0,
+   "teres major": 0.65,
+   "shoulders (front delt)": 0.05,
+   "shoulders (side delt)": 0.15,
+   "shoulders (rear delt)": 0.45,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.3,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.4,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.1
+  },
+  "why": "Underhand grip shifts emphasis to lats and biceps."
+ },
+ "Rope_Climb": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "biceps (long head)": 0.7,
+   "biceps (short head)": 0.7,
+   "brachialis": 0.7,
+   "forearms (brachioradialis)": 0.5,
+   "forearms (wrist flexors)": 0.6,
+   "forearms (wrist extensors)": 0.1,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.25,
+   "traps (lower)": 0.15,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "forearms (finger flexors)": 0.9
+  },
+  "why": "Rope climbing is heavily grip- and elbow-flexor dependent."
+ },
+ "Rope_Jumping": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.25,
+   "quadriceps (vastus lateralis)": 0.35,
+   "quadriceps (vastus medialis)": 0.3,
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.85,
+   "hamstrings (biceps femoris)": 0.15,
+   "hamstrings (semitendinosus & semimembranosus)": 0.15,
+   "shins (tibialis anterior)": 0.3,
+   "glutes (maximus)": 0.2
+  },
+  "why": "Repeated ankle bounces: calves are the main movers, quads minor."
+ },
+ "Rope_Straight-Arm_Pulldown": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "biceps (long head)": 0.1,
+   "biceps (short head)": 0.1,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.25,
+   "traps (lower)": 0.35,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.25,
+   "forearms (wrist extensors)": 0.15,
+   "forearms (finger flexors)": 0.25,
+   "traps (upper)": 0.1,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.35,
+   "triceps (long head)": 0.45
+  },
+  "why": "Elbows stay fixed, so biceps barely work; triceps long head assists shoulder extension."
+ },
+ "Rowing_Stationary": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "biceps (long head)": 0.4,
+   "biceps (short head)": 0.4,
+   "brachialis": 0.4,
+   "calves (gastrocnemius)": 0.25,
+   "calves (soleus)": 0.2,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.45,
+   "lower back (erector spinae)": 0.5,
+   "middle back (rhomboids)": 0.55,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.15,
+   "lats": 0.55,
+   "teres major": 0.3,
+   "shoulders (rear delt)": 0.35
+  },
+  "why": "Rowing stroke is leg-driven but glutes, hamstrings, erectors and back are substantial."
+ },
+ "Running_Treadmill": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.85,
+   "calves (soleus)": 0.85,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.6,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "hip flexors (iliopsoas)": 0.45
+  },
+  "why": "Calves, glutes and hamstrings do far more in running than listed."
+ },
+ "Sandbag_Load": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15,
+   "biceps (long head)": 0.45,
+   "biceps (short head)": 0.45,
+   "brachialis": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 0.85,
+   "hamstrings (biceps femoris)": 0.55,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "lower back (erector spinae)": 0.75,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.25,
+   "traps (lower)": 0.15,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "traps (upper)": 0.45,
+   "forearms (finger flexors)": 0.5
+  },
+  "why": "Lifting a sandbag from the floor is a squat/deadlift pattern: glutes, erectors, hamstrings high."
+ },
+ "Scapular_Pull-Up": {
+  "muscles": {
+   "traps (upper)": 0.25,
+   "traps (middle)": 0.7,
+   "traps (lower)": 1.0,
+   "lats": 0.75,
+   "teres major": 0.4,
+   "middle back (rhomboids)": 0.5,
+   "biceps (long head)": 0.1,
+   "biceps (short head)": 0.1,
+   "brachialis": 0.1,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "forearms (finger flexors)": 0.6,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15
+  },
+  "why": "Elbows stay straight: lats assist depression, biceps minimal, grip is hanging."
+ },
+ "Scissor_Kick": {
+  "muscles": {
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.9,
+   "obliques": 0.7,
+   "hip flexors (iliopsoas)": 0.7,
+   "quadriceps (rectus femoris)": 0.3
+  },
+  "why": "Hip flexors hold and move the legs."
+ },
+ "Scissors_Jump": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35,
+   "hip flexors (iliopsoas)": 0.3,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.4
+  },
+  "why": "Jump lunge: glutes and calves drive the jump; hip flexors are minor."
+ },
+ "Seated_Dumbbell_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.3,
+   "serratus (serratus anterior)": 0.3
+  },
+  "why": "Triceps contribute substantially to overhead pressing lockout."
+ },
+ "Standing_Alternating_Dumbbell_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.3,
+   "serratus (serratus anterior)": 0.3
+  },
+  "why": "Triceps contribute substantially to overhead pressing lockout."
+ },
+ "Standing_Barbell_Press_Behind_Neck": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.3,
+   "serratus (serratus anterior)": 0.3
+  },
+  "why": "Triceps contribute substantially to overhead pressing lockout."
+ },
+ "Standing_Dumbbell_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.3,
+   "serratus (serratus anterior)": 0.3
+  },
+  "why": "Triceps contribute substantially to overhead pressing lockout."
+ },
+ "See-Saw_Press_Alternating_Side_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "obliques": 0.45,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55
+  },
+  "why": "Triceps drive lockout; side lean loads obliques."
+ },
+ "Seated_Flat_Bench_Leg_Pull-In": {
+  "muscles": {
+   "obliques": 0.6,
+   "abs (upper)": 0.85,
+   "abs (lower)": 1.0,
+   "quadriceps (rectus femoris)": 0.2,
+   "quadriceps (vastus lateralis)": 0.3,
+   "quadriceps (vastus medialis)": 0.25,
+   "hip flexors (iliopsoas)": 0.75
+  },
+  "why": "Hip flexors pull the knees in alongside abs."
+ },
+ "Seated_Band_Hamstring_Curl": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.25
+  },
+  "why": "Glutes do not flex the knee; removed."
+ },
+ "Seated_Leg_Curl": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.25
+  },
+  "why": "Glutes do not flex the knee; removed."
+ },
+ "Seated_Hamstring_and_Calf_Stretch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "calves (gastrocnemius)": 0.7,
+   "calves (soleus)": 0.5
+  },
+  "why": "Calves are a target of this stretch."
+ },
+ "Standing_Hamstring_and_Calf_Stretch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "calves (gastrocnemius)": 0.7,
+   "calves (soleus)": 0.5
+  },
+  "why": "Calves are a target of this stretch."
+ },
+ "Push_Up_to_Side_Plank": {
+  "muscles": {
+   "chest (upper)": 0.8,
+   "chest (middle)": 1.0,
+   "chest (lower)": 0.85,
+   "obliques": 0.6,
+   "abs (upper)": 0.3,
+   "abs (lower)": 0.3,
+   "shoulders (front delt)": 0.5,
+   "shoulders (side delt)": 0.1,
+   "shoulders (rear delt)": 0.05,
+   "triceps (long head)": 0.3,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "serratus (serratus anterior)": 0.45,
+   "abductors (glute medius)": 0.3
+  },
+  "why": "Side plank phase heavily loads obliques."
+ },
+ "Side_Bridge": {
+  "muscles": {
+   "abs (upper)": 1.0,
+   "abs (lower)": 0.9,
+   "obliques": 0.7,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "hamstrings (biceps femoris)": 0.1,
+   "hamstrings (semitendinosus & semimembranosus)": 0.1,
+   "lower back (erector spinae)": 0.2,
+   "quadriceps (vastus lateralis)": 0.1,
+   "quadriceps (vastus medialis)": 0.1,
+   "abductors (glute medius)": 0.6
+  },
+  "why": "Side plank: glute medius high, quads/hamstrings minor."
+ },
+ "Side_Standing_Long_Jump": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.35,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "abductors (glute medius)": 0.35
+  },
+  "why": "Jumping is glute/calf driven, plus abductors for lateral push."
+ },
+ "Side_To_Side_Chins": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "biceps (long head)": 0.6,
+   "biceps (short head)": 0.6,
+   "brachialis": 0.6,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.25,
+   "traps (lower)": 0.15,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "forearms (finger flexors)": 0.45
+  },
+  "why": "Chin-ups load biceps and grip strongly."
+ },
+ "Side_to_Side_Box_Shuffle": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abductors (glute medius)": 0.55,
+   "abductors (TFL)": 0.3,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.55,
+   "calves (soleus)": 0.4,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "glutes (maximus)": 0.45
+  },
+  "why": "Lateral hops load calves and hip abductors more than listed."
+ },
+ "Single-Leg_Lateral_Hop": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abductors (glute medius)": 0.55,
+   "abductors (TFL)": 0.3,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.25,
+   "calves (gastrocnemius)": 0.55,
+   "calves (soleus)": 0.4,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "glutes (maximus)": 0.45
+  },
+  "why": "Lateral hops load calves and hip abductors more than listed."
+ },
+ "Single-Arm_Linear_Jammer": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "shoulders (rear delt)": 0.45,
+   "chest (upper)": 0.25,
+   "chest (middle)": 0.3,
+   "chest (lower)": 0.25,
+   "triceps (long head)": 0.4,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "quadriceps (vastus lateralis)": 0.35,
+   "quadriceps (vastus medialis)": 0.3,
+   "glutes (maximus)": 0.3,
+   "obliques": 0.3
+  },
+  "why": "Triceps drive lockout; legs and core contribute to the drive."
+ },
+ "Skating": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "abductors (glute medius)": 0.65,
+   "abductors (TFL)": 0.35,
+   "adductors (longus & brevis)": 0.45,
+   "adductors (magnus)": 0.4,
+   "calves (gastrocnemius)": 0.25,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3
+  },
+  "why": "Skating stride is glute- and abductor-driven."
+ },
+ "Sled_Drag_-_Harness": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.5,
+   "glutes (maximus)": 0.75,
+   "hamstrings (biceps femoris)": 0.45,
+   "hamstrings (semitendinosus & semimembranosus)": 0.4
+  },
+  "why": "Driving forward against a harness loads glutes and calves heavily."
+ },
+ "Sled_Push": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.65,
+   "calves (soleus)": 0.5,
+   "chest (upper)": 0.25,
+   "chest (middle)": 0.3,
+   "chest (lower)": 0.25,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "shoulders (front delt)": 0.35
+  },
+  "why": "Glutes and calves drive the push; front delts brace."
+ },
+ "Split_Jump": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.5,
+   "calves (soleus)": 0.4,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35
+  },
+  "why": "Jump lunge: glutes and calves are major contributors."
+ },
+ "Stairmaster": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.35,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.4,
+   "hamstrings (semitendinosus & semimembranosus)": 0.35
+  },
+  "why": "Stepping up is strongly glute-driven; calves contribute."
+ },
+ "Smith_Incline_Shoulder_Raise": {
+  "muscles": {
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.15,
+   "chest (upper)": 0.3,
+   "chest (middle)": 0.2,
+   "chest (lower)": 0.1,
+   "serratus (serratus anterior)": 1.0
+  },
+  "why": "Scapular protraction drill (serratus press): serratus anterior is the main mover."
+ },
+ "Smith_Machine_Hang_Power_Clean": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.6,
+   "quadriceps (rectus femoris)": 0.5,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.8,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.25,
+   "forearms (finger flexors)": 0.35,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.45,
+   "forearms (wrist extensors)": 0.25,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.3
+  },
+  "why": "Explosive hip extension (glutes) plus knee drive and shrug; hamstrings not dominant."
+ },
+ "Snatch_Pull": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.75,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.3,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.6,
+   "quadriceps (rectus femoris)": 0.5,
+   "quadriceps (vastus lateralis)": 0.75,
+   "quadriceps (vastus medialis)": 0.7,
+   "traps (upper)": 0.8,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.25,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Explosive hip extension (glutes) plus knee drive and shrug; hamstrings not dominant."
+ },
+ "Snatch_Deadlift": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist flexors)": 0.35,
+   "forearms (wrist extensors)": 0.2,
+   "glutes (maximus)": 1.0,
+   "lower back (erector spinae)": 0.8,
+   "quadriceps (rectus femoris)": 0.45,
+   "quadriceps (vastus lateralis)": 0.7,
+   "quadriceps (vastus medialis)": 0.65,
+   "traps (upper)": 0.5,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "forearms (finger flexors)": 0.5,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "lats": 0.35,
+   "teres major": 0.25,
+   "middle back (rhomboids)": 0.35,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15
+  },
+  "why": "Low wide-grip start: glutes and quads do more, hamstrings and erectors close behind."
+ },
+ "Split_Snatch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 0.6,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.1,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (wrist extensors)": 0.1,
+   "glutes (maximus)": 0.75,
+   "lower back (erector spinae)": 0.4,
+   "quadriceps (rectus femoris)": 0.7,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.3,
+   "shoulders (rear delt)": 0.2,
+   "traps (upper)": 0.55,
+   "traps (middle)": 0.35,
+   "traps (lower)": 0.25,
+   "triceps (long head)": 0.25,
+   "triceps (lateral head)": 0.3,
+   "triceps (medial head)": 0.3,
+   "forearms (finger flexors)": 0.35
+  },
+  "why": "Lunge catch makes quads and glutes lead, matching Snatch."
+ },
+ "Smith_Machine_Leg_Press": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.1,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.2,
+   "hamstrings (semitendinosus & semimembranosus)": 0.2,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.4
+  },
+  "why": "Feet press the bar; shoulders/triceps do no meaningful work."
+ },
+ "Smith_Machine_Reverse_Calf_Raises": {
+  "muscles": {
+   "shins (tibialis anterior)": 1.0
+  },
+  "why": "Raising toes (dorsiflexion) works tibialis anterior, not calves."
+ },
+ "Smith_Machine_Upright_Row": {
+  "muscles": {
+   "shoulders (side delt)": 1.0,
+   "shoulders (front delt)": 0.5,
+   "shoulders (rear delt)": 0.35,
+   "traps (upper)": 0.85,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.25,
+   "biceps (long head)": 0.25,
+   "biceps (short head)": 0.25,
+   "brachialis": 0.3,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.15,
+   "serratus (serratus anterior)": 0.2
+  },
+  "why": "Upright row: side delts lead, upper traps close second."
+ },
+ "Standing_Dumbbell_Upright_Row": {
+  "muscles": {
+   "shoulders (side delt)": 1.0,
+   "shoulders (front delt)": 0.5,
+   "shoulders (rear delt)": 0.35,
+   "traps (upper)": 0.85,
+   "traps (middle)": 0.45,
+   "traps (lower)": 0.25,
+   "biceps (long head)": 0.25,
+   "biceps (short head)": 0.25,
+   "brachialis": 0.3,
+   "forearms (brachioradialis)": 0.25,
+   "forearms (wrist flexors)": 0.15,
+   "serratus (serratus anterior)": 0.2
+  },
+  "why": "Upright row: side delts lead, upper traps close second."
+ },
+ "Split_Jerk": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.75,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.35,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "shoulders (front delt)": 0.75,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.15,
+   "triceps (long head)": 0.45,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "serratus (serratus anterior)": 0.35,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "obliques": 0.1,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.25
+  },
+  "why": "Overhead drive and lockout need far more front delt; split catch uses glutes."
+ },
+ "Squat_Jerk": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 0.55,
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "shoulders (front delt)": 0.75,
+   "shoulders (side delt)": 0.45,
+   "shoulders (rear delt)": 0.15,
+   "triceps (long head)": 0.45,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "traps (upper)": 0.35,
+   "traps (middle)": 0.1,
+   "traps (lower)": 0.2,
+   "adductors (longus & brevis)": 0.2,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.35,
+   "serratus (serratus anterior)": 0.35,
+   "chest (upper)": 0.2,
+   "chest (middle)": 0.05,
+   "obliques": 0.15,
+   "abs (upper)": 0.1,
+   "abs (lower)": 0.1,
+   "rotator cuff (supraspinatus)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "rotator cuff (teres minor)": 0.25,
+   "rotator cuff (subscapularis)": 0.25
+  },
+  "why": "Overhead drive and lockout need far more front delt."
+ },
+ "Standing_Hip_Flexors": {
+  "muscles": {
+   "hip flexors (iliopsoas)": 1.0,
+   "quadriceps (rectus femoris)": 0.6
+  },
+  "why": "Hip flexor stretch targets iliopsoas and rectus femoris, not the vasti"
+ },
+ "Standing_Lateral_Stretch": {
+  "muscles": {
+   "obliques": 1.0,
+   "lats": 0.4,
+   "abs (upper)": 0.3,
+   "abs (lower)": 0.25
+  },
+  "why": "Side-bend stretch lengthens obliques and lats most, not rectus abdominis"
+ },
+ "Standing_Long_Jump": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "quadriceps (rectus femoris)": 0.55,
+   "glutes (maximus)": 0.8,
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.45,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.45
+  },
+  "why": "Jumping uses heavy hip extension and ankle push-off; glutes/calves were too low"
+ },
+ "Standing_Olympic_Plate_Hand_Squeeze": {
+  "muscles": {
+   "forearms (finger flexors)": 1.0,
+   "forearms (wrist flexors)": 0.5,
+   "forearms (wrist extensors)": 0.4,
+   "forearms (brachioradialis)": 0.2
+  },
+  "why": "Plate pinch/squeeze is a grip task led by finger flexors; biceps barely involved"
+ },
+ "Standing_One-Arm_Dumbbell_Curl_Over_Incline_Bench": {
+  "muscles": {
+   "biceps (long head)": 1.0,
+   "biceps (short head)": 0.95,
+   "brachialis": 0.8,
+   "forearms (brachioradialis)": 0.35,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (finger flexors)": 0.15,
+   "forearms (wrist extensors)": 0.1,
+   "shoulders (front delt)": 0.15
+  },
+  "why": "Supported curl: front delt, triceps and serratus are not meaningfully loaded"
+ },
+ "Standing_One-Arm_Dumbbell_Triceps_Extension": {
+  "muscles": {
+   "triceps (long head)": 1.0,
+   "triceps (medial head)": 0.85,
+   "triceps (lateral head)": 0.8,
+   "shoulders (front delt)": 0.15,
+   "forearms (wrist flexors)": 0.1,
+   "forearms (brachioradialis)": 0.05,
+   "forearms (wrist extensors)": 0.05
+  },
+  "why": "Overhead extension loads the long head most in its stretched position; chest not involved"
+ },
+ "Standing_Palm-In_One-Arm_Dumbbell_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.5,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "triceps (long head)": 0.35,
+   "traps (upper)": 0.3,
+   "serratus (serratus anterior)": 0.3,
+   "shoulders (rear delt)": 0.15
+  },
+  "why": "Overhead press: triceps underweighted, rear delt overweighted"
+ },
+ "Standing_Palms-In_Dumbbell_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.5,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "triceps (long head)": 0.35,
+   "traps (upper)": 0.3,
+   "serratus (serratus anterior)": 0.3,
+   "shoulders (rear delt)": 0.15
+  },
+  "why": "Overhead press: triceps underweighted, rear delt overweighted"
+ },
+ "Standing_Soleus_And_Achilles_Stretch": {
+  "muscles": {
+   "calves (soleus)": 1.0,
+   "calves (gastrocnemius)": 0.5
+  },
+  "why": "Bent-knee calf stretch targets the soleus; gastrocnemius is slack"
+ },
+ "Star_Jump": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "quadriceps (rectus femoris)": 0.55,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "calves (gastrocnemius)": 0.6,
+   "calves (soleus)": 0.45,
+   "abductors (glute medius)": 0.4,
+   "adductors (longus & brevis)": 0.3,
+   "shoulders (side delt)": 0.4,
+   "shoulders (front delt)": 0.3,
+   "shoulders (rear delt)": 0.15
+  },
+  "why": "Explosive jump with leg/arm abduction: calves, glutes, abductors underweighted"
+ },
+ "Step-up_with_Knee_Raise": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "quadriceps (vastus lateralis)": 0.9,
+   "quadriceps (vastus medialis)": 0.85,
+   "quadriceps (rectus femoris)": 0.7,
+   "hip flexors (iliopsoas)": 0.6,
+   "abductors (glute medius)": 0.45,
+   "adductors (magnus)": 0.35,
+   "hamstrings (biceps femoris)": 0.3,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "calves (gastrocnemius)": 0.25,
+   "calves (soleus)": 0.15,
+   "adductors (longus & brevis)": 0.15
+  },
+  "why": "Step-up quads are a major driver, not 0.05"
+ },
+ "Step_Mill": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "quadriceps (rectus femoris)": 0.55,
+   "glutes (maximus)": 0.65,
+   "hamstrings (biceps femoris)": 0.35,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "calves (gastrocnemius)": 0.4,
+   "calves (soleus)": 0.3
+  },
+  "why": "Stair climbing works glutes and calves more than listed"
+ },
+ "Stiff_Leg_Barbell_Good_Morning": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 0.9,
+   "glutes (maximus)": 0.7,
+   "lower back (erector spinae)": 0.85,
+   "adductors (magnus)": 0.4,
+   "traps (upper)": 0.15,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.1
+  },
+  "why": "Hamstrings drive the hip hinge; erectors work isometrically; no grip load with bar on back"
+ },
+ "Straight-Arm_Pulldown": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.75,
+   "triceps (long head)": 0.45,
+   "shoulders (rear delt)": 0.35,
+   "traps (lower)": 0.3,
+   "middle back (rhomboids)": 0.25,
+   "chest (lower)": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "forearms (finger flexors)": 0.25,
+   "forearms (wrist flexors)": 0.2,
+   "forearms (brachioradialis)": 0.1,
+   "forearms (wrist extensors)": 0.1
+  },
+  "why": "Elbows stay straight: biceps/brachialis minimal, triceps long head assists shoulder extension"
+ },
+ "Straight_Bar_Bench_Mid_Rows": {
+  "muscles": {
+   "middle back (rhomboids)": 1.0,
+   "traps (middle)": 0.9,
+   "lats": 0.65,
+   "traps (lower)": 0.55,
+   "teres major": 0.45,
+   "shoulders (rear delt)": 0.45,
+   "brachialis": 0.4,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "forearms (finger flexors)": 0.3,
+   "rotator cuff (infraspinatus)": 0.3,
+   "forearms (wrist flexors)": 0.25,
+   "traps (upper)": 0.25,
+   "lower back (erector spinae)": 0.25,
+   "rotator cuff (teres minor)": 0.25,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist extensors)": 0.15,
+   "shoulders (side delt)": 0.15,
+   "rotator cuff (supraspinatus)": 0.15,
+   "rotator cuff (subscapularis)": 0.1,
+   "shoulders (front delt)": 0.05
+  },
+  "why": "Row works rear delt, not front delt (values were swapped)"
+ },
+ "Straight_Raises_on_Incline_Bench": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.35,
+   "chest (upper)": 0.4,
+   "serratus (serratus anterior)": 0.35,
+   "traps (upper)": 0.3,
+   "traps (middle)": 0.15,
+   "traps (lower)": 0.15
+  },
+  "why": "Straight-arm front raise: triceps barely work; upper chest assists flexion"
+ },
+ "Sumo_Deadlift": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.8,
+   "quadriceps (rectus femoris)": 0.35,
+   "adductors (magnus)": 0.75,
+   "adductors (longus & brevis)": 0.4,
+   "hamstrings (biceps femoris)": 0.6,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "lower back (erector spinae)": 0.7,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "forearms (brachioradialis)": 0.15,
+   "lats": 0.35,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "teres major": 0.2,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "abductors (glute medius)": 0.3,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1
+  },
+  "why": "Sumo is glute/quad/adductor dominant; hamstrings less than conventional"
+ },
+ "Sumo_Deadlift_with_Bands": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "quadriceps (vastus lateralis)": 0.8,
+   "quadriceps (vastus medialis)": 0.8,
+   "quadriceps (rectus femoris)": 0.35,
+   "adductors (magnus)": 0.75,
+   "adductors (longus & brevis)": 0.4,
+   "hamstrings (biceps femoris)": 0.6,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "lower back (erector spinae)": 0.7,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "forearms (wrist flexors)": 0.3,
+   "forearms (wrist extensors)": 0.2,
+   "forearms (brachioradialis)": 0.15,
+   "lats": 0.35,
+   "middle back (rhomboids)": 0.3,
+   "traps (middle)": 0.3,
+   "traps (lower)": 0.2,
+   "teres major": 0.2,
+   "obliques": 0.25,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.15,
+   "abductors (glute medius)": 0.3,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1
+  },
+  "why": "Sumo is glute/quad/adductor dominant; hamstrings less than conventional"
+ },
+ "Suspended_Reverse_Crunch": {
+  "muscles": {
+   "abs (lower)": 1.0,
+   "abs (upper)": 0.85,
+   "obliques": 0.6,
+   "hip flexors (iliopsoas)": 0.55,
+   "quadriceps (rectus femoris)": 0.3
+  },
+  "why": "Knee tuck does not load the vasti"
+ },
+ "Tate_Press": {
+  "muscles": {
+   "triceps (lateral head)": 1.0,
+   "triceps (medial head)": 0.95,
+   "triceps (long head)": 0.7,
+   "chest (middle)": 0.3,
+   "chest (upper)": 0.25,
+   "chest (lower)": 0.25,
+   "shoulders (front delt)": 0.3
+  },
+  "why": "Elbows-out extension favors lateral/medial heads; chest only minor"
+ },
+ "The_Straddle": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "adductors (longus & brevis)": 0.7,
+   "adductors (magnus)": 0.7,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1
+  },
+  "why": "Wide straddle fold strongly stretches the adductors"
+ },
+ "Tire_Flip": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "quadriceps (vastus lateralis)": 0.9,
+   "quadriceps (vastus medialis)": 0.85,
+   "quadriceps (rectus femoris)": 0.5,
+   "hamstrings (biceps femoris)": 0.65,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "lower back (erector spinae)": 0.75,
+   "traps (upper)": 0.55,
+   "shoulders (front delt)": 0.45,
+   "chest (middle)": 0.35,
+   "chest (upper)": 0.25,
+   "chest (lower)": 0.2,
+   "triceps (lateral head)": 0.4,
+   "triceps (medial head)": 0.4,
+   "triceps (long head)": 0.3,
+   "forearms (finger flexors)": 0.4,
+   "biceps (long head)": 0.3,
+   "biceps (short head)": 0.3,
+   "traps (middle)": 0.25,
+   "calves (gastrocnemius)": 0.3,
+   "calves (soleus)": 0.2,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2
+  },
+  "why": "Hinge-and-drive lift: glutes, hamstrings, erectors far underweighted"
+ },
+ "Trail_Running_Walking": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "quadriceps (rectus femoris)": 0.75,
+   "glutes (maximus)": 0.7,
+   "hamstrings (biceps femoris)": 0.55,
+   "hamstrings (semitendinosus & semimembranosus)": 0.5,
+   "calves (gastrocnemius)": 0.8,
+   "calves (soleus)": 0.75,
+   "hip flexors (iliopsoas)": 0.4,
+   "abductors (glute medius)": 0.35
+  },
+  "why": "Locomotion relies heavily on calves and glutes"
+ },
+ "Walking_Treadmill": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.9,
+   "quadriceps (rectus femoris)": 0.7,
+   "glutes (maximus)": 0.6,
+   "hamstrings (biceps femoris)": 0.5,
+   "hamstrings (semitendinosus & semimembranosus)": 0.45,
+   "calves (gastrocnemius)": 0.85,
+   "calves (soleus)": 0.8,
+   "hip flexors (iliopsoas)": 0.35,
+   "abductors (glute medius)": 0.35,
+   "shins (tibialis anterior)": 0.3
+  },
+  "why": "Walking relies heavily on calves, glutes and tibialis"
+ },
+ "Trap_Bar_Deadlift": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "quadriceps (rectus femoris)": 0.55,
+   "glutes (maximus)": 0.9,
+   "hamstrings (biceps femoris)": 0.6,
+   "hamstrings (semitendinosus & semimembranosus)": 0.55,
+   "lower back (erector spinae)": 0.6,
+   "traps (upper)": 0.5,
+   "forearms (finger flexors)": 0.5,
+   "forearms (wrist flexors)": 0.35,
+   "lats": 0.35,
+   "middle back (rhomboids)": 0.35,
+   "traps (middle)": 0.3,
+   "teres major": 0.25,
+   "obliques": 0.25,
+   "traps (lower)": 0.2,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist extensors)": 0.2,
+   "abs (upper)": 0.2,
+   "adductors (magnus)": 0.3,
+   "calves (gastrocnemius)": 0.15,
+   "abs (lower)": 0.15,
+   "calves (soleus)": 0.1
+  },
+  "why": "Trap bar: glutes near quads; erectors lower than conventional"
+ },
+ "Tricep_Side_Stretch": {
+  "muscles": {
+   "triceps (long head)": 1.0,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "shoulders (rear delt)": 0.3,
+   "lats": 0.25
+  },
+  "why": "Overhead triceps stretch mainly lengthens the long head"
+ },
+ "Triceps_Stretch": {
+  "muscles": {
+   "triceps (long head)": 1.0,
+   "triceps (lateral head)": 0.5,
+   "triceps (medial head)": 0.5,
+   "lats": 0.3,
+   "teres major": 0.2
+  },
+  "why": "Overhead triceps stretch mainly lengthens the long head"
+ },
+ "Two-Arm_Kettlebell_Clean": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.8,
+   "hamstrings (semitendinosus & semimembranosus)": 0.7,
+   "lower back (erector spinae)": 0.6,
+   "quadriceps (vastus lateralis)": 0.45,
+   "quadriceps (vastus medialis)": 0.4,
+   "quadriceps (rectus femoris)": 0.25,
+   "traps (upper)": 0.55,
+   "shoulders (front delt)": 0.4,
+   "shoulders (side delt)": 0.25,
+   "shoulders (rear delt)": 0.25,
+   "traps (middle)": 0.3,
+   "forearms (finger flexors)": 0.45,
+   "brachialis": 0.25,
+   "biceps (long head)": 0.2,
+   "biceps (short head)": 0.2,
+   "abs (upper)": 0.25,
+   "abs (lower)": 0.2,
+   "calves (gastrocnemius)": 0.2,
+   "calves (soleus)": 0.15
+  },
+  "why": "KB clean is driven by the hip hinge; shoulders only guide the bell"
+ },
+ "Two-Arm_Kettlebell_Jerk": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "shoulders (side delt)": 0.7,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "triceps (long head)": 0.45,
+   "traps (upper)": 0.35,
+   "serratus (serratus anterior)": 0.35,
+   "quadriceps (vastus lateralis)": 0.6,
+   "quadriceps (vastus medialis)": 0.55,
+   "quadriceps (rectus femoris)": 0.35,
+   "glutes (maximus)": 0.45,
+   "calves (gastrocnemius)": 0.35,
+   "calves (soleus)": 0.2,
+   "rotator cuff (supraspinatus)": 0.25,
+   "rotator cuff (infraspinatus)": 0.25,
+   "shoulders (rear delt)": 0.2,
+   "traps (lower)": 0.2,
+   "chest (upper)": 0.2,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15,
+   "obliques": 0.1
+  },
+  "why": "Jerk dip-and-drive loads legs much more than a press"
+ },
+ "Upright_Barbell_Row": {
+  "muscles": {
+   "shoulders (side delt)": 1.0,
+   "traps (upper)": 0.85,
+   "shoulders (front delt)": 0.5,
+   "traps (middle)": 0.4,
+   "rotator cuff (supraspinatus)": 0.35,
+   "shoulders (rear delt)": 0.35,
+   "brachialis": 0.4,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "forearms (brachioradialis)": 0.35,
+   "serratus (serratus anterior)": 0.25,
+   "forearms (finger flexors)": 0.3,
+   "forearms (wrist flexors)": 0.2
+  },
+  "why": "Upright row is side delt/upper trap work, not a horizontal row"
+ },
+ "Upright_Cable_Row": {
+  "muscles": {
+   "shoulders (side delt)": 1.0,
+   "traps (upper)": 0.85,
+   "shoulders (front delt)": 0.5,
+   "traps (middle)": 0.4,
+   "rotator cuff (supraspinatus)": 0.35,
+   "shoulders (rear delt)": 0.35,
+   "brachialis": 0.4,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "forearms (brachioradialis)": 0.35,
+   "serratus (serratus anterior)": 0.25,
+   "forearms (finger flexors)": 0.3,
+   "forearms (wrist flexors)": 0.2
+  },
+  "why": "Upright row is side delt/upper trap work, not a horizontal row"
+ },
+ "Upright_Row_-_With_Bands": {
+  "muscles": {
+   "shoulders (side delt)": 1.0,
+   "traps (upper)": 0.85,
+   "shoulders (front delt)": 0.5,
+   "traps (middle)": 0.4,
+   "rotator cuff (supraspinatus)": 0.35,
+   "shoulders (rear delt)": 0.35,
+   "brachialis": 0.4,
+   "biceps (long head)": 0.35,
+   "biceps (short head)": 0.35,
+   "forearms (brachioradialis)": 0.35,
+   "serratus (serratus anterior)": 0.25,
+   "forearms (finger flexors)": 0.3,
+   "forearms (wrist flexors)": 0.2
+  },
+  "why": "Upright row is side delt/upper trap work; side delt was only 0.3"
+ },
+ "Vertical_Swing": {
+  "muscles": {
+   "glutes (maximus)": 1.0,
+   "hamstrings (biceps femoris)": 0.85,
+   "hamstrings (semitendinosus & semimembranosus)": 0.8,
+   "lower back (erector spinae)": 0.6,
+   "quadriceps (vastus lateralis)": 0.3,
+   "quadriceps (vastus medialis)": 0.25,
+   "quadriceps (rectus femoris)": 0.2,
+   "forearms (finger flexors)": 0.35,
+   "shoulders (front delt)": 0.25,
+   "shoulders (side delt)": 0.1,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15
+  },
+  "why": "Swing is a hip snap: glutes do the most work, not 0.3"
+ },
+ "Weighted_Jump_Squat": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "quadriceps (rectus femoris)": 0.55,
+   "glutes (maximus)": 0.7,
+   "adductors (magnus)": 0.45,
+   "lower back (erector spinae)": 0.35,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "adductors (longus & brevis)": 0.2,
+   "obliques": 0.2,
+   "calves (gastrocnemius)": 0.45,
+   "calves (soleus)": 0.3,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15
+  },
+  "why": "Jumping adds major calf and glute contribution"
+ },
+ "Weighted_Pull_Ups": {
+  "muscles": {
+   "lats": 1.0,
+   "teres major": 0.7,
+   "brachialis": 0.5,
+   "biceps (long head)": 0.45,
+   "biceps (short head)": 0.45,
+   "middle back (rhomboids)": 0.45,
+   "traps (middle)": 0.4,
+   "traps (lower)": 0.4,
+   "forearms (finger flexors)": 0.45,
+   "forearms (wrist flexors)": 0.3,
+   "shoulders (rear delt)": 0.25,
+   "forearms (brachioradialis)": 0.2,
+   "forearms (wrist extensors)": 0.15,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15
+  },
+  "why": "Elbow flexors, mid-back and grip underweighted vs a pull-up"
+ },
+ "Weighted_Sissy_Squat": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 1.0,
+   "quadriceps (rectus femoris)": 0.9,
+   "glutes (maximus)": 0.15,
+   "abs (upper)": 0.3,
+   "abs (lower)": 0.25,
+   "hip flexors (iliopsoas)": 0.2,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1
+  },
+  "why": "Sissy squat isolates the quads; glutes/adductors/erectors barely work"
+ },
+ "Wide_Stance_Barbell_Squat": {
+  "muscles": {
+   "quadriceps (vastus lateralis)": 1.0,
+   "quadriceps (vastus medialis)": 0.95,
+   "quadriceps (rectus femoris)": 0.55,
+   "glutes (maximus)": 0.7,
+   "adductors (magnus)": 0.6,
+   "adductors (longus & brevis)": 0.35,
+   "lower back (erector spinae)": 0.35,
+   "hamstrings (biceps femoris)": 0.25,
+   "hamstrings (semitendinosus & semimembranosus)": 0.25,
+   "obliques": 0.2,
+   "calves (gastrocnemius)": 0.1,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15
+  },
+  "why": "Wide stance raises glute and adductor demand"
+ },
+ "Worlds_Greatest_Stretch": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "hip flexors (iliopsoas)": 0.85,
+   "quadriceps (rectus femoris)": 0.4,
+   "glutes (maximus)": 0.4,
+   "adductors (longus & brevis)": 0.3,
+   "obliques": 0.3,
+   "middle back (rhomboids)": 0.25,
+   "calves (gastrocnemius)": 0.15,
+   "calves (soleus)": 0.1
+  },
+  "why": "Lunge position stretches hip flexors strongly; vasti are not stretched"
+ },
+ "Wrist_Rotations_with_Straight_Bar": {
+  "muscles": {
+   "forearms (brachioradialis)": 1.0,
+   "forearms (wrist flexors)": 0.7,
+   "forearms (wrist extensors)": 0.7,
+   "forearms (finger flexors)": 0.4,
+   "biceps (short head)": 0.2,
+   "biceps (long head)": 0.15
+  },
+  "why": "No main mover was set; brachioradialis leads pronation/supination"
+ },
+ "x_Sleeper_Stretch": {
+  "muscles": {
+   "rotator cuff (infraspinatus)": 1.0,
+   "rotator cuff (teres minor)": 0.9,
+   "shoulders (rear delt)": 0.5,
+   "rotator cuff (supraspinatus)": 0.3
+  },
+  "why": "Sleeper stretch lengthens posterior cuff; subscapularis is shortened"
+ },
+ "x_Cross_Body_Shoulder_Stretch": {
+  "muscles": {
+   "shoulders (rear delt)": 1.0,
+   "rotator cuff (infraspinatus)": 0.7,
+   "rotator cuff (teres minor)": 0.6,
+   "middle back (rhomboids)": 0.4,
+   "traps (middle)": 0.35,
+   "rotator cuff (supraspinatus)": 0.2
+  },
+  "why": "Cross-body stretch mainly lengthens rear delt and posterior cuff"
+ },
+ "x_Bottoms_Up_Kettlebell_Hold": {
+  "muscles": {
+   "rotator cuff (supraspinatus)": 1.0,
+   "rotator cuff (infraspinatus)": 1.0,
+   "rotator cuff (teres minor)": 0.8,
+   "rotator cuff (subscapularis)": 0.8,
+   "forearms (finger flexors)": 0.75,
+   "forearms (wrist flexors)": 0.4,
+   "shoulders (front delt)": 0.3,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "forearms (brachioradialis)": 0.15,
+   "forearms (wrist extensors)": 0.15
+  },
+  "why": "Cuff stability drill; grip is secondary, not co-primary"
+ },
+ "x_Push_Up_Plus": {
+  "muscles": {
+   "serratus (serratus anterior)": 1.0,
+   "chest (middle)": 0.6,
+   "chest (upper)": 0.5,
+   "chest (lower)": 0.5,
+   "triceps (lateral head)": 0.45,
+   "triceps (medial head)": 0.45,
+   "triceps (long head)": 0.25,
+   "shoulders (front delt)": 0.45,
+   "abs (upper)": 0.35,
+   "abs (lower)": 0.3,
+   "obliques": 0.25,
+   "shoulders (side delt)": 0.1
+  },
+  "why": "Includes a full push-up, so chest/triceps were underweighted"
+ },
+ "x_Scapular_Push_Up": {
+  "muscles": {
+   "serratus (serratus anterior)": 1.0,
+   "chest (middle)": 0.2,
+   "chest (upper)": 0.15,
+   "chest (lower)": 0.15,
+   "shoulders (front delt)": 0.25,
+   "triceps (lateral head)": 0.15,
+   "triceps (medial head)": 0.15,
+   "abs (upper)": 0.35,
+   "abs (lower)": 0.3,
+   "obliques": 0.25,
+   "traps (lower)": 0.2
+  },
+  "why": "Arms stay straight: only scapular protraction, little chest/triceps"
+ },
+ "x_Landmine_Press": {
+  "muscles": {
+   "shoulders (front delt)": 1.0,
+   "serratus (serratus anterior)": 0.7,
+   "shoulders (side delt)": 0.5,
+   "chest (upper)": 0.45,
+   "chest (middle)": 0.2,
+   "triceps (lateral head)": 0.55,
+   "triceps (medial head)": 0.55,
+   "triceps (long head)": 0.3,
+   "traps (upper)": 0.35,
+   "rotator cuff (subscapularis)": 0.25,
+   "shoulders (rear delt)": 0.15,
+   "traps (lower)": 0.2,
+   "rotator cuff (supraspinatus)": 0.15,
+   "obliques": 0.25,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.1,
+   "rotator cuff (infraspinatus)": 0.1
+  },
+  "why": "Angled press: front delt leads; serratus high but secondary; upper chest assists"
+ },
+ "x_Side_Lying_Hip_Abduction": {
+  "muscles": {
+   "abductors (glute medius)": 1.0,
+   "glutes (maximus)": 0.5,
+   "abductors (TFL)": 0.5,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15
+  },
+  "why": "EMG: glute medius ~2x glute max in side-lying abduction"
+ },
+ "x_Lateral_Band_Walk": {
+  "muscles": {
+   "abductors (glute medius)": 1.0,
+   "glutes (maximus)": 0.5,
+   "abductors (TFL)": 0.5,
+   "quadriceps (vastus lateralis)": 0.3,
+   "quadriceps (vastus medialis)": 0.25,
+   "quadriceps (rectus femoris)": 0.2
+  },
+  "why": "EMG: glute medius clearly exceeds glute max in band walks"
+ },
+ "x_Bird_Dog": {
+  "muscles": {
+   "lower back (erector spinae)": 1.0,
+   "glutes (maximus)": 0.6,
+   "obliques": 0.4,
+   "abs (upper)": 0.3,
+   "abs (lower)": 0.25,
+   "hamstrings (biceps femoris)": 0.35,
+   "hamstrings (semitendinosus & semimembranosus)": 0.3,
+   "shoulders (front delt)": 0.35,
+   "shoulders (side delt)": 0.2,
+   "shoulders (rear delt)": 0.15,
+   "traps (lower)": 0.2
+  },
+  "why": "EMG: erectors and glutes dominate; rectus abdominis low"
+ },
+ "x_Straight_Leg_Raise": {
+  "muscles": {
+   "quadriceps (rectus femoris)": 1.0,
+   "hip flexors (iliopsoas)": 0.8,
+   "quadriceps (vastus lateralis)": 0.4,
+   "quadriceps (vastus medialis)": 0.45,
+   "adductors (longus & brevis)": 0.3,
+   "adductors (magnus)": 0.2,
+   "abs (lower)": 0.2,
+   "abs (upper)": 0.15,
+   "obliques": 0.1
+  },
+  "why": "Locked knee keeps the vasti working isometrically"
+ },
+ "x_Heel_Slide": {
+  "muscles": {
+   "hamstrings (biceps femoris)": 1.0,
+   "hamstrings (semitendinosus & semimembranosus)": 1.0,
+   "quadriceps (vastus lateralis)": 0.35,
+   "quadriceps (vastus medialis)": 0.3,
+   "quadriceps (rectus femoris)": 0.35,
+   "hip flexors (iliopsoas)": 0.3,
+   "abs (upper)": 0.15,
+   "abs (lower)": 0.15
+  },
+  "why": "Heel slide is active knee flexion; quads only assist the return"
+ },
+ "x_Single_Leg_Balance": {
+  "muscles": {
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.8,
+   "abductors (glute medius)": 0.7,
+   "glutes (maximus)": 0.3,
+   "abductors (TFL)": 0.3,
+   "shins (tibialis anterior)": 0.45,
+   "abs (upper)": 0.2,
+   "abs (lower)": 0.2,
+   "obliques": 0.15
+  },
+  "why": "Single-leg balance demands glute medius and tibialis stabilization"
+ },
+ "x_Ankle_Pumps": {
+  "muscles": {
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.8,
+   "shins (tibialis anterior)": 0.8
+  },
+  "why": "Pumps alternate plantar and dorsiflexion; tibialis works each rep"
+ },
+ "x_Ankle_Alphabet": {
+  "muscles": {
+   "calves (gastrocnemius)": 1.0,
+   "calves (soleus)": 0.8,
+   "shins (tibialis anterior)": 0.8
+  },
+  "why": "Tracing letters requires active dorsiflexion by tibialis"
+ },
+ "x_Wrist_Extensor_Stretch": {
+  "muscles": {
+   "forearms (wrist extensors)": 1.0,
+   "forearms (brachioradialis)": 0.5
+  },
+  "why": "Extensor stretch lengthens wrist extensors, not flexors"
+ }
+}
