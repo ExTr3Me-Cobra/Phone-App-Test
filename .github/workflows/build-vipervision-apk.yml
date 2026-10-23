@@ -44,7 +44,11 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # Save the build cache from this branch too (by default only the main branch saves it),
+      # so later builds don't recompile everything.
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       # Every build must be signed with the same key, or Android refuses to install it as an
       # update ("App not installed"). The key is made once and kept in the build cache.
@@ -79,8 +83,9 @@ jobs:
             $APKSIGNER sign --ks ../signing/vipervision.keystore --ks-key-alias vipervision \
               --ks-pass pass:android --key-pass pass:android --out "../$2" "$1"
           }
-          sign "$(ls $OUT/*universal*.apk)" ViperVision.apk
-          sign "$(ls $OUT/*arm64-v8a*.apk)" ViperVision-arm64.apk
+          # The universal APK only exists when more than one ABI is built.
+          UNIVERSAL=$(ls $OUT/*universal*.apk 2>/dev/null || true)
+          sign "${UNIVERSAL:-$(ls $OUT/*arm64-v8a*.apk)}" ViperVision.apk
           ls -la ../ViperVision*.apk
 
       - uses: actions/upload-artifact@v4
@@ -96,12 +101,8 @@ jobs:
           name: Viper Vision (build ${{ github.run_number }})
           body: |
             On your phone, tap **ViperVision.apk** below to download it, then open it to install.
-            **ViperVision-arm64.apk** is a smaller download that works on almost every modern phone
-            (including Samsung Galaxy); use **ViperVision.apk** if that one won't install.
 
             Fossify Gallery (GPL-3.0) for browsing photos, with Image Toolbox (Apache-2.0) as the
             editor.
-          files: |
-            ViperVision.apk
-            ViperVision-arm64.apk
+          files: ViperVision.apk
           make_latest: false

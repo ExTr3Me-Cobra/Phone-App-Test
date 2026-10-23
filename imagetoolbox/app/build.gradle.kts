@@ -33,7 +33,9 @@ plugins {
 }
 
 android {
-    val supportedAbi = arrayOf("armeabi-v7a", "arm64-v8a", "x86_64")
+    // Viper Vision: which processor types to build for (ABIS in vipervision.properties). Each one
+    // adds a slow compression step to release builds, so only arm64 is built by default.
+    val supportedAbi = vipervision["ABIS"].toString().split(",").map(String::trim).toTypedArray()
 
     namespace = "com.t8rin.imagetoolbox"
 
@@ -117,7 +119,7 @@ android {
             reset()
             //noinspection ChromeOsAbiSupport
             include(*supportedAbi)
-            isUniversalApk = true
+            isUniversalApk = supportedAbi.size > 1
         }
     }
 
