@@ -2,6 +2,9 @@ name: Build APK
 
 on:
   push:
+    paths-ignore:
+      - 'gallery/**'
+      - '.github/workflows/build-gallery-apk.yml'
   workflow_dispatch:
 
 permissions:

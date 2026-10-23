@@ -55,3 +55,13 @@ once, then install the new one and redo the setup.)
 
 GitHub Actions (`.github/workflows/build-apk.yml`) builds the APK on every push and attaches it to
 a new release. The code is in `app/src/main/java/com/vibrateonly/app/`.
+
+---
+
+# Gallery (photo app, based on Fossify Gallery)
+
+The `gallery/` folder holds a photo storing/viewing/editing app, imported from the open-source
+[Fossify Gallery](https://github.com/FossifyOrg/Gallery) (GPL-3.0, upstream commit `a089289`,
+version 1.14.0). GitHub Actions (`.github/workflows/build-gallery-apk.yml`) builds it whenever
+something in `gallery/` changes and posts **Gallery.apk** on the Releases page as
+"Gallery (build N)".
