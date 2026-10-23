@@ -26,6 +26,12 @@ val vipervision = Properties().apply {
     rootDir.resolve("../vipervision/vipervision.properties").inputStream().use(::load)
 }
 
+// On GitHub, each build gets the workflow's run number, so every release has a higher version
+// and shows which build it is (e.g. "1.0.0 build 12"). Local builds use the properties file.
+val buildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()
+val vipervisionVersionCode = buildNumber ?: vipervision["VERSION_CODE"].toString().toInt()
+val vipervisionVersionName = vipervision["VERSION_NAME"].toString() + (buildNumber?.let { " build $it" } ?: "")
+
 plugins {
     alias(libs.plugins.image.toolbox.application)
     alias(libs.plugins.image.toolbox.hilt)
@@ -47,8 +53,8 @@ android {
         // Gallery needs Android 8.0 (API 26) or newer.
         minSdk = 26
 
-        versionCode = vipervision["VERSION_CODE"].toString().toInt()
-        versionName = vipervision["VERSION_NAME"].toString()
+        versionCode = vipervisionVersionCode
+        versionName = vipervisionVersionName
 
         ndk {
             abiFilters.clear()
@@ -66,7 +72,7 @@ android {
     productFlavors {
         create("foss") {
             dimension = "app"
-            versionNameSuffix = "-foss"
+            // Viper Vision: no "-foss" on the version shown to the user.
             extra.set("gmsEnabled", false)
         }
         create("market") {
@@ -159,7 +165,7 @@ android {
 }
 
 base {
-    archivesName = "vipervision-${android.defaultConfig.versionName}"
+    archivesName = "vipervision-${vipervisionVersionCode}"
 }
 
 aboutLibraries {

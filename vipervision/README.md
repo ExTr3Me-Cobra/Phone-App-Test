@@ -65,6 +65,9 @@ icon, kept in case it's useful.
 
 ## Changing the name, ID or version
 
+Builds on GitHub use the workflow run number as the version (shown as "1.0.0 build N" in
+Android's app info and the About screen), so you can always tell which build is installed.
+
 Edit `vipervision/vipervision.properties`. Changing `APP_ID` after you've installed the app makes
 Android treat it as a different app (you'd have both).
 

@@ -24,8 +24,11 @@ android {
         // Gallery uses these for its file sharing provider and About screen. They must match the
         // real installed app, not Fossify's.
         buildConfigField("String", "APPLICATION_ID", "\"${vipervision["APP_ID"]}\"")
-        buildConfigField("String", "VERSION_NAME", "\"${vipervision["VERSION_NAME"]}\"")
-        buildConfigField("int", "VERSION_CODE", "${vipervision["VERSION_CODE"]}")
+        // Same version as the app (see imagetoolbox/app/build.gradle.kts).
+        val buildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()
+        val versionName = vipervision["VERSION_NAME"].toString() + (buildNumber?.let { " build $it" } ?: "")
+        buildConfigField("String", "VERSION_NAME", "\"$versionName\"")
+        buildConfigField("int", "VERSION_CODE", "${buildNumber ?: vipervision["VERSION_CODE"]}")
     }
 
     buildTypes {
