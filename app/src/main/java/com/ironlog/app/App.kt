@@ -111,6 +111,7 @@ sealed interface Route {
     data object Share : Route
     data class OneRmTest(val id: String) : Route
     data object Research : Route
+    data object Reference : Route
 }
 
 object Nav {
@@ -142,6 +143,8 @@ object Nav {
 }
 
 class MainActivity : ComponentActivity() {
+    override fun onStart() { super.onStart(); AppLock.onStart() }
+    override fun onStop() { super.onStop(); AppLock.onStop() }
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra("openWorkout", false) && Store.active.value != null && Nav.top != Route.Active) Nav.go(Route.Active)
@@ -228,6 +231,7 @@ private fun Root() {
     RankUpOverlay()
     AppTextPill()
     WipedScreen()
+    LockScreen()
 }
 
 @Composable
@@ -269,6 +273,7 @@ private fun RouteScreen(route: Route) {
         Route.Share -> ShareScreen()
         is Route.OneRmTest -> OneRmTestScreen(route.id)
         Route.Research -> ResearchScreen()
+        Route.Reference -> ReferenceScreen()
     }
     }
 }
@@ -365,7 +370,8 @@ private fun RowScope.TabItem(label: String, icon: String, selected: Boolean, onC
 
 /** Top bar like the reference screens: back arrow, centred title, optional action. */
 @Composable
-fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: () -> Unit = { Nav.back() }, lead: String? = null, onLead: () -> Unit = {}, onAction: () -> Unit = {}) {
+fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: () -> Unit = { Nav.back() }, lead: String? = null, onLead: () -> Unit = {},
+           extra: (@Composable () -> Unit)? = null, onAction: () -> Unit = {}) {
     Box(Modifier.fillMaxWidth().background(Card).statusBarsPadding().height(56.dp)) {
         if (back) Text(
             "←", fontSize = 26.sp, modifier = Modifier.align(Alignment.CenterStart).clickable(onClick = onBack).padding(horizontal = 16.dp),
@@ -374,7 +380,8 @@ fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: 
             modifier = Modifier.align(Alignment.CenterStart).clickable(onClick = onLead).padding(horizontal = 18.dp, vertical = 8.dp),
         )
         // Long titles shrink to two lines and never run under the back arrow or the action.
-        val side = maxOf(56, if (action != null) action.length * 10 + 36 else 0)
+        val actionW = if (action != null) action.length * 10 + 36 else 0
+        val side = maxOf(56, actionW) + if (extra != null) 40 else 0
         val long = title.length > 24
         Text(
             title, fontSize = if (long) 15.sp else 19.sp, lineHeight = if (long) 18.sp else 24.sp, fontWeight = FontWeight.Medium,
@@ -386,6 +393,8 @@ fun TopBar(title: String, back: Boolean = true, action: String? = null, onBack: 
             action, color = Blue, fontSize = 17.sp, fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterEnd).clickable(onClick = onAction).padding(horizontal = 16.dp),
         )
+        // A small icon button left of the action (e.g. Reference Mode).
+        if (extra != null) Box(Modifier.align(Alignment.CenterEnd).padding(end = maxOf(8, actionW - 8).dp)) { extra() }
     }
 }
 

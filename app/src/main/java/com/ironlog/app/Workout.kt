@@ -142,6 +142,7 @@ fun ActiveWorkoutScreen() {
         Row(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("⌄", fontSize = 28.sp, modifier = Modifier.clickable { Nav.back() }.padding(horizontal = 8.dp))
             Text(Units.clock(now - w.start), color = Blue, fontSize = 24.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+            ReferenceButton()
             Text("⏱", fontSize = 26.sp, modifier = Modifier.clickable { manualRest = true }.padding(horizontal = 10.dp))
             Text("Discard", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp,
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Red).clickable { confirmDiscard = true }

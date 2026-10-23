@@ -164,6 +164,25 @@ fun SettingsScreen() {
             BodyFatDropdown(p) { set(Store.profile.value.copy(bodyFat = it)) }
 
             Spacer(10)
+            Spacer(6)
+            ReferencePanel()
+            Spacer(6)
+            // App lock: the phone's fingerprint, face or passcode to open Loadout (off by default).
+            var lockMsg by remember { mutableStateOf<String?>(null) }
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("App lock", fontWeight = FontWeight.Bold)
+                    Text("Ask for your fingerprint, face or phone passcode when you open Loadout, to keep your data private.", color = Sub, fontSize = 13.sp)
+                }
+                androidx.compose.material3.Switch(p.appLock, { on ->
+                    val a = context as? android.app.Activity
+                    if (a == null) lockMsg = "Couldn't change the app lock."
+                    else if (on) AppLock.enable(a) { lockMsg = it }
+                    else AppLock.prompt(a, "Turn off app lock", { Store.setProfile(Store.profile.value.copy(appLock = false)); lockMsg = null }, { lockMsg = it })
+                })
+            }
+            lockMsg?.let { Text(it, color = Red, fontSize = 13.sp) }
+            Spacer(10)
             Text("Units", fontWeight = FontWeight.Bold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(!p.kg, { set(p.copy(kg = false)) }, { Text("Pounds (lbs) · miles") })

@@ -396,7 +396,7 @@ fun OneRmTestScreen(id: String) {
     val ticks = remember { androidx.compose.runtime.mutableStateListOf<TickFx>() }
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().fxShake(fx)) {
-        TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }) { finishTest(context, id)?.let { error = it } }
+        TopBar("1RM: ${e.name}", action = "Finish", onBack = { leave() }, extra = { ReferenceButton() }) { finishTest(context, id)?.let { error = it } }
         Column(Modifier.fillMaxSize().navigationBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(Modifier.quakeRattle(rattle, 0), verticalAlignment = Alignment.CenterVertically) {
                 // The picture or name opens the exercise's own page (the test carries on when you come back).
