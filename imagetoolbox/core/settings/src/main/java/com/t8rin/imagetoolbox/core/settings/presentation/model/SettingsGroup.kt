@@ -333,7 +333,7 @@ sealed class SettingsGroup(
             Setting.HelpTranslate,
             Setting.IssueTracker,
             Setting.FreeSoftwarePartner.takeIf { !Flavor.isFoss() && Locale.getDefault().language == "ru" },
-            Setting.TelegramGroup,
+            // Viper Vision: no Image Toolbox Telegram group link.
             Setting.TelegramChannel,
             Setting.SourceCode,
             Setting.HelpTips,
@@ -452,7 +452,7 @@ sealed class SettingsGroup(
     companion object {
         val entries: List<SettingsGroup> by lazy {
             listOfNotNull(
-                ContactMe,
+                // Viper Vision: no "Contact me" section (it's Image Toolbox's author's contacts).
                 PrimaryCustomization,
                 SecondaryCustomization,
                 NightMode,

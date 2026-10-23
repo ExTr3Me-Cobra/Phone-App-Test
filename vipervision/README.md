@@ -111,6 +111,9 @@ upstream, these are the things to carry over.
   Filter and Gradient Maker use them. Their quick-settings tiles are gone, the random filename
   helper moved from Cipher into `core/data`, and `instrumentation-tests` is left out of the
   build. To bring a tool back, restore its module folder from git history and undo these.
+* No Image Toolbox promotion: the "Contact me" settings section, the Telegram group link, and the
+  Telegram, donate, translate (Weblate) and GitHub review pop-ups are removed
+  (`SettingsGroup.kt`, `RootDialogs.kt`).
 * Update checker off: it looks at Image Toolbox's own GitHub releases, which aren't Viper Vision
   updates. The first-launch "Updates" dialog is never shown (`FirstLaunchSetupDialog.kt`),
   `RootComponent.tryGetUpdate()` returns straight away, and the Updates settings section and its
@@ -130,3 +133,4 @@ upstream, these are the things to carry over.
   permission prompts being skipped.
 * `SharedPreferencesProducerExtensions.kt`: rewritten for newer Kotlin (no context receivers).
 * Strings `error`, `size` renamed to `commons_*` (same reason as above).
+* `extensions/SupportPrompt.kt`: Fossify's automatic donation / rating prompt is off.

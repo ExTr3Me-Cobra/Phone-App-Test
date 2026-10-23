@@ -20,20 +20,15 @@ package com.t8rin.imagetoolbox.feature.root.presentation.components
 import androidx.compose.runtime.Composable
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalEditPresetsController
 import com.t8rin.imagetoolbox.core.ui.utils.helper.Clipboard
-import com.t8rin.imagetoolbox.core.ui.utils.helper.ReviewHandler
 import com.t8rin.imagetoolbox.core.ui.widget.sheets.ProcessImagesPreferenceSheet
 import com.t8rin.imagetoolbox.core.ui.widget.sheets.UpdateSheet
 import com.t8rin.imagetoolbox.feature.root.presentation.components.dialogs.AppExitDialog
 import com.t8rin.imagetoolbox.feature.root.presentation.components.dialogs.EditPresetsSheet
 import com.t8rin.imagetoolbox.feature.root.presentation.components.dialogs.FirstLaunchSetupDialog
-import com.t8rin.imagetoolbox.feature.root.presentation.components.dialogs.GithubReviewDialog
 import com.t8rin.imagetoolbox.feature.root.presentation.components.dialogs.PermissionDialog
-import com.t8rin.imagetoolbox.feature.root.presentation.components.dialogs.TelegramGroupDialog
 import com.t8rin.imagetoolbox.feature.root.presentation.components.utils.HandleLookForUpdates
 import com.t8rin.imagetoolbox.feature.root.presentation.components.utils.SuccessRestoreBackupToastHandler
 import com.t8rin.imagetoolbox.feature.root.presentation.screenLogic.RootComponent
-import com.t8rin.imagetoolbox.feature.settings.presentation.components.additional.DonateDialog
-import com.t8rin.imagetoolbox.feature.settings.presentation.components.additional.WeblateInfoDialog
 
 @Composable
 internal fun RootDialogs(component: RootComponent) {
@@ -71,30 +66,10 @@ internal fun RootDialogs(component: RootComponent) {
         adjustPerformance = component::adjustPerformance
     )
 
-    DonateDialog(
-        onRegisterDonateDialogOpen = component::registerDonateDialogOpen,
-        onNotShowDonateDialogAgain = component::notShowDonateDialogAgain
-    )
-
-    WeblateInfoDialog(
-        onRegisterWeblateInfoDialogOpen = component::registerWeblateInfoDialogOpen,
-        onNotShowWeblateInfoDialogAgain = component::notShowWeblateInfoDialogAgain
-    )
-
     PermissionDialog()
 
-    GithubReviewDialog(
-        visible = component.showGithubReviewDialog,
-        onDismiss = component::hideReviewDialog,
-        onNotShowAgain = ReviewHandler.current::notShowReviewAgain,
-        isNotShowAgainButtonVisible = ReviewHandler.current.showNotShowAgainButton
-    )
-
-    TelegramGroupDialog(
-        visible = component.showTelegramGroupDialog,
-        onDismiss = component::hideTelegramGroupDialog,
-        onRedirected = component::registerTelegramGroupOpen
-    )
+    // Viper Vision: Image Toolbox's donate, translate (Weblate), GitHub review and Telegram
+    // pop-ups are removed; they promote the Image Toolbox project, not this app.
 
     SuccessRestoreBackupToastHandler(component)
 

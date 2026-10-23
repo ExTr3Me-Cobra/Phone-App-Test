@@ -10,6 +10,8 @@ private const val RATING_DELAY_MILLIS = 5L * DAY_MILLIS
 private const val DONATION_DELAY_MILLIS = 10L * DAY_MILLIS
 
 internal fun Activity.showAutomaticSupportPromptIfEligible() {
+    // Viper Vision: no Fossify donation / rating prompts.
+    if (true) return
     if (resources.getBoolean(R.bool.is_paid_app)) {
         return
     }
