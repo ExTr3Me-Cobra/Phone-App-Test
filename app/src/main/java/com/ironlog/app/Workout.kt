@@ -136,14 +136,12 @@ fun ActiveWorkoutScreen() {
     var confirmDiscard by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
-        // Top bar: timer, rest timer button, Finish.
+        // Top bar: timer, reference weights, Discard, Finish (the phone's back button leaves the workout running).
         var bigMap by remember { mutableStateOf(false) }
-        var manualRest by remember { mutableStateOf(false) }
         Row(Modifier.fillMaxWidth().background(Card).statusBarsPadding().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("⌄", fontSize = 28.sp, modifier = Modifier.clickable { Nav.back() }.padding(horizontal = 8.dp))
-            Text(Units.clock(now - w.start), color = Blue, fontSize = 24.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+            Text(Units.clock(now - w.start), color = Blue, fontSize = 24.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f).padding(start = 8.dp))
             ReferenceButton()
-            Text("⏱", fontSize = 26.sp, modifier = Modifier.clickable { manualRest = true }.padding(horizontal = 10.dp))
+            HSpacer(8)
             Text("Discard", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp,
                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Red).clickable { confirmDiscard = true }
                     .padding(horizontal = 14.dp, vertical = 9.dp))
@@ -170,7 +168,6 @@ fun ActiveWorkoutScreen() {
                 modifier = Modifier.align(Alignment.BottomCenter).padding(6.dp))
         }
         androidx.compose.material3.HorizontalDivider(color = Card2)
-        if (manualRest) RestPicker(0, { manualRest = false }) { sec -> manualRest = false; if (sec > 0) Rest.start(context, sec) else Rest.stop(context) }
         // Lots of room at the bottom so the last sets can scroll up above the keyboard.
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 400.dp)) {
             items(w.items.size) { i ->
