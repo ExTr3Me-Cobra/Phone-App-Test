@@ -79,6 +79,10 @@ upstream, these are the things to carry over.
   Application name, icon and theme from Gallery's manifest.
 * `ImageToolboxApplication.kt`: calls `ViperVisionGallery.init(this)`.
 * `gradle.properties`: Jetifier on (Gallery's pattern lock library uses the old support library).
+* Update checker off: it looks at Image Toolbox's own GitHub releases, which aren't Viper Vision
+  updates. The first-launch "Updates" dialog is never shown (`FirstLaunchSetupDialog.kt`),
+  `RootComponent.tryGetUpdate()` returns straight away, and the Updates settings section and its
+  three help tips are removed.
 
 **gallery/**
 * Removed Fossify's editor: `EditActivity` and its filters, crop/draw views, dialogs and layouts.

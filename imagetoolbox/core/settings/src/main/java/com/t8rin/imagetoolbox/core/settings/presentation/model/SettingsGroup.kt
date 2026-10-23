@@ -477,7 +477,7 @@ sealed class SettingsGroup(
                 ImageSource,
                 BackupRestore,
                 Firebase.takeIf { !Flavor.isFoss() },
-                Updates,
+                // Viper Vision: no Updates section (Image Toolbox's update checker is off).
                 AboutApp
             )
         }

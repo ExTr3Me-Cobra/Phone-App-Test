@@ -5194,48 +5194,6 @@ internal class HelpRepositoryImpl @Inject constructor() : HelpRepository {
             )
         ),
         tip(
-            id = "setting-auto-check-updates",
-            title = R.string.check_updates,
-            subtitle = R.string.check_updates_sub,
-            icon = Icons.Outlined.ReleaseAlert,
-            category = customization,
-            deepLink = Screen.Settings(targetSetting = Setting.AutoCheckUpdates),
-            pageTitle = R.string.check_updates,
-            description = R.string.help_tip_setting_auto_check_updates_description,
-            steps = listOf(
-                R.string.help_tip_setting_auto_check_updates_step_1,
-                R.string.help_tip_setting_auto_check_updates_step_2
-            )
-        ),
-        tip(
-            id = "setting-allow-betas",
-            title = R.string.allow_betas,
-            subtitle = R.string.allow_betas_sub,
-            icon = Icons.Rounded.Beta,
-            category = customization,
-            deepLink = Screen.Settings(targetSetting = Setting.AllowBetas),
-            pageTitle = R.string.allow_betas,
-            description = R.string.help_tip_setting_allow_betas_description,
-            steps = listOf(
-                R.string.help_tip_setting_allow_betas_step_1,
-                R.string.help_tip_setting_allow_betas_step_2
-            )
-        ),
-        tip(
-            id = "setting-check-updates-button",
-            title = R.string.check_updates,
-            subtitle = R.string.check_updates_sub,
-            icon = Icons.Outlined.SyncArrowDown,
-            category = customization,
-            deepLink = Screen.Settings(targetSetting = Setting.CheckUpdatesButton),
-            pageTitle = R.string.check_updates,
-            description = R.string.help_tip_setting_check_updates_button_description,
-            steps = listOf(
-                R.string.help_tip_setting_check_updates_button_step_1,
-                R.string.help_tip_setting_check_updates_button_step_2
-            )
-        ),
-        tip(
             id = "setting-current-version-code",
             title = R.string.app_name,
             subtitle = R.string.version,

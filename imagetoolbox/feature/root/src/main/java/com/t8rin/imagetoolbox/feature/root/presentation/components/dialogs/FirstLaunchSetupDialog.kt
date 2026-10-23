@@ -68,7 +68,9 @@ internal fun FirstLaunchSetupDialog(
     }
 
     OneTimeEffect {
-        updateOnFirstOpen = settingsState.isFirstLaunch(false)
+        // Viper Vision: never shown. Its update checker looks at Image Toolbox's own GitHub
+        // releases, which aren't this app's updates (see RootComponent.tryGetUpdate).
+        updateOnFirstOpen = false
         adjustPerformance()
     }
 

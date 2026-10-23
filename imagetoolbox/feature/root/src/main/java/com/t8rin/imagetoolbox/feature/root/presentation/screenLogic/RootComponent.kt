@@ -240,6 +240,9 @@ class RootComponent @AssistedInject internal constructor(
             )
         }
     ) {
+        // Viper Vision: updates come from this app's own Releases page, not Image Toolbox's
+        // GitHub releases, so the update check is switched off.
+        if (true) return
         if (settingsState.appOpenCount < 2 && !isNewRequest) return
         val isInstalledFromMarket = settingsManager.isInstalledFromPlayStore()
 
