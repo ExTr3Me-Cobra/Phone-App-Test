@@ -25,7 +25,7 @@ data class EditState(
                 (curves == null || curves.isDefault())
 }
 
-enum class EditorTab { Ai, Transform, Adjust, Effects }
+enum class EditorTab { Ai, Transform, Adjust, Effects, Decorate }
 
 /** What a painting session is for. */
 enum class PaintPurpose { Heal, Erase, EffectMask }
@@ -129,6 +129,12 @@ class EditorController {
 
     /** Set while "All AI models" is open. */
     var aiStudio by mutableStateOf<AiStudioSession?>(null)
+
+    /** Set while the Draw tool is open. */
+    var draw by mutableStateOf<DrawSession?>(null)
+
+    /** Set while Markup layers (text, pictures, emoji, shapes) is open. */
+    var markup by mutableStateOf<MarkupSession?>(null)
 
     private val undoStack = ArrayDeque<EditState>()
     private val redoStack = ArrayDeque<EditState>()

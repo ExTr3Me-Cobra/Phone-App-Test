@@ -681,7 +681,8 @@ class MarkupLayersComponent @AssistedInject internal constructor(
         }
     }
 
-    private suspend fun renderLayers(
+    // Viper Vision: public so the editor's Markup layers tool can take the result.
+    suspend fun renderLayers(
         fontScale: Float?
     ): Bitmap? = withContext(defaultDispatcher) {
         deactivateAllLayers()

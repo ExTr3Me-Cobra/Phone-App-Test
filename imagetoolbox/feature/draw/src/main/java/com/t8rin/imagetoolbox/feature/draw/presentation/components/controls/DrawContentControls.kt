@@ -74,7 +74,8 @@ import com.t8rin.imagetoolbox.feature.draw.presentation.screenLogic.DrawComponen
 import com.t8rin.imagetoolbox.feature.pick_color.presentation.components.PickColorFromImageSheet
 
 @Composable
-internal fun DrawContentControls(
+// Viper Vision: public (and the save options optional) for the editor's Draw tool.
+fun DrawContentControls(
     component: DrawComponent,
     onDetectFaces: (Boolean) -> Unit,
     isFaceDetectionEnabled: Boolean,
@@ -99,7 +100,8 @@ internal fun DrawContentControls(
     alpha: Float,
     onAlphaChange: (Float) -> Unit,
     showLineAngle: Boolean,
-    onShowLineAngleChange: (Boolean) -> Unit
+    onShowLineAngleChange: (Boolean) -> Unit,
+    showSaveOptions: Boolean = true
 ) {
     var showPickColorSheet by rememberSaveable { mutableStateOf(false) }
 
@@ -314,18 +316,20 @@ internal fun DrawContentControls(
             modifier = Modifier.fillMaxWidth(),
             shape = ShapeDefaults.extraLarge,
         )
-        SaveExifWidget(
-            modifier = Modifier.fillMaxWidth(),
-            checked = component.saveExif,
-            imageFormat = component.imageFormat,
-            onCheckedChange = component::setSaveExif
-        )
-        ImageFormatSelector(
-            modifier = Modifier.navigationBarsPadding(),
-            forceEnabled = component.drawBehavior is DrawBehavior.Background,
-            value = component.imageFormat,
-            onValueChange = component::setImageFormat
-        )
+        if (showSaveOptions) {
+            SaveExifWidget(
+                modifier = Modifier.fillMaxWidth(),
+                checked = component.saveExif,
+                imageFormat = component.imageFormat,
+                onCheckedChange = component::setSaveExif
+            )
+            ImageFormatSelector(
+                modifier = Modifier.navigationBarsPadding(),
+                forceEnabled = component.drawBehavior is DrawBehavior.Background,
+                value = component.imageFormat,
+                onValueChange = component::setImageFormat
+            )
+        }
     }
 
     var colorPickerColor by rememberSaveable(stateSaver = ColorSaver) { mutableStateOf(Color.Black) }

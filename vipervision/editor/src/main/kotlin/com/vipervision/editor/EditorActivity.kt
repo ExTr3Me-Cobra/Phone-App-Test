@@ -20,6 +20,8 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
+import com.t8rin.imagetoolbox.feature.draw.presentation.screenLogic.DrawComponent
+import com.t8rin.imagetoolbox.feature.markup_layers.presentation.screenLogic.MarkupLayersComponent
 import com.t8rin.imagetoolbox.feature.erase_background.presentation.screenLogic.EraseBackgroundComponent
 import com.t8rin.neural_tools.bgremover.MobileSAM
 import com.t8rin.imagetoolbox.core.domain.image.ImageTransformer
@@ -70,6 +72,14 @@ class EditorActivity : ComposeActivity() {
     /** Image Toolbox's Background Remover, driven by the Cut out tool. */
     @Inject
     lateinit var eraseBackgroundFactory: EraseBackgroundComponent.Factory
+
+    /** Image Toolbox's Draw screen logic, driven by the Draw tool. */
+    @Inject
+    lateinit var drawFactory: DrawComponent.Factory
+
+    /** Image Toolbox's Markup Layers screen logic, driven by "Text & layers". */
+    @Inject
+    lateinit var markupFactory: MarkupLayersComponent.Factory
 
     /** Image Toolbox's AI Tools screen logic, driven by "All AI models". */
     @Inject
@@ -164,6 +174,12 @@ class EditorActivity : ComposeActivity() {
                     onRunAiStudio = { scope.runAiStudio(source) },
                     onApplyAiStudio = { scope.applyAiStudio() },
                     onCancelAiStudio = ::closeAiStudio,
+                    onStartDraw = { startDraw(source) },
+                    onApplyDraw = { scope.applyDraw() },
+                    onCancelDraw = ::closeDraw,
+                    onStartMarkup = { startMarkup(source) },
+                    onApplyMarkup = { scope.applyMarkup() },
+                    onCancelMarkup = ::closeMarkup,
                     onApplyPaint = { scope.applyPaint(source) },
                     onSave = { scope.save(source, realPath) },
                     onOpenMoreTools = { scope.openMoreTools(source) },
@@ -393,6 +409,93 @@ class EditorActivity : ComposeActivity() {
         controller.isBusy = false
     }
 
+    private fun startDraw(source: Uri) {
+        if (controller.isBusy || controller.draw != null) return
+        val input = controller.workingFile?.let(Uri::fromFile) ?: source
+        val lifecycle = LifecycleRegistry()
+        val component = drawFactory(
+            componentContext = DefaultComponentContext(lifecycle),
+            initialUri = input,
+            onGoBack = ::closeDraw,
+            onNavigate = {}
+        )
+        lifecycle.resume()
+        controller.draw = DrawSession(
+            component = component,
+            lifecycle = lifecycle,
+            defaultColor = androidx.compose.ui.graphics.Color(settingsState.defaultDrawColor.colorInt),
+            defaultWidth = settingsState.defaultDrawLineWidth
+        )
+    }
+
+    private fun closeDraw() {
+        controller.draw?.close()
+        controller.draw = null
+    }
+
+    private fun CoroutineScope.applyDraw() = launch {
+        val session = controller.draw ?: return@launch
+        if (controller.isBusy) return@launch
+        if (!session.component.havePaths) {
+            closeDraw()
+            return@launch
+        }
+        controller.isBusy = true
+        controller.busyMessage = "Drawing…"
+        runCatching {
+            val output = session.component.getDrawingBitmap() ?: error("nothing was drawn")
+            storeResult(output)
+        }.onSuccess { result ->
+            controller.addPixelStep(controller.state.pixelSteps + PixelStep.Drawing(), result)
+            closeDraw()
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "Couldn't apply the drawing: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
+    private fun startMarkup(source: Uri) {
+        if (controller.isBusy || controller.markup != null) return
+        val input = controller.workingFile?.let(Uri::fromFile) ?: source
+        val lifecycle = LifecycleRegistry()
+        val component = markupFactory(
+            componentContext = DefaultComponentContext(lifecycle),
+            initialUri = input,
+            onGoBack = ::closeMarkup,
+            onNavigate = {}
+        )
+        lifecycle.resume()
+        controller.markup = MarkupSession(component, lifecycle)
+    }
+
+    private fun closeMarkup() {
+        controller.markup?.close()
+        controller.markup = null
+    }
+
+    private fun CoroutineScope.applyMarkup() = launch {
+        val session = controller.markup ?: return@launch
+        if (controller.isBusy) return@launch
+        if (session.component.layers.none { !it.isBackground }) {
+            closeMarkup()
+            return@launch
+        }
+        controller.isBusy = true
+        controller.busyMessage = "Adding layers…"
+        runCatching {
+            val output = session.component.renderLayers(resources.configuration.fontScale) ?: error("nothing to add")
+            storeResult(output)
+        }.onSuccess { result ->
+            controller.addPixelStep(controller.state.pixelSteps + PixelStep.Drawing(), result)
+            closeMarkup()
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "Couldn't add the layers: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
     private fun startAiStudio(source: Uri) {
         if (controller.isBusy || controller.aiStudio != null) return
         val input = controller.workingFile?.let(Uri::fromFile) ?: source
@@ -537,6 +640,8 @@ class EditorActivity : ComposeActivity() {
             File(cacheDir, "vv_ai").deleteRecursively()
             controller.cutOut?.close()
             controller.aiStudio?.close()
+            controller.draw?.close()
+            controller.markup?.close()
         }
     }
 

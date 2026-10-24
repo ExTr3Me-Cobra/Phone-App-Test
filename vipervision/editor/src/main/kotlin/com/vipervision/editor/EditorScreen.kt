@@ -59,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
+import com.t8rin.imagetoolbox.core.resources.icons.Draw
+import com.t8rin.imagetoolbox.core.resources.icons.TextFields
 import com.t8rin.imagetoolbox.core.resources.icons.Neurology
 import com.t8rin.imagetoolbox.core.resources.icons.Curve
 import com.t8rin.imagetoolbox.core.resources.icons.Scissors
@@ -98,6 +100,12 @@ internal fun EditorScreen(
     onRunAiStudio: () -> Unit,
     onApplyAiStudio: () -> Unit,
     onCancelAiStudio: () -> Unit,
+    onStartDraw: () -> Unit,
+    onApplyDraw: () -> Unit,
+    onCancelDraw: () -> Unit,
+    onStartMarkup: () -> Unit,
+    onApplyMarkup: () -> Unit,
+    onCancelMarkup: () -> Unit,
     onApplyPaint: () -> Unit,
     onSave: () -> Unit,
     onOpenMoreTools: () -> Unit,
@@ -136,6 +144,18 @@ internal fun EditorScreen(
     val changed = !controller.state.isUnchanged
 
     BackHandler(enabled = changed) { showDiscardDialog = true }
+
+    controller.markup?.let { session ->
+        MarkupScreen(session = session, onCancel = onCancelMarkup, onApply = onApplyMarkup)
+        if (controller.isBusy) BusyOverlay(controller.busyMessage)
+        return
+    }
+
+    controller.draw?.let { session ->
+        DrawScreen(session = session, onCancel = onCancelDraw, onApply = onApplyDraw)
+        if (controller.isBusy) BusyOverlay(controller.busyMessage)
+        return
+    }
 
     controller.aiStudio?.let { session ->
         AiStudioScreen(
@@ -307,6 +327,7 @@ internal fun EditorScreen(
                     EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut, onStartAiStudio)
                     EditorTab.Transform -> TransformPanel(controller)
                     EditorTab.Effects -> EffectsPanel(controller, toolbox, thumbnail)
+                    EditorTab.Decorate -> DecoratePanel(controller, onStartDraw, onStartMarkup)
                 }
             }
         }
@@ -730,6 +751,9 @@ private fun BottomTabs(controller: EditorController, onOpenMoreTools: () -> Unit
         TabIcon(Icons.Outlined.AutoFixHigh, "Effects", controller.tab == EditorTab.Effects) {
             controller.tab = EditorTab.Effects
         }
+        TabIcon(Icons.Rounded.Draw, "Draw and decorate", controller.tab == EditorTab.Decorate) {
+            controller.tab = EditorTab.Decorate
+        }
         TabIcon(Icons.Outlined.Apps, "More tools", selected = false, onClick = onOpenMoreTools)
     }
 }
@@ -738,6 +762,42 @@ private fun BottomTabs(controller: EditorController, onOpenMoreTools: () -> Unit
 private fun TabIcon(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit) {
     IconButton(onClick = onClick, modifier = Modifier.size(52.dp)) {
         Icon(icon, label, tint = if (selected) Accent else Color.White, modifier = Modifier.size(30.dp))
+    }
+}
+
+/** Draw and decorate: Image Toolbox's Draw tool (and more decorating tools). */
+@Composable
+private fun DecoratePanel(controller: EditorController, onStartDraw: () -> Unit, onStartMarkup: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Text("Draw and decorate", color = Color.White, fontSize = 14.sp)
+        Spacer(Modifier.height(10.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            item {
+                AiBubble(
+                    icon = Icons.Rounded.Draw,
+                    label = "Draw",
+                    download = null,
+                    applied = controller.state.pixelSteps.any { it is PixelStep.Drawing },
+                    selected = false,
+                    enabled = !controller.isBusy,
+                    onClick = onStartDraw
+                )
+            }
+            item {
+                AiBubble(
+                    icon = Icons.Rounded.TextFields,
+                    label = "Text & layers",
+                    download = null,
+                    applied = false,
+                    selected = false,
+                    enabled = !controller.isBusy,
+                    onClick = onStartMarkup
+                )
+            }
+        }
     }
 }
 

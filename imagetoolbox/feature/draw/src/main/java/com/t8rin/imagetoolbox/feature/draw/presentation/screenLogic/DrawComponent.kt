@@ -311,7 +311,8 @@ class DrawComponent @AssistedInject internal constructor(
         }
     }
 
-    private suspend fun getDrawingBitmap(): Bitmap? = withContext(defaultDispatcher) {
+    // Viper Vision: public so the editor's Draw tool can take the result.
+    suspend fun getDrawingBitmap(): Bitmap? = withContext(defaultDispatcher) {
         imageDrawApplier.applyDrawToImage(
             drawBehavior = drawBehavior.let {
                 if (it is DrawBehavior.Background) {

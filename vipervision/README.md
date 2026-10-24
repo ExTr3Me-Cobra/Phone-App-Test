@@ -69,6 +69,16 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   effect to open Image Toolbox's settings card for it (every parameter, help, duplicate, remove,
   save as template), hold to reorder, or **Paint area** to apply it only where you paint (or
   everywhere except there). Effects run after the adjustments, in order, and undo like any edit.
+* **Draw and decorate** (pen tab):
+  * **Draw**: Image Toolbox's Draw tool in the editor's layout — pen, highlighter, neon, text,
+    stickers, privacy blur, pixelate, filter brush, spot heal and warp as bubbles; quick colours;
+    size on the side slider; eraser, undo/redo, move/zoom. **Settings** opens Image Toolbox's full
+    Draw options (colour picker and gradients, opacity, softness, every shape and arrow, line
+    styles, line angle, text fonts, sticker picker, filter brush, face detection, grid, magnifier).
+  * **Text & layers**: Image Toolbox's Markup Layers — text, pictures, emoji and shapes as layers
+    you can drag, pinch, twist, snap, restyle (fonts, colours, outlines, shadows, blend modes,
+    opacity), group, lock, reorder and edit until you tick.
+  Both become an undoable step.
 * **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
 
 Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
