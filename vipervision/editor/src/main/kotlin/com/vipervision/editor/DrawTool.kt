@@ -58,7 +58,6 @@ import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Close
 import com.t8rin.imagetoolbox.core.resources.icons.Done
 import com.t8rin.imagetoolbox.core.resources.icons.Eraser
-import com.t8rin.imagetoolbox.core.resources.icons.FrontHand
 import com.t8rin.imagetoolbox.core.resources.icons.Highlighter
 import com.t8rin.imagetoolbox.core.resources.icons.NeonBrush
 import com.t8rin.imagetoolbox.core.resources.icons.Pen
@@ -169,9 +168,6 @@ internal fun DrawScreen(
             }
             IconButton(onClick = { session.isEraserOn = !session.isEraserOn }) {
                 Icon(Icons.Rounded.Eraser, "Eraser", tint = if (session.isEraserOn) Accent else Color.White)
-            }
-            IconButton(onClick = { session.panEnabled = !session.panEnabled }) {
-                Icon(Icons.Rounded.FrontHand, "Move and zoom", tint = if (session.panEnabled) Accent else Color.White)
             }
             IconButton(onClick = {
                 if (component.pendingSpotHealPaths.isNotEmpty()) component.applySpotHeal() else onApply()
