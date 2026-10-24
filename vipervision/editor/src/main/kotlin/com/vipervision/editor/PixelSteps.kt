@@ -23,6 +23,9 @@ sealed interface PixelStep {
     /** The Cut out tool's result (background removed by models, brushes and/or Smart select). */
     data class CutOut(val id: Long = System.nanoTime()) : PixelStep
 
+    /** Advanced crop's result; [alpha] for shaped crops (transparent corners). */
+    data class Crop(val alpha: Boolean, val id: Long = System.nanoTime()) : PixelStep
+
     /** The Draw tool's (or Markup layers') result. */
     data class Drawing(val id: Long = System.nanoTime()) : PixelStep
 

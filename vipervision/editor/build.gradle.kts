@@ -25,6 +25,8 @@ dependencies {
     implementation(projects.feature.eraseBackground)
     implementation(projects.feature.draw)
     implementation(projects.feature.markupLayers)
+    implementation(projects.feature.crop)
+    implementation(projects.lib.cropper)
     // Image Toolbox's tone curves editor (Curves bubble).
     implementation(projects.lib.curves)
     // Image Toolbox's heal engines: OpenCV content-aware fill and the LaMa AI model.

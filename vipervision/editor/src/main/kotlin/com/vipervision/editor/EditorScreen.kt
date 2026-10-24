@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
+import com.t8rin.imagetoolbox.core.resources.icons.Tune
 import com.t8rin.imagetoolbox.core.resources.icons.Draw
 import com.t8rin.imagetoolbox.core.resources.icons.TextFields
 import com.t8rin.imagetoolbox.core.resources.icons.Neurology
@@ -106,8 +107,13 @@ internal fun EditorScreen(
     onStartMarkup: () -> Unit,
     onApplyMarkup: () -> Unit,
     onCancelMarkup: () -> Unit,
+    onStartCropStudio: () -> Unit,
+    onApplyCropStudio: () -> Unit,
+    onCancelCropStudio: () -> Unit,
     onApplyPaint: () -> Unit,
     onSave: () -> Unit,
+    onSaveAs: () -> Unit,
+    onSaveWithOptions: () -> Unit,
     onOpenMoreTools: () -> Unit,
     onClose: () -> Unit
 ) {
@@ -144,6 +150,12 @@ internal fun EditorScreen(
     val changed = !controller.state.isUnchanged
 
     BackHandler(enabled = changed) { showDiscardDialog = true }
+
+    controller.cropStudio?.let { session ->
+        CropStudioScreen(session = session, onCancel = onCancelCropStudio, onApply = onApplyCropStudio)
+        if (controller.isBusy) BusyOverlay(controller.busyMessage)
+        return
+    }
 
     controller.markup?.let { session ->
         MarkupScreen(session = session, onCancel = onCancelMarkup, onApply = onApplyMarkup)
@@ -189,6 +201,7 @@ internal fun EditorScreen(
             controller = controller,
             changed = changed,
             onSave = onSave,
+            onSaveAs = onSaveAs,
             onOpenMoreTools = onOpenMoreTools,
             onDiscard = { if (changed) showDiscardDialog = true else onClose() }
         )
@@ -325,7 +338,7 @@ internal fun EditorScreen(
                         CurvesPanel(controller, remember(base) { base?.scaledToFit(512) })
                     } else AdjustPanel(controller)
                     EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut, onStartAiStudio)
-                    EditorTab.Transform -> TransformPanel(controller)
+                    EditorTab.Transform -> TransformPanel(controller, onStartCropStudio)
                     EditorTab.Effects -> EffectsPanel(controller, toolbox, thumbnail)
                     EditorTab.Decorate -> DecoratePanel(controller, onStartDraw, onStartMarkup)
                 }
@@ -333,6 +346,17 @@ internal fun EditorScreen(
         }
 
         if (controller.paint == null) BottomTabs(controller, onOpenMoreTools)
+    }
+
+    controller.saveAs?.let { request ->
+        SaveOptionsSheet(
+            options = request.options,
+            source = request.source,
+            photoWidth = request.width,
+            photoHeight = request.height,
+            onSave = onSaveWithOptions,
+            onDismiss = { controller.saveAs = null }
+        )
     }
 
     if (showDiscardDialog) {
@@ -355,6 +379,7 @@ private fun TopBar(
     controller: EditorController,
     changed: Boolean,
     onSave: () -> Unit,
+    onSaveAs: () -> Unit,
     onOpenMoreTools: () -> Unit,
     onDiscard: () -> Unit
 ) {
@@ -397,6 +422,10 @@ private fun TopBar(
                     Icon(Icons.Rounded.MoreVert, "More options", tint = Color.White)
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Save as… (format, size, details)") },
+                        onClick = { menuOpen = false; onSaveAs() }
+                    )
                     DropdownMenuItem(
                         text = { Text("More tools (Image Toolbox)") },
                         onClick = { menuOpen = false; onOpenMoreTools() }
@@ -664,7 +693,7 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
 }
 
 @Composable
-private fun TransformPanel(controller: EditorController) {
+private fun TransformPanel(controller: EditorController, onStartCropStudio: () -> Unit) {
     val base = controller.workingPreview
     val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
@@ -691,23 +720,25 @@ private fun TransformPanel(controller: EditorController) {
         }
         Spacer(Modifier.height(16.dp))
         Row(
-            horizontalArrangement = Arrangement.spacedBy(22.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
             ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
             ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }
             ToolBubble(EditorIcons.CropRotate, "Reset crop") { controller.resetCrop() }
+            // Straighten by any angle, perspective crop and crop shapes (Image Toolbox's Crop).
+            ToolBubble(Icons.Rounded.Tune, "Advanced") { onStartCropStudio() }
         }
     }
 }
 
 @Composable
 private fun ToolBubble(icon: ImageVector, label: String, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(68.dp)) {
         Box(
             Modifier
-                .size(64.dp)
+                .size(58.dp)
                 .clip(CircleShape)
                 .background(BubbleGrey)
                 .clickable(onClick = onClick),
@@ -716,7 +747,7 @@ private fun ToolBubble(icon: ImageVector, label: String, onClick: () -> Unit) {
             Icon(icon, label, tint = Color.White, modifier = Modifier.size(28.dp))
         }
         Spacer(Modifier.height(6.dp))
-        Text(label, color = Color.White, fontSize = 13.sp)
+        Text(label, color = Color.White, fontSize = 12.sp, maxLines = 1)
     }
 }
 

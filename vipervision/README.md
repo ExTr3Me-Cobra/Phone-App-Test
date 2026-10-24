@@ -52,6 +52,8 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
 * **Rotate and crop**: a crop frame over the whole photo (drag a corner or edge to resize, drag
   inside to move; a rule-of-thirds grid shows while dragging), shape chips (Free, Original, 1:1,
   4:3, 3:4, 16:9, 9:16), rotate left/right, flip and reset crop. The crop turns with the photo.
+  **Advanced** opens Image Toolbox's Crop tool: straighten by any angle, perspective (free
+  corners) crop, and shaped crops (circle, star, heart, your own image as a mask...).
 * **Adjust**: round "bubbles" for Brightness, Exposure, Contrast, Highlights, Shadows, Saturation,
   Warmth, Tint, Sharpness and Vignette, each from -100 to 100, set with the tick-mark wheel
   (double-tap the wheel to reset). **Auto** fills them in automatically. These use Image
@@ -81,7 +83,10 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   Both become an undoable step.
 * **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
 
-Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
+Undo/redo, Revert and Save are along the top. **⋮ → Save as…** uses Image Toolbox's export
+options: any of its formats (JPEG, PNG and its optimised variants, WebP, AVIF, HEIC, JXL, BMP,
+TIFF, QOI, ICO...) with their quality settings, resizing with its resize types and scaling
+algorithms, and keeping, editing or removing the photo details. Save never changes the original: it saves a new
 photo named `<original>_edited` in the same folder (or `Pictures/Viper Vision` if Android doesn't
 allow that folder), keeping the date, camera details and location. Gallery's **Edit** button opens
 this editor for every image except GIFs, which still go to Image Toolbox.

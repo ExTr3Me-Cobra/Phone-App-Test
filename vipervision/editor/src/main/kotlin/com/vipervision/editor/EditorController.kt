@@ -112,7 +112,8 @@ class EditorController {
     /** Remove background makes transparency, which JPEG can't hold. */
     val needsPng: Boolean
         get() = state.pixelSteps.any {
-            it == PixelStep.Ai(AiTool.RemoveBackground) || it is PixelStep.CutOut || (it is PixelStep.AiModel && it.alpha)
+            it == PixelStep.Ai(AiTool.RemoveBackground) || it is PixelStep.CutOut || (it is PixelStep.AiModel && it.alpha) ||
+                    (it is PixelStep.Crop && it.alpha)
         }
 
     /** Records a finished pixel step (AI tool or heal) and its result. */
@@ -132,6 +133,12 @@ class EditorController {
 
     /** Set while the Draw tool is open. */
     var draw by mutableStateOf<DrawSession?>(null)
+
+    /** Set while "Save as…" is open. */
+    var saveAs by mutableStateOf<SaveAsRequest?>(null)
+
+    /** Set while Advanced crop is open. */
+    var cropStudio by mutableStateOf<CropStudioSession?>(null)
 
     /** Set while Markup layers (text, pictures, emoji, shapes) is open. */
     var markup by mutableStateOf<MarkupSession?>(null)

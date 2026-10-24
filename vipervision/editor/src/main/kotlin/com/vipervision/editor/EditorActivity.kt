@@ -20,10 +20,13 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
+import com.t8rin.cropper.model.OutlineType
+import com.t8rin.imagetoolbox.feature.crop.presentation.screenLogic.CropComponent
 import com.t8rin.imagetoolbox.feature.draw.presentation.screenLogic.DrawComponent
 import com.t8rin.imagetoolbox.feature.markup_layers.presentation.screenLogic.MarkupLayersComponent
 import com.t8rin.imagetoolbox.feature.erase_background.presentation.screenLogic.EraseBackgroundComponent
 import com.t8rin.neural_tools.bgremover.MobileSAM
+import com.t8rin.imagetoolbox.core.domain.image.ImageCompressor
 import com.t8rin.imagetoolbox.core.domain.image.ImageTransformer
 import com.t8rin.imagetoolbox.core.domain.model.ImageModel
 import com.t8rin.imagetoolbox.core.filters.domain.FilterProvider
@@ -80,6 +83,14 @@ class EditorActivity : ComposeActivity() {
     /** Image Toolbox's Markup Layers screen logic, driven by "Text & layers". */
     @Inject
     lateinit var markupFactory: MarkupLayersComponent.Factory
+
+    /** Image Toolbox's image encoder (every format it supports), for "Save as…". */
+    @Inject
+    lateinit var imageCompressor: ImageCompressor<Bitmap>
+
+    /** Image Toolbox's Crop screen logic, driven by Advanced crop. */
+    @Inject
+    lateinit var cropFactory: CropComponent.Factory
 
     /** Image Toolbox's AI Tools screen logic, driven by "All AI models". */
     @Inject
@@ -180,8 +191,17 @@ class EditorActivity : ComposeActivity() {
                     onStartMarkup = { startMarkup(source) },
                     onApplyMarkup = { scope.applyMarkup() },
                     onCancelMarkup = ::closeMarkup,
+                    onStartCropStudio = { startCropStudio(source) },
+                    onApplyCropStudio = { scope.applyCropStudio() },
+                    onCancelCropStudio = ::closeCropStudio,
                     onApplyPaint = { scope.applyPaint(source) },
                     onSave = { scope.save(source, realPath) },
+                    onSaveAs = { openSaveAs(source) },
+                    onSaveWithOptions = {
+                        val options = controller.saveAs?.options
+                        controller.saveAs = null
+                        scope.save(source, realPath, options)
+                    },
                     onOpenMoreTools = { scope.openMoreTools(source) },
                     onClose = ::finish
                 )
@@ -262,7 +282,29 @@ class EditorActivity : ComposeActivity() {
         }
     }
 
-    private fun CoroutineScope.save(source: Uri, realPath: String?) = launch {
+    /** Opens "Save as…", working out the saved photo's size from the edits. */
+    private fun openSaveAs(source: Uri) {
+        val input = controller.workingFile?.let(Uri::fromFile) ?: source
+        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        runCatching { contentResolver.openInputStream(input)?.use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) } }
+        val geometry = controller.state.geometry
+        val upright = if (controller.workingFile != null) bounds.outWidth to bounds.outHeight else {
+            // Photos from the camera are often stored sideways with an EXIF rotation.
+            val preview = controller.basePreview
+            if (preview != null && (preview.width > preview.height) != (bounds.outWidth > bounds.outHeight)) {
+                bounds.outHeight to bounds.outWidth
+            } else bounds.outWidth to bounds.outHeight
+        }
+        val (turnedWidth, turnedHeight) = geometry.turnedSize(upright.first.coerceAtLeast(1), upright.second.coerceAtLeast(1))
+        controller.saveAs = SaveAsRequest(
+            options = SaveOptions(),
+            source = source,
+            width = (turnedWidth * geometry.crop.width).toInt().coerceAtLeast(1),
+            height = (turnedHeight * geometry.crop.height).toInt().coerceAtLeast(1)
+        )
+    }
+
+    private fun CoroutineScope.save(source: Uri, realPath: String?, options: SaveOptions? = null) = launch {
         if (controller.isBusy) return@launch
         controller.isBusy = true
         val state = controller.state
@@ -277,7 +319,10 @@ class EditorActivity : ComposeActivity() {
                     geometry = state.geometry,
                     finish = finishFor(state),
                     renderFrom = renderFrom,
-                    forcePng = forcePng
+                    forcePng = forcePng,
+                    encode = options?.encoder(imageCompressor),
+                    keepMetadata = options?.keepMetadata ?: true,
+                    metadata = options?.metadataTags()
                 )
             }
         }.onSuccess {
@@ -496,6 +541,48 @@ class EditorActivity : ComposeActivity() {
         controller.isBusy = false
     }
 
+    private fun startCropStudio(source: Uri) {
+        if (controller.isBusy || controller.cropStudio != null) return
+        val input = controller.workingFile?.let(Uri::fromFile) ?: source
+        val lifecycle = LifecycleRegistry()
+        val component = cropFactory(
+            componentContext = DefaultComponentContext(lifecycle),
+            initialUri = input,
+            onGoBack = ::closeCropStudio,
+            onNavigate = {}
+        )
+        lifecycle.resume()
+        controller.cropStudio = CropStudioSession(component, lifecycle)
+    }
+
+    private fun closeCropStudio() {
+        controller.cropStudio?.close()
+        controller.cropStudio = null
+    }
+
+    private fun CoroutineScope.applyCropStudio() = launch {
+        val session = controller.cropStudio ?: return@launch
+        val cropped = session.component.currentUri ?: return@launch
+        if (controller.isBusy || !session.component.isBitmapChanged) return@launch
+        controller.isBusy = true
+        controller.busyMessage = "Cropping…"
+        runCatching {
+            val output = withContext(Dispatchers.IO) {
+                decodeImage(this@EditorActivity, cropped, maxSafeSide(this@EditorActivity, cropped))
+            }
+            storeResult(output)
+        }.onSuccess { result ->
+            // Shaped crops leave transparent corners, so keep PNG for them.
+            val shaped = session.component.cropProperties.cropOutlineProperty.outlineType != OutlineType.Rect
+            controller.addPixelStep(controller.state.pixelSteps + PixelStep.Crop(alpha = shaped), result)
+            closeCropStudio()
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "Couldn't crop: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
     private fun startAiStudio(source: Uri) {
         if (controller.isBusy || controller.aiStudio != null) return
         val input = controller.workingFile?.let(Uri::fromFile) ?: source
@@ -642,6 +729,7 @@ class EditorActivity : ComposeActivity() {
             controller.aiStudio?.close()
             controller.draw?.close()
             controller.markup?.close()
+            controller.cropStudio?.close()
         }
     }
 

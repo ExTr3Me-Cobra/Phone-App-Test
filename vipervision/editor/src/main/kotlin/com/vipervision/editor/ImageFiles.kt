@@ -199,9 +199,14 @@ fun sourceInfo(context: Context, uri: Uri, realPath: String?): SourceInfo {
     return SourceInfo(name ?: "photo.jpg", relative, folder?.takeIf { relative != null }, dateTaken)
 }
 
+/** How to write the saved photo: the bytes plus their file extension and MIME type. */
+class EncodedPhoto(val bytes: ByteArray, val extension: String, val mimeType: String)
+
 /**
  * Renders the edits at full size and saves them as a new photo next to the original, named
  * "<original>_edited". The original file is never changed. Returns the new photo's uri.
+ * [encode] turns the rendered photo into a file (JPEG/PNG by default; "Save as…" picks any format,
+ * quality and size); [metadata] then sets the photo details (null keeps the original's).
  */
 suspend fun saveEditedCopy(
     context: Context,
@@ -210,16 +215,30 @@ suspend fun saveEditedCopy(
     geometry: Geometry,
     finish: FinishEdits,
     renderFrom: Uri = source,
-    forcePng: Boolean = false
+    forcePng: Boolean = false,
+    encode: (suspend (Bitmap, Boolean) -> EncodedPhoto)? = null,
+    keepMetadata: Boolean = true,
+    metadata: Map<String, String?>? = null
 ): Uri {
     val rendered = renderFull(context, renderFrom, geometry, finish)
     val info = sourceInfo(context, source, realPath)
     val isPng = forcePng || info.displayName.endsWith(".png", ignoreCase = true)
-    val extension = if (isPng) "png" else "jpg"
-    val mime = if (isPng) "image/png" else "image/jpeg"
+    val encoded = encode?.invoke(rendered, isPng) ?: java.io.ByteArrayOutputStream().let { out ->
+        rendered.compress(if (isPng) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG, 95, out)
+        if (isPng) EncodedPhoto(out.toByteArray(), "png", "image/png") else EncodedPhoto(out.toByteArray(), "jpg", "image/jpeg")
+    }
+    val extension = encoded.extension
+    val mime = encoded.mimeType
     val baseName = info.displayName.substringBeforeLast('.') + "_edited"
-    val format = if (isPng) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
     val resolver = context.contentResolver
+    // Android's ExifInterface can write details into these formats.
+    val canHoldExif = extension.lowercase() in setOf("jpg", "jpeg", "png", "webp")
+
+    fun writeDetails(target: Uri) {
+        if (!canHoldExif) return
+        if (keepMetadata) copyExif(context, source, target)
+        if (metadata != null) setExif(context, target, metadata)
+    }
 
     val uri: Uri
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -229,14 +248,14 @@ suspend fun saveEditedCopy(
             // Android only allows new photos under DCIM/ or Pictures/.
             val folder = info.relativeFolder?.takeIf { it.startsWith("DCIM/") || it.startsWith("Pictures/") }
             put(MediaStore.Images.Media.RELATIVE_PATH, folder ?: "Pictures/Viper Vision/")
-            info.dateTaken?.let { put(MediaStore.Images.Media.DATE_TAKEN, it) }
+            if (keepMetadata) info.dateTaken?.let { put(MediaStore.Images.Media.DATE_TAKEN, it) }
             put(MediaStore.Images.Media.IS_PENDING, 1)
         }
         uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
             ?: error("Couldn't create the new photo")
-        resolver.openOutputStream(uri)?.use { rendered.compress(format, 95, it) }
+        resolver.openOutputStream(uri)?.use { it.write(encoded.bytes) }
             ?: error("Couldn't write the new photo")
-        if (!isPng) copyExif(context, source, uri)
+        writeDetails(uri)
         resolver.update(uri, ContentValues().apply { put(MediaStore.Images.Media.IS_PENDING, 0) }, null, null)
     } else {
         @Suppress("DEPRECATION")
@@ -246,12 +265,31 @@ suspend fun saveEditedCopy(
         var file = File(folder, "$baseName.$extension")
         var n = 1
         while (file.exists()) file = File(folder, "$baseName (${n++}).$extension")
-        file.outputStream().use { rendered.compress(format, 95, it) }
+        file.writeBytes(encoded.bytes)
         uri = Uri.fromFile(file)
-        if (!isPng) copyExif(context, source, uri)
+        writeDetails(uri)
         MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(mime), null)
     }
     return uri
+}
+
+/** Sets (or, for null values, removes) photo details in a saved photo. */
+private fun setExif(context: Context, target: Uri, tags: Map<String, String?>) {
+    runCatching {
+        if (target.scheme == "file") {
+            ExifInterface(target.path!!).apply {
+                tags.forEach { (key, value) -> setAttribute(key, value) }
+                saveAttributes()
+            }
+        } else {
+            context.contentResolver.openFileDescriptor(target, "rw")?.use { fd ->
+                ExifInterface(fd.fileDescriptor).apply {
+                    tags.forEach { (key, value) -> setAttribute(key, value) }
+                    saveAttributes()
+                }
+            }
+        }
+    }
 }
 
 /** Renders the edits at full size into a temporary file, for handing over to Image Toolbox. */
