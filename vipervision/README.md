@@ -67,8 +67,10 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   pass. `Adjustments.kt` notes how each dial maps onto the filter's range. The last bubble,
   **Curves** (after Heal) opens Image Toolbox's tone curve editor (RGB and each channel, with
   the photo's histogram) with preset import/export (.itcurve, Photoshop .acv, and more).
-  **Heal**, removes spots and small blemishes: paint over them and Image Toolbox's OpenCV
-  content-aware fill blends them away. No download, not AI. While painting (Heal or Object
+  **Heal**, removes spots and small blemishes: paint over them and it heals them like a healing
+  brush: it finds a nearby patch whose surroundings match and blends that patch's real texture in
+  (OpenCV seamless clone, `PatchHeal.kt`), so skin grain, fabric and straight edges carry through.
+  No download, not AI. While painting (Heal or Object
   eraser), one finger paints, two fingers pinch to zoom and move around, and the wedge slider on
   the right sets the brush size (a circle shows how big while you drag it).
 * **Draw and decorate** (pen tab):

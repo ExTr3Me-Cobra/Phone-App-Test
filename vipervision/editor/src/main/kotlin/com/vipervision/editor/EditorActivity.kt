@@ -31,8 +31,6 @@ import com.t8rin.imagetoolbox.core.ui.utils.ComposeActivity
 import com.t8rin.imagetoolbox.core.ui.utils.provider.ImageToolboxCompositionLocals
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
 import com.t8rin.neural_tools.inpaint.LaMaProcessor
-import com.t8rin.opencv_tools.spot_heal.SpotHealer
-import com.t8rin.opencv_tools.spot_heal.model.HealType
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import javax.inject.Inject
@@ -347,9 +345,9 @@ class EditorActivity : ComposeActivity() {
     }
 
     /**
-     * Fills in what the user painted over, on the full-size photo: with Image Toolbox's
-     * content-aware fill (Heal, OpenCV) or its LaMa AI model (Object eraser), exactly as its Draw
-     * tool's Heal Spot mode does. The result becomes an undoable step.
+     * Fills in what the user painted over, on the full-size photo: with Viper Vision's patch
+     * healing (Heal, OpenCV; see PatchHealer) or Image Toolbox's LaMa AI model (Object eraser).
+     * The result becomes an undoable step.
      */
     private fun CoroutineScope.applyPaint(source: Uri) = launch {
         val session = controller.paint ?: return@launch
@@ -374,7 +372,7 @@ class EditorActivity : ComposeActivity() {
                 if (session.generative) {
                     LaMaProcessor.inpaint(image = full, mask = mask) ?: error("the AI model couldn't process this photo")
                 } else {
-                    SpotHealer.heal(image = full, mask = mask, radius = 3f, type = HealType.TELEA)
+                    PatchHealer.heal(image = full, mask = mask)
                 }
             }
             controller.busyMessage = "Finishing…"

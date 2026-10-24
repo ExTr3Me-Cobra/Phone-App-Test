@@ -722,7 +722,7 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
         Text(
             when (session.purpose) {
                 PaintPurpose.Erase -> "Object eraser — paint over what to remove"
-                PaintPurpose.Heal -> "Heal — paint over spots or objects"
+                PaintPurpose.Heal -> "Heal — paint over spots and small marks (bigger things: AI Object eraser)"
             },
             color = Color.White,
             fontSize = 14.sp
