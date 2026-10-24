@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.decompose.retainedComponent
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.essenty.lifecycle.resume
 import com.t8rin.cropper.model.OutlineType
@@ -27,11 +26,6 @@ import com.t8rin.imagetoolbox.feature.markup_layers.presentation.screenLogic.Mar
 import com.t8rin.imagetoolbox.feature.erase_background.presentation.screenLogic.EraseBackgroundComponent
 import com.t8rin.neural_tools.bgremover.MobileSAM
 import com.t8rin.imagetoolbox.core.domain.image.ImageCompressor
-import com.t8rin.imagetoolbox.core.domain.image.ImageTransformer
-import com.t8rin.imagetoolbox.core.domain.model.ImageModel
-import com.t8rin.imagetoolbox.core.filters.domain.FilterProvider
-import com.t8rin.imagetoolbox.core.filters.presentation.widget.FilterTemplateCreationSheetComponent
-import com.t8rin.imagetoolbox.core.filters.presentation.widget.addFilters.AddFiltersSheetComponent
 import com.t8rin.imagetoolbox.core.settings.presentation.model.toUiState
 import com.t8rin.imagetoolbox.core.ui.utils.ComposeActivity
 import com.t8rin.imagetoolbox.core.ui.utils.provider.ImageToolboxCompositionLocals
@@ -60,17 +54,9 @@ class EditorActivity : ComposeActivity() {
 
     private val controller = EditorController()
 
-    @Inject
-    lateinit var filterProvider: FilterProvider<Bitmap>
 
-    @Inject
-    lateinit var imageTransformer: ImageTransformer<Bitmap>
 
-    @Inject
-    lateinit var addFiltersFactory: AddFiltersSheetComponent.Factory
 
-    @Inject
-    lateinit var filterTemplatesFactory: FilterTemplateCreationSheetComponent.Factory
 
     /** Image Toolbox's Background Remover, driven by the Cut out tool. */
     @Inject
@@ -99,13 +85,8 @@ class EditorActivity : ComposeActivity() {
     /** Set while asking whether to download MobileSAM for Cut out's Smart select. */
     private var pendingSamDownload by mutableStateOf(false)
 
-    /** Adjustments and effects, shared by the preview and saving. */
-    private val finisher by lazy { EditFinisher(filterProvider, imageTransformer) }
-
-    /** Image Toolbox's pickers and sheets that the editor reuses. */
-    private val toolbox: ToolboxComponents by lazy {
-        retainedComponent { ToolboxComponents(it, addFiltersFactory, filterTemplatesFactory) }
-    }
+    /** Adjustments and curves, shared by the preview and saving. */
+    private val finisher = EditFinisher()
 
     private lateinit var source: Uri
     private var realPath: String? = null
@@ -144,11 +125,8 @@ class EditorActivity : ComposeActivity() {
         if (!::source.isInitialized) return
         val source = source
         val realPath = realPath
-        val thumbnail = remember(controller.workingPreview) { controller.workingPreview?.thumbnail() }
         ImageToolboxCompositionLocals(
-            settingsState = settingsState.forEditor().toUiState(),
-            filterPreviewModel = thumbnail?.let(::ImageModel),
-            canSetDynamicFilterPreview = thumbnail != null
+            settingsState = settingsState.forEditor().toUiState()
         ) {
             run {
                 val scope = rememberCoroutineScope()
@@ -168,9 +146,7 @@ class EditorActivity : ComposeActivity() {
 
                 EditorScreen(
                     controller = controller,
-                    toolbox = toolbox,
                     finisher = finisher,
-                    thumbnail = thumbnail,
                     aiReady = { tool -> downloaded.let { aiRunner.isReady(tool) } },
                     onRunAi = { tool ->
                         if (aiRunner.isReady(tool)) scope.runAi(source, tool) else pendingDownload = tool
@@ -423,13 +399,6 @@ class EditorActivity : ComposeActivity() {
             sourceHeight = working.height
         )
         controller.paint = null
-        if (session.purpose == PaintPurpose.EffectMask) {
-            // Painting where an effect applies: just remember the area (on the upright photo).
-            controller.updateEffect(session.effectId ?: return@launch) { it.copy(mask = it.mask.orEmpty() + strokes) }
-            controller.commit()
-            controller.isBusy = false
-            return@launch
-        }
         val steps = controller.state.pixelSteps + PixelStep.Heal(strokes, session.generative)
         controller.busyMessage = "$label…"
         runCatching {

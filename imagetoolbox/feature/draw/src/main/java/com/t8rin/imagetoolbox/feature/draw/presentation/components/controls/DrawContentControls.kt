@@ -101,7 +101,8 @@ fun DrawContentControls(
     onAlphaChange: (Float) -> Unit,
     showLineAngle: Boolean,
     onShowLineAngleChange: (Boolean) -> Unit,
-    showSaveOptions: Boolean = true
+    showSaveOptions: Boolean = true,
+    drawModes: List<DrawMode>? = null
 ) {
     var showPickColorSheet by rememberSaveable { mutableStateOf(false) }
 
@@ -226,10 +227,10 @@ fun DrawContentControls(
             isDetectingFaces = component.isDetectingFaces,
             isFaceDetectionEnabled = isFaceDetectionEnabled,
             onDetectFaces = onDetectFaces,
-            values = remember(drawLineStyle) {
+            values = remember(drawLineStyle, drawModes) {
                 derivedStateOf {
                     if (drawLineStyle == DrawLineStyle.None) {
-                        DrawMode.entries
+                        drawModes ?: DrawMode.entries
                     } else {
                         listOf(
                             DrawMode.Pen,

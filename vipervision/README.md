@@ -66,17 +66,11 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   content-aware fill blends them away. No download, not AI. While painting (Heal or Object
   eraser), one finger paints, two fingers pinch to zoom and move around, and the wedge slider on
   the right sets the brush size (a circle shows how big while you drag it).
-* **Effects** (magic wand): Image Toolbox's whole filter catalogue (500+ filters in its
-  categories, with search, favourites, recent, templates and LUTs) added as a stack. Tap an
-  effect to open Image Toolbox's settings card for it (every parameter, help, duplicate, remove,
-  save as template), hold to reorder, or **Paint area** to apply it only where you paint (or
-  everywhere except there). Effects run after the adjustments, in order, and undo like any edit.
 * **Draw and decorate** (pen tab):
-  * **Draw**: Image Toolbox's Draw tool in the editor's layout — pen, highlighter, neon, text,
-    stickers, privacy blur, pixelate, filter brush, spot heal and warp as bubbles; quick colours;
-    size on the side slider; eraser, undo/redo, move/zoom. **Settings** opens Image Toolbox's full
-    Draw options (colour picker and gradients, opacity, softness, every shape and arrow, line
-    styles, line angle, text fonts, sticker picker, filter brush, face detection, grid, magnifier).
+  * **Draw**: Image Toolbox's Draw tool in the editor's layout — pen, highlighter, neon and text;
+    quick colours; size on the side slider; eraser, undo/redo, move/zoom. **Settings** opens Image
+    Toolbox's Draw options for those modes (colour picker and gradients, opacity, softness, every
+    shape and arrow, line styles, line angle, fonts, grid, magnifier).
   * **Text & layers**: Image Toolbox's Markup Layers — text, pictures, emoji and shapes as layers
     you can drag, pinch, twist, snap, restyle (fonts, colours, outlines, shadows, blend modes,
     opacity), group, lock, reorder and edit until you tick.
@@ -96,8 +90,7 @@ Code: `Adjustments.kt` (adjustments via Image Toolbox's libraries), `HighlightSh
 `EditorController.kt` (state, undo/redo, crop shapes, AI results), `PixelSteps.kt` and
 `PaintOverlay.kt` (Heal / Object eraser brush and masks), `EditorScreen.kt`,
 `EditorControls.kt` and `CropOverlay.kt` (UI), `ImageFiles.kt` (rotate/flip/crop, loading and
-saving), `EditorActivity.kt` (entry point, AI, heal and erase runs), `Effects.kt` and `EffectsPanel.kt`
-(Effects tab), `ToolboxSupport.kt` (hosting Image Toolbox's sheets: the editor is an Image
+saving), `EditorActivity.kt` (entry point, AI, heal and erase runs), `EditFinisher.kt` (adjustments and curves for preview and saving), `ToolboxSupport.kt` (hosting Image Toolbox's sheets: the editor is an Image
 Toolbox `ComposeActivity` with its settings forced to a dark theme).
 
 ## The Studio (`ViperStudioActivity`)

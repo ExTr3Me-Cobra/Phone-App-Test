@@ -55,15 +55,10 @@ import com.t8rin.imagetoolbox.core.domain.model.GradientPalette
 import com.t8rin.imagetoolbox.core.domain.model.Pt
 import com.t8rin.imagetoolbox.core.domain.model.pt
 import com.t8rin.imagetoolbox.core.resources.Icons
-import com.t8rin.imagetoolbox.core.resources.icons.BlurCircular
 import com.t8rin.imagetoolbox.core.resources.icons.Close
 import com.t8rin.imagetoolbox.core.resources.icons.Done
-import com.t8rin.imagetoolbox.core.resources.icons.EmojiSticky
 import com.t8rin.imagetoolbox.core.resources.icons.Eraser
-import com.t8rin.imagetoolbox.core.resources.icons.FilterAlt
 import com.t8rin.imagetoolbox.core.resources.icons.FrontHand
-import com.t8rin.imagetoolbox.core.resources.icons.GridOn
-import com.t8rin.imagetoolbox.core.resources.icons.Healing
 import com.t8rin.imagetoolbox.core.resources.icons.Highlighter
 import com.t8rin.imagetoolbox.core.resources.icons.NeonBrush
 import com.t8rin.imagetoolbox.core.resources.icons.Pen
@@ -71,7 +66,6 @@ import com.t8rin.imagetoolbox.core.resources.icons.Redo
 import com.t8rin.imagetoolbox.core.resources.icons.TextFields
 import com.t8rin.imagetoolbox.core.resources.icons.Tune
 import com.t8rin.imagetoolbox.core.resources.icons.Undo
-import com.t8rin.imagetoolbox.core.resources.icons.Waves
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
 import com.t8rin.imagetoolbox.feature.draw.domain.DrawMode
 import com.t8rin.imagetoolbox.feature.draw.presentation.components.BitmapDrawer
@@ -108,18 +102,12 @@ class DrawSession internal constructor(
     fun close() = lifecycle.destroy()
 }
 
-/** The brush modes, as quick bubbles. */
+/** The brush modes, as quick bubbles (the only ones offered, also in the settings sheet). */
 private val DrawModes: List<Triple<String, ImageVector, () -> DrawMode>> = listOf(
     Triple("Pen", Icons.Outlined.Pen) { DrawMode.Pen },
     Triple("Highlighter", Icons.Outlined.Highlighter) { DrawMode.Highlighter },
     Triple("Neon", Icons.Outlined.NeonBrush) { DrawMode.Neon },
-    Triple("Text", Icons.Rounded.TextFields) { DrawMode.Text() },
-    Triple("Sticker", Icons.Outlined.EmojiSticky) { DrawMode.Image() },
-    Triple("Blur", Icons.Rounded.BlurCircular) { DrawMode.PathEffect.PrivacyBlur() },
-    Triple("Pixelate", Icons.Outlined.GridOn) { DrawMode.PathEffect.Pixelation() },
-    Triple("Filter brush", Icons.Rounded.FilterAlt) { DrawMode.PathEffect.Custom() },
-    Triple("Spot heal", Icons.Rounded.Healing) { DrawMode.SpotHeal() },
-    Triple("Warp", Icons.Rounded.Waves) { DrawMode.Warp() }
+    Triple("Text", Icons.Rounded.TextFields) { DrawMode.Text() }
 )
 
 /** Quick colours; "More" in the settings sheet has the full colour picker and gradients. */
@@ -145,10 +133,8 @@ internal fun DrawScreen(
     LaunchedEffect(drawMode) {
         session.alpha = if (drawMode is DrawMode.Highlighter) 0.4f else 1f
         session.brushSoftness = if (drawMode is DrawMode.Neon) 35.pt else 0.pt
-        // Modes with their own options (text, sticker, filter, spot heal, warp) open them.
-        if (drawMode is DrawMode.Text || drawMode is DrawMode.Image || drawMode is DrawMode.PathEffect.Custom) {
-            session.showSettings = true
-        }
+        // Text has its own options (what to write, font), so they open.
+        if (drawMode is DrawMode.Text) session.showSettings = true
     }
     LaunchedEffect(drawMode, session.strokeWidth) {
         session.strokeWidth = if (drawMode is DrawMode.Image) {
@@ -329,10 +315,9 @@ internal fun DrawScreen(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
         ) {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                // Image Toolbox's whole Draw settings: colour picker and gradients, size,
-                // softness, opacity, every brush mode with its options (text and fonts, stickers,
-                // blur/pixel sizes, filter brush, spot heal, warp, face detection), every shape,
-                // line styles, line angle, helper grid and magnifier.
+                // Image Toolbox's Draw settings: colour picker and gradients, size, softness,
+                // opacity, the brush modes above (text with fonts), every shape, line styles,
+                // line angle, helper grid and magnifier.
                 DrawContentControls(
                     component = component,
                     onDetectFaces = { useYuNet ->
@@ -362,7 +347,8 @@ internal fun DrawScreen(
                     onAlphaChange = { session.alpha = it },
                     showLineAngle = session.showLineAngle,
                     onShowLineAngleChange = { session.showLineAngle = it },
-                    showSaveOptions = false
+                    showSaveOptions = false,
+                    drawModes = remember { DrawModes.map { it.third() } }
                 )
                 Spacer(Modifier.navigationBarsPadding().height(16.dp))
             }

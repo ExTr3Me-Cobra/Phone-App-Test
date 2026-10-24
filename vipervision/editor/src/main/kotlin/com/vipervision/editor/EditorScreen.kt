@@ -65,7 +65,6 @@ import com.t8rin.imagetoolbox.core.resources.icons.TextFields
 import com.t8rin.imagetoolbox.core.resources.icons.Neurology
 import com.t8rin.imagetoolbox.core.resources.icons.Curve
 import com.t8rin.imagetoolbox.core.resources.icons.Scissors
-import com.t8rin.imagetoolbox.core.resources.icons.AutoFixHigh
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
 import com.t8rin.imagetoolbox.core.resources.icons.Flip
 import com.t8rin.imagetoolbox.core.resources.icons.Eraser
@@ -86,9 +85,7 @@ private val PanelGrey = Color(0xFF1C1C1E)
 @Composable
 internal fun EditorScreen(
     controller: EditorController,
-    toolbox: ToolboxComponents,
     finisher: EditFinisher,
-    thumbnail: Bitmap?,
     aiReady: (AiTool) -> Boolean,
     onRunAi: (AiTool) -> Unit,
     lamaReady: Boolean,
@@ -328,10 +325,7 @@ internal fun EditorScreen(
             Modifier
                 .fillMaxWidth()
                 .then(
-                    if (controller.paint == null && (
-                            (controller.tab == EditorTab.Effects && controller.selectedEffectId != null) ||
-                                    (controller.tab == EditorTab.Adjust && controller.curvesOpen))
-                    ) {
+                    if (controller.paint == null && controller.tab == EditorTab.Adjust && controller.curvesOpen) {
                         Modifier.heightIn(min = 184.dp)
                     } else Modifier.height(184.dp)
                 ),
@@ -351,7 +345,6 @@ internal fun EditorScreen(
                     } else AdjustPanel(controller)
                     EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut, onStartAiStudio)
                     EditorTab.Transform -> TransformPanel(controller, onStartCropStudio)
-                    EditorTab.Effects -> EffectsPanel(controller, toolbox, thumbnail)
                     EditorTab.Decorate -> DecoratePanel(controller, onStartDraw, onStartMarkup)
                 }
             }
@@ -678,7 +671,6 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
             when (session.purpose) {
                 PaintPurpose.Erase -> "Object eraser — paint over what to remove"
                 PaintPurpose.Heal -> "Heal — paint over spots or objects"
-                PaintPurpose.EffectMask -> "Paint where the effect should apply"
             },
             color = Color.White,
             fontSize = 14.sp
@@ -696,7 +688,7 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
                 enabled = session.strokes.isNotEmpty()
             ) { Text("Undo stroke", color = if (session.strokes.isNotEmpty()) Color.White else Color.Gray) }
             Text(
-                when (session.purpose) { PaintPurpose.Erase -> "Erase"; PaintPurpose.Heal -> "Heal"; PaintPurpose.EffectMask -> "Done" },
+                if (session.generative) "Erase" else "Heal",
                 color = if (session.strokes.isNotEmpty()) Color.Black else Color.DarkGray,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -796,9 +788,6 @@ private fun BottomTabs(controller: EditorController, onOpenMoreTools: () -> Unit
         }
         TabIcon(Icons.Outlined.LightMode, "Adjust", controller.tab == EditorTab.Adjust) {
             controller.tab = EditorTab.Adjust
-        }
-        TabIcon(Icons.Outlined.AutoFixHigh, "Effects", controller.tab == EditorTab.Effects) {
-            controller.tab = EditorTab.Effects
         }
         TabIcon(Icons.Rounded.Draw, "Draw and decorate", controller.tab == EditorTab.Decorate) {
             controller.tab = EditorTab.Decorate
