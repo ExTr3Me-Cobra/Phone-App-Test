@@ -17,6 +17,9 @@ dependencies {
     // Image Toolbox's AI engine and on-device models (the AI tab).
     implementation(projects.feature.aiTools)
     implementation(projects.core.domain)
+    // Image Toolbox's heal engines: OpenCV content-aware fill and the LaMa AI model.
+    implementation(projects.lib.opencvTools)
+    implementation(projects.lib.neuralTools)
     // The image libraries Image Toolbox's filters use (the Adjust tab).
     implementation(libs.aire)
     implementation(libs.toolbox.gpuimage)

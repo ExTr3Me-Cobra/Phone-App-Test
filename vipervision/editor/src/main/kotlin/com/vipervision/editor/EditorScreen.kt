@@ -32,6 +32,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -58,6 +60,8 @@ import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
 import com.t8rin.imagetoolbox.core.resources.icons.Flip
+import com.t8rin.imagetoolbox.core.resources.icons.Eraser
+import com.t8rin.imagetoolbox.core.resources.icons.Healing
 import com.t8rin.imagetoolbox.core.resources.icons.LightMode
 import com.t8rin.imagetoolbox.core.resources.icons.MoreVert
 import com.t8rin.imagetoolbox.core.resources.icons.Redo
@@ -76,6 +80,9 @@ internal fun EditorScreen(
     controller: EditorController,
     aiReady: (AiTool) -> Boolean,
     onRunAi: (AiTool) -> Unit,
+    lamaReady: Boolean,
+    onStartObjectEraser: () -> Unit,
+    onApplyPaint: () -> Unit,
     onSave: () -> Unit,
     onOpenMoreTools: () -> Unit,
     onClose: () -> Unit
@@ -133,8 +140,8 @@ internal fun EditorScreen(
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .pointerInput(cropMode) {
-                    if (cropMode) return@pointerInput
+                .pointerInput(cropMode, controller.paint) {
+                    if (cropMode || controller.paint != null) return@pointerInput
                     detectTapGestures(onPress = {
                         showOriginal = true
                         tryAwaitRelease()
@@ -166,6 +173,16 @@ internal fun EditorScreen(
                     aspectRatio = controller.cropAspect.ratio(uncroppedSize.first, uncroppedSize.second),
                     onCropChange = controller::setCrop,
                     onCropChangeFinished = controller::commit,
+                    modifier = imageModifier
+                )
+            }
+            // Painting over something to heal or erase.
+            val paint = controller.paint
+            if (paint != null && shown != null && !cropMode) {
+                PaintOverlay(
+                    imageWidth = shown.width,
+                    imageHeight = shown.height,
+                    session = paint,
                     modifier = imageModifier
                 )
             }
@@ -208,14 +225,23 @@ internal fun EditorScreen(
                 .height(184.dp),
             contentAlignment = Alignment.Center
         ) {
-            when (controller.tab) {
-                EditorTab.Adjust -> AdjustPanel(controller)
-                EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi)
-                EditorTab.Transform -> TransformPanel(controller)
+            val paint = controller.paint
+            if (paint != null) {
+                PaintPanel(
+                    session = paint,
+                    onCancel = { controller.paint = null },
+                    onApply = onApplyPaint
+                )
+            } else {
+                when (controller.tab) {
+                    EditorTab.Adjust -> AdjustPanel(controller)
+                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser)
+                    EditorTab.Transform -> TransformPanel(controller)
+                }
             }
         }
 
-        BottomTabs(controller, onOpenMoreTools)
+        if (controller.paint == null) BottomTabs(controller, onOpenMoreTools)
     }
 
     if (showDiscardDialog) {
@@ -344,6 +370,21 @@ private fun AdjustPanel(controller: EditorController) {
                         onClick = { controller.selected = adjustment }
                     )
                 }
+                // Heal: paint over spots or small objects and fill them in (no AI, works offline).
+                item {
+                    Box(
+                        Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(BubbleGrey)
+                            .clickable(enabled = !controller.isBusy) {
+                                controller.paint = PaintSession(generative = false)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Rounded.Healing, "Heal", tint = Color.White, modifier = Modifier.size(26.dp))
+                    }
+                }
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -360,7 +401,9 @@ private fun AdjustPanel(controller: EditorController) {
 private fun AiPanel(
     controller: EditorController,
     aiReady: (AiTool) -> Boolean,
-    onRunAi: (AiTool) -> Unit
+    onRunAi: (AiTool) -> Unit,
+    lamaReady: Boolean,
+    onStartObjectEraser: () -> Unit
 ) {
     var selected by remember { mutableStateOf<AiTool?>(null) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
@@ -375,8 +418,29 @@ private fun AiPanel(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
+            // Object eraser: paint over something and the LaMa AI model fills in what was behind it.
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.width(76.dp)
+                ) {
+                    Box(
+                        Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(BubbleGrey)
+                            .clickable(enabled = !controller.isBusy, onClick = onStartObjectEraser),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Rounded.Eraser, "Object eraser", tint = Color.White, modifier = Modifier.size(28.dp))
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text("Object eraser", color = Color.White, fontSize = 12.sp, maxLines = 1)
+                    if (!lamaReady) Text("~200 MB", color = Color.Gray, fontSize = 11.sp)
+                }
+            }
             itemsIndexed(AiTool.entries) { _, tool ->
-                val applied = tool in controller.state.aiSteps
+                val applied = PixelStep.Ai(tool) in controller.state.pixelSteps
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.width(76.dp)
@@ -407,6 +471,52 @@ private fun AiPanel(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            if (session.generative) "Object eraser — paint over what to remove" else "Heal — paint over spots or objects",
+            color = Color.White,
+            fontSize = 14.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        ) {
+            Text("Brush", color = Color.White, fontSize = 13.sp)
+            Slider(
+                value = session.brushRadiusDp,
+                onValueChange = { session.brushRadiusDp = it },
+                valueRange = 6f..60f,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 12.dp),
+                colors = SliderDefaults.colors(thumbColor = Accent, activeTrackColor = Accent)
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = onCancel) { Text("Cancel", color = Color.White) }
+            TextButton(
+                onClick = { session.strokes.removeLastOrNull() },
+                enabled = session.strokes.isNotEmpty()
+            ) { Text("Undo stroke", color = if (session.strokes.isNotEmpty()) Color.White else Color.Gray) }
+            Text(
+                if (session.generative) "Erase" else "Heal",
+                color = if (session.strokes.isNotEmpty()) Color.Black else Color.DarkGray,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(if (session.strokes.isNotEmpty()) Accent else BubbleGrey)
+                    .clickable(enabled = session.strokes.isNotEmpty(), onClick = onApply)
+                    .padding(horizontal = 22.dp, vertical = 10.dp)
+            )
         }
     }
 }

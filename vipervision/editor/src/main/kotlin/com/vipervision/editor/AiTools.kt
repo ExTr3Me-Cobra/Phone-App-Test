@@ -6,10 +6,10 @@ import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.AutoFixHigh
 import com.t8rin.imagetoolbox.core.resources.icons.BrightnessAuto
 import com.t8rin.imagetoolbox.core.resources.icons.Cloud
-import com.t8rin.imagetoolbox.core.resources.icons.Eraser
 import com.t8rin.imagetoolbox.core.resources.icons.Face6
 import com.t8rin.imagetoolbox.core.resources.icons.Jpg
 import com.t8rin.imagetoolbox.core.resources.icons.Palette
+import com.t8rin.imagetoolbox.core.resources.icons.Person
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiProgressListener
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.model.NeuralModel
@@ -51,7 +51,7 @@ enum class AiTool(val label: String, val modelName: String, val description: Str
             Deblur -> EditorIcons.Sharpness
             JpegCleanup -> Icons.Outlined.Jpg
             Colorize -> Icons.Rounded.Palette
-            RemoveBackground -> Icons.Rounded.Eraser
+            RemoveBackground -> Icons.Rounded.Person
         }
 }
 

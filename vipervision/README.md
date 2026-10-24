@@ -28,7 +28,8 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
 (press and hold it to compare with the original), and along the bottom:
 
 * **AI tools** (blue sparkle): a row of bubbles that run Image Toolbox's on-device AI models on the
-  photo: Restore faces (GFPGAN), Low light (Zero-DCE++), Fix exposure, Dehaze (DehazeFormer),
+  photo. First is **Object eraser**: paint over something and Image Toolbox's LaMa model fills in
+  what was behind it (about 200 MB, downloaded once after asking). Then Restore faces (GFPGAN), Low light (Zero-DCE++), Fix exposure, Dehaze (DehazeFormer),
   Denoise (SCUNet), Deblur (NAFNet), JPEG cleanup, Colorize and Remove background (U2NetP, built
   in). Each model downloads once, after asking (sizes show under the bubbles), then works offline.
   AI steps run on the full-size photo, happen before rotate/crop/adjustments, and undo like any
@@ -41,7 +42,9 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   (double-tap the wheel to reset). **Auto** fills them in automatically. These use Image
   Toolbox's own filters: the Aire library for brightness, contrast and saturation, and its GPU
   filters (exposure, wide-range highlights/shadows, white balance, sharpen, vignette) in one GPU
-  pass. `Adjustments.kt` notes how each dial maps onto the filter's range.
+  pass. `Adjustments.kt` notes how each dial maps onto the filter's range. The last bubble,
+  **Heal**, removes spots and small blemishes: paint over them (brush size slider, undo stroke)
+  and Image Toolbox's OpenCV content-aware fill blends them away. No download, not AI.
 * **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
 
 Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
@@ -51,9 +54,10 @@ this editor for every image except GIFs, which still go to Image Toolbox.
 
 Code: `Adjustments.kt` (adjustments via Image Toolbox's libraries), `HighlightShadowWideRangeFilter.kt`
 (Image Toolbox's shader, copied with attribution), `AiTools.kt` (AI bubbles and the runner),
-`EditorController.kt` (state, undo/redo, crop shapes, AI results), `EditorScreen.kt`,
+`EditorController.kt` (state, undo/redo, crop shapes, AI results), `PixelSteps.kt` and
+`PaintOverlay.kt` (Heal / Object eraser brush and masks), `EditorScreen.kt`,
 `EditorControls.kt` and `CropOverlay.kt` (UI), `ImageFiles.kt` (rotate/flip/crop, loading and
-saving), `EditorActivity.kt` (entry point, AI runs).
+saving), `EditorActivity.kt` (entry point, AI, heal and erase runs).
 
 ## The icon
 

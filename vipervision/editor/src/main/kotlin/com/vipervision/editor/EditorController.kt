@@ -2,6 +2,8 @@ package com.vipervision.editor
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,16 +13,30 @@ import java.io.File
 data class EditState(
     val geometry: Geometry = Geometry(),
     val adjustments: Adjustments = Adjustments(),
-    /** AI tools applied, in order. They run first, on the upright photo. */
-    val aiSteps: List<AiTool> = emptyList()
+    /** AI tools and heals applied, in order. They run first, on the upright photo. */
+    val pixelSteps: List<PixelStep> = emptyList()
 ) {
-    val isUnchanged: Boolean get() = geometry.isIdentity && adjustments.isIdentity && aiSteps.isEmpty()
+    val isUnchanged: Boolean get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty()
 }
 
 enum class EditorTab { Ai, Transform, Adjust }
 
-/** The photo after a sequence of AI steps: full size on disk, plus a screen-sized copy. */
+/** The photo after a sequence of pixel steps: full size on disk, plus a screen-sized copy. */
 class AiResult(val file: File, val preview: Bitmap)
+
+/**
+ * Painting over something to remove: with the Heal bubble ([generative] = false) or the AI
+ * Object eraser ([generative] = true). Strokes are in screen terms until applied.
+ */
+class PaintSession(val generative: Boolean) {
+    val strokes = mutableStateListOf<ScreenStroke>()
+
+    /** Brush radius in dp. */
+    var brushRadiusDp by mutableFloatStateOf(18f)
+
+    /** How wide the photo is on screen while painting, to convert the brush size. */
+    var shownWidthPx = 0f
+}
 
 /** Crop frame shapes. [ratio] is width / height, or null for no fixed shape. */
 enum class CropAspect(val label: String, private val fixed: Float?) {
@@ -67,25 +83,28 @@ class EditorController {
     /** What a long-running job (AI download or processing) is doing, shown over the photo. */
     var busyMessage by mutableStateOf<String?>(null)
 
-    /** Results of AI steps, keyed by the steps that produced them, so undo/redo is instant. */
-    val aiResults = mutableStateMapOf<List<AiTool>, AiResult>()
+    /** Results of pixel steps, keyed by the steps that produced them, so undo/redo is instant. */
+    val aiResults = mutableStateMapOf<List<PixelStep>, AiResult>()
 
-    /** The photo the geometry and adjustments apply to: the latest AI result, or the original. */
+    /** The photo the geometry and adjustments apply to: the latest pixel-step result, or the original. */
     val workingPreview: Bitmap?
-        get() = state.aiSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.preview } ?: basePreview
+        get() = state.pixelSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.preview } ?: basePreview
 
-    /** Full-size file of the current AI result, if any AI steps are applied. */
+    /** Full-size file of the current pixel-step result, if any are applied. */
     val workingFile: File?
-        get() = state.aiSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.file }
+        get() = state.pixelSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.file }
 
     /** Remove background makes transparency, which JPEG can't hold. */
-    val needsPng: Boolean get() = AiTool.RemoveBackground in state.aiSteps
+    val needsPng: Boolean get() = PixelStep.Ai(AiTool.RemoveBackground) in state.pixelSteps
 
-    /** Records a finished AI step (its result must already be in [aiResults]). */
-    fun addAiStep(steps: List<AiTool>, result: AiResult) {
+    /** Records a finished pixel step (AI tool or heal) and its result. */
+    fun addPixelStep(steps: List<PixelStep>, result: AiResult) {
         aiResults[steps] = result
-        change(state.copy(aiSteps = steps))
+        change(state.copy(pixelSteps = steps))
     }
+
+    /** Set while the user is painting over something to heal or erase. */
+    var paint by mutableStateOf<PaintSession?>(null)
 
     private val undoStack = ArrayDeque<EditState>()
     private val redoStack = ArrayDeque<EditState>()

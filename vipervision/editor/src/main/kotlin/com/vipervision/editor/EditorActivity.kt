@@ -21,6 +21,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
+import com.t8rin.neural_tools.inpaint.LaMaProcessor
+import com.t8rin.opencv_tools.spot_heal.SpotHealer
+import com.t8rin.opencv_tools.spot_heal.model.HealType
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import javax.inject.Inject
@@ -49,6 +52,9 @@ class EditorActivity : ComponentActivity() {
     /** AI tool waiting for the user to agree to its first-time model download. */
     private var pendingDownload by mutableStateOf<AiTool?>(null)
 
+    /** Set while asking whether to download the Object eraser's LaMa model. */
+    private var pendingLamaDownload by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -75,6 +81,7 @@ class EditorActivity : ComponentActivity() {
 
                 // Re-read which models are downloaded whenever that list changes.
                 val downloaded by aiRunner.downloadedModels.collectAsState()
+                val lamaReady by LaMaProcessor.isDownloaded.collectAsState()
 
                 EditorScreen(
                     controller = controller,
@@ -82,10 +89,35 @@ class EditorActivity : ComponentActivity() {
                     onRunAi = { tool ->
                         if (aiRunner.isReady(tool)) scope.runAi(source, tool) else pendingDownload = tool
                     },
+                    lamaReady = lamaReady,
+                    onStartObjectEraser = ::startObjectEraser,
+                    onApplyPaint = { scope.applyPaint(source) },
                     onSave = { scope.save(source, realPath) },
                     onOpenMoreTools = { scope.openMoreTools(source) },
                     onClose = ::finish
                 )
+
+                if (pendingLamaDownload) {
+                    AlertDialog(
+                        onDismissRequest = { pendingLamaDownload = false },
+                        title = { Text("Download Object eraser?") },
+                        text = {
+                            Text(
+                                "Paint over something and the LaMa AI model fills in what was behind it.\n\n" +
+                                        "It needs a one-time download of about 200 MB. After that it works offline."
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                pendingLamaDownload = false
+                                scope.downloadLama()
+                            }) { Text("Download") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { pendingLamaDownload = false }) { Text("Cancel") }
+                        }
+                    )
+                }
 
                 pendingDownload?.let { tool ->
                     AlertDialog(
@@ -148,7 +180,7 @@ class EditorActivity : ComponentActivity() {
     private fun CoroutineScope.runAi(source: Uri, tool: AiTool) = launch {
         if (controller.isBusy) return@launch
         controller.isBusy = true
-        val steps = controller.state.aiSteps + tool
+        val steps = controller.state.pixelSteps + PixelStep.Ai(tool)
         runCatching {
             if (!aiRunner.isReady(tool) || tool.isBundled) {
                 controller.busyMessage = "Downloading ${tool.label}…"
@@ -163,18 +195,90 @@ class EditorActivity : ComponentActivity() {
                 if (total > 1) controller.busyMessage = "${tool.label}… ${min(done + 1, total)} of $total"
             }
             controller.busyMessage = "Finishing…"
-            withContext(Dispatchers.IO) {
-                val folder = File(cacheDir, "vv_ai").apply { mkdirs() }
-                val file = File(folder, "step_${System.nanoTime()}.png")
-                file.outputStream().use { output.compress(Bitmap.CompressFormat.PNG, 100, it) }
-                val metrics = resources.displayMetrics
-                val side = min(2048, max(metrics.widthPixels, metrics.heightPixels))
-                AiResult(file, output.scaledToFit(side))
-            }
+            storeResult(output)
         }.onSuccess { result ->
-            controller.addAiStep(steps, result)
+            controller.addPixelStep(steps, result)
         }.onFailure {
             Toast.makeText(this@EditorActivity, "${tool.label} failed: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
+    /** Keeps a pixel step's full-size result on disk, plus a screen-sized copy for the preview. */
+    private suspend fun storeResult(output: Bitmap): AiResult = withContext(Dispatchers.IO) {
+        val folder = File(cacheDir, "vv_ai").apply { mkdirs() }
+        val file = File(folder, "step_${System.nanoTime()}.png")
+        file.outputStream().use { output.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        val metrics = resources.displayMetrics
+        val side = min(2048, max(metrics.widthPixels, metrics.heightPixels))
+        AiResult(file, output.scaledToFit(side))
+    }
+
+    /** Opens the Object eraser's painting mode, downloading the LaMa model first if needed (after asking). */
+    private fun startObjectEraser() {
+        if (LaMaProcessor.isDownloaded.value) {
+            controller.paint = PaintSession(generative = true)
+        } else {
+            pendingLamaDownload = true
+        }
+    }
+
+    private fun CoroutineScope.downloadLama() = launch {
+        if (controller.isBusy) return@launch
+        controller.isBusy = true
+        controller.busyMessage = "Downloading Object eraser…"
+        runCatching {
+            LaMaProcessor.startDownload().collect {
+                controller.busyMessage = "Downloading Object eraser… ${(it.currentPercent * 100).toInt()}%"
+            }
+            check(LaMaProcessor.isDownloaded.value) { "the download didn't finish" }
+        }.onSuccess {
+            controller.paint = PaintSession(generative = true)
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "Couldn't download the Object eraser: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
+    /**
+     * Fills in what the user painted over, on the full-size photo: with Image Toolbox's
+     * content-aware fill (Heal, OpenCV) or its LaMa AI model (Object eraser), exactly as its Draw
+     * tool's Heal Spot mode does. The result becomes an undoable step.
+     */
+    private fun CoroutineScope.applyPaint(source: Uri) = launch {
+        val session = controller.paint ?: return@launch
+        val working = controller.workingPreview ?: return@launch
+        if (controller.isBusy || session.strokes.isEmpty()) return@launch
+        controller.isBusy = true
+        val label = if (session.generative) "Object eraser" else "Heal"
+        val strokes = controller.state.geometry.toSourceStrokes(
+            strokes = session.strokes.toList(),
+            shownWidthPx = session.shownWidthPx,
+            sourceWidth = working.width,
+            sourceHeight = working.height
+        )
+        val steps = controller.state.pixelSteps + PixelStep.Heal(strokes, session.generative)
+        controller.paint = null
+        controller.busyMessage = "$label…"
+        runCatching {
+            val input = controller.workingFile?.let(Uri::fromFile) ?: source
+            val full = withContext(Dispatchers.IO) { decodeImage(this@EditorActivity, input, maxSafeSide(this@EditorActivity, input)) }
+            val output = withContext(Dispatchers.Default) {
+                val mask = renderMask(strokes, full.width, full.height)
+                if (session.generative) {
+                    LaMaProcessor.inpaint(image = full, mask = mask) ?: error("the AI model couldn't process this photo")
+                } else {
+                    SpotHealer.heal(image = full, mask = mask, radius = 3f, type = HealType.TELEA)
+                }
+            }
+            controller.busyMessage = "Finishing…"
+            storeResult(output)
+        }.onSuccess { result ->
+            controller.addPixelStep(steps, result)
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "$label failed: ${it.message}", Toast.LENGTH_LONG).show()
         }
         controller.busyMessage = null
         controller.isBusy = false
