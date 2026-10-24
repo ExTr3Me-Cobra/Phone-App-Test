@@ -85,6 +85,7 @@ import org.fossify.gallery.dialogs.ChangeSortingDialog
 import org.fossify.gallery.dialogs.ChangeViewTypeDialog
 import org.fossify.gallery.dialogs.FilterMediaDialog
 import org.fossify.gallery.dialogs.GrantAllFilesDialog
+import org.fossify.gallery.extensions.openViperStudio
 import org.fossify.gallery.extensions.addTempFolderIfNeeded
 import org.fossify.gallery.extensions.config
 import org.fossify.gallery.extensions.createDirectoryFromMedia
@@ -505,6 +506,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 R.id.temporarily_show_excluded -> tryToggleTemporarilyShowExcluded()
                 R.id.stop_showing_excluded -> tryToggleTemporarilyShowExcluded()
                 R.id.create_new_folder -> createNewFolder()
+                // Viper Vision: the Studio's Create tools.
+                R.id.vv_create_gradient -> openViperStudio("Gradient")
+                R.id.vv_create_mesh_gradient -> openViperStudio("MeshGradients")
+                R.id.vv_create_texture -> openViperStudio("Texture")
+                R.id.vv_export_wallpapers -> openViperStudio("Wallpapers")
                 R.id.open_recycle_bin -> openRecycleBin()
                 R.id.column_count -> changeColumnCount()
                 R.id.set_as_default_folder -> setAsDefaultFolder()

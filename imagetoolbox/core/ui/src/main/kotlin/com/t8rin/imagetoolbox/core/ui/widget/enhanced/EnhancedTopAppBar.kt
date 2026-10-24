@@ -51,6 +51,21 @@ fun EnhancedTopAppBar(
     type: EnhancedTopAppBarType = EnhancedTopAppBarType.Normal,
     drawHorizontalStroke: Boolean = true
 ) {
+    // Viper Vision: in Viper Vision's Studio every tool gets a compact black bar.
+    if (com.t8rin.imagetoolbox.core.ui.utils.provider.LocalViperStyle.current) {
+        TopAppBar(
+            title = title,
+            modifier = modifier,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            windowInsets = windowInsets,
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Black,
+                scrolledContainerColor = Color.Black
+            )
+        )
+        return
+    }
     AnimatedContent(
         targetState = type,
         transitionSpec = { fadeIn() togetherWith fadeOut() }

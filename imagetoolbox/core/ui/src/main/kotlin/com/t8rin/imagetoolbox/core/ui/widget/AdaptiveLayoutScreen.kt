@@ -75,6 +75,7 @@ import com.t8rin.imagetoolbox.core.ui.utils.animation.fancySlideTransition
 import com.t8rin.imagetoolbox.core.ui.utils.helper.isPortraitOrientationAsState
 import com.t8rin.imagetoolbox.core.ui.utils.helper.shouldUseFloatingButtons
 import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalScreenSize
+import com.t8rin.imagetoolbox.core.ui.utils.provider.LocalViperStyle
 import com.t8rin.imagetoolbox.core.ui.widget.dialogs.ExitBackHandler
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedIconButton
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedLoadingIndicator
@@ -122,6 +123,25 @@ fun AdaptiveLayoutScreen(
     portraitTopPadding: Dp = 0.dp,
     isLoading: Boolean = false
 ) {
+    // Viper Vision: Viper Vision's Studio shows tools in its own layout.
+    if (LocalViperStyle.current) {
+        ViperStudioLayout(
+            title = title,
+            onGoBack = onGoBack,
+            shouldDisableBackHandler = shouldDisableBackHandler,
+            actions = actions,
+            topAppBarPersistentActions = topAppBarPersistentActions,
+            imagePreview = imagePreview.takeIf { placeImagePreview },
+            controls = controls,
+            buttons = buttons,
+            noDataControls = noDataControls,
+            canShowScreenData = canShowScreenData,
+            underTopAppBarContent = underTopAppBarContent,
+            isLoading = isLoading,
+            listState = listState
+        )
+        return
+    }
     val isPortrait by isPortraitOrientationAsState()
     val useFloatingButtons = shouldUseFloatingButtons()
     val showLoading = !canShowScreenData && isLoading

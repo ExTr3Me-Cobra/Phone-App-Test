@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Viper Vision: menu entries for the Studio's tools. -->
+<resources>
+    <string name="vv_create">Create</string>
+    <string name="vv_create_gradient">Gradient</string>
+    <string name="vv_create_mesh_gradient">Mesh gradient</string>
+    <string name="vv_create_texture">Texture</string>
+    <string name="vv_export_wallpapers">Export wallpapers</string>
+    <string name="vv_compare">Compare</string>
+    <string name="vv_fuse_frames">Fuse frames (HDR, focus, low light)</string>
+    <string name="vv_convert">Convert, resize, compress</string>
+    <string name="vv_gradient_over_photos">Gradient over photos</string>
+</resources>

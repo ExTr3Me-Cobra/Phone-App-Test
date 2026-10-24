@@ -100,6 +100,25 @@ saving), `EditorActivity.kt` (entry point, AI, heal and erase runs), `Effects.kt
 (Effects tab), `ToolboxSupport.kt` (hosting Image Toolbox's sheets: the editor is an Image
 Toolbox `ComposeActivity` with its settings forced to a dark theme).
 
+## The Studio (`ViperStudioActivity`)
+
+Image Toolbox's tools that work on several photos or make new pictures, each fully featured, in
+Viper Vision's layout (a black, compact screen with the picture large and the settings below).
+Image Toolbox's shared tool layout (`core/ui/.../AdaptiveLayoutScreen.kt`) switches to
+`ViperStudioLayout.kt` when `LocalViperStyle` is set, so the tools themselves are unchanged.
+
+* From Gallery's selection menu (⋮ with photos selected): **Compare** (2 photos: slider, side by
+  side, tap to switch, transparency, pixel difference; save or animate the comparison), **Fuse
+  frames** (2+ photos: HDR, focus stacking, low-light noise reduction), **Convert, resize,
+  compress** (any number: every format and quality, resize, metadata) and **Gradient over photos**.
+* From Gallery's main menu, **Create**: **Gradient** (linear, radial, sweep and mesh gradients),
+  **Mesh gradient** (ready-made collection), **Texture** (procedural textures: noise, marble,
+  wood, metal, caustics, patterns...) and **Export wallpapers** (save the phone's current
+  wallpapers).
+
+Image Toolbox's Gallery and Image Preview tools aren't moved over: Fossify Gallery already does
+both.
+
 ## The icon
 
 `icon/viper_eye_original.jpg` is the icon picture (a blue macro snake eye), and

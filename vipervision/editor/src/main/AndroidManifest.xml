@@ -8,6 +8,12 @@
             android:exported="false"
             android:theme="@style/ViperEditorTheme" />
 
+        <!-- Compare, Fuse frames, Convert, and the Create menu's tools. -->
+        <activity
+            android:name=".ViperStudioActivity"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
         <!-- Hands the edited photo to Image Toolbox's tools (More tab). -->
         <provider
             android:name=".EditorFileProvider"

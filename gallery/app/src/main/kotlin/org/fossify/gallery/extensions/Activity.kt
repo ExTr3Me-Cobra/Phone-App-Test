@@ -136,6 +136,31 @@ fun Activity.openEditor(path: String, forceChooser: Boolean = false) {
     }
 }
 
+// Viper Vision's Studio (vipervision/editor): Compare, Fuse frames, Convert and the Create tools.
+private const val VIPER_STUDIO_ACTIVITY = "com.vipervision.editor.ViperStudioActivity"
+private const val VIPER_STUDIO_TOOL = "com.vipervision.editor.STUDIO_TOOL"
+private const val VIPER_STUDIO_URIS = "com.vipervision.editor.STUDIO_URIS"
+
+/** Viper Vision: opens a Studio tool (see ViperStudioActivity.Tool), with photos if it uses them. */
+fun Activity.openViperStudio(tool: String, paths: List<String> = emptyList()) {
+    ensureBackgroundThread {
+        val uris = ArrayList(paths.mapNotNull { getFinalUriFromPath(it.removePrefix("file://"), BuildConfig.APPLICATION_ID) })
+        runOnUiThread {
+            Intent().apply {
+                setClassName(packageName, VIPER_STUDIO_ACTIVITY)
+                putExtra(VIPER_STUDIO_TOOL, tool)
+                putParcelableArrayListExtra(VIPER_STUDIO_URIS, uris)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                try {
+                    startActivity(this)
+                } catch (e: Exception) {
+                    showErrorToast(e)
+                }
+            }
+        }
+    }
+}
+
 fun Activity.launchCamera() {
     val intent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
     launchActivityIntent(intent)

@@ -27,6 +27,14 @@ dependencies {
     implementation(projects.feature.markupLayers)
     implementation(projects.feature.crop)
     implementation(projects.lib.cropper)
+    // The Studio's tools (Compare, Fuse frames, Convert, Create menu).
+    implementation(projects.feature.compare)
+    implementation(projects.feature.multiFrameFusion)
+    implementation(projects.feature.formatConversion)
+    implementation(projects.feature.gradientMaker)
+    implementation(projects.feature.meshGradients)
+    implementation(projects.feature.textureGeneration)
+    implementation(projects.feature.wallpapersExport)
     // Image Toolbox's tone curves editor (Curves bubble).
     implementation(projects.lib.curves)
     // Image Toolbox's heal engines: OpenCV content-aware fill and the LaMa AI model.

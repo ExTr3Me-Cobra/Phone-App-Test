@@ -62,6 +62,7 @@ import org.fossify.gallery.extensions.fixDateTaken
 import org.fossify.gallery.extensions.getShortcutImage
 import org.fossify.gallery.extensions.handleMediaManagementPrompt
 import org.fossify.gallery.extensions.launchResizeImageDialog
+import org.fossify.gallery.extensions.openViperStudio
 import org.fossify.gallery.extensions.launchResizeMultipleImagesDialog
 import org.fossify.gallery.extensions.loadImage
 import org.fossify.gallery.extensions.openEditor
@@ -198,6 +199,12 @@ class MediaAdapter(
             findItem(R.id.cab_confirm_selection).isVisible = isAGetIntent && allowMultiplePicks && selectedKeys.isNotEmpty()
             findItem(R.id.cab_restore_recycle_bin_files).isVisible = selectedPaths.all { it.startsWith(activity.recycleBinPath) }
             findItem(R.id.cab_create_shortcut).isVisible = isOneItemSelected
+            // Viper Vision: Studio tools for the selected photos.
+            val images = selectedItems.count { it.isImage() }
+            findItem(R.id.vv_cab_compare).isVisible = images == 2 && !isInRecycleBin
+            findItem(R.id.vv_cab_fuse).isVisible = images >= 2 && !isInRecycleBin
+            findItem(R.id.vv_cab_convert).isVisible = images >= 1 && !isInRecycleBin
+            findItem(R.id.vv_cab_gradient).isVisible = images >= 1 && !isInRecycleBin
 
             checkHideBtnVisibility(this, selectedItems)
             checkFavoriteBtnVisibility(this, selectedItems)
@@ -231,6 +238,10 @@ class MediaAdapter(
             R.id.cab_fix_date_taken -> fixDateTaken()
             R.id.cab_set_as -> setAs()
             R.id.cab_resize -> resize()
+            R.id.vv_cab_compare -> openStudio("Compare")
+            R.id.vv_cab_fuse -> openStudio("Fusion")
+            R.id.vv_cab_convert -> openStudio("Convert")
+            R.id.vv_cab_gradient -> openStudio("Gradient")
             R.id.cab_delete -> checkDeleteConfirmation()
         }
     }
@@ -318,6 +329,13 @@ class MediaAdapter(
                 finishActMode()
             }
         }
+    }
+
+    /** Viper Vision: opens a Studio tool with the selected photos. */
+    private fun openStudio(tool: String) {
+        val paths = getSelectedItems().filter { it.isImage() }.map { it.path }
+        activity.openViperStudio(tool, paths)
+        finishActMode()
     }
 
     private fun editFile() {

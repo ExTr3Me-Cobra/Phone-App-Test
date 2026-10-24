@@ -53,6 +53,27 @@
         android:showAsAction="never"
         android:title="@string/set_as_default_folder"
         app:showAsAction="never" />
+    <!-- Viper Vision: the Studio's tools that make new pictures. -->
+    <item
+        android:id="@+id/vv_create"
+        android:showAsAction="never"
+        android:title="@string/vv_create"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/vv_create_gradient"
+                android:title="@string/vv_create_gradient" />
+            <item
+                android:id="@+id/vv_create_mesh_gradient"
+                android:title="@string/vv_create_mesh_gradient" />
+            <item
+                android:id="@+id/vv_create_texture"
+                android:title="@string/vv_create_texture" />
+            <item
+                android:id="@+id/vv_export_wallpapers"
+                android:title="@string/vv_export_wallpapers" />
+        </menu>
+    </item>
     <item
         android:id="@+id/create_new_folder"
         android:showAsAction="never"
