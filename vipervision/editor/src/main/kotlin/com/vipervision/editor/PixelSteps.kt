@@ -22,6 +22,9 @@ sealed interface PixelStep {
 
     /** The Cut out tool's result (background removed by models, brushes and/or Smart select). */
     data class CutOut(val id: Long = System.nanoTime()) : PixelStep
+
+    /** A model from "All AI models"; [alpha] when its result has transparency. */
+    data class AiModel(val modelName: String, val alpha: Boolean, val id: Long = System.nanoTime()) : PixelStep
 }
 
 /**

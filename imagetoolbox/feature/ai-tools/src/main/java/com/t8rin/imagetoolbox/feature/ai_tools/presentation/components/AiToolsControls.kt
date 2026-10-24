@@ -65,8 +65,9 @@ import com.t8rin.imagetoolbox.feature.ai_tools.presentation.screenLogic.AiToolsC
 import kotlinx.collections.immutable.toPersistentMap
 import kotlin.math.roundToInt
 
+// Viper Vision: public so the editor's "All AI models" screen can show these controls.
 @Composable
-internal fun AiToolsControls(component: AiToolsComponent) {
+fun AiToolsControls(component: AiToolsComponent, showImageFormat: Boolean = true) {
     val selectedModel by component.selectedModel.collectAsStateWithLifecycle()
     val downloadedModels by component.downloadedModels.collectAsStateWithLifecycle()
     val notDownloadedModels by component.notDownloadedModels.collectAsStateWithLifecycle()
@@ -294,6 +295,8 @@ internal fun AiToolsControls(component: AiToolsComponent) {
         containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(0.4f),
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(0.8f)
     )
+
+    if (!showImageFormat) return
 
     Spacer(Modifier.height(8.dp))
 

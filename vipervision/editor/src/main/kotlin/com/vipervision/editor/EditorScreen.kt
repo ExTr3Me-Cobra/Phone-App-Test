@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
+import com.t8rin.imagetoolbox.core.resources.icons.Neurology
 import com.t8rin.imagetoolbox.core.resources.icons.Curve
 import com.t8rin.imagetoolbox.core.resources.icons.Scissors
 import com.t8rin.imagetoolbox.core.resources.icons.AutoFixHigh
@@ -93,6 +94,10 @@ internal fun EditorScreen(
     onApplyCutOut: () -> Unit,
     onCancelCutOut: () -> Unit,
     onNeedSamDownload: () -> Unit,
+    onStartAiStudio: () -> Unit,
+    onRunAiStudio: () -> Unit,
+    onApplyAiStudio: () -> Unit,
+    onCancelAiStudio: () -> Unit,
     onApplyPaint: () -> Unit,
     onSave: () -> Unit,
     onOpenMoreTools: () -> Unit,
@@ -131,6 +136,18 @@ internal fun EditorScreen(
     val changed = !controller.state.isUnchanged
 
     BackHandler(enabled = changed) { showDiscardDialog = true }
+
+    controller.aiStudio?.let { session ->
+        AiStudioScreen(
+            session = session,
+            photo = base,
+            onCancel = onCancelAiStudio,
+            onRun = onRunAiStudio,
+            onApply = onApplyAiStudio
+        )
+        if (controller.isBusy) BusyOverlay(controller.busyMessage)
+        return
+    }
 
     controller.cutOut?.let { session ->
         CutOutScreen(
@@ -287,7 +304,7 @@ internal fun EditorScreen(
                     EditorTab.Adjust -> if (controller.curvesOpen) {
                         CurvesPanel(controller, remember(base) { base?.scaledToFit(512) })
                     } else AdjustPanel(controller)
-                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut)
+                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut, onStartAiStudio)
                     EditorTab.Transform -> TransformPanel(controller)
                     EditorTab.Effects -> EffectsPanel(controller, toolbox, thumbnail)
                 }
@@ -471,7 +488,8 @@ private fun AiPanel(
     onRunAi: (AiTool) -> Unit,
     lamaReady: Boolean,
     onStartObjectEraser: () -> Unit,
-    onStartCutOut: () -> Unit
+    onStartCutOut: () -> Unit,
+    onStartAiStudio: () -> Unit
 ) {
     var selected by remember { mutableStateOf<AiTool?>(null) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
@@ -489,6 +507,18 @@ private fun AiPanel(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
+            // Every model in Image Toolbox's AI Tools, with all its settings.
+            item {
+                AiBubble(
+                    icon = Icons.Outlined.Neurology,
+                    label = "All AI models",
+                    download = null,
+                    applied = controller.state.pixelSteps.any { it is PixelStep.AiModel },
+                    selected = false,
+                    enabled = !controller.isBusy,
+                    onClick = onStartAiStudio
+                )
+            }
             // Object eraser: paint over something and the LaMa AI model fills in what was behind it.
             item {
                 AiBubble(

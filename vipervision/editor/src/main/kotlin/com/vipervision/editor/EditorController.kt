@@ -111,7 +111,9 @@ class EditorController {
 
     /** Remove background makes transparency, which JPEG can't hold. */
     val needsPng: Boolean
-        get() = state.pixelSteps.any { it == PixelStep.Ai(AiTool.RemoveBackground) || it is PixelStep.CutOut }
+        get() = state.pixelSteps.any {
+            it == PixelStep.Ai(AiTool.RemoveBackground) || it is PixelStep.CutOut || (it is PixelStep.AiModel && it.alpha)
+        }
 
     /** Records a finished pixel step (AI tool or heal) and its result. */
     fun addPixelStep(steps: List<PixelStep>, result: AiResult) {
@@ -124,6 +126,9 @@ class EditorController {
 
     /** Set while the Cut out tool is open. */
     var cutOut by mutableStateOf<CutOutSession?>(null)
+
+    /** Set while "All AI models" is open. */
+    var aiStudio by mutableStateOf<AiStudioSession?>(null)
 
     private val undoStack = ArrayDeque<EditState>()
     private val redoStack = ArrayDeque<EditState>()

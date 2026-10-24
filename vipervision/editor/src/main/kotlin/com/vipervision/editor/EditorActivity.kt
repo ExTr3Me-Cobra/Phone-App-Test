@@ -30,7 +30,9 @@ import com.t8rin.imagetoolbox.core.filters.presentation.widget.addFilters.AddFil
 import com.t8rin.imagetoolbox.core.settings.presentation.model.toUiState
 import com.t8rin.imagetoolbox.core.ui.utils.ComposeActivity
 import com.t8rin.imagetoolbox.core.ui.utils.provider.ImageToolboxCompositionLocals
+import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiProgressListener
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
+import com.t8rin.imagetoolbox.feature.ai_tools.presentation.screenLogic.AiToolsComponent
 import com.t8rin.neural_tools.inpaint.LaMaProcessor
 import com.t8rin.opencv_tools.spot_heal.SpotHealer
 import com.t8rin.opencv_tools.spot_heal.model.HealType
@@ -68,6 +70,10 @@ class EditorActivity : ComposeActivity() {
     /** Image Toolbox's Background Remover, driven by the Cut out tool. */
     @Inject
     lateinit var eraseBackgroundFactory: EraseBackgroundComponent.Factory
+
+    /** Image Toolbox's AI Tools screen logic, driven by "All AI models". */
+    @Inject
+    lateinit var aiToolsFactory: AiToolsComponent.Factory
 
     /** Set while asking whether to download MobileSAM for Cut out's Smart select. */
     private var pendingSamDownload by mutableStateOf(false)
@@ -154,6 +160,10 @@ class EditorActivity : ComposeActivity() {
                     onApplyCutOut = { scope.applyCutOut() },
                     onCancelCutOut = ::closeCutOut,
                     onNeedSamDownload = { pendingSamDownload = true },
+                    onStartAiStudio = { startAiStudio(source) },
+                    onRunAiStudio = { scope.runAiStudio(source) },
+                    onApplyAiStudio = { scope.applyAiStudio() },
+                    onCancelAiStudio = ::closeAiStudio,
                     onApplyPaint = { scope.applyPaint(source) },
                     onSave = { scope.save(source, realPath) },
                     onOpenMoreTools = { scope.openMoreTools(source) },
@@ -383,6 +393,84 @@ class EditorActivity : ComposeActivity() {
         controller.isBusy = false
     }
 
+    private fun startAiStudio(source: Uri) {
+        if (controller.isBusy || controller.aiStudio != null) return
+        val input = controller.workingFile?.let(Uri::fromFile) ?: source
+        val lifecycle = LifecycleRegistry()
+        val component = aiToolsFactory(
+            componentContext = DefaultComponentContext(lifecycle),
+            initialUris = listOf(input),
+            onGoBack = ::closeAiStudio,
+            onNavigate = {}
+        )
+        lifecycle.resume()
+        controller.aiStudio = AiStudioSession(component, lifecycle)
+    }
+
+    private fun closeAiStudio() {
+        controller.aiStudio?.close()
+        controller.aiStudio = null
+        aiRepository.cleanup()
+    }
+
+    /** Runs the selected model (with its settings) on the full-size photo, for preview. */
+    private fun CoroutineScope.runAiStudio(source: Uri) = launch {
+        val session = controller.aiStudio ?: return@launch
+        val model = session.component.selectedModel.value ?: return@launch
+        if (session.busyMessage != null) return@launch
+        session.clearResult()
+        session.busyMessage = "${model.title}…"
+        val listener = object : AiProgressListener {
+            override fun onError(error: String) {
+                runOnUiThread { Toast.makeText(this@EditorActivity, error, Toast.LENGTH_LONG).show() }
+            }
+
+            override fun onProgress(currentChunkIndex: Int, totalChunks: Int) {
+                if (totalChunks > 1) session.busyMessage = "${model.title}… ${min(currentChunkIndex + 1, totalChunks)} of $totalChunks"
+            }
+        }
+        runCatching {
+            val input = controller.workingFile?.let(Uri::fromFile) ?: source
+            val full = withContext(Dispatchers.IO) { decodeImage(this@EditorActivity, input, maxSafeSide(this@EditorActivity, input)) }
+            if (model.isAiDetector) {
+                session.detection = aiRepository.detectAiImage(full, listener) ?: error("the model gave no answer")
+            } else {
+                val params = session.component.params
+                check(!model.isStyleTransfer || params.auxiliaryImage != null) { "pick a style image first" }
+                val output = aiRepository.processImage(full, listener, params) ?: error("the model gave no result")
+                val metrics = resources.displayMetrics
+                session.resultModelName = model.name
+                session.resultNeedsAlpha = session.component.requiresAlphaOutput
+                session.result = output
+                session.resultPreview = output.scaledToFit(min(2048, max(metrics.widthPixels, metrics.heightPixels)))
+            }
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "${model.title} failed: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        aiRepository.cleanup()
+        session.busyMessage = null
+    }
+
+    private fun CoroutineScope.applyAiStudio() = launch {
+        val session = controller.aiStudio ?: return@launch
+        val output = session.result ?: return@launch
+        if (controller.isBusy) return@launch
+        controller.isBusy = true
+        controller.busyMessage = "Finishing…"
+        runCatching { storeResult(output) }
+            .onSuccess { result ->
+                controller.addPixelStep(
+                    controller.state.pixelSteps + PixelStep.AiModel(session.resultModelName, session.resultNeedsAlpha),
+                    result
+                )
+                closeAiStudio()
+            }.onFailure {
+                Toast.makeText(this@EditorActivity, "Couldn't keep the result: ${it.message}", Toast.LENGTH_LONG).show()
+            }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
     /** Opens Cut out on the upright photo, including earlier AI/heal steps. */
     private fun startCutOut(source: Uri) {
         if (controller.isBusy || controller.cutOut != null) return
@@ -448,6 +536,7 @@ class EditorActivity : ComposeActivity() {
         if (isFinishing) {
             File(cacheDir, "vv_ai").deleteRecursively()
             controller.cutOut?.close()
+            controller.aiStudio?.close()
         }
     }
 

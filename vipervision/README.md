@@ -34,6 +34,12 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   in). Each model downloads once, after asking (sizes show under the bubbles), then works offline.
   AI steps run on the full-size photo, happen before rotate/crop/adjustments, and undo like any
   other edit. With Remove background applied, the photo saves as PNG to keep the transparency.
+* **All AI models** (first in the AI row): Image Toolbox's whole AI Tools catalogue — 130+
+  models: upscalers, face restoration, denoise, de-JPEG, deblur, colorize, anime, document
+  scans, style transfer (pick a style image), depth effects, background removal, AI-image
+  detection, and your own imported ONNX models — with its model browser (filter, download,
+  delete, import) and every setting (strength, chunk size, overlap, parallel workers, depth
+  options). Run shows the result (hold to compare); the tick keeps it as an undoable step.
 * **Cut out** (scissors, in the AI row): Image Toolbox's whole Background Remover in the
   editor's style. **Smart select** turns rough painting into MobileSAM (Segment Anything)
   prompts: paint over what to keep (green) or switch to "Leave out" (blue) and the AI finds the
