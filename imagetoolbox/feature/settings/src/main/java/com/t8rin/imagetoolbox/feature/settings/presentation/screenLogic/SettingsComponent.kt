@@ -234,9 +234,6 @@ class SettingsComponent @AssistedInject internal constructor(
     fun setSemanticSearchEnabled(enabled: Boolean) =
         settingsScope { setSemanticSearchEnabled(enabled) }
 
-    fun setAiAssistantEnabled(enabled: Boolean) =
-        settingsScope { setAiAssistantEnabled(enabled) }
-
     fun toggleAddFileSize() = settingsScope { toggleAddFileSize() }
 
     fun setEmoji(emoji: Int) = settingsScope { setEmoji(emoji) }

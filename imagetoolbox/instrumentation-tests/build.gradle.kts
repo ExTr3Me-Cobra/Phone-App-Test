@@ -29,7 +29,6 @@ val testedProjects = listOf(
     "core/data",
     "core/utils",
     "feature/ai-tools",
-    "feature/assistant",
     "feature/apng-tools",
     "feature/cipher",
     "feature/code-preview",
@@ -168,7 +167,6 @@ dependencies {
     implementation(libs.androidx.runner)
     implementation(libs.moshi)
     implementation(libs.bouncycastle.provider)
-    compileOnly(libs.onnx.genai)
     compileOnly(libs.kotlinx.serialization.json)
 }
 

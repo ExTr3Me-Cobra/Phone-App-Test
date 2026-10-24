@@ -48,7 +48,6 @@ dependencies {
     implementation(projects.feature.aiTools)
     implementation(projects.feature.appLogs)
     implementation(projects.feature.help)
-    implementation(projects.feature.assistant)
     implementation(projects.feature.usageStatistics)
     implementation(projects.feature.multiFrameFusion)
 }

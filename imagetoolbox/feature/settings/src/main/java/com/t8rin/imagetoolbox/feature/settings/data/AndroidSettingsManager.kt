@@ -37,7 +37,6 @@ import com.t8rin.imagetoolbox.core.domain.image.model.ImageScaleMode
 import com.t8rin.imagetoolbox.core.domain.image.model.Quality
 import com.t8rin.imagetoolbox.core.domain.image.model.ResizeType
 import com.t8rin.imagetoolbox.core.domain.json.JsonParser
-import com.t8rin.imagetoolbox.core.domain.model.AssistantModel
 import com.t8rin.imagetoolbox.core.domain.model.ColorModel
 import com.t8rin.imagetoolbox.core.domain.model.DomainAspectRatio
 import com.t8rin.imagetoolbox.core.domain.model.GradientPalette
@@ -80,9 +79,6 @@ import com.t8rin.imagetoolbox.feature.settings.data.keys.ADD_SCALE_MODE_TO_FILEN
 import com.t8rin.imagetoolbox.feature.settings.data.keys.ADD_SEQ_NUM_TO_FILENAME
 import com.t8rin.imagetoolbox.feature.settings.data.keys.ADD_SIZE_TO_FILENAME
 import com.t8rin.imagetoolbox.feature.settings.data.keys.ADD_TIMESTAMP_TO_FILENAME
-import com.t8rin.imagetoolbox.feature.settings.data.keys.AI_ASSISTANT_ENABLED
-import com.t8rin.imagetoolbox.feature.settings.data.keys.AI_ASSISTANT_MODEL_TYPE
-import com.t8rin.imagetoolbox.feature.settings.data.keys.AI_ASSISTANT_SETUP_COMPLETE
 import com.t8rin.imagetoolbox.feature.settings.data.keys.ALLOW_ANALYTICS
 import com.t8rin.imagetoolbox.feature.settings.data.keys.ALLOW_AUTO_PASTE
 import com.t8rin.imagetoolbox.feature.settings.data.keys.ALLOW_BETAS
@@ -377,19 +373,6 @@ internal class AndroidSettingsManager @Inject constructor(
 
     override suspend fun setSemanticSearchEnabled(enabled: Boolean) = edit {
         it[SEMANTIC_SEARCH_ENABLED] = enabled
-    }
-
-    override suspend fun setAiAssistantEnabled(enabled: Boolean) = edit {
-        it[AI_ASSISTANT_ENABLED] = enabled
-        if (!enabled) it[AI_ASSISTANT_SETUP_COMPLETE] = true
-    }
-
-    override suspend fun setAiAssistantSetupComplete() = edit {
-        it[AI_ASSISTANT_SETUP_COMPLETE] = true
-    }
-
-    override suspend fun setAiAssistantModel(model: AssistantModel) = edit {
-        it[AI_ASSISTANT_MODEL_TYPE] = model.ordinal
     }
 
     override suspend fun setSemanticSearchSettings(value: SemanticSearchSettings) = edit {

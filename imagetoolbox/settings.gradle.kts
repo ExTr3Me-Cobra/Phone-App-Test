@@ -92,7 +92,6 @@ include(":feature:wallpapers-export")
 include(":feature:ai-tools")
 include(":feature:app-logs")
 include(":feature:help")
-include(":feature:assistant")
 include(":feature:usage-statistics")
 include(":feature:multi-frame-fusion")
 

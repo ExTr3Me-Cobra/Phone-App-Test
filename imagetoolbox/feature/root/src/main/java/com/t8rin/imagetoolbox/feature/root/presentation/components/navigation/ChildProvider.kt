@@ -70,7 +70,6 @@ import com.t8rin.imagetoolbox.library_details.presentation.screenLogic.LibraryDe
 import com.t8rin.imagetoolbox.presentation.app_logs.screenLogic.AppLogsComponent
 import com.t8rin.imagetoolbox.texture_generation.presentation.screenLogic.TextureGenerationComponent
 import javax.inject.Inject
-import com.t8rin.imagetoolbox.feature.assistant.presentation.screenLogic.AssistantComponent
 import com.t8rin.imagetoolbox.feature.easter_egg.presentation.screenLogic.EasterEggComponent
 import com.t8rin.imagetoolbox.feature.help.presentation.screenLogic.HelpComponent
 
@@ -100,7 +99,6 @@ internal class ChildProvider @Inject constructor(
     private val aiToolsComponentFactory: AiToolsComponent.Factory,
     private val easterEggComponentFactory: EasterEggComponent.Factory,
     private val helpComponentFactory: HelpComponent.Factory,
-    private val assistantComponentFactory: AssistantComponent.Factory,
 ) {
     fun RootComponent.createChild(
         config: Screen,
@@ -264,14 +262,6 @@ internal class ChildProvider @Inject constructor(
             )
         )
 
-        is Screen.Assistant -> NavigationChild.Assistant(
-            assistantComponentFactory(
-                componentContext = componentContext,
-                route = config,
-                onGoBack = ::navigateBack,
-                onNavigate = ::navigateTo
-            )
-        )
 
         is Screen.SingleEdit -> SingleEdit(
             singleEditComponentFactory(

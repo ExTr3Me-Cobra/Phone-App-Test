@@ -25,6 +25,5 @@ android.namespace = "com.t8rin.neural_tools"
 dependencies {
     api(projects.core.domain)
     api(libs.onnx.runtime)
-    implementation(libs.onnx.genai)
     implementation(libs.aire)
 }

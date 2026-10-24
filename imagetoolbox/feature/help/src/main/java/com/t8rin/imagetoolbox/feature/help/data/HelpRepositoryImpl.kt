@@ -2375,101 +2375,6 @@ internal class HelpRepositoryImpl @Inject constructor() : HelpRepository {
                 )
             )
         ),
-        pagesTip(
-            id = "assistant-workflow",
-            title = R.string.help_tip_assistant_workflow_title,
-            subtitle = R.string.help_tip_assistant_workflow_subtitle,
-            icon = Icons.Outlined.Neurology,
-            category = aiTools,
-            deepLink = Screen.Assistant(),
-            pages = listOf(
-                page(
-                    title = R.string.help_tip_assistant_workflow_title,
-                    description = R.string.help_tip_assistant_workflow_description,
-                    steps = listOf(
-                        R.string.help_tip_assistant_workflow_step_1,
-                        R.string.help_tip_assistant_workflow_step_2,
-                        R.string.help_tip_assistant_workflow_step_3
-                    )
-                ),
-                page(
-                    title = R.string.help_tip_assistant_workflow_page_2_title,
-                    description = R.string.help_tip_assistant_workflow_page_2_description,
-                    steps = listOf(
-                        R.string.help_tip_assistant_workflow_page_2_step_1,
-                        R.string.help_tip_assistant_workflow_page_2_step_2,
-                        R.string.help_tip_assistant_workflow_page_2_step_3
-                    )
-                )
-            )
-        ),
-        pagesTip(
-            id = "assistant-models",
-            title = R.string.help_tip_assistant_models_title,
-            subtitle = R.string.help_tip_assistant_models_subtitle,
-            icon = Icons.Outlined.Neurology,
-            category = aiTools,
-            deepLink = Screen.Assistant(),
-            pages = listOf(
-                page(
-                    title = R.string.help_tip_assistant_models_title,
-                    description = R.string.help_tip_assistant_models_description,
-                    steps = listOf(
-                        R.string.help_tip_assistant_models_step_1,
-                        R.string.help_tip_assistant_models_step_2,
-                        R.string.help_tip_assistant_models_step_3
-                    )
-                ),
-                page(
-                    title = R.string.help_tip_assistant_models_page_2_title,
-                    description = R.string.help_tip_assistant_models_page_2_description,
-                    steps = listOf(
-                        R.string.help_tip_assistant_models_page_2_step_1,
-                        R.string.help_tip_assistant_models_page_2_step_2,
-                        R.string.help_tip_assistant_models_page_2_step_3
-                    )
-                ),
-                page(
-                    title = R.string.help_tip_assistant_models_page_3_title,
-                    description = R.string.help_tip_assistant_models_page_3_description,
-                    steps = listOf(
-                        R.string.help_tip_assistant_models_page_3_step_1,
-                        R.string.help_tip_assistant_models_page_3_step_2,
-                        R.string.help_tip_assistant_models_page_3_step_3
-                    )
-                )
-            )
-        ),
-        tip(
-            id = "assistant-images",
-            title = R.string.help_tip_assistant_images_title,
-            subtitle = R.string.help_tip_assistant_images_subtitle,
-            icon = Icons.Outlined.Neurology,
-            category = aiTools,
-            deepLink = Screen.Assistant(),
-            pageTitle = R.string.help_tip_assistant_images_title,
-            description = R.string.help_tip_assistant_images_description,
-            steps = listOf(
-                R.string.help_tip_assistant_images_step_1,
-                R.string.help_tip_assistant_images_step_2,
-                R.string.help_tip_assistant_images_step_3
-            )
-        ),
-        tip(
-            id = "assistant-downloads",
-            title = R.string.help_tip_assistant_downloads_title,
-            subtitle = R.string.help_tip_assistant_downloads_subtitle,
-            icon = Icons.Outlined.Neurology,
-            category = aiTools,
-            deepLink = Screen.Assistant(),
-            pageTitle = R.string.help_tip_assistant_downloads_title,
-            description = R.string.help_tip_assistant_downloads_description,
-            steps = listOf(
-                R.string.help_tip_assistant_downloads_step_1,
-                R.string.help_tip_assistant_downloads_step_2,
-                R.string.help_tip_assistant_downloads_step_3
-            )
-        ),
         tip(
             id = "ai-upscaling",
             title = R.string.help_tip_ai_upscaling_title,
@@ -5589,21 +5494,6 @@ internal class HelpRepositoryImpl @Inject constructor() : HelpRepository {
             steps = listOf(
                 R.string.help_tip_setting_fast_settings_side_step_1,
                 R.string.help_tip_setting_fast_settings_side_step_2
-            )
-        ),
-        tip(
-            id = "setting-ai-assistant",
-            title = R.string.ai_assistant,
-            subtitle = R.string.ai_assistant_subtitle,
-            icon = Icons.Outlined.Neurology,
-            category = gettingStarted,
-            deepLink = Screen.Settings(targetSetting = Setting.AiAssistant),
-            pageTitle = R.string.ai_assistant,
-            description = R.string.help_tip_setting_ai_assistant_description,
-            steps = listOf(
-                R.string.help_tip_setting_ai_assistant_step_1,
-                R.string.help_tip_setting_ai_assistant_step_2,
-                R.string.help_tip_setting_ai_assistant_step_3
             )
         ),
         tip(

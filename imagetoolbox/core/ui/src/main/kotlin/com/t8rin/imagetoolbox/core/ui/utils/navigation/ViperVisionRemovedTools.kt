@@ -2,7 +2,7 @@ package com.t8rin.imagetoolbox.core.ui.utils.navigation
 
 /**
  * Viper Vision: tools removed from the app. Their modules are gone from the build, but the screen
- * types stay here because shared code (deep links, help, the assistant) still mentions them.
+ * types stay here because shared code (deep links, help) still mentions them.
  * Removed tools are left out of every tool list, and navigating to one does nothing.
  *
  * Color Picker and Archive Tools are hidden here too, but their modules stay in the build:

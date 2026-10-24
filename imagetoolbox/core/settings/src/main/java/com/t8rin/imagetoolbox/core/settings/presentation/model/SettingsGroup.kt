@@ -419,7 +419,6 @@ sealed class SettingsGroup(
             Setting.UseCategorizedSettings,
             Setting.AllowCollapsingSettingsGroups,
             Setting.FastSettingsSide,
-            Setting.AiAssistant,
             Setting.OpenEditInsteadOfPreview,
             Setting.SnowfallMode,
             Setting.EnableLinksPreview,

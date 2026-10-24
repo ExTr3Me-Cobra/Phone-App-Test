@@ -43,9 +43,6 @@ internal fun ScreenSelector(
         currentScreen = currentScreen,
         concealBackdropFlow = component.concealBackdropFlow,
         settingsComponent = component.settingsComponent,
-        onOpenAssistant = {
-            component.navigateTo(childStack.active.instance.assistantScreen(currentScreen))
-        },
         children = {
             Children(
                 stack = childStack,

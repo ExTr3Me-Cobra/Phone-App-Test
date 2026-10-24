@@ -43,8 +43,10 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   Toolbox's own filters: the Aire library for brightness, contrast and saturation, and its GPU
   filters (exposure, wide-range highlights/shadows, white balance, sharpen, vignette) in one GPU
   pass. `Adjustments.kt` notes how each dial maps onto the filter's range. The last bubble,
-  **Heal**, removes spots and small blemishes: paint over them (brush size slider, undo stroke)
-  and Image Toolbox's OpenCV content-aware fill blends them away. No download, not AI.
+  **Heal**, removes spots and small blemishes: paint over them and Image Toolbox's OpenCV
+  content-aware fill blends them away. No download, not AI. While painting (Heal or Object
+  eraser), one finger paints, two fingers pinch to zoom and move around, and the wedge slider on
+  the right sets the brush size (a circle shows how big while you drag it).
 * **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
 
 Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
@@ -136,6 +138,9 @@ upstream, these are the things to carry over.
   updates. The first-launch "Updates" dialog is never shown (`FirstLaunchSetupDialog.kt`),
   `RootComponent.tryGetUpdate()` returns straight away, and the Updates settings section and its
   three help tips are removed.
+* AI chat Assistant removed entirely: the `feature/assistant` module, its language-model code in
+  `lib/neural-tools` (and the ONNX GenAI library it needed), `Screen.Assistant`, its buttons on
+  the main screen and the settings edge tab, its setting, stored preferences and help tips.
 
 **gallery/**
 * Removed Fossify's editor: `EditActivity` and its filters, crop/draw views, dialogs and layouts.

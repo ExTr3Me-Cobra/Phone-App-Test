@@ -141,7 +141,7 @@ internal fun RowScope.ScreenPreferenceSelection(
         val showClipButton = hasScreens &&
                 ((clipboardData.isNotEmpty() && allowAutoPaste) || !allowAutoPaste)
         val showSearchButton = hasScreens && !showScreenSearch && canSearchScreens
-        val showBottomActions = showClipButton || settingsState.isAiAssistantEnabled
+        val showBottomActions = showClipButton
         Box(modifier = Modifier.fillMaxSize()) {
             if (hasScreens) {
                 val layoutDirection = LocalLayoutDirection.current
@@ -154,8 +154,7 @@ internal fun RowScope.ScreenPreferenceSelection(
                     isGrid, navBarsPadding,
                     showClipButton, showSearchButton,
                     isSheetSlideable, layoutDirection,
-                    cutout, showNavRail, isScreenSelectionLauncherMode,
-                    settingsState.isAiAssistantEnabled
+                    cutout, showNavRail, isScreenSelectionLauncherMode
                 ) {
                     derivedStateOf {
                         val vertical = if (isScreenSelectionLauncherMode) 12.dp else 0.dp
@@ -167,7 +166,7 @@ internal fun RowScope.ScreenPreferenceSelection(
 
                         val secondBottomPart = if (showBottomActions && showSearchButton) {
                             76.dp + 48.dp
-                        } else if (showClipButton || showSearchButton || settingsState.isAiAssistantEnabled) {
+                        } else if (showClipButton || showSearchButton) {
                             76.dp
                         } else {
                             0.dp
@@ -439,33 +438,6 @@ internal fun RowScope.ScreenPreferenceSelection(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        AnimatedVisibility(
-                            visible = settingsState.isAiAssistantEnabled,
-                            enter = fadeIn() + scaleIn(),
-                            exit = fadeOut() + scaleOut()
-                        ) {
-                            EnhancedFloatingActionButton(
-                                onClick = { onNavigateToScreenWithPopUpTo(Screen.Assistant(source = Screen.Main)) },
-                                type = if (showClipButton) {
-                                    EnhancedFloatingActionButtonType.SecondaryHorizontal
-                                } else EnhancedFloatingActionButtonType.Primary,
-                                containerColor = when {
-                                    showClipButton && showSearchButton -> MaterialTheme.colorScheme.primaryContainer
-                                    showClipButton -> MaterialTheme.colorScheme.secondaryContainer
-                                    else -> MaterialTheme.colorScheme.tertiaryContainer
-                                },
-                                contentColor = when {
-                                    showClipButton && showSearchButton -> MaterialTheme.colorScheme.onPrimaryContainer
-                                    showClipButton -> MaterialTheme.colorScheme.onSecondaryContainer
-                                    else -> MaterialTheme.colorScheme.onTertiaryContainer
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Neurology,
-                                    contentDescription = stringResource(R.string.ai_assistant)
-                                )
-                            }
-                        }
                         AnimatedVisibility(
                             visible = showClipButton,
                             enter = fadeIn() + scaleIn(),

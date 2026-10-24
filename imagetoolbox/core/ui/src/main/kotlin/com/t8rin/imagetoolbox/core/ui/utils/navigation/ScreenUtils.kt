@@ -191,7 +191,6 @@ internal fun Screen.canExpandSettings(): Boolean = when {
 }
 
 internal fun Screen.simpleName(): String = when (this) {
-    is Screen.Assistant -> "AI_Assistant"
     is ApngTools -> "APNG_Tools"
     is Cipher -> "Cipher"
     is Compare -> "Compare"
@@ -292,7 +291,6 @@ internal fun Screen.simpleName(): String = when (this) {
 }
 
 internal fun Screen.icon(): ImageVector? = when (this) {
-    is Screen.Assistant -> Icons.Outlined.Neurology
     is EasterEgg,
     is Main,
     is Settings,
@@ -394,7 +392,6 @@ internal fun Screen.icon(): ImageVector? = when (this) {
 }
 
 internal fun Screen.twoToneIcon(): ImageVector? = when (this) {
-    is Screen.Assistant -> Icons.TwoTone.Neurology
     is EasterEgg,
     is Main,
     is Settings,

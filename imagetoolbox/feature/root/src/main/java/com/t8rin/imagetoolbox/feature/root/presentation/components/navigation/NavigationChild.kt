@@ -27,8 +27,6 @@ import com.t8rin.imagetoolbox.core.ui.utils.navigation.Screen
 import com.t8rin.imagetoolbox.core.utils.appContext
 import com.t8rin.imagetoolbox.feature.ai_tools.presentation.AiToolsContent
 import com.t8rin.imagetoolbox.feature.ai_tools.presentation.screenLogic.AiToolsComponent
-import com.t8rin.imagetoolbox.feature.assistant.presentation.AssistantContent
-import com.t8rin.imagetoolbox.feature.assistant.presentation.screenLogic.AssistantComponent
 import com.t8rin.imagetoolbox.feature.compare.presentation.CompareContent
 import com.t8rin.imagetoolbox.feature.compare.presentation.screenLogic.CompareComponent
 import com.t8rin.imagetoolbox.feature.crop.presentation.CropContent
@@ -85,38 +83,18 @@ internal sealed interface NavigationChild {
     @Composable
     fun Content()
 
-    fun assistantScreen(source: Screen?): Screen.Assistant = source.assistantScreen()
-
 
     class Compare(private val component: CompareComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            listOfNotNull(component.bitmapData?.first?.uri, component.bitmapData?.second?.uri)
-        )
-
         @Composable
         override fun Content() = CompareContent(component)
     }
 
     class Crop(private val component: CropComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            listOfNotNull(component.currentUri),
-            "imageFormat" to component.imageFormat.title,
-            "rotation" to component.rotationState.floatValue,
-            "keepExif" to component.saveExif
-        )
-
         @Composable
         override fun Content() = CropContent(component)
     }
 
     class Draw(private val component: DrawComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            listOf(component.uri),
-            "imageFormat" to component.imageFormat.title,
-            "strokeCount" to component.paths.size,
-            "keepExif" to component.saveExif
-        )
-
         @Composable
         override fun Content() = DrawContent(component)
     }
@@ -127,108 +105,36 @@ internal sealed interface NavigationChild {
     }
 
     class EraseBackground(private val component: EraseBackgroundComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = Screen.Assistant(
-            source = Screen.EraseBackground(component.uri.takeUnless { it == Uri.EMPTY }),
-            parameters = mapOf(
-                "imageFormat" to component.imageFormat.title,
-                "restoreMode" to component.isRecoveryOn.toString(),
-                "trimImage" to component.trimImage.toString(),
-                "isRemovingBackground" to component.isErasingBG.toString(),
-                "keepExif" to component.saveExif.toString()
-            ),
-            selectedUris = listOfNotNull(component.uri.takeUnless { it == Uri.EMPTY })
-        )
-
         @Composable
         override fun Content() = EraseBackgroundContent(component)
     }
 
     class Filter(private val component: FiltersComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = when (val type = component.filterType) {
-            is Screen.Filter.Type.Basic -> {
-                val state = component.basicFilterState
-                val filterKey = state.filters.singleOrNull()?.let {
-                    appContext.resources.getResourceEntryName(it.title)
-                }
-                Screen.Filter(Screen.Filter.Type.Basic(state.uris, filterKey)).assistantScreen(
-                    state.uris,
-                    "mode" to appContext.getString(type.title),
-                    "filterCount" to state.filters.size,
-                    "filterNames" to state.filters.take(3)
-                        .joinToString { appContext.getString(it.title) },
-                    "filterKey" to filterKey
-                )
-            }
-
-            is Screen.Filter.Type.Masking -> Screen.Assistant(
-                source = Screen.Filter(Screen.Filter.Type.Masking(component.maskingFilterState.uri)),
-                parameters = mapOf(
-                    "mode" to appContext.getString(type.title),
-                    "filterCount" to component.maskingFilterState.masks.size.toString()
-                ),
-                selectedUris = listOfNotNull(component.maskingFilterState.uri)
-            )
-
-            null -> Screen.Assistant(source = source)
-        }
-
         @Composable
         override fun Content() = FiltersContent(component)
     }
 
     class FormatConversion(private val component: FormatConversionComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            component.uris,
-            "imageFormat" to component.imageInfo.imageFormat.title,
-            "quality" to component.imageInfo.quality.qualityValue,
-            "keepExif" to component.keepExif
-        )
-
         @Composable
         override fun Content() = FormatConversionContent(component)
     }
 
     class Curves(private val component: CurvesComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            component.uris,
-            "imageFormat" to component.imageInfo.imageFormat.title,
-            "keepExif" to component.keepExif
-        )
-
         @Composable
         override fun Content() = CurvesContent(component)
     }
 
     class GradientMaker(private val component: GradientMakerComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            component.uris,
-            "imageFormat" to component.imageFormat.title,
-            "gradientType" to component.gradientType,
-            "angle" to component.angle,
-            "opacity" to component.gradientAlpha
-        )
-
         @Composable
         override fun Content() = GradientMakerContent(component)
     }
 
     class ImagePreview(private val component: ImagePreviewComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            component.uris
-        )
-
         @Composable
         override fun Content() = ImagePreviewContent(component)
     }
 
     class MultiFrameFusion(private val component: MultiFrameFusionComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            component.uris,
-            "imageFormat" to component.imageFormat.title,
-            "quality" to component.quality.qualityValue,
-            "canProcess" to component.canProcess
-        )
-
         @Composable
         override fun Content() = MultiFrameFusionContent(component)
     }
@@ -253,25 +159,11 @@ internal sealed interface NavigationChild {
     }
 
     class TextureGeneration(private val component: TextureGenerationComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            null,
-            "imageFormat" to component.imageFormat.title,
-            "quality" to component.quality.qualityValue,
-            "width" to component.textureSize.width,
-            "height" to component.textureSize.height
-        )
-
         @Composable
         override fun Content() = TextureGenerationContent(component)
     }
 
     class Settings(private val component: SettingsComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = Screen.Assistant(
-            source = Screen.Settings(component.searchKeyword, component.targetSetting),
-            settingKey = (component.filteredSettings?.singleOrNull()?.second
-                ?: component.targetSetting)?.key()
-        )
-
         @Composable
         override fun Content() {
             val category = SettingsGroup.entries.firstOrNull {
@@ -290,12 +182,6 @@ internal sealed interface NavigationChild {
         private val component: SettingsComponent,
         private val categoryId: Int
     ) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = Screen.Assistant(
-            source = Screen.Settings(component.searchKeyword, component.targetSetting),
-            settingKey = (component.filteredSettings?.singleOrNull()?.second
-                ?: component.targetSetting)?.key()
-        )
-
         @Composable
         override fun Content() = SettingsCategoryContent(component, categoryId)
     }
@@ -305,25 +191,7 @@ internal sealed interface NavigationChild {
         override fun Content() = HelpContent(component)
     }
 
-    class Assistant(private val component: AssistantComponent) : NavigationChild {
-        @Composable
-        override fun Content() = AssistantContent(component)
-    }
-
     class SingleEdit(private val component: SingleEditComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = Screen.Assistant(
-            source = Screen.SingleEdit(component.uri.takeUnless { it == Uri.EMPTY }),
-            parameters = mapOf(
-                "imageFormat" to component.imageInfo.imageFormat.title,
-                "quality" to component.imageInfo.quality.qualityValue.toString(),
-                "width" to component.imageInfo.width.toString(),
-                "height" to component.imageInfo.height.toString(),
-                "filterCount" to component.filterList.size.toString(),
-                "strokeCount" to component.drawPaths.size.toString()
-            ),
-            selectedUris = listOfNotNull(component.uri.takeUnless { it == Uri.EMPTY })
-        )
-
         @Composable
         override fun Content() = SingleEditContent(component)
     }
@@ -344,13 +212,6 @@ internal sealed interface NavigationChild {
     }
 
     class MarkupLayers(private val component: MarkupLayersComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            null,
-            "imageFormat" to component.imageFormat.title,
-            "layerCount" to component.layers.size,
-            "keepExif" to component.saveExif
-        )
-
         @Composable
         override fun Content() = MarkupLayersContent(component)
     }
@@ -371,29 +232,8 @@ internal sealed interface NavigationChild {
     }
 
     class AiTools(private val component: AiToolsComponent) : NavigationChild {
-        override fun assistantScreen(source: Screen?) = source.assistantScreen(
-            component.uris,
-            "model" to component.selectedModel.value?.title,
-            "imageFormat" to component.imageFormat?.title
-        )
-
         @Composable
         override fun Content() = AiToolsContent(component)
     }
 
 }
-
-
-private fun Screen?.assistantScreen(
-    uris: List<Uri>? = null,
-    vararg parameters: Pair<String, Any?>
-): Screen.Assistant = Screen.Assistant(
-    source = this,
-    selectedUris = uris.orEmpty().filter { it != Uri.EMPTY }.distinct(),
-    parameters = buildMap {
-        this@assistantScreen?.let { put("toolKey", it.simpleName) }
-        parameters.forEach { (key, value) ->
-            value?.let { put(key, it.toString()) }
-        }
-    }
-)

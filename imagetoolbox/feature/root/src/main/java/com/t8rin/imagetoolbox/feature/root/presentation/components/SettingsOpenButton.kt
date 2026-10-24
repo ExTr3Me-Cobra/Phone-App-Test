@@ -86,13 +86,11 @@ internal fun BoxScope.SettingsOpenButton(
     isWantOpenSettings: Boolean,
     onStateChange: (Boolean) -> Unit,
     scaffoldState: BackdropScaffoldState,
-    canExpandSettings: Boolean,
-    onOpenAssistant: (() -> Unit)?
+    canExpandSettings: Boolean
 ) {
     val scope = rememberCoroutineScope()
     val fastSettingsSide = LocalSettingsState.current.fastSettingsSide
-    val isAssistantTab = fastSettingsSide == FastSettingsSide.None
-    val canExpandButton = canExpandSettings || (isAssistantTab && onOpenAssistant != null)
+    val canExpandButton = canExpandSettings
     val alignment = if (fastSettingsSide == FastSettingsSide.CenterStart) {
         Alignment.CenterStart
     } else {
@@ -187,14 +185,9 @@ internal fun BoxScope.SettingsOpenButton(
                 interactionSource = interactionSource
             ) {
                 if (isWantOpenSettings) {
-                    if (isAssistantTab) {
+                    scope.launch {
+                        scaffoldState.reveal()
                         onStateChange(false)
-                        onOpenAssistant?.invoke()
-                    } else {
-                        scope.launch {
-                            scaffoldState.reveal()
-                            onStateChange(false)
-                        }
                     }
                 } else {
                     onStateChange(true)
@@ -252,49 +245,12 @@ internal fun BoxScope.SettingsOpenButton(
                     exit = fadeOut() + scaleOut()
                 ) {
                     Icon(
-                        imageVector = if (isAssistantTab) {
-                            Icons.Outlined.Neurology
-                        } else {
-                            Icons.Rounded.Settings
-                        },
-                        contentDescription = if (isAssistantTab) {
-                            stringResource(R.string.ai_assistant)
-                        } else null,
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = null,
                         tint = contentColor
                     )
                 }
             }
-        }
-    }
-
-    val isStart = fastSettingsSide == FastSettingsSide.CenterStart
-    val isLeft = isStart != (direction == LayoutDirection.Rtl)
-
-    AnimatedVisibility(
-        visible = onOpenAssistant != null && !isAssistantTab && isWantOpenSettings,
-        modifier = Modifier
-            .align(alignment)
-            .padding(start = startPadding, end = endPadding)
-            .offset(x = if (isStart) 56.dp else -56.dp),
-        enter = fadeIn() + slideInHorizontally(
-            animationSpec = springySpec(),
-            initialOffsetX = { if (isLeft) -it * 2 else it * 2 }
-        ),
-        exit = fadeOut() + slideOutHorizontally(
-            animationSpec = springySpec(),
-            targetOffsetX = { if (isLeft) -it * 2 else it * 2 }
-        )
-    ) {
-        EnhancedIconButton(
-            onClick = { onOpenAssistant?.invoke() },
-            modifier = Modifier.size(48.dp),
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Neurology,
-                contentDescription = stringResource(R.string.ai_assistant),
-                tint = MaterialTheme.colorScheme.onTertiaryContainer
-            )
         }
     }
 }

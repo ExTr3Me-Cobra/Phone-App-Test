@@ -32,8 +32,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,6 +52,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
@@ -153,12 +153,14 @@ internal fun EditorScreen(
             val shown = if (showOriginal) controller.basePreview else controller.editedPreview ?: base
             // Room around the photo for the crop handles.
             val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(20.dp) else Modifier.fillMaxSize()
+            // Pinch-zoom while painting; back to the whole photo when painting ends.
+            val paintZoom = remember(controller.paint) { PaintZoom() }
             if (shown != null) {
                 Image(
                     bitmap = shown.asImageBitmap(),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    modifier = imageModifier
+                    modifier = if (controller.paint != null) with(paintZoom) { imageModifier.zoomed() } else imageModifier
                 )
             }
             val uncroppedSize = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
@@ -183,7 +185,26 @@ internal fun EditorScreen(
                     imageWidth = shown.width,
                     imageHeight = shown.height,
                     session = paint,
+                    zoom = paintZoom,
                     modifier = imageModifier
+                )
+                var adjustingBrush by remember { mutableStateOf(false) }
+                if (adjustingBrush) {
+                    // How big the brush is, at the same size it paints on screen.
+                    val radius = paint.brushRadiusDp.dp
+                    Box(
+                        Modifier
+                            .size(radius * 2)
+                            .border(2.dp, Color.White, CircleShape)
+                            .background(Color(0x55FF3B30), CircleShape)
+                    )
+                }
+                BrushSizeSlider(
+                    session = paint,
+                    onAdjusting = { adjustingBrush = it },
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 6.dp)
                 )
             }
             if (showOriginal) {
@@ -411,67 +432,84 @@ private fun AiPanel(
             selected?.description ?: "AI tools — tap one to apply it to the photo",
             color = Color.White,
             fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = 24.dp)
         )
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(10.dp))
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             // Object eraser: paint over something and the LaMa AI model fills in what was behind it.
             item {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(76.dp)
-                ) {
-                    Box(
-                        Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(BubbleGrey)
-                            .clickable(enabled = !controller.isBusy, onClick = onStartObjectEraser),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Rounded.Eraser, "Object eraser", tint = Color.White, modifier = Modifier.size(28.dp))
-                    }
-                    Spacer(Modifier.height(6.dp))
-                    Text("Object eraser", color = Color.White, fontSize = 12.sp, maxLines = 1)
-                    if (!lamaReady) Text("~200 MB", color = Color.Gray, fontSize = 11.sp)
-                }
+                AiBubble(
+                    icon = Icons.Rounded.Eraser,
+                    label = "Object eraser",
+                    download = if (lamaReady) null else "~200 MB",
+                    applied = false,
+                    selected = false,
+                    enabled = !controller.isBusy,
+                    onClick = onStartObjectEraser
+                )
             }
             itemsIndexed(AiTool.entries) { _, tool ->
-                val applied = PixelStep.Ai(tool) in controller.state.pixelSteps
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.width(76.dp)
-                ) {
-                    Box(
-                        Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(if (applied) Color.White else BubbleGrey)
-                            .border(2.dp, if (selected == tool) Accent else Color.Transparent, CircleShape)
-                            .clickable(enabled = !controller.isBusy) {
-                                selected = tool
-                                onRunAi(tool)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            tool.icon,
-                            tool.label,
-                            tint = if (applied) Color.Black else Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
+                AiBubble(
+                    icon = tool.icon,
+                    label = tool.label,
+                    download = if (aiReady(tool)) null else "${tool.downloadSizeMb} MB",
+                    applied = PixelStep.Ai(tool) in controller.state.pixelSteps,
+                    selected = selected == tool,
+                    enabled = !controller.isBusy,
+                    onClick = {
+                        selected = tool
+                        onRunAi(tool)
                     }
-                    Spacer(Modifier.height(6.dp))
-                    Text(tool.label, color = Color.White, fontSize = 12.sp, maxLines = 1)
-                    if (!aiReady(tool)) {
-                        Text("${tool.downloadSizeMb} MB", color = Color.Gray, fontSize = 11.sp)
-                    }
-                }
+                )
             }
         }
+    }
+}
+
+/** One AI tool: a round button with its full name (up to two lines, centred) and download size. */
+@Composable
+private fun AiBubble(
+    icon: ImageVector,
+    label: String,
+    download: String?,
+    applied: Boolean,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(80.dp)
+    ) {
+        Box(
+            Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(if (applied) Color.White else BubbleGrey)
+                .border(2.dp, if (selected) Accent else Color.Transparent, CircleShape)
+                .clickable(enabled = enabled, onClick = onClick),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, label, tint = if (applied) Color.Black else Color.White, modifier = Modifier.size(28.dp))
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            label,
+            color = Color.White,
+            fontSize = 12.sp,
+            lineHeight = 13.sp,
+            textAlign = TextAlign.Center,
+            minLines = 2,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(download ?: "", color = Color.Gray, fontSize = 11.sp, maxLines = 1)
     }
 }
 
@@ -483,23 +521,12 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
             color = Color.White,
             fontSize = 14.sp
         )
-        Spacer(Modifier.height(8.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        ) {
-            Text("Brush", color = Color.White, fontSize = 13.sp)
-            Slider(
-                value = session.brushRadiusDp,
-                onValueChange = { session.brushRadiusDp = it },
-                valueRange = 6f..60f,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 12.dp),
-                colors = SliderDefaults.colors(thumbColor = Accent, activeTrackColor = Accent)
-            )
-        }
-        Spacer(Modifier.height(8.dp))
+        Text(
+            "Pinch to zoom · brush size on the right",
+            color = Color.Gray,
+            fontSize = 12.sp
+        )
+        Spacer(Modifier.height(14.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onCancel) { Text("Cancel", color = Color.White) }
             TextButton(
