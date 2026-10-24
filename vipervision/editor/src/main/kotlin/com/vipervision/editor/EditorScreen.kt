@@ -127,8 +127,14 @@ internal fun EditorScreen(
 
     // Re-render the preview whenever the edits change; a newer change cancels an older render.
     // Dragging the crop frame doesn't re-render (the frame is drawn on top instead).
+    // While a dial is moving, a smaller copy is rendered so the photo keeps up with the finger;
+    // the full-quality preview follows as soon as it stops.
     LaunchedEffect(base) {
         if (base == null) return@LaunchedEffect
+        val live = withContext(Dispatchers.Default) { base.scaledToFit(LIVE_PREVIEW_SIDE) }
+        // Rotating and cropping only changes when the geometry does, so keep the last result.
+        var turnedKey: Pair<Geometry, Boolean>? = null
+        var turned: Bitmap? = null
         snapshotFlow {
             val state = controller.state
             val geometry = if (controller.tab == EditorTab.Transform) {
@@ -136,10 +142,16 @@ internal fun EditorScreen(
             } else {
                 state.geometry
             }
-            state.copy(geometry = geometry, pixelSteps = emptyList())
-        }.collectLatest { state ->
+            state.copy(geometry = geometry, pixelSteps = emptyList()) to controller.isInteracting
+        }.collectLatest { (state, interacting) ->
+            val source = if (interacting) live else base
             val edited = withContext(Dispatchers.Default) {
-                finisher.finish(context, base.transformed(state.geometry), state, base.width, base.height)
+                val key = state.geometry to interacting
+                val input = turned.takeIf { turnedKey == key } ?: source.transformed(state.geometry).also {
+                    turned = it
+                    turnedKey = key
+                }
+                finisher.finish(context, input, state, source.width, source.height)
             }
             controller.editedPreview = edited
         }
@@ -524,8 +536,14 @@ private fun AdjustPanel(controller: EditorController) {
         Spacer(Modifier.height(12.dp))
         ValueWheel(
             value = adjustments[selected],
-            onValueChange = { controller.setAdjustment(selected, it) },
-            onValueChangeFinished = controller::commit,
+            onValueChange = {
+                controller.isInteracting = true
+                controller.setAdjustment(selected, it)
+            },
+            onValueChangeFinished = {
+                controller.isInteracting = false
+                controller.commit()
+            },
             modifier = Modifier.padding(horizontal = 36.dp)
         )
     }
@@ -850,6 +868,9 @@ private fun BusyOverlay(message: String?) {
         }
     }
 }
+
+/** Longest side of the quick preview shown while a dial is moving. */
+private const val LIVE_PREVIEW_SIDE = 900
 
 internal fun Bitmap.scaledToFit(maxSide: Int): Bitmap {
     val longSide = maxOf(width, height)

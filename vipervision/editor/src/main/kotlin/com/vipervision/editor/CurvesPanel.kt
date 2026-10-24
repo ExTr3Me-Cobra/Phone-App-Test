@@ -51,6 +51,10 @@ internal fun CurvesPanel(controller: EditorController, histogramSource: Bitmap?)
     LaunchedEffect(Unit) {
         snapshotFlow { controller.state.curves }.debounce(700).collect { controller.commit() }
     }
+    // Quick preview while a curve point is being dragged; full quality once it rests.
+    LaunchedEffect(Unit) {
+        snapshotFlow { controller.state.curves }.debounce(250).collect { controller.isInteracting = false }
+    }
 
     val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
@@ -79,7 +83,10 @@ internal fun CurvesPanel(controller: EditorController, histogramSource: Bitmap?)
         ImageCurvesEditor(
             bitmap = histogramSource,
             state = curves,
-            onStateChange = { controller.preview(controller.state.copy(curves = it)) },
+            onStateChange = {
+                controller.isInteracting = true
+                controller.preview(controller.state.copy(curves = it))
+            },
             imageObtainingTrigger = false,
             onImageObtained = {},
             modifier = Modifier.fillMaxWidth(),

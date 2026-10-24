@@ -93,6 +93,9 @@ class EditorController {
     var editedPreview by mutableStateOf<Bitmap?>(null)
 
     var isBusy by mutableStateOf(false)
+
+    /** Set while a dial is being turned, for the quicker live preview. */
+    var isInteracting by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
 
     /** What a long-running job (AI download or processing) is doing, shown over the photo. */

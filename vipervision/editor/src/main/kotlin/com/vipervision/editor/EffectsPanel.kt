@@ -73,6 +73,10 @@ internal fun EffectsPanel(
     LaunchedEffect(Unit) {
         snapshotFlow { controller.state.effects }.debounce(700).collect { controller.commit() }
     }
+    // Quick preview while an effect's slider is moving; full quality once it rests.
+    LaunchedEffect(Unit) {
+        snapshotFlow { controller.state.effects }.debounce(250).collect { controller.isInteracting = false }
+    }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -153,6 +157,7 @@ internal fun EffectsPanel(
                     onLongPress = { if (effects.size > 1) showReorder = true },
                     onCreateTemplate = { showTemplate = true },
                     onFilterChange = { value ->
+                        controller.isInteracting = true
                         controller.updateEffect(selected.id) { it.copy(filter = it.filter.copy(value)) }
                     }
                 )
