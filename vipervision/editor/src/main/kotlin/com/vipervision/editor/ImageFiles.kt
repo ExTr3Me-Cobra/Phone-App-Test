@@ -20,18 +20,57 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
-/** Rotation (in quarter turns clockwise) and mirroring applied before the adjustments. */
-data class Geometry(val quarterTurns: Int = 0, val flipped: Boolean = false) {
-    val isIdentity: Boolean get() = quarterTurns % 4 == 0 && !flipped
+/**
+ * Part of the photo to keep, as fractions (0 to 1) of the rotated and mirrored photo, so the same
+ * crop works on the screen-sized preview and on the full-size photo.
+ */
+data class CropRect(
+    val left: Float = 0f,
+    val top: Float = 0f,
+    val right: Float = 1f,
+    val bottom: Float = 1f
+) {
+    val width: Float get() = right - left
+    val height: Float get() = bottom - top
+    val isFull: Boolean get() = left <= 0.0005f && top <= 0.0005f && right >= 0.9995f && bottom >= 0.9995f
+
+    /** The same area after the photo is turned 90° clockwise. */
+    fun rotatedClockwise() = CropRect(1f - bottom, left, 1f - top, right)
+
+    /** The same area after the photo is mirrored left-to-right. */
+    fun mirrored() = CropRect(1f - right, top, 1f - left, bottom)
+}
+
+/** Rotation (in quarter turns clockwise), mirroring and crop, applied before the adjustments. */
+data class Geometry(
+    val quarterTurns: Int = 0,
+    val flipped: Boolean = false,
+    val crop: CropRect = CropRect()
+) {
+    val isIdentity: Boolean get() = quarterTurns % 4 == 0 && !flipped && crop.isFull
+
+    /** Width and height of a [width] x [height] photo after the rotation (before cropping). */
+    fun turnedSize(width: Int, height: Int): Pair<Int, Int> =
+        if (quarterTurns % 2 == 1) height to width else width to height
 }
 
 fun Bitmap.transformed(geometry: Geometry): Bitmap {
-    if (geometry.isIdentity) return this
-    val matrix = Matrix().apply {
-        if (geometry.flipped) postScale(-1f, 1f)
-        postRotate(90f * (geometry.quarterTurns % 4))
+    val turned = if (geometry.quarterTurns % 4 == 0 && !geometry.flipped) {
+        this
+    } else {
+        val matrix = Matrix().apply {
+            if (geometry.flipped) postScale(-1f, 1f)
+            postRotate(90f * (geometry.quarterTurns % 4))
+        }
+        Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
-    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    val crop = geometry.crop
+    if (crop.isFull) return turned
+    val x = (crop.left * turned.width).roundToInt().coerceIn(0, turned.width - 1)
+    val y = (crop.top * turned.height).roundToInt().coerceIn(0, turned.height - 1)
+    val w = (crop.width * turned.width).roundToInt().coerceIn(1, turned.width - x)
+    val h = (crop.height * turned.height).roundToInt().coerceIn(1, turned.height - y)
+    return Bitmap.createBitmap(turned, x, y, w, h)
 }
 
 /**

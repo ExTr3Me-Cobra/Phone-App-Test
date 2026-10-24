@@ -49,6 +49,32 @@ data class EditState(
 
 enum class EditorTab { Transform, Filters, Adjust }
 
+/** Crop frame shapes. [ratio] is width / height, or null for no fixed shape. */
+enum class CropAspect(val label: String, private val fixed: Float?) {
+    Free("Free", null),
+    Original("Original", null),
+    Square("1:1", 1f),
+    FourThree("4:3", 4f / 3f),
+    ThreeFour("3:4", 3f / 4f),
+    SixteenNine("16:9", 16f / 9f),
+    NineSixteen("9:16", 9f / 16f);
+
+    fun ratio(imageWidth: Int, imageHeight: Int): Float? = when (this) {
+        Free -> null
+        Original -> imageWidth.toFloat() / imageHeight
+        else -> fixed
+    }
+
+    /** The matching shape after a quarter turn (4:3 becomes 3:4 and so on). */
+    fun rotated(): CropAspect = when (this) {
+        FourThree -> ThreeFour
+        ThreeFour -> FourThree
+        SixteenNine -> NineSixteen
+        NineSixteen -> SixteenNine
+        else -> this
+    }
+}
+
 /** Holds the editor's state for the screen; survives rotation because the activity handles it. */
 class EditorController {
     var state by mutableStateOf(EditState())
@@ -106,14 +132,22 @@ class EditorController {
         state = next
     }
 
-    fun revert() = change(EditState())
+    fun revert() {
+        cropAspect = CropAspect.Free
+        change(EditState())
+    }
 
     fun setAdjustment(adjustment: Adjustment, value: Int) =
         preview(state.copy(adjustments = state.adjustments.with(adjustment, value)))
 
+    /** Turns the photo (and the crop frame with it) a quarter turn. */
     fun rotate(clockwise: Boolean) {
         val g = state.geometry
-        change(state.copy(geometry = g.copy(quarterTurns = (g.quarterTurns + if (clockwise) 1 else 3) % 4)))
+        val turns = if (clockwise) 1 else 3
+        var crop = g.crop
+        repeat(turns) { crop = crop.rotatedClockwise() }
+        cropAspect = cropAspect.rotated()
+        change(state.copy(geometry = g.copy(quarterTurns = (g.quarterTurns + turns) % 4, crop = crop)))
     }
 
     /**
@@ -122,7 +156,41 @@ class EditorController {
      */
     fun flip() {
         val g = state.geometry
-        change(state.copy(geometry = Geometry(quarterTurns = (4 - g.quarterTurns) % 4, flipped = !g.flipped)))
+        change(
+            state.copy(
+                geometry = Geometry(
+                    quarterTurns = (4 - g.quarterTurns) % 4,
+                    flipped = !g.flipped,
+                    crop = g.crop.mirrored()
+                )
+            )
+        )
+    }
+
+    /** Aspect ratio the crop frame keeps while dragging (Free = none). */
+    var cropAspect by mutableStateOf(CropAspect.Free)
+
+    /** Live crop change while dragging the frame; call [commit] when the drag ends. */
+    fun setCrop(crop: CropRect) = preview(state.copy(geometry = state.geometry.copy(crop = crop)))
+
+    /** Picks an aspect ratio and sets the largest centred crop with it. */
+    fun selectCropAspect(aspect: CropAspect, imageWidth: Int, imageHeight: Int) {
+        cropAspect = aspect
+        val ratio = aspect.ratio(imageWidth, imageHeight) ?: return
+        val imageRatio = imageWidth.toFloat() / imageHeight
+        val crop = if (imageRatio > ratio) {
+            val w = ratio / imageRatio
+            CropRect((1f - w) / 2f, 0f, (1f + w) / 2f, 1f)
+        } else {
+            val h = imageRatio / ratio
+            CropRect(0f, (1f - h) / 2f, 1f, (1f + h) / 2f)
+        }
+        change(state.copy(geometry = state.geometry.copy(crop = crop)))
+    }
+
+    fun resetCrop() {
+        cropAspect = CropAspect.Free
+        change(state.copy(geometry = state.geometry.copy(crop = CropRect())))
     }
 
     fun applyLook(look: Look) = change(state.copy(adjustments = look.adjustments, lookName = look.name))

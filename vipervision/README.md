@@ -28,7 +28,9 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
 (press and hold it to compare with the original), and along the bottom:
 
 * **Auto** (sparkle): one-tap automatic brightness, contrast, highlights, shadows and colour.
-* **Rotate and crop**: rotate left/right and flip here; **Crop…** opens Image Toolbox's tools.
+* **Rotate and crop**: a crop frame over the whole photo (drag a corner or edge to resize, drag
+  inside to move; a rule-of-thirds grid shows while dragging), shape chips (Free, Original, 1:1,
+  4:3, 3:4, 16:9, 9:16), rotate left/right, flip and reset crop. The crop turns with the photo.
 * **Filters**: one-tap looks (Vivid, Warm, Cool, Fade, Dramatic, Mono, Noir).
 * **Adjust**: round "bubbles" for Brightness, Exposure, Contrast, Highlights, Shadows, Saturation,
   Warmth, Tint, Sharpness and Vignette, each from -100 to 100, set with the tick-mark wheel
@@ -41,8 +43,8 @@ allow that folder), keeping the date, camera details and location. Gallery's **E
 this editor for every image except GIFs, which still go to Image Toolbox.
 
 Code: `Adjustments.kt` (the image maths, run on the CPU across all cores), `EditorController.kt`
-(state, undo/redo, looks), `EditorScreen.kt` and `EditorControls.kt` (UI), `ImageFiles.kt`
-(loading and saving), `EditorActivity.kt` (entry point).
+(state, undo/redo, looks, crop shapes), `EditorScreen.kt`, `EditorControls.kt` and `CropOverlay.kt`
+(UI), `ImageFiles.kt` (rotate/flip/crop, loading and saving), `EditorActivity.kt` (entry point).
 
 ## The icon
 

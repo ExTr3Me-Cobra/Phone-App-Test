@@ -67,6 +67,7 @@ import com.t8rin.imagetoolbox.core.resources.icons.Undo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
 
 private val PanelGrey = Color(0xFF1C1C1E)
 
@@ -79,12 +80,25 @@ internal fun EditorScreen(
 ) {
     val base = controller.basePreview
 
+    // In the Rotate & crop tab the whole photo is shown with the crop frame over it; elsewhere,
+    // the cropped result.
+    val cropMode = controller.tab == EditorTab.Transform
+
     // Re-render the preview whenever the edits change; a newer change cancels an older render.
+    // Dragging the crop frame doesn't re-render (the frame is drawn on top instead).
     LaunchedEffect(base) {
         if (base == null) return@LaunchedEffect
-        snapshotFlow { controller.state }.collectLatest { state ->
+        snapshotFlow {
+            val state = controller.state
+            val geometry = if (controller.tab == EditorTab.Transform) {
+                state.geometry.copy(crop = CropRect())
+            } else {
+                state.geometry
+            }
+            geometry to state.adjustments
+        }.collectLatest { (geometry, adjustments) ->
             val edited = withContext(Dispatchers.Default) {
-                applyAdjustments(base.transformed(state.geometry), state.adjustments)
+                applyAdjustments(base.transformed(geometry), adjustments)
             }
             controller.editedPreview = edited
         }
@@ -109,12 +123,14 @@ internal fun EditorScreen(
             onDiscard = { if (changed) showDiscardDialog = true else onClose() }
         )
 
-        // The photo, as large as the space allows. Press and hold to see the original.
+        // The photo, as large as the space allows. Press and hold to see the original (except
+        // while cropping, where dragging moves the crop frame).
         Box(
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .pointerInput(Unit) {
+                .pointerInput(cropMode) {
+                    if (cropMode) return@pointerInput
                     detectTapGestures(onPress = {
                         showOriginal = true
                         tryAwaitRelease()
@@ -124,12 +140,29 @@ internal fun EditorScreen(
             contentAlignment = Alignment.Center
         ) {
             val shown = if (showOriginal) base else controller.editedPreview ?: base
+            // Room around the photo for the crop handles.
+            val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(20.dp) else Modifier.fillMaxSize()
             if (shown != null) {
                 Image(
                     bitmap = shown.asImageBitmap(),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = imageModifier
+                )
+            }
+            val uncroppedSize = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
+            // Only draw the frame once the uncropped preview is showing, so the two line up.
+            if (cropMode && shown != null && uncroppedSize != null &&
+                abs(shown.width.toFloat() / shown.height - uncroppedSize.first.toFloat() / uncroppedSize.second) < 0.02f
+            ) {
+                CropOverlay(
+                    imageWidth = uncroppedSize.first,
+                    imageHeight = uncroppedSize.second,
+                    crop = controller.state.geometry.crop,
+                    aspectRatio = controller.cropAspect.ratio(uncroppedSize.first, uncroppedSize.second),
+                    onCropChange = controller::setCrop,
+                    onCropChangeFinished = controller::commit,
+                    modifier = imageModifier
                 )
             }
             if (showOriginal) {
@@ -160,7 +193,7 @@ internal fun EditorScreen(
             when (controller.tab) {
                 EditorTab.Adjust -> AdjustPanel(controller)
                 EditorTab.Filters -> FiltersPanel(controller)
-                EditorTab.Transform -> TransformPanel(controller, onCrop = onOpenMoreTools)
+                EditorTab.Transform -> TransformPanel(controller)
             }
         }
 
@@ -352,15 +385,41 @@ private fun FiltersPanel(controller: EditorController) {
 }
 
 @Composable
-private fun TransformPanel(controller: EditorController, onCrop: () -> Unit) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(22.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
-        ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
-        ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }
-        ToolBubble(EditorIcons.CropRotate, "Crop…", onCrop)
+private fun TransformPanel(controller: EditorController) {
+    val base = controller.basePreview
+    val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            itemsIndexed(CropAspect.entries) { _, aspect ->
+                val selected = controller.cropAspect == aspect
+                Text(
+                    aspect.label,
+                    color = if (selected) Color.Black else Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(if (selected) Accent else BubbleGrey)
+                        .clickable {
+                            if (size != null) controller.selectCropAspect(aspect, size.first, size.second)
+                        }
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                )
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(22.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
+            ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
+            ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }
+            ToolBubble(EditorIcons.CropRotate, "Reset crop") { controller.resetCrop() }
+        }
     }
 }
 
