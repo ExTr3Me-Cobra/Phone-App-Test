@@ -47,6 +47,11 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   content-aware fill blends them away. No download, not AI. While painting (Heal or Object
   eraser), one finger paints, two fingers pinch to zoom and move around, and the wedge slider on
   the right sets the brush size (a circle shows how big while you drag it).
+* **Effects** (magic wand): Image Toolbox's whole filter catalogue (500+ filters in its
+  categories, with search, favourites, recent, templates and LUTs) added as a stack. Tap an
+  effect to open Image Toolbox's settings card for it (every parameter, help, duplicate, remove,
+  save as template), hold to reorder, or **Paint area** to apply it only where you paint (or
+  everywhere except there). Effects run after the adjustments, in order, and undo like any edit.
 * **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
 
 Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
@@ -59,7 +64,9 @@ Code: `Adjustments.kt` (adjustments via Image Toolbox's libraries), `HighlightSh
 `EditorController.kt` (state, undo/redo, crop shapes, AI results), `PixelSteps.kt` and
 `PaintOverlay.kt` (Heal / Object eraser brush and masks), `EditorScreen.kt`,
 `EditorControls.kt` and `CropOverlay.kt` (UI), `ImageFiles.kt` (rotate/flip/crop, loading and
-saving), `EditorActivity.kt` (entry point, AI, heal and erase runs).
+saving), `EditorActivity.kt` (entry point, AI, heal and erase runs), `Effects.kt` and `EffectsPanel.kt`
+(Effects tab), `ToolboxSupport.kt` (hosting Image Toolbox's sheets: the editor is an Image
+Toolbox `ComposeActivity` with its settings forced to a dark theme).
 
 ## The icon
 

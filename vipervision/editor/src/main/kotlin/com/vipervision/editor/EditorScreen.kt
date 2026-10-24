@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -58,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
+import com.t8rin.imagetoolbox.core.resources.icons.AutoFixHigh
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
 import com.t8rin.imagetoolbox.core.resources.icons.Flip
 import com.t8rin.imagetoolbox.core.resources.icons.Eraser
@@ -78,6 +80,9 @@ private val PanelGrey = Color(0xFF1C1C1E)
 @Composable
 internal fun EditorScreen(
     controller: EditorController,
+    toolbox: ToolboxComponents,
+    finisher: EditFinisher,
+    thumbnail: Bitmap?,
     aiReady: (AiTool) -> Boolean,
     onRunAi: (AiTool) -> Unit,
     lamaReady: Boolean,
@@ -106,10 +111,10 @@ internal fun EditorScreen(
             } else {
                 state.geometry
             }
-            geometry to state.adjustments
-        }.collectLatest { (geometry, adjustments) ->
+            state.copy(geometry = geometry, pixelSteps = emptyList())
+        }.collectLatest { state ->
             val edited = withContext(Dispatchers.Default) {
-                applyAdjustments(context, base.transformed(geometry), adjustments)
+                finisher.finish(context, base.transformed(state.geometry), state, base.width, base.height)
             }
             controller.editedPreview = edited
         }
@@ -243,7 +248,11 @@ internal fun EditorScreen(
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(184.dp),
+                .then(
+                    if (controller.tab == EditorTab.Effects && controller.paint == null && controller.selectedEffectId != null) {
+                        Modifier.heightIn(min = 184.dp)
+                    } else Modifier.height(184.dp)
+                ),
             contentAlignment = Alignment.Center
         ) {
             val paint = controller.paint
@@ -258,6 +267,7 @@ internal fun EditorScreen(
                     EditorTab.Adjust -> AdjustPanel(controller)
                     EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser)
                     EditorTab.Transform -> TransformPanel(controller)
+                    EditorTab.Effects -> EffectsPanel(controller, toolbox, thumbnail)
                 }
             }
         }
@@ -399,7 +409,7 @@ private fun AdjustPanel(controller: EditorController) {
                             .clip(CircleShape)
                             .background(BubbleGrey)
                             .clickable(enabled = !controller.isBusy) {
-                                controller.paint = PaintSession(generative = false)
+                                controller.paint = PaintSession(PaintPurpose.Heal)
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -517,7 +527,11 @@ private fun AiBubble(
 private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text(
-            if (session.generative) "Object eraser — paint over what to remove" else "Heal — paint over spots or objects",
+            when (session.purpose) {
+                PaintPurpose.Erase -> "Object eraser — paint over what to remove"
+                PaintPurpose.Heal -> "Heal — paint over spots or objects"
+                PaintPurpose.EffectMask -> "Paint where the effect should apply"
+            },
             color = Color.White,
             fontSize = 14.sp
         )
@@ -534,7 +548,7 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
                 enabled = session.strokes.isNotEmpty()
             ) { Text("Undo stroke", color = if (session.strokes.isNotEmpty()) Color.White else Color.Gray) }
             Text(
-                if (session.generative) "Erase" else "Heal",
+                when (session.purpose) { PaintPurpose.Erase -> "Erase"; PaintPurpose.Heal -> "Heal"; PaintPurpose.EffectMask -> "Done" },
                 color = if (session.strokes.isNotEmpty()) Color.Black else Color.DarkGray,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -632,6 +646,9 @@ private fun BottomTabs(controller: EditorController, onOpenMoreTools: () -> Unit
         }
         TabIcon(Icons.Outlined.LightMode, "Adjust", controller.tab == EditorTab.Adjust) {
             controller.tab = EditorTab.Adjust
+        }
+        TabIcon(Icons.Outlined.AutoFixHigh, "Effects", controller.tab == EditorTab.Effects) {
+            controller.tab = EditorTab.Effects
         }
         TabIcon(Icons.Outlined.Apps, "More tools", selected = false, onClick = onOpenMoreTools)
     }

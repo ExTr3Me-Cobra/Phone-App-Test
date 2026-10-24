@@ -14,21 +14,30 @@ data class EditState(
     val geometry: Geometry = Geometry(),
     val adjustments: Adjustments = Adjustments(),
     /** AI tools and heals applied, in order. They run first, on the upright photo. */
-    val pixelSteps: List<PixelStep> = emptyList()
+    val pixelSteps: List<PixelStep> = emptyList(),
+    /** Image Toolbox filters from the Effects tab, applied in order after the adjustments. */
+    val effects: List<Effect> = emptyList()
 ) {
-    val isUnchanged: Boolean get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty()
+    val isUnchanged: Boolean
+        get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty() && effects.isEmpty()
 }
 
-enum class EditorTab { Ai, Transform, Adjust }
+enum class EditorTab { Ai, Transform, Adjust, Effects }
+
+/** What a painting session is for. */
+enum class PaintPurpose { Heal, Erase, EffectMask }
 
 /** The photo after a sequence of pixel steps: full size on disk, plus a screen-sized copy. */
 class AiResult(val file: File, val preview: Bitmap)
 
 /**
- * Painting over something to remove: with the Heal bubble ([generative] = false) or the AI
- * Object eraser ([generative] = true). Strokes are in screen terms until applied.
+ * Painting on the photo: over something to remove (the Heal bubble, or the AI Object eraser), or
+ * the area an effect applies to ([effectId]). Strokes are in screen terms until applied.
  */
-class PaintSession(val generative: Boolean) {
+class PaintSession(val purpose: PaintPurpose, val effectId: Long? = null) {
+    /** The Object eraser (LaMa AI) rather than Heal. */
+    val generative: Boolean get() = purpose == PaintPurpose.Erase
+
     val strokes = mutableStateListOf<ScreenStroke>()
 
     /** Brush radius in dp. */
@@ -206,6 +215,37 @@ class EditorController {
     fun resetCrop() {
         cropAspect = CropAspect.Free
         change(state.copy(geometry = state.geometry.copy(crop = CropRect())))
+    }
+
+    /** The effect whose settings are open in the Effects tab. */
+    var selectedEffectId by mutableStateOf<Long?>(null)
+
+    fun addEffects(filters: List<com.t8rin.imagetoolbox.core.filters.presentation.model.UiFilter<*>>) {
+        if (filters.isEmpty()) return
+        val added = filters.map { Effect(it) }
+        change(state.copy(effects = state.effects + added))
+        selectedEffectId = added.last().id
+    }
+
+    /** Live change to one effect (e.g. dragging one of its sliders); call [commit] when done. */
+    fun updateEffect(id: Long, transform: (Effect) -> Effect) =
+        preview(state.copy(effects = state.effects.map { if (it.id == id) transform(it) else it }))
+
+    fun removeEffect(id: Long) {
+        change(state.copy(effects = state.effects.filterNot { it.id == id }))
+        if (selectedEffectId == id) selectedEffectId = null
+    }
+
+    fun duplicateEffect(id: Long) {
+        val index = state.effects.indexOfFirst { it.id == id }.takeIf { it >= 0 } ?: return
+        val copy = state.effects[index].let { it.copy(filter = it.filter.copy(it.filter.value), id = Effect(it.filter).id) }
+        change(state.copy(effects = state.effects.toMutableList().apply { add(index + 1, copy) }))
+        selectedEffectId = copy.id
+    }
+
+    fun reorderEffects(filters: List<com.t8rin.imagetoolbox.core.filters.presentation.model.UiFilter<*>>) {
+        val byFilter = state.effects.associateBy { it.filter }
+        change(state.copy(effects = filters.mapNotNull { byFilter[it] }))
     }
 
     fun autoEnhance() {

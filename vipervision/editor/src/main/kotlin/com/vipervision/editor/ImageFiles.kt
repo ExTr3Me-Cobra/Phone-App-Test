@@ -203,16 +203,16 @@ fun sourceInfo(context: Context, uri: Uri, realPath: String?): SourceInfo {
  * Renders the edits at full size and saves them as a new photo next to the original, named
  * "<original>_edited". The original file is never changed. Returns the new photo's uri.
  */
-fun saveEditedCopy(
+suspend fun saveEditedCopy(
     context: Context,
     source: Uri,
     realPath: String?,
     geometry: Geometry,
-    adjustments: Adjustments,
+    finish: FinishEdits,
     renderFrom: Uri = source,
     forcePng: Boolean = false
 ): Uri {
-    val rendered = renderFull(context, renderFrom, geometry, adjustments)
+    val rendered = renderFull(context, renderFrom, geometry, finish)
     val info = sourceInfo(context, source, realPath)
     val isPng = forcePng || info.displayName.endsWith(".png", ignoreCase = true)
     val extension = if (isPng) "png" else "jpg"
@@ -255,15 +255,15 @@ fun saveEditedCopy(
 }
 
 /** Renders the edits at full size into a temporary file, for handing over to Image Toolbox. */
-fun saveForHandoff(
+suspend fun saveForHandoff(
     context: Context,
     source: Uri,
     geometry: Geometry,
-    adjustments: Adjustments,
+    finish: FinishEdits,
     renderFrom: Uri = source,
     forcePng: Boolean = false
 ): Uri {
-    val rendered = renderFull(context, renderFrom, geometry, adjustments)
+    val rendered = renderFull(context, renderFrom, geometry, finish)
     val folder = File(context.cacheDir, "vv_editor").apply { mkdirs() }
     folder.listFiles()?.forEach { it.delete() }
     val file = File(folder, "edit_${System.currentTimeMillis()}." + if (forcePng) "png" else "jpg")
@@ -274,16 +274,23 @@ fun saveForHandoff(
     return FileProvider.getUriForFile(context, "${context.packageName}.vveditor", file)
 }
 
-private fun renderFull(
+/**
+ * Everything after rotate/crop (adjustments, effects): gets the rotated and cropped photo and the
+ * size of the upright photo it came from (for masks painted on it).
+ */
+typealias FinishEdits = suspend (turned: Bitmap, uprightWidth: Int, uprightHeight: Int) -> Bitmap
+
+private suspend fun renderFull(
     context: Context,
     source: Uri,
     geometry: Geometry,
-    adjustments: Adjustments
+    finish: FinishEdits
 ): Bitmap {
     val full = decodeImage(context, source, maxSafeSide(context, source))
+    val (width, height) = full.width to full.height
     val turned = full.transformed(geometry)
     if (turned !== full) full.recycle()
-    val result = applyAdjustments(context, turned, adjustments)
+    val result = finish(turned, width, height)
     if (result !== turned) turned.recycle()
     return result
 }

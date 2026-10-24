@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.image.toolbox.library)
     alias(libs.plugins.image.toolbox.compose)
     alias(libs.plugins.image.toolbox.hilt)
+    // Image Toolbox's core modules (UI kit, settings, theme), so its tools can live in the editor.
+    alias(libs.plugins.image.toolbox.feature)
 }
 
 android {
@@ -17,6 +19,8 @@ dependencies {
     // Image Toolbox's AI engine and on-device models (the AI tab).
     implementation(projects.feature.aiTools)
     implementation(projects.core.domain)
+    // Image Toolbox's filter catalogue, pickers and settings cards (the Effects tab).
+    implementation(projects.core.filters)
     // Image Toolbox's heal engines: OpenCV content-aware fill and the LaMa AI model.
     implementation(projects.lib.opencvTools)
     implementation(projects.lib.neuralTools)

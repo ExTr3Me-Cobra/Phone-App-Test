@@ -5,21 +5,26 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.Color
+import com.arkivanov.decompose.retainedComponent
+import com.t8rin.imagetoolbox.core.domain.image.ImageTransformer
+import com.t8rin.imagetoolbox.core.domain.model.ImageModel
+import com.t8rin.imagetoolbox.core.filters.domain.FilterProvider
+import com.t8rin.imagetoolbox.core.filters.presentation.widget.FilterTemplateCreationSheetComponent
+import com.t8rin.imagetoolbox.core.filters.presentation.widget.addFilters.AddFiltersSheetComponent
+import com.t8rin.imagetoolbox.core.settings.presentation.model.toUiState
+import com.t8rin.imagetoolbox.core.ui.utils.ComposeActivity
+import com.t8rin.imagetoolbox.core.ui.utils.provider.ImageToolboxCompositionLocals
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
 import com.t8rin.neural_tools.inpaint.LaMaProcessor
 import com.t8rin.opencv_tools.spot_heal.SpotHealer
@@ -39,9 +44,32 @@ import kotlin.math.min
  * its file path in [EXTRA_REAL_PATH]. Saves edits as a new photo next to the original.
  */
 @AndroidEntryPoint
-class EditorActivity : ComponentActivity() {
+class EditorActivity : ComposeActivity() {
 
     private val controller = EditorController()
+
+    @Inject
+    lateinit var filterProvider: FilterProvider<Bitmap>
+
+    @Inject
+    lateinit var imageTransformer: ImageTransformer<Bitmap>
+
+    @Inject
+    lateinit var addFiltersFactory: AddFiltersSheetComponent.Factory
+
+    @Inject
+    lateinit var filterTemplatesFactory: FilterTemplateCreationSheetComponent.Factory
+
+    /** Adjustments and effects, shared by the preview and saving. */
+    private val finisher by lazy { EditFinisher(filterProvider, imageTransformer) }
+
+    /** Image Toolbox's pickers and sheets that the editor reuses. */
+    private val toolbox: ToolboxComponents by lazy {
+        retainedComponent { ToolboxComponents(it, addFiltersFactory, filterTemplatesFactory) }
+    }
+
+    private lateinit var source: Uri
+    private var realPath: String? = null
 
     /** Image Toolbox's AI engine (the same one its AI Tools screen uses). */
     @Inject
@@ -56,18 +84,34 @@ class EditorActivity : ComponentActivity() {
     private var pendingLamaDownload by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-        super.onCreate(savedInstanceState)
-
-        val source = intent.data ?: run {
+        val data = intent.data
+        if (data == null) {
+            super.onCreate(savedInstanceState)
             Toast.makeText(this, "No photo to edit", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-        val realPath = intent.getStringExtra(EXTRA_REAL_PATH)
+        source = data
+        realPath = intent.getStringExtra(EXTRA_REAL_PATH)
+        super.onCreate(savedInstanceState)
+    }
 
-        setContent {
-            MaterialTheme(colorScheme = darkColorScheme(primary = Accent, surface = Color(0xFF1C1C1E))) {
+    /**
+     * The editor, inside Image Toolbox's theme and settings (forced dark) so its pickers, sheets
+     * and controls work here as they do in its own screens.
+     */
+    @Composable
+    override fun Content() {
+        if (!::source.isInitialized) return
+        val source = source
+        val realPath = realPath
+        val thumbnail = remember(controller.workingPreview) { controller.workingPreview?.thumbnail() }
+        ImageToolboxCompositionLocals(
+            settingsState = settingsState.forEditor().toUiState(),
+            filterPreviewModel = thumbnail?.let(::ImageModel),
+            canSetDynamicFilterPreview = thumbnail != null
+        ) {
+            run {
                 val scope = rememberCoroutineScope()
 
                 LaunchedEffect(source) {
@@ -85,6 +129,9 @@ class EditorActivity : ComponentActivity() {
 
                 EditorScreen(
                     controller = controller,
+                    toolbox = toolbox,
+                    finisher = finisher,
+                    thumbnail = thumbnail,
                     aiReady = { tool -> downloaded.let { aiRunner.isReady(tool) } },
                     onRunAi = { tool ->
                         if (aiRunner.isReady(tool)) scope.runAi(source, tool) else pendingDownload = tool
@@ -157,7 +204,7 @@ class EditorActivity : ComponentActivity() {
                     source = source,
                     realPath = realPath,
                     geometry = state.geometry,
-                    adjustments = state.adjustments,
+                    finish = finishFor(state),
                     renderFrom = renderFrom,
                     forcePng = forcePng
                 )
@@ -218,7 +265,7 @@ class EditorActivity : ComponentActivity() {
     /** Opens the Object eraser's painting mode, downloading the LaMa model first if needed (after asking). */
     private fun startObjectEraser() {
         if (LaMaProcessor.isDownloaded.value) {
-            controller.paint = PaintSession(generative = true)
+            controller.paint = PaintSession(PaintPurpose.Erase)
         } else {
             pendingLamaDownload = true
         }
@@ -234,7 +281,7 @@ class EditorActivity : ComponentActivity() {
             }
             check(LaMaProcessor.isDownloaded.value) { "the download didn't finish" }
         }.onSuccess {
-            controller.paint = PaintSession(generative = true)
+            controller.paint = PaintSession(PaintPurpose.Erase)
         }.onFailure {
             Toast.makeText(this@EditorActivity, "Couldn't download the Object eraser: ${it.message}", Toast.LENGTH_LONG).show()
         }
@@ -259,8 +306,15 @@ class EditorActivity : ComponentActivity() {
             sourceWidth = working.width,
             sourceHeight = working.height
         )
-        val steps = controller.state.pixelSteps + PixelStep.Heal(strokes, session.generative)
         controller.paint = null
+        if (session.purpose == PaintPurpose.EffectMask) {
+            // Painting where an effect applies: just remember the area (on the upright photo).
+            controller.updateEffect(session.effectId ?: return@launch) { it.copy(mask = it.mask.orEmpty() + strokes) }
+            controller.commit()
+            controller.isBusy = false
+            return@launch
+        }
+        val steps = controller.state.pixelSteps + PixelStep.Heal(strokes, session.generative)
         controller.busyMessage = "$label…"
         runCatching {
             val input = controller.workingFile?.let(Uri::fromFile) ?: source
@@ -284,6 +338,10 @@ class EditorActivity : ComponentActivity() {
         controller.isBusy = false
     }
 
+    private fun finishFor(state: EditState): FinishEdits = { turned, width, height ->
+        finisher.finish(this, turned, state, width, height)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (isFinishing) File(cacheDir, "vv_ai").deleteRecursively()
@@ -301,7 +359,7 @@ class EditorActivity : ComponentActivity() {
                 val renderFrom = controller.workingFile?.let(Uri::fromFile) ?: source
                 val forcePng = controller.needsPng
                 withContext(Dispatchers.IO) {
-                    saveForHandoff(this@EditorActivity, source, state.geometry, state.adjustments, renderFrom, forcePng)
+                    saveForHandoff(this@EditorActivity, source, state.geometry, finishFor(state), renderFrom, forcePng)
                 }
             }
         }.onSuccess { uri ->
