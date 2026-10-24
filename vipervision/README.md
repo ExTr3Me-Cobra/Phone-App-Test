@@ -27,19 +27,24 @@ The combined app is GPL-3.0 (Apache-2.0 code can be included in a GPL-3.0 app).
 Viper Vision's own photo editor, styled after Samsung's: the photo as large as the screen allows
 (press and hold it to compare with the original), and along the bottom:
 
-* **AI tools** (blue sparkle): a row of bubbles that run Image Toolbox's on-device AI models on the
-  photo. First is **Object eraser**: paint over something and Image Toolbox's LaMa model fills in
-  what was behind it (about 200 MB, downloaded once after asking). Then Restore faces (GFPGAN), Low light (Zero-DCE++), Fix exposure, Dehaze (DehazeFormer),
-  Denoise (SCUNet), Deblur (NAFNet), JPEG cleanup, Colorize and Remove background (U2NetP, built
-  in). Each model downloads once, after asking (sizes show under the bubbles), then works offline.
-  AI steps run on the full-size photo, happen before rotate/crop/adjustments, and undo like any
-  other edit. With Remove background applied, the photo saves as PNG to keep the transparency.
-* **All AI models** (first in the AI row): Image Toolbox's whole AI Tools catalogue — 130+
-  models: upscalers, face restoration, denoise, de-JPEG, deblur, colorize, anime, document
-  scans, style transfer (pick a style image), depth effects, background removal, AI-image
-  detection, and your own imported ONNX models — with its model browser (filter, download,
-  delete, import) and every setting (strength, chunk size, overlap, parallel workers, depth
-  options). Run shows the result (hold to compare); the tick keeps it as an undoable step.
+* **AI tools** (blue sparkle): **Object eraser** (paint over something and Image Toolbox's LaMa
+  model fills in what was behind it, about 200 MB), **Cut out** (below), then one bubble per job.
+  Each offers the one or two models regarded as best for it, with a sheet saying what each is
+  good at, its size and whether it's downloaded:
+  * Upscale 4×: PurePhoto SPAN (2 MB, fast, soft and natural) or NomosWebPhoto RealPLKSR (30 MB,
+    sharpest, repairs noise/blur/compression). Both new — converted for Viper Vision
+    (`vipervision/models`).
+  * Restore faces: GFPGAN 1.4 (natural, keeps identity) or CodeFormer (new, from FaceFusion's
+    ONNX; rebuilds badly damaged faces).
+  * Denoise: SCUNet Real (GAN, keeps texture) or SCUNet Smooth (PSNR, cleanest).
+  * Deblur: NAFNet (motion blur) or Fatality DeBlur (soft focus).
+  * JPEG cleanup: FBCNN (adapts to the compression level) or SBDV DeJPEG Lite (fast).
+  * Colorize: DDColor Tiny (220 MB) or DDColor (900 MB, most accurate).
+  * Low light (Zero-DCE++), Fix exposure (Overexposure Correction), Dehaze (DehazeFormer).
+  * Remove background: U2NetP (built in) or BiRefNet (best edges).
+  Each model downloads once, then works offline. AI steps run on the full-size photo, happen
+  before rotate/crop/adjustments, and undo like any other edit. With the background removed, the
+  photo saves as PNG to keep the transparency.
 * **Cut out** (scissors, in the AI row): Image Toolbox's whole Background Remover in the
   editor's style. **Smart select** turns rough painting into MobileSAM (Segment Anything)
   prompts: paint over what to keep (green) or switch to "Leave out" (blue) and the AI finds the

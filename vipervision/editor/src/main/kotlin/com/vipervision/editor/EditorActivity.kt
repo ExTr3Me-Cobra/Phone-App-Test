@@ -29,9 +29,7 @@ import com.t8rin.imagetoolbox.core.domain.image.ImageCompressor
 import com.t8rin.imagetoolbox.core.settings.presentation.model.toUiState
 import com.t8rin.imagetoolbox.core.ui.utils.ComposeActivity
 import com.t8rin.imagetoolbox.core.ui.utils.provider.ImageToolboxCompositionLocals
-import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiProgressListener
 import com.t8rin.imagetoolbox.feature.ai_tools.domain.AiToolsRepository
-import com.t8rin.imagetoolbox.feature.ai_tools.presentation.screenLogic.AiToolsComponent
 import com.t8rin.neural_tools.inpaint.LaMaProcessor
 import com.t8rin.opencv_tools.spot_heal.SpotHealer
 import com.t8rin.opencv_tools.spot_heal.model.HealType
@@ -78,10 +76,6 @@ class EditorActivity : ComposeActivity() {
     @Inject
     lateinit var cropFactory: CropComponent.Factory
 
-    /** Image Toolbox's AI Tools screen logic, driven by "All AI models". */
-    @Inject
-    lateinit var aiToolsFactory: AiToolsComponent.Factory
-
     /** Set while asking whether to download MobileSAM for Cut out's Smart select. */
     private var pendingSamDownload by mutableStateOf(false)
 
@@ -97,8 +91,6 @@ class EditorActivity : ComposeActivity() {
 
     private val aiRunner by lazy { AiRunner(aiRepository) }
 
-    /** AI tool waiting for the user to agree to its first-time model download. */
-    private var pendingDownload by mutableStateOf<AiTool?>(null)
 
     /** Set while asking whether to download the Object eraser's LaMa model. */
     private var pendingLamaDownload by mutableStateOf(false)
@@ -147,20 +139,14 @@ class EditorActivity : ComposeActivity() {
                 EditorScreen(
                     controller = controller,
                     finisher = finisher,
-                    aiReady = { tool -> downloaded.let { aiRunner.isReady(tool) } },
-                    onRunAi = { tool ->
-                        if (aiRunner.isReady(tool)) scope.runAi(source, tool) else pendingDownload = tool
-                    },
+                    aiReady = { choice -> downloaded.let { aiRunner.isReady(choice) } },
+                    onRunAi = { tool, choice -> scope.runAi(source, tool, choice) },
                     lamaReady = lamaReady,
                     onStartObjectEraser = ::startObjectEraser,
                     onStartCutOut = { startCutOut(source) },
                     onApplyCutOut = { scope.applyCutOut() },
                     onCancelCutOut = ::closeCutOut,
                     onNeedSamDownload = { pendingSamDownload = true },
-                    onStartAiStudio = { startAiStudio(source) },
-                    onRunAiStudio = { scope.runAiStudio(source) },
-                    onApplyAiStudio = { scope.applyAiStudio() },
-                    onCancelAiStudio = ::closeAiStudio,
                     onStartDraw = { startDraw(source) },
                     onApplyDraw = { scope.applyDraw() },
                     onCancelDraw = ::closeDraw,
@@ -233,27 +219,6 @@ class EditorActivity : ComposeActivity() {
                     )
                 }
 
-                pendingDownload?.let { tool ->
-                    AlertDialog(
-                        onDismissRequest = { pendingDownload = null },
-                        title = { Text("Download ${tool.label}?") },
-                        text = {
-                            Text(
-                                "${tool.description}\n\nThis AI tool needs a one-time download of " +
-                                        "${tool.downloadSizeMb} MB. After that it works offline."
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                pendingDownload = null
-                                scope.runAi(source, tool)
-                            }) { Text("Download") }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { pendingDownload = null }) { Text("Cancel") }
-                        }
-                    )
-                }
             }
         }
     }
@@ -316,21 +281,21 @@ class EditorActivity : ComposeActivity() {
      * the result as a new step: the rotate, crop and adjustments apply on top of it, and undo
      * steps back to the photo before it.
      */
-    private fun CoroutineScope.runAi(source: Uri, tool: AiTool) = launch {
+    private fun CoroutineScope.runAi(source: Uri, tool: AiTool, choice: AiChoice) = launch {
         if (controller.isBusy) return@launch
         controller.isBusy = true
-        val steps = controller.state.pixelSteps + PixelStep.Ai(tool)
+        val steps = controller.state.pixelSteps + PixelStep.Ai(tool, choice.modelName)
         runCatching {
-            if (!aiRunner.isReady(tool) || tool.isBundled) {
-                controller.busyMessage = "Downloading ${tool.label}…"
-                aiRunner.download(tool) { progress ->
-                    controller.busyMessage = "Downloading ${tool.label}… ${(progress * 100).toInt()}%"
+            if (!aiRunner.isReady(choice) || choice.isBundled) {
+                controller.busyMessage = "Downloading ${choice.title}…"
+                aiRunner.download(choice) { progress ->
+                    controller.busyMessage = "Downloading ${choice.title}… ${(progress * 100).toInt()}%"
                 }
             }
             controller.busyMessage = "${tool.label}…"
             val input = controller.workingFile?.let(Uri::fromFile) ?: source
             val full = withContext(Dispatchers.IO) { decodeImage(this@EditorActivity, input, maxSafeSide(this@EditorActivity, input)) }
-            val output = aiRunner.run(tool, full) { done, total ->
+            val output = aiRunner.run(choice, full) { done, total ->
                 if (total > 1) controller.busyMessage = "${tool.label}… ${min(done + 1, total)} of $total"
             }
             controller.busyMessage = "Finishing…"
@@ -552,84 +517,6 @@ class EditorActivity : ComposeActivity() {
         controller.isBusy = false
     }
 
-    private fun startAiStudio(source: Uri) {
-        if (controller.isBusy || controller.aiStudio != null) return
-        val input = controller.workingFile?.let(Uri::fromFile) ?: source
-        val lifecycle = LifecycleRegistry()
-        val component = aiToolsFactory(
-            componentContext = DefaultComponentContext(lifecycle),
-            initialUris = listOf(input),
-            onGoBack = ::closeAiStudio,
-            onNavigate = {}
-        )
-        lifecycle.resume()
-        controller.aiStudio = AiStudioSession(component, lifecycle)
-    }
-
-    private fun closeAiStudio() {
-        controller.aiStudio?.close()
-        controller.aiStudio = null
-        aiRepository.cleanup()
-    }
-
-    /** Runs the selected model (with its settings) on the full-size photo, for preview. */
-    private fun CoroutineScope.runAiStudio(source: Uri) = launch {
-        val session = controller.aiStudio ?: return@launch
-        val model = session.component.selectedModel.value ?: return@launch
-        if (session.busyMessage != null) return@launch
-        session.clearResult()
-        session.busyMessage = "${model.title}…"
-        val listener = object : AiProgressListener {
-            override fun onError(error: String) {
-                runOnUiThread { Toast.makeText(this@EditorActivity, error, Toast.LENGTH_LONG).show() }
-            }
-
-            override fun onProgress(currentChunkIndex: Int, totalChunks: Int) {
-                if (totalChunks > 1) session.busyMessage = "${model.title}… ${min(currentChunkIndex + 1, totalChunks)} of $totalChunks"
-            }
-        }
-        runCatching {
-            val input = controller.workingFile?.let(Uri::fromFile) ?: source
-            val full = withContext(Dispatchers.IO) { decodeImage(this@EditorActivity, input, maxSafeSide(this@EditorActivity, input)) }
-            if (model.isAiDetector) {
-                session.detection = aiRepository.detectAiImage(full, listener) ?: error("the model gave no answer")
-            } else {
-                val params = session.component.params
-                check(!model.isStyleTransfer || params.auxiliaryImage != null) { "pick a style image first" }
-                val output = aiRepository.processImage(full, listener, params) ?: error("the model gave no result")
-                val metrics = resources.displayMetrics
-                session.resultModelName = model.name
-                session.resultNeedsAlpha = session.component.requiresAlphaOutput
-                session.result = output
-                session.resultPreview = output.scaledToFit(min(2048, max(metrics.widthPixels, metrics.heightPixels)))
-            }
-        }.onFailure {
-            Toast.makeText(this@EditorActivity, "${model.title} failed: ${it.message}", Toast.LENGTH_LONG).show()
-        }
-        aiRepository.cleanup()
-        session.busyMessage = null
-    }
-
-    private fun CoroutineScope.applyAiStudio() = launch {
-        val session = controller.aiStudio ?: return@launch
-        val output = session.result ?: return@launch
-        if (controller.isBusy) return@launch
-        controller.isBusy = true
-        controller.busyMessage = "Finishing…"
-        runCatching { storeResult(output) }
-            .onSuccess { result ->
-                controller.addPixelStep(
-                    controller.state.pixelSteps + PixelStep.AiModel(session.resultModelName, session.resultNeedsAlpha),
-                    result
-                )
-                closeAiStudio()
-            }.onFailure {
-                Toast.makeText(this@EditorActivity, "Couldn't keep the result: ${it.message}", Toast.LENGTH_LONG).show()
-            }
-        controller.busyMessage = null
-        controller.isBusy = false
-    }
-
     /** Opens Cut out on the upright photo, including earlier AI/heal steps. */
     private fun startCutOut(source: Uri) {
         if (controller.isBusy || controller.cutOut != null) return
@@ -695,7 +582,6 @@ class EditorActivity : ComposeActivity() {
         if (isFinishing) {
             File(cacheDir, "vv_ai").deleteRecursively()
             controller.cutOut?.close()
-            controller.aiStudio?.close()
             controller.draw?.close()
             controller.markup?.close()
             controller.cropStudio?.close()

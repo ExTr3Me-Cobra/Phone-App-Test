@@ -62,7 +62,6 @@ import com.t8rin.imagetoolbox.core.resources.icons.Apps
 import com.t8rin.imagetoolbox.core.resources.icons.Tune
 import com.t8rin.imagetoolbox.core.resources.icons.Draw
 import com.t8rin.imagetoolbox.core.resources.icons.TextFields
-import com.t8rin.imagetoolbox.core.resources.icons.Neurology
 import com.t8rin.imagetoolbox.core.resources.icons.Curve
 import com.t8rin.imagetoolbox.core.resources.icons.Scissors
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
@@ -86,18 +85,14 @@ private val PanelGrey = Color(0xFF1C1C1E)
 internal fun EditorScreen(
     controller: EditorController,
     finisher: EditFinisher,
-    aiReady: (AiTool) -> Boolean,
-    onRunAi: (AiTool) -> Unit,
+    aiReady: (AiChoice) -> Boolean,
+    onRunAi: (AiTool, AiChoice) -> Unit,
     lamaReady: Boolean,
     onStartObjectEraser: () -> Unit,
     onStartCutOut: () -> Unit,
     onApplyCutOut: () -> Unit,
     onCancelCutOut: () -> Unit,
     onNeedSamDownload: () -> Unit,
-    onStartAiStudio: () -> Unit,
-    onRunAiStudio: () -> Unit,
-    onApplyAiStudio: () -> Unit,
-    onCancelAiStudio: () -> Unit,
     onStartDraw: () -> Unit,
     onApplyDraw: () -> Unit,
     onCancelDraw: () -> Unit,
@@ -174,18 +169,6 @@ internal fun EditorScreen(
 
     controller.draw?.let { session ->
         DrawScreen(session = session, onCancel = onCancelDraw, onApply = onApplyDraw)
-        if (controller.isBusy) BusyOverlay(controller.busyMessage)
-        return
-    }
-
-    controller.aiStudio?.let { session ->
-        AiStudioScreen(
-            session = session,
-            photo = base,
-            onCancel = onCancelAiStudio,
-            onRun = onRunAiStudio,
-            onApply = onApplyAiStudio
-        )
         if (controller.isBusy) BusyOverlay(controller.busyMessage)
         return
     }
@@ -343,7 +326,7 @@ internal fun EditorScreen(
                     EditorTab.Adjust -> if (controller.curvesOpen) {
                         CurvesPanel(controller, remember(base) { base?.scaledToFit(512) })
                     } else AdjustPanel(controller)
-                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut, onStartAiStudio)
+                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut)
                     EditorTab.Transform -> TransformPanel(controller, onStartCropStudio)
                     EditorTab.Decorate -> DecoratePanel(controller, onStartDraw, onStartMarkup)
                 }
@@ -545,14 +528,14 @@ private fun AdjustPanel(controller: EditorController) {
 @Composable
 private fun AiPanel(
     controller: EditorController,
-    aiReady: (AiTool) -> Boolean,
-    onRunAi: (AiTool) -> Unit,
+    aiReady: (AiChoice) -> Boolean,
+    onRunAi: (AiTool, AiChoice) -> Unit,
     lamaReady: Boolean,
     onStartObjectEraser: () -> Unit,
-    onStartCutOut: () -> Unit,
-    onStartAiStudio: () -> Unit
+    onStartCutOut: () -> Unit
 ) {
     var selected by remember { mutableStateOf<AiTool?>(null) }
+    var choosing by remember { mutableStateOf<AiTool?>(null) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         Text(
             selected?.description ?: "AI tools — tap one to apply it to the photo",
@@ -568,18 +551,6 @@ private fun AiPanel(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            // Every model in Image Toolbox's AI Tools, with all its settings.
-            item {
-                AiBubble(
-                    icon = Icons.Outlined.Neurology,
-                    label = "All AI models",
-                    download = null,
-                    applied = controller.state.pixelSteps.any { it is PixelStep.AiModel },
-                    selected = false,
-                    enabled = !controller.isBusy,
-                    onClick = onStartAiStudio
-                )
-            }
             // Object eraser: paint over something and the LaMa AI model fills in what was behind it.
             item {
                 AiBubble(
@@ -606,19 +577,100 @@ private fun AiPanel(
                 )
             }
             itemsIndexed(AiTool.entries) { _, tool ->
+                val single = tool.choices.singleOrNull()
                 AiBubble(
                     icon = tool.icon,
                     label = tool.label,
-                    download = if (aiReady(tool)) null else "${tool.downloadSizeMb} MB",
-                    applied = PixelStep.Ai(tool) in controller.state.pixelSteps,
+                    download = when {
+                        tool.choices.any(aiReady) -> null
+                        single != null -> "${single.downloadSizeMb} MB"
+                        else -> "${tool.choices.size} choices"
+                    },
+                    applied = controller.state.pixelSteps.any { it is PixelStep.Ai && it.tool == tool },
                     selected = selected == tool,
                     enabled = !controller.isBusy,
                     onClick = {
                         selected = tool
-                        onRunAi(tool)
+                        // One model that's already here: just run it. Otherwise show the choice
+                        // (which also says how big the download is).
+                        if (single != null && aiReady(single)) onRunAi(tool, single) else choosing = tool
                     }
                 )
             }
+        }
+    }
+
+    choosing?.let { tool ->
+        AiChoiceSheet(
+            tool = tool,
+            ready = aiReady,
+            onPick = { choice ->
+                choosing = null
+                onRunAi(tool, choice)
+            },
+            onDismiss = { choosing = null }
+        )
+    }
+}
+
+/** The models offered for an AI tool, with what each is best at, its size and whether it's here. */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun AiChoiceSheet(
+    tool: AiTool,
+    ready: (AiChoice) -> Boolean,
+    onPick: (AiChoice) -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = PanelGrey
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(tool.label, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text(tool.description, color = Color.Gray, fontSize = 14.sp)
+            tool.choices.forEach { choice ->
+                val here = ready(choice)
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(BubbleGrey)
+                        .clickable { onPick(choice) }
+                        .padding(14.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            choice.title,
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            if (here) "Ready ✓" else "${choice.downloadSizeMb} MB",
+                            color = if (here) Accent else Color.Gray,
+                            fontSize = 13.sp
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(choice.about, color = Color(0xFFCCCCCC), fontSize = 13.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        if (here) "Use this" else "Download and use (one time, then works offline)",
+                        color = Accent,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
         }
     }
 }

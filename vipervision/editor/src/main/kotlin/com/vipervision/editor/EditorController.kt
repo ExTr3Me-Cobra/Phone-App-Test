@@ -113,7 +113,7 @@ class EditorController {
     /** Remove background makes transparency, which JPEG can't hold. */
     val needsPng: Boolean
         get() = state.pixelSteps.any {
-            it == PixelStep.Ai(AiTool.RemoveBackground) || it is PixelStep.CutOut || (it is PixelStep.AiModel && it.alpha) ||
+            (it is PixelStep.Ai && it.tool == AiTool.RemoveBackground) || it is PixelStep.CutOut || (it is PixelStep.AiModel && it.alpha) ||
                     (it is PixelStep.Crop && it.alpha)
         }
 
@@ -129,8 +129,6 @@ class EditorController {
     /** Set while the Cut out tool is open. */
     var cutOut by mutableStateOf<CutOutSession?>(null)
 
-    /** Set while "All AI models" is open. */
-    var aiStudio by mutableStateOf<AiStudioSession?>(null)
 
     /** Set while the Draw tool is open. */
     var draw by mutableStateOf<DrawSession?>(null)

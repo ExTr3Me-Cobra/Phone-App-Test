@@ -350,7 +350,8 @@ internal class AndroidAiToolsRepository @Inject constructor(
                                 source = image,
                                 session = ortSession,
                                 strength = params.strength,
-                                listener = listener.withNotificationProgress()
+                                listener = listener.withNotificationProgress(),
+                                codeFormer = model.isCodeFormer
                             )
                         }
                     )

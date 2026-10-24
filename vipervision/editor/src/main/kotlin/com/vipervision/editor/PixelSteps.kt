@@ -12,7 +12,7 @@ import kotlin.math.max
  * painting out a spot or object. Results are cached per sequence of steps, so undo is instant.
  */
 sealed interface PixelStep {
-    data class Ai(val tool: AiTool) : PixelStep
+    data class Ai(val tool: AiTool, val modelName: String) : PixelStep
 
     /**
      * Fills in the painted area: with Image Toolbox's content-aware fill (OpenCV, [generative] =

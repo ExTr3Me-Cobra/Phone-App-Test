@@ -35,7 +35,9 @@ data class NeuralModel(
 ) {
     val isStyleTransfer = type == Type.STYLE_TRANSFER
     val isOptimizationStyleTransfer = name == OPTIMIZATION_STYLE_TRANSFER_MODEL_NAME
-    val isFaceRestoration = name == "gfpgan_v1.4.onnx"
+    // Viper Vision: CodeFormer (FaceFusion's ONNX) is a face restorer too.
+    val isFaceRestoration = name == "gfpgan_v1.4.onnx" || name == "codeformer.onnx"
+    val isCodeFormer = name == "codeformer.onnx"
     val supportsStrength = name.contains("fbcnn_", true) || isStyleTransfer || isFaceRestoration
     val isImported = downloadLink == "imported"
 
@@ -88,6 +90,10 @@ data class NeuralModel(
 
     companion object {
         private const val WATERMARK_REMOVER_MODEL_NAME = "watermark_mit_b5_sigmoid.onnx"
+
+        // Viper Vision: models converted for Viper Vision, by commit so the address never changes.
+        private const val VIPER_MODELS =
+            "https://raw.githubusercontent.com/ExTr3Me-Cobra/Phone-App-Test/c3d90db08d7c101708ecfc5b28a36d18e29a6050/vipervision/models"
         private const val OPTIMIZATION_STYLE_TRANSFER_MODEL_NAME =
             "vgg19_optimization_style_transfer_onnx.zip"
 
@@ -1390,6 +1396,34 @@ data class NeuralModel(
                     downloadSize = 249033763,
                     speed = Speed.Normal(1.260f),
                     checksum = "ef451889f4744d3d5ab47b82c16b7ffe3f15d2233c7aa77dfd4773fd8221b508"
+                ),
+                // Viper Vision: extra models for the editor's AI bubbles (see vipervision/models).
+                NeuralModel(
+                    downloadLink = "https://github.com/facefusion/facefusion-assets/releases/download/models-3.0.0/codeformer.onnx",
+                    title = "CodeFormer",
+                    description = null,
+                    type = Type.ENHANCE,
+                    downloadSize = 376_951_650,
+                    speed = Speed.Normal(2.5f),
+                    checksum = "21710e7ab61c82683576c428e9c1b6fe1ed419586b7b39e394c3449c294b550f"
+                ),
+                NeuralModel(
+                    downloadLink = "$VIPER_MODELS/4xPurePhoto-span.onnx",
+                    title = "PurePhoto SPAN x4",
+                    description = null,
+                    type = Type.UPSCALE,
+                    downloadSize = 1_718_914,
+                    speed = Speed.Fast(0.4f),
+                    checksum = "011a6fe74da726c770136c8f2a7e2fb81e32681f1f3a30500e8c4d9258fdaf05"
+                ),
+                NeuralModel(
+                    downloadLink = "$VIPER_MODELS/4xNomosWebPhoto_RealPLKSR.onnx",
+                    title = "NomosWebPhoto RealPLKSR x4",
+                    description = null,
+                    type = Type.UPSCALE,
+                    downloadSize = 29_902_600,
+                    speed = Speed.Slow(4f),
+                    checksum = "ea0eb5865b4a2af56b8cd4337bf6ab7f338e259cd42aabc1d2fb27416f885bb9"
                 )
             ).sortedBy { it.type?.ordinal }
         }

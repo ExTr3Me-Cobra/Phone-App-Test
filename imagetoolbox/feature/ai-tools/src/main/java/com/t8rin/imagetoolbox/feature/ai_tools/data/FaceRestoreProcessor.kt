@@ -48,7 +48,8 @@ internal class FaceRestoreProcessor @Inject constructor() {
         source: Bitmap,
         session: OrtSession,
         strength: Float,
-        listener: AiProgressListener
+        listener: AiProgressListener,
+        codeFormer: Boolean = false
     ): Bitmap = coroutineScope {
         val amount = (strength / 100f).coerceIn(0f, 1f)
         val result = source.copy(Bitmap.Config.ARGB_8888, true)
@@ -78,7 +79,7 @@ internal class FaceRestoreProcessor @Inject constructor() {
                             FACE_SIZE.toFloat(),
                             Paint(Paint.FILTER_BITMAP_FLAG).apply { this.shader = shader }
                         )
-                        val restored = restoreFace(aligned, session)
+                        val restored = restoreFace(aligned, session, codeFormer)
                         try {
                             applyMask(restored, amount)
                             canvas.drawBitmap(restored, inverse, paint)
@@ -98,14 +99,24 @@ internal class FaceRestoreProcessor @Inject constructor() {
         }
     }
 
-    private suspend fun restoreFace(source: Bitmap, session: OrtSession): Bitmap {
+    private suspend fun restoreFace(source: Bitmap, session: OrtSession, codeFormer: Boolean): Bitmap {
         val values = source.readModelInput(channels = 3, alpha = null)
+        // Viper Vision: CodeFormer (FaceFusion's export) takes RGB in -1..1 plus a fidelity weight
+        // (0 = more invented detail, 1 = closest to the original face) and returns -1..1.
+        if (codeFormer) for (i in values.indices) values[i] = values[i] * 2f - 1f
+        val environment = OrtEnvironment.getEnvironment()
         OnnxTensor.createTensor(
-            OrtEnvironment.getEnvironment(),
+            environment,
             FloatBuffer.wrap(values),
             longArrayOf(1, 3, FACE_SIZE.toLong(), FACE_SIZE.toLong())
         ).use { tensor ->
-            session.runCancellable(mapOf(session.inputNames.single() to tensor)).use { output ->
+            val inputs = if (codeFormer) {
+                mapOf(
+                    "input" to tensor,
+                    "weight" to OnnxTensor.createTensor(environment, java.nio.DoubleBuffer.wrap(doubleArrayOf(0.7)), longArrayOf())
+                )
+            } else mapOf(session.inputNames.single() to tensor)
+            session.runCancellable(inputs).use { output ->
                 val restored = output[0] as OnnxTensor
                 check(
                     restored.info.shape.contentEquals(
@@ -114,7 +125,9 @@ internal class FaceRestoreProcessor @Inject constructor() {
                 )
                 restored.floatBuffer.get(values)
             }
+            if (codeFormer) inputs["weight"]?.close()
         }
+        if (codeFormer) for (i in values.indices) values[i] = (values[i] + 1f) / 2f
         val size = FACE_SIZE * FACE_SIZE
         val pixels = IntArray(size) { index ->
             Color.rgb(
