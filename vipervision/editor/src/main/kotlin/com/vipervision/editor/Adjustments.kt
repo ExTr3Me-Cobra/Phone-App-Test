@@ -8,6 +8,7 @@ import jp.co.cyberagent.android.gpuimage.GPUImage
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageExposureFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageFilterGroup
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageSaturationFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageSharpenFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageVignetteFilter
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageWhiteBalanceFilter
@@ -44,7 +45,7 @@ data class Adjustments(val values: Map<Adjustment, Int> = emptyMap()) {
 
 /**
  * Applies [adjustments] to [source] using the same image libraries and filters as Image Toolbox:
- * Aire (native code) for brightness, contrast and saturation, and one combined GPU pass for
+ * Aire (native code) for brightness and contrast, and one combined GPU pass for saturation,
  * exposure, highlights and shadows, white balance, sharpness and vignette.
  *
  * Each slider's -100..100 is mapped onto a sensible part of the matching Image Toolbox filter's
@@ -62,13 +63,13 @@ fun applyAdjustments(context: Context, source: Bitmap, adjustments: Adjustments)
     adjustments.t(Adjustment.Contrast).takeIf { it != 0f }?.let {
         bitmap = Aire.contrast(bitmap = bitmap, gain = 1f + it * 0.8f)
     }
-    // Image Toolbox "Saturation": Aire.saturation, 0..2 (1 = unchanged), with tone mapping as
-    // in Image Toolbox. Dial = 0 (black and white)..2.
-    adjustments.t(Adjustment.Saturation).takeIf { it != 0f }?.let {
-        bitmap = Aire.saturation(bitmap = bitmap, saturation = 1f + it, tonemap = true)
-    }
 
     val gpuFilters = buildList<GPUImageFilter> {
+        // Image Toolbox's GPU "Saturation" filter, 0..2 (1 = unchanged); it keeps brightness the
+        // same. Dial = 0 (black and white)..2. (Aire's version with tone mapping darkened photos.)
+        adjustments.t(Adjustment.Saturation).takeIf { it != 0f }?.let {
+            add(GPUImageSaturationFilter(1f + it))
+        }
         // Image Toolbox "Exposure": GPUImageExposureFilter, -4..4 EV (0 = unchanged). Dial = ±2 EV.
         adjustments.t(Adjustment.Exposure).takeIf { it != 0f }?.let {
             add(GPUImageExposureFilter(it * 2f))
@@ -81,10 +82,13 @@ fun applyAdjustments(context: Context, source: Bitmap, adjustments: Adjustments)
         }
         // Image Toolbox "White balance": GPUImageWhiteBalanceFilter, temperature in K (5000 =
         // unchanged, higher is warmer) and tint -200..200 (0 = unchanged, positive is magenta).
+        // Its shader is about 6.7x weaker above 5000 K (0.00006 per K) than below (0.0004 per K),
+        // so the warm half of the dial goes further to be as strong as the cool half.
         val warmth = adjustments.t(Adjustment.Warmth)
         val tint = adjustments.t(Adjustment.Tint)
         if (warmth != 0f || tint != 0f) {
-            add(GPUImageWhiteBalanceFilter(5000f + warmth * 2000f, tint * 100f))
+            val kelvin = if (warmth > 0f) 5000f + warmth * 13300f else 5000f + warmth * 2000f
+            add(GPUImageWhiteBalanceFilter(kelvin, tint * 100f))
         }
         // Image Toolbox "Sharpen": GPUImageSharpenFilter, -1..1 in its slider (negative softens).
         adjustments.t(Adjustment.Sharpness).takeIf { it != 0f }?.let {
