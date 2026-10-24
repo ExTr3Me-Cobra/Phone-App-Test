@@ -62,7 +62,6 @@ import com.t8rin.imagetoolbox.core.resources.icons.Highlighter
 import com.t8rin.imagetoolbox.core.resources.icons.NeonBrush
 import com.t8rin.imagetoolbox.core.resources.icons.Pen
 import com.t8rin.imagetoolbox.core.resources.icons.Redo
-import com.t8rin.imagetoolbox.core.resources.icons.TextFields
 import com.t8rin.imagetoolbox.core.resources.icons.Tune
 import com.t8rin.imagetoolbox.core.resources.icons.Undo
 import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
@@ -105,8 +104,7 @@ class DrawSession internal constructor(
 private val DrawModes: List<Triple<String, ImageVector, () -> DrawMode>> = listOf(
     Triple("Pen", Icons.Outlined.Pen) { DrawMode.Pen },
     Triple("Highlighter", Icons.Outlined.Highlighter) { DrawMode.Highlighter },
-    Triple("Neon", Icons.Outlined.NeonBrush) { DrawMode.Neon },
-    Triple("Text", Icons.Rounded.TextFields) { DrawMode.Text() }
+    Triple("Neon", Icons.Outlined.NeonBrush) { DrawMode.Neon }
 )
 
 /** Quick colours; "More" in the settings sheet has the full colour picker and gradients. */
@@ -132,8 +130,6 @@ internal fun DrawScreen(
     LaunchedEffect(drawMode) {
         session.alpha = if (drawMode is DrawMode.Highlighter) 0.4f else 1f
         session.brushSoftness = if (drawMode is DrawMode.Neon) 35.pt else 0.pt
-        // Text has its own options (what to write, font), so they open.
-        if (drawMode is DrawMode.Text) session.showSettings = true
     }
     LaunchedEffect(drawMode, session.strokeWidth) {
         session.strokeWidth = if (drawMode is DrawMode.Image) {
@@ -312,7 +308,7 @@ internal fun DrawScreen(
         ) {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 // Image Toolbox's Draw settings: colour picker and gradients, size, softness,
-                // opacity, the brush modes above (text with fonts), every shape, line styles,
+                // opacity, the brush modes above, every shape, line styles,
                 // line angle, helper grid and magnifier.
                 DrawContentControls(
                     component = component,

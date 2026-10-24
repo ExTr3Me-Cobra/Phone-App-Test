@@ -67,7 +67,7 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   eraser), one finger paints, two fingers pinch to zoom and move around, and the wedge slider on
   the right sets the brush size (a circle shows how big while you drag it).
 * **Draw and decorate** (pen tab):
-  * **Draw**: Image Toolbox's Draw tool in the editor's layout — pen, highlighter, neon and text;
+  * **Draw**: Image Toolbox's Draw tool in the editor's layout — pen, highlighter and neon;
     quick colours; size on the side slider; eraser, undo/redo, move/zoom. **Settings** opens Image
     Toolbox's Draw options for those modes (colour picker and gradients, opacity, softness, every
     shape and arrow, line styles, line angle, fonts, grid, magnifier).
