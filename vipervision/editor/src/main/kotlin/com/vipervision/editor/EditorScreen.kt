@@ -50,13 +50,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
-import com.t8rin.imagetoolbox.core.resources.icons.FilterVintage
 import com.t8rin.imagetoolbox.core.resources.icons.Flip
 import com.t8rin.imagetoolbox.core.resources.icons.LightMode
 import com.t8rin.imagetoolbox.core.resources.icons.MoreVert
@@ -74,11 +74,15 @@ private val PanelGrey = Color(0xFF1C1C1E)
 @Composable
 internal fun EditorScreen(
     controller: EditorController,
+    aiReady: (AiTool) -> Boolean,
+    onRunAi: (AiTool) -> Unit,
     onSave: () -> Unit,
     onOpenMoreTools: () -> Unit,
     onClose: () -> Unit
 ) {
-    val base = controller.basePreview
+    val context = LocalContext.current
+    // The photo the edits apply to: the original, or the result of any AI steps.
+    val base = controller.workingPreview
 
     // In the Rotate & crop tab the whole photo is shown with the crop frame over it; elsewhere,
     // the cropped result.
@@ -98,7 +102,7 @@ internal fun EditorScreen(
             geometry to state.adjustments
         }.collectLatest { (geometry, adjustments) ->
             val edited = withContext(Dispatchers.Default) {
-                applyAdjustments(base.transformed(geometry), adjustments)
+                applyAdjustments(context, base.transformed(geometry), adjustments)
             }
             controller.editedPreview = edited
         }
@@ -139,7 +143,7 @@ internal fun EditorScreen(
                 },
             contentAlignment = Alignment.Center
         ) {
-            val shown = if (showOriginal) base else controller.editedPreview ?: base
+            val shown = if (showOriginal) controller.basePreview else controller.editedPreview ?: base
             // Room around the photo for the crop handles.
             val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(20.dp) else Modifier.fillMaxSize()
             if (shown != null) {
@@ -178,7 +182,21 @@ internal fun EditorScreen(
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                 )
             }
-            if (base == null || controller.isBusy) CircularProgressIndicator(color = Accent)
+            if (base == null || controller.isBusy) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.Black.copy(alpha = 0.65f))
+                        .padding(20.dp)
+                ) {
+                    CircularProgressIndicator(color = Accent)
+                    controller.busyMessage?.let {
+                        Spacer(Modifier.height(12.dp))
+                        Text(it, color = Color.White, fontSize = 14.sp)
+                    }
+                }
+            }
             controller.error?.let {
                 Text(it, color = Color.White, modifier = Modifier.padding(24.dp))
             }
@@ -192,7 +210,7 @@ internal fun EditorScreen(
         ) {
             when (controller.tab) {
                 EditorTab.Adjust -> AdjustPanel(controller)
-                EditorTab.Filters -> FiltersPanel(controller)
+                EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi)
                 EditorTab.Transform -> TransformPanel(controller)
             }
         }
@@ -281,10 +299,9 @@ private fun AdjustPanel(controller: EditorController) {
     val selected = controller.selected
     val adjustments = controller.state.adjustments
     val listState = rememberLazyListState()
-    val base = controller.basePreview
+    val base = controller.workingPreview
     val autoValues = remember(base) { base?.let(::autoAdjust) }
-    val autoActive = autoValues != null &&
-            adjustments.copy(monochrome = false) == autoValues.copy(monochrome = false)
+    val autoActive = autoValues != null && adjustments == autoValues
 
     LaunchedEffect(selected) {
         listState.animateScrollToItem(Adjustment.entries.indexOf(selected).coerceAtLeast(0))
@@ -308,7 +325,7 @@ private fun AdjustPanel(controller: EditorController) {
                 active = autoActive,
                 onClick = {
                     if (autoActive) {
-                        controller.change(controller.state.copy(adjustments = Adjustments(monochrome = adjustments.monochrome)))
+                        controller.change(controller.state.copy(adjustments = Adjustments()))
                     } else {
                         controller.autoEnhance()
                     }
@@ -340,45 +357,55 @@ private fun AdjustPanel(controller: EditorController) {
 }
 
 @Composable
-private fun FiltersPanel(controller: EditorController) {
-    val base = controller.basePreview
-    val geometry = controller.state.geometry
-    var thumbnails by remember { mutableStateOf<List<Bitmap>>(emptyList()) }
-
-    LaunchedEffect(base, geometry) {
-        if (base == null) return@LaunchedEffect
-        thumbnails = withContext(Dispatchers.Default) {
-            val small = base.scaledToFit(220).transformed(geometry)
-            looks.map { applyAdjustments(small, it.adjustments) }
-        }
-    }
-
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        itemsIndexed(looks) { index, look ->
-            val selected = controller.state.lookName == look.name
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    Modifier
-                        .size(76.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .border(
-                            width = if (selected) 2.5.dp else 0.dp,
-                            color = if (selected) Accent else Color.Transparent,
-                            shape = RoundedCornerShape(14.dp)
-                        )
-                        .background(BubbleGrey)
-                        .clickable { controller.applyLook(look) }
+private fun AiPanel(
+    controller: EditorController,
+    aiReady: (AiTool) -> Boolean,
+    onRunAi: (AiTool) -> Unit
+) {
+    var selected by remember { mutableStateOf<AiTool?>(null) }
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            selected?.description ?: "AI tools — tap one to apply it to the photo",
+            color = Color.White,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Spacer(Modifier.height(14.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            itemsIndexed(AiTool.entries) { _, tool ->
+                val applied = tool in controller.state.aiSteps
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.width(76.dp)
                 ) {
-                    thumbnails.getOrNull(index)?.let {
-                        Image(it.asImageBitmap(), look.name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                    Box(
+                        Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(if (applied) Color.White else BubbleGrey)
+                            .border(2.dp, if (selected == tool) Accent else Color.Transparent, CircleShape)
+                            .clickable(enabled = !controller.isBusy) {
+                                selected = tool
+                                onRunAi(tool)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            tool.icon,
+                            tool.label,
+                            tint = if (applied) Color.Black else Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(tool.label, color = Color.White, fontSize = 12.sp, maxLines = 1)
+                    if (!aiReady(tool)) {
+                        Text("${tool.downloadSizeMb} MB", color = Color.Gray, fontSize = 11.sp)
                     }
                 }
-                Spacer(Modifier.height(6.dp))
-                Text(look.name, color = if (selected) Accent else Color.White, fontSize = 13.sp)
             }
         }
     }
@@ -386,7 +413,7 @@ private fun FiltersPanel(controller: EditorController) {
 
 @Composable
 private fun TransformPanel(controller: EditorController) {
-    val base = controller.basePreview
+    val base = controller.workingPreview
     val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         LazyRow(
@@ -451,22 +478,20 @@ private fun BottomTabs(controller: EditorController, onOpenMoreTools: () -> Unit
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Auto-enhance, styled like the sparkle button in Samsung's editor.
+        // AI tools, styled like the sparkle button in Samsung's editor.
         Box(
             Modifier
                 .size(52.dp)
                 .clip(CircleShape)
                 .background(Brush.linearGradient(listOf(Color(0xFF8E7CF0), Color(0xFF5B8CFF))))
-                .clickable(onClick = controller::autoEnhance),
+                .border(2.dp, if (controller.tab == EditorTab.Ai) Color.White else Color.Transparent, CircleShape)
+                .clickable { controller.tab = EditorTab.Ai },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Rounded.AutoAwesome, "Auto enhance", tint = Color.White, modifier = Modifier.size(26.dp))
+            Icon(Icons.Rounded.AutoAwesome, "AI tools", tint = Color.White, modifier = Modifier.size(26.dp))
         }
         TabIcon(EditorIcons.CropRotate, "Rotate and crop", controller.tab == EditorTab.Transform) {
             controller.tab = EditorTab.Transform
-        }
-        TabIcon(Icons.Rounded.FilterVintage, "Filters", controller.tab == EditorTab.Filters) {
-            controller.tab = EditorTab.Filters
         }
         TabIcon(Icons.Outlined.LightMode, "Adjust", controller.tab == EditorTab.Adjust) {
             controller.tab = EditorTab.Adjust
@@ -482,7 +507,7 @@ private fun TabIcon(icon: ImageVector, label: String, selected: Boolean, onClick
     }
 }
 
-private fun Bitmap.scaledToFit(maxSide: Int): Bitmap {
+internal fun Bitmap.scaledToFit(maxSide: Int): Bitmap {
     val longSide = maxOf(width, height)
     if (longSide <= maxSide) return this
     val scale = maxSide.toFloat() / longSide

@@ -27,14 +27,21 @@ The combined app is GPL-3.0 (Apache-2.0 code can be included in a GPL-3.0 app).
 Viper Vision's own photo editor, styled after Samsung's: the photo as large as the screen allows
 (press and hold it to compare with the original), and along the bottom:
 
-* **Auto** (sparkle): one-tap automatic brightness, contrast, highlights, shadows and colour.
+* **AI tools** (blue sparkle): a row of bubbles that run Image Toolbox's on-device AI models on the
+  photo: Restore faces (GFPGAN), Low light (Zero-DCE++), Fix exposure, Dehaze (DehazeFormer),
+  Denoise (SCUNet), Deblur (NAFNet), JPEG cleanup, Colorize and Remove background (U2NetP, built
+  in). Each model downloads once, after asking (sizes show under the bubbles), then works offline.
+  AI steps run on the full-size photo, happen before rotate/crop/adjustments, and undo like any
+  other edit. With Remove background applied, the photo saves as PNG to keep the transparency.
 * **Rotate and crop**: a crop frame over the whole photo (drag a corner or edge to resize, drag
   inside to move; a rule-of-thirds grid shows while dragging), shape chips (Free, Original, 1:1,
   4:3, 3:4, 16:9, 9:16), rotate left/right, flip and reset crop. The crop turns with the photo.
-* **Filters**: one-tap looks (Vivid, Warm, Cool, Fade, Dramatic, Mono, Noir).
 * **Adjust**: round "bubbles" for Brightness, Exposure, Contrast, Highlights, Shadows, Saturation,
   Warmth, Tint, Sharpness and Vignette, each from -100 to 100, set with the tick-mark wheel
-  (double-tap the wheel to reset). **Auto** fills them in automatically.
+  (double-tap the wheel to reset). **Auto** fills them in automatically. These use Image
+  Toolbox's own filters: the Aire library for brightness, contrast and saturation, and its GPU
+  filters (exposure, wide-range highlights/shadows, white balance, sharpen, vignette) in one GPU
+  pass. `Adjustments.kt` notes how each dial maps onto the filter's range.
 * **More tools**: opens Image Toolbox's 16 tools with the photo, including any edits made here.
 
 Undo/redo, Revert and Save are along the top. Save never changes the original: it saves a new
@@ -42,9 +49,11 @@ photo named `<original>_edited` in the same folder (or `Pictures/Viper Vision` i
 allow that folder), keeping the date, camera details and location. Gallery's **Edit** button opens
 this editor for every image except GIFs, which still go to Image Toolbox.
 
-Code: `Adjustments.kt` (the image maths, run on the CPU across all cores), `EditorController.kt`
-(state, undo/redo, looks, crop shapes), `EditorScreen.kt`, `EditorControls.kt` and `CropOverlay.kt`
-(UI), `ImageFiles.kt` (rotate/flip/crop, loading and saving), `EditorActivity.kt` (entry point).
+Code: `Adjustments.kt` (adjustments via Image Toolbox's libraries), `HighlightShadowWideRangeFilter.kt`
+(Image Toolbox's shader, copied with attribution), `AiTools.kt` (AI bubbles and the runner),
+`EditorController.kt` (state, undo/redo, crop shapes, AI results), `EditorScreen.kt`,
+`EditorControls.kt` and `CropOverlay.kt` (UI), `ImageFiles.kt` (rotate/flip/crop, loading and
+saving), `EditorActivity.kt` (entry point, AI runs).
 
 ## The icon
 

@@ -2,52 +2,25 @@ package com.vipervision.editor
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-
-/** A one-tap look in the Filters tab: a preset set of adjustments. */
-data class Look(val name: String, val adjustments: Adjustments)
-
-val looks = listOf(
-    Look("Original", Adjustments()),
-    Look(
-        "Vivid", Adjustments()
-            .with(Adjustment.Saturation, 35).with(Adjustment.Contrast, 15)
-    ),
-    Look(
-        "Warm", Adjustments()
-            .with(Adjustment.Warmth, 35).with(Adjustment.Saturation, 10)
-    ),
-    Look(
-        "Cool", Adjustments()
-            .with(Adjustment.Warmth, -35).with(Adjustment.Tint, -5)
-    ),
-    Look(
-        "Fade", Adjustments()
-            .with(Adjustment.Contrast, -30).with(Adjustment.Shadows, 25).with(Adjustment.Saturation, -20)
-    ),
-    Look(
-        "Dramatic", Adjustments()
-            .with(Adjustment.Contrast, 40).with(Adjustment.Highlights, -30)
-            .with(Adjustment.Shadows, -20).with(Adjustment.Vignette, 35)
-    ),
-    Look("Mono", Adjustments(monochrome = true)),
-    Look(
-        "Noir", Adjustments(monochrome = true)
-            .with(Adjustment.Contrast, 45).with(Adjustment.Vignette, 30)
-    )
-)
+import java.io.File
 
 /** Everything the user has changed. Undo and redo step through these. */
 data class EditState(
     val geometry: Geometry = Geometry(),
     val adjustments: Adjustments = Adjustments(),
-    val lookName: String = "Original"
+    /** AI tools applied, in order. They run first, on the upright photo. */
+    val aiSteps: List<AiTool> = emptyList()
 ) {
-    val isUnchanged: Boolean get() = geometry.isIdentity && adjustments.isIdentity
+    val isUnchanged: Boolean get() = geometry.isIdentity && adjustments.isIdentity && aiSteps.isEmpty()
 }
 
-enum class EditorTab { Transform, Filters, Adjust }
+enum class EditorTab { Ai, Transform, Adjust }
+
+/** The photo after a sequence of AI steps: full size on disk, plus a screen-sized copy. */
+class AiResult(val file: File, val preview: Bitmap)
 
 /** Crop frame shapes. [ratio] is width / height, or null for no fixed shape. */
 enum class CropAspect(val label: String, private val fixed: Float?) {
@@ -85,11 +58,34 @@ class EditorController {
     /** Screen-sized copy of the photo, upright, before any edits. */
     var basePreview by mutableStateOf<Bitmap?>(null)
 
-    /** [basePreview] with the current edits applied, for display. */
+    /** [workingPreview] with the current edits applied, for display. */
     var editedPreview by mutableStateOf<Bitmap?>(null)
 
     var isBusy by mutableStateOf(false)
     var error by mutableStateOf<String?>(null)
+
+    /** What a long-running job (AI download or processing) is doing, shown over the photo. */
+    var busyMessage by mutableStateOf<String?>(null)
+
+    /** Results of AI steps, keyed by the steps that produced them, so undo/redo is instant. */
+    val aiResults = mutableStateMapOf<List<AiTool>, AiResult>()
+
+    /** The photo the geometry and adjustments apply to: the latest AI result, or the original. */
+    val workingPreview: Bitmap?
+        get() = state.aiSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.preview } ?: basePreview
+
+    /** Full-size file of the current AI result, if any AI steps are applied. */
+    val workingFile: File?
+        get() = state.aiSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.file }
+
+    /** Remove background makes transparency, which JPEG can't hold. */
+    val needsPng: Boolean get() = AiTool.RemoveBackground in state.aiSteps
+
+    /** Records a finished AI step (its result must already be in [aiResults]). */
+    fun addAiStep(steps: List<AiTool>, result: AiResult) {
+        aiResults[steps] = result
+        change(state.copy(aiSteps = steps))
+    }
 
     private val undoStack = ArrayDeque<EditState>()
     private val redoStack = ArrayDeque<EditState>()
@@ -193,13 +189,9 @@ class EditorController {
         change(state.copy(geometry = state.geometry.copy(crop = CropRect())))
     }
 
-    fun applyLook(look: Look) = change(state.copy(adjustments = look.adjustments, lookName = look.name))
-
     fun autoEnhance() {
-        val preview = basePreview ?: return
-        val auto = autoAdjust(preview)
-        // Keep any look's black-and-white setting; replace the sliders with the automatic values.
-        change(state.copy(adjustments = auto.copy(monochrome = state.adjustments.monochrome)))
+        val preview = workingPreview ?: return
+        change(state.copy(adjustments = autoAdjust(preview)))
         tab = EditorTab.Adjust
     }
 }

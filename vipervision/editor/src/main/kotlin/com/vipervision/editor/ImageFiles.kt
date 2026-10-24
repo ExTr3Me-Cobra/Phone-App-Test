@@ -203,16 +203,18 @@ fun sourceInfo(context: Context, uri: Uri, realPath: String?): SourceInfo {
  * Renders the edits at full size and saves them as a new photo next to the original, named
  * "<original>_edited". The original file is never changed. Returns the new photo's uri.
  */
-suspend fun saveEditedCopy(
+fun saveEditedCopy(
     context: Context,
     source: Uri,
     realPath: String?,
     geometry: Geometry,
-    adjustments: Adjustments
+    adjustments: Adjustments,
+    renderFrom: Uri = source,
+    forcePng: Boolean = false
 ): Uri {
-    val rendered = renderFull(context, source, geometry, adjustments)
+    val rendered = renderFull(context, renderFrom, geometry, adjustments)
     val info = sourceInfo(context, source, realPath)
-    val isPng = info.displayName.endsWith(".png", ignoreCase = true)
+    val isPng = forcePng || info.displayName.endsWith(".png", ignoreCase = true)
     val extension = if (isPng) "png" else "jpg"
     val mime = if (isPng) "image/png" else "image/jpeg"
     val baseName = info.displayName.substringBeforeLast('.') + "_edited"
@@ -253,22 +255,26 @@ suspend fun saveEditedCopy(
 }
 
 /** Renders the edits at full size into a temporary file, for handing over to Image Toolbox. */
-suspend fun saveForHandoff(
+fun saveForHandoff(
     context: Context,
     source: Uri,
     geometry: Geometry,
-    adjustments: Adjustments
+    adjustments: Adjustments,
+    renderFrom: Uri = source,
+    forcePng: Boolean = false
 ): Uri {
-    val rendered = renderFull(context, source, geometry, adjustments)
+    val rendered = renderFull(context, renderFrom, geometry, adjustments)
     val folder = File(context.cacheDir, "vv_editor").apply { mkdirs() }
     folder.listFiles()?.forEach { it.delete() }
-    val file = File(folder, "edit_${System.currentTimeMillis()}.jpg")
-    file.outputStream().use { rendered.compress(Bitmap.CompressFormat.JPEG, 95, it) }
-    copyExif(context, source, Uri.fromFile(file))
+    val file = File(folder, "edit_${System.currentTimeMillis()}." + if (forcePng) "png" else "jpg")
+    file.outputStream().use {
+        rendered.compress(if (forcePng) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG, 95, it)
+    }
+    if (!forcePng) copyExif(context, source, Uri.fromFile(file))
     return FileProvider.getUriForFile(context, "${context.packageName}.vveditor", file)
 }
 
-private suspend fun renderFull(
+private fun renderFull(
     context: Context,
     source: Uri,
     geometry: Geometry,
@@ -277,8 +283,8 @@ private suspend fun renderFull(
     val full = decodeImage(context, source, maxSafeSide(context, source))
     val turned = full.transformed(geometry)
     if (turned !== full) full.recycle()
-    val result = applyAdjustments(turned, adjustments)
-    turned.recycle()
+    val result = applyAdjustments(context, turned, adjustments)
+    if (result !== turned) turned.recycle()
     return result
 }
 
