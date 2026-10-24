@@ -16,10 +16,13 @@ data class EditState(
     /** AI tools and heals applied, in order. They run first, on the upright photo. */
     val pixelSteps: List<PixelStep> = emptyList(),
     /** Image Toolbox filters from the Effects tab, applied in order after the adjustments. */
-    val effects: List<Effect> = emptyList()
+    val effects: List<Effect> = emptyList(),
+    /** Tone curves (the Curves bubble), applied after the adjustments and before the effects. */
+    val curves: com.t8rin.curves.ImageCurvesEditorState? = null
 ) {
     val isUnchanged: Boolean
-        get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty() && effects.isEmpty()
+        get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty() && effects.isEmpty() &&
+                (curves == null || curves.isDefault())
 }
 
 enum class EditorTab { Ai, Transform, Adjust, Effects }
@@ -45,6 +48,9 @@ class PaintSession(val purpose: PaintPurpose, val effectId: Long? = null) {
 
     /** How wide the photo is on screen while painting, to convert the brush size. */
     var shownWidthPx = 0f
+
+    /** Cut out's Smart select: the next strokes mark what to leave out. */
+    var excludeMode by mutableStateOf(false)
 }
 
 /** Crop frame shapes. [ratio] is width / height, or null for no fixed shape. */
@@ -104,7 +110,8 @@ class EditorController {
         get() = state.pixelSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.file }
 
     /** Remove background makes transparency, which JPEG can't hold. */
-    val needsPng: Boolean get() = PixelStep.Ai(AiTool.RemoveBackground) in state.pixelSteps
+    val needsPng: Boolean
+        get() = state.pixelSteps.any { it == PixelStep.Ai(AiTool.RemoveBackground) || it is PixelStep.CutOut }
 
     /** Records a finished pixel step (AI tool or heal) and its result. */
     fun addPixelStep(steps: List<PixelStep>, result: AiResult) {
@@ -114,6 +121,9 @@ class EditorController {
 
     /** Set while the user is painting over something to heal or erase. */
     var paint by mutableStateOf<PaintSession?>(null)
+
+    /** Set while the Cut out tool is open. */
+    var cutOut by mutableStateOf<CutOutSession?>(null)
 
     private val undoStack = ArrayDeque<EditState>()
     private val redoStack = ArrayDeque<EditState>()
@@ -216,6 +226,9 @@ class EditorController {
         cropAspect = CropAspect.Free
         change(state.copy(geometry = state.geometry.copy(crop = CropRect())))
     }
+
+    /** Set while the Curves editor is open (Adjust tab). */
+    var curvesOpen by mutableStateOf(false)
 
     /** The effect whose settings are open in the Effects tab. */
     var selectedEffectId by mutableStateOf<Long?>(null)

@@ -34,6 +34,15 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   in). Each model downloads once, after asking (sizes show under the bubbles), then works offline.
   AI steps run on the full-size photo, happen before rotate/crop/adjustments, and undo like any
   other edit. With Remove background applied, the photo saves as PNG to keep the transparency.
+* **Cut out** (scissors, in the AI row): Image Toolbox's whole Background Remover in the
+  editor's style. **Smart select** turns rough painting into MobileSAM (Segment Anything)
+  prompts: paint over what to keep (green) or switch to "Leave out" (blue) and the AI finds the
+  exact edge, live. **Auto** runs any of its models (U2NetP built in; U2Net, RMBG, InSPyReNet,
+  BiRefNet, ISNet, YOLO, MODNet, MobileSAM download on first use). **Erase** / **Restore**
+  brushes with shapes (free, line, lasso, rectangle, oval, fill, spray), size (side slider) and
+  softness, zoom/pan and magnifier. **Options**: trim empty edges, show the original faintly,
+  grid, magnifier, clear brushes, start over. The result becomes an undoable step and the photo
+  saves as PNG to keep the transparency.
 * **Rotate and crop**: a crop frame over the whole photo (drag a corner or edge to resize, drag
   inside to move; a rule-of-thirds grid shows while dragging), shape chips (Free, Original, 1:1,
   4:3, 3:4, 16:9, 9:16), rotate left/right, flip and reset crop. The crop turns with the photo.
@@ -43,6 +52,8 @@ Viper Vision's own photo editor, styled after Samsung's: the photo as large as t
   Toolbox's own filters: the Aire library for brightness, contrast and saturation, and its GPU
   filters (exposure, wide-range highlights/shadows, white balance, sharpen, vignette) in one GPU
   pass. `Adjustments.kt` notes how each dial maps onto the filter's range. The last bubble,
+  **Curves** (after Heal) opens Image Toolbox's tone curve editor (RGB and each channel, with
+  the photo's histogram) with preset import/export (.itcurve, Photoshop .acv, and more).
   **Heal**, removes spots and small blemishes: paint over them and Image Toolbox's OpenCV
   content-aware fill blends them away. No download, not AI. While painting (Heal or Object
   eraser), one finger paints, two fingers pinch to zoom and move around, and the wedge slider on

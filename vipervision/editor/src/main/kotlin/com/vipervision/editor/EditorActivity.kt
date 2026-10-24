@@ -16,7 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
+import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.decompose.retainedComponent
+import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.resume
+import com.t8rin.imagetoolbox.feature.erase_background.presentation.screenLogic.EraseBackgroundComponent
+import com.t8rin.neural_tools.bgremover.MobileSAM
 import com.t8rin.imagetoolbox.core.domain.image.ImageTransformer
 import com.t8rin.imagetoolbox.core.domain.model.ImageModel
 import com.t8rin.imagetoolbox.core.filters.domain.FilterProvider
@@ -59,6 +64,13 @@ class EditorActivity : ComposeActivity() {
 
     @Inject
     lateinit var filterTemplatesFactory: FilterTemplateCreationSheetComponent.Factory
+
+    /** Image Toolbox's Background Remover, driven by the Cut out tool. */
+    @Inject
+    lateinit var eraseBackgroundFactory: EraseBackgroundComponent.Factory
+
+    /** Set while asking whether to download MobileSAM for Cut out's Smart select. */
+    private var pendingSamDownload by mutableStateOf(false)
 
     /** Adjustments and effects, shared by the preview and saving. */
     private val finisher by lazy { EditFinisher(filterProvider, imageTransformer) }
@@ -138,11 +150,44 @@ class EditorActivity : ComposeActivity() {
                     },
                     lamaReady = lamaReady,
                     onStartObjectEraser = ::startObjectEraser,
+                    onStartCutOut = { startCutOut(source) },
+                    onApplyCutOut = { scope.applyCutOut() },
+                    onCancelCutOut = ::closeCutOut,
+                    onNeedSamDownload = { pendingSamDownload = true },
                     onApplyPaint = { scope.applyPaint(source) },
                     onSave = { scope.save(source, realPath) },
                     onOpenMoreTools = { scope.openMoreTools(source) },
                     onClose = ::finish
                 )
+
+                if (pendingSamDownload) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            pendingSamDownload = false
+                            controller.cutOut?.tool = CutTool.Auto
+                        },
+                        title = { Text("Download Smart select?") },
+                        text = {
+                            Text(
+                                "Smart select uses the MobileSAM (Segment Anything) AI model: roughly paint over " +
+                                        "what to keep and it finds the exact edge.\n\nIt needs a one-time download of " +
+                                        "about 45 MB. After that it works offline."
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                pendingSamDownload = false
+                                scope.downloadSam()
+                            }) { Text("Download") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                pendingSamDownload = false
+                                controller.cutOut?.tool = CutTool.Auto
+                            }) { Text("Cancel") }
+                        }
+                    )
+                }
 
                 if (pendingLamaDownload) {
                     AlertDialog(
@@ -338,13 +383,72 @@ class EditorActivity : ComposeActivity() {
         controller.isBusy = false
     }
 
+    /** Opens Cut out on the upright photo, including earlier AI/heal steps. */
+    private fun startCutOut(source: Uri) {
+        if (controller.isBusy || controller.cutOut != null) return
+        val input = controller.workingFile?.let(Uri::fromFile) ?: source
+        val lifecycle = LifecycleRegistry()
+        val component = eraseBackgroundFactory(
+            componentContext = DefaultComponentContext(lifecycle),
+            initialUri = input,
+            onGoBack = ::closeCutOut,
+            onNavigate = {}
+        )
+        lifecycle.resume()
+        controller.cutOut = CutOutSession(component, lifecycle)
+    }
+
+    private fun closeCutOut() {
+        controller.cutOut?.close()
+        controller.cutOut = null
+    }
+
+    private fun CoroutineScope.applyCutOut() = launch {
+        val session = controller.cutOut ?: return@launch
+        if (controller.isBusy) return@launch
+        controller.isBusy = true
+        controller.busyMessage = "Cutting out…"
+        runCatching {
+            val output = session.component.getErasedBitmap(session.component.trimImage) ?: error("nothing to save")
+            storeResult(output)
+        }.onSuccess { result ->
+            controller.addPixelStep(controller.state.pixelSteps + PixelStep.CutOut(), result)
+            closeCutOut()
+        }.onFailure {
+            Toast.makeText(this@EditorActivity, "Cut out failed: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+        controller.busyMessage = null
+        controller.isBusy = false
+    }
+
+    private fun CoroutineScope.downloadSam() = launch {
+        val session = controller.cutOut ?: return@launch
+        session.busyMessage = "Downloading Smart select…"
+        runCatching {
+            MobileSAM.download { session.busyMessage = "Downloading Smart select… ${(it * 100).toInt()}%" }
+            check(MobileSAM.isDownloaded()) { "the download didn't finish" }
+        }.onSuccess {
+            session.busyMessage = null
+            // Re-run Smart select's setup now that the model is here.
+            session.tool = CutTool.Auto
+            session.tool = CutTool.Smart
+        }.onFailure {
+            session.busyMessage = null
+            session.tool = CutTool.Auto
+            Toast.makeText(this@EditorActivity, "Couldn't download Smart select: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun finishFor(state: EditState): FinishEdits = { turned, width, height ->
         finisher.finish(this, turned, state, width, height)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isFinishing) File(cacheDir, "vv_ai").deleteRecursively()
+        if (isFinishing) {
+            File(cacheDir, "vv_ai").deleteRecursively()
+            controller.cutOut?.close()
+        }
     }
 
     /** Opens Image Toolbox's tool picker with the photo, including any edits made here. */

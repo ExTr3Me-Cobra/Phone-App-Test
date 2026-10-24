@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
 private val BrushColor = Color(0xFFFF3B30).copy(alpha = 0.55f)
+private val ExcludeColor = Color(0xFF3B8BFF).copy(alpha = 0.55f)
 
 /** Brush sizes the side slider offers, as a radius in dp. */
 internal val BrushRadiusRange = 4f..60f
@@ -82,7 +83,8 @@ internal fun PaintOverlay(
     imageHeight: Int,
     session: PaintSession,
     zoom: PaintZoom,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    brushColor: Color = BrushColor
 ) {
     val density = LocalDensity.current
     val radiusPx = with(density) { session.brushRadiusDp.dp.toPx() }
@@ -129,7 +131,7 @@ internal fun PaintOverlay(
                         event.changes.forEach { it.consume() }
                     }
                     if (!pinching && current.isNotEmpty()) {
-                        session.strokes.add(ScreenStroke(current.distinct(), radius))
+                        session.strokes.add(ScreenStroke(current.distinct(), radius, session.excludeMode))
                     }
                     current = emptyList()
                 }
@@ -140,10 +142,11 @@ internal fun PaintOverlay(
         session.shownWidthPx = image.width
         fun toScreen(p: Offset) = Offset(image.left + p.x * image.width, image.top + p.y * image.height)
 
-        val live = current.takeIf { it.isNotEmpty() }?.let { ScreenStroke(it.distinct(), radiusPx / zoom.scale) }
+        val live = current.takeIf { it.isNotEmpty() }?.let { ScreenStroke(it.distinct(), radiusPx / zoom.scale, session.excludeMode) }
         for (stroke in session.strokes + listOfNotNull(live)) {
+            val color = if (stroke.exclude) ExcludeColor else brushColor
             if (stroke.points.size == 1) {
-                drawCircle(BrushColor, stroke.radiusPx, toScreen(stroke.points.first()))
+                drawCircle(color, stroke.radiusPx, toScreen(stroke.points.first()))
             } else {
                 val path = Path()
                 stroke.points.forEachIndexed { i, p ->
@@ -152,7 +155,7 @@ internal fun PaintOverlay(
                 }
                 drawPath(
                     path,
-                    BrushColor,
+                    color,
                     style = Stroke(width = stroke.radiusPx * 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
                 )
             }
@@ -169,17 +172,34 @@ internal fun BrushSizeSlider(
     session: PaintSession,
     onAdjusting: (Boolean) -> Unit,
     modifier: Modifier = Modifier
+) = SideSlider(
+    value = session.brushRadiusDp,
+    range = BrushRadiusRange,
+    onValueChange = { session.brushRadiusDp = it },
+    onAdjusting = onAdjusting,
+    modifier = modifier
+)
+
+/** An upright wedge slider for the side of the photo: bottom is [range]'s start, top its end. */
+@Composable
+internal fun SideSlider(
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    onAdjusting: (Boolean) -> Unit = {}
 ) {
     val onAdjustingNow by rememberUpdatedState(onAdjusting)
+    val onChange by rememberUpdatedState(onValueChange)
     fun setFrom(y: Float, height: Float) {
         val f = 1f - (y / height).coerceIn(0f, 1f)
-        session.brushRadiusDp = BrushRadiusRange.start + f * (BrushRadiusRange.endInclusive - BrushRadiusRange.start)
+        onChange(range.start + f * (range.endInclusive - range.start))
     }
     Box(
         modifier
             .width(44.dp)
             .height(240.dp)
-            .pointerInput(session) {
+            .pointerInput(range) {
                 detectTapGestures(onPress = {
                     onAdjustingNow(true)
                     setFrom(it.y, size.height.toFloat())
@@ -187,7 +207,7 @@ internal fun BrushSizeSlider(
                     onAdjustingNow(false)
                 })
             }
-            .pointerInput(session) {
+            .pointerInput(range) {
                 detectVerticalDragGestures(
                     onDragStart = { onAdjustingNow(true); setFrom(it.y, size.height.toFloat()) },
                     onDragEnd = { onAdjustingNow(false) },
@@ -204,7 +224,7 @@ internal fun BrushSizeSlider(
             val top = pad
             val bottom = size.height - pad
             val cx = size.width / 2f
-            // Wedge: wide at the top (big brush), narrow at the bottom.
+            // Wedge: wide at the top, narrow at the bottom.
             val track = Path().apply {
                 moveTo(cx - 9.dp.toPx(), top)
                 lineTo(cx + 9.dp.toPx(), top)
@@ -214,8 +234,7 @@ internal fun BrushSizeSlider(
             }
             drawPath(track, Color.Black.copy(alpha = 0.45f))
             drawPath(track, Color.White.copy(alpha = 0.7f), style = Stroke(1.dp.toPx()))
-            val f = (session.brushRadiusDp - BrushRadiusRange.start) /
-                    (BrushRadiusRange.endInclusive - BrushRadiusRange.start)
+            val f = ((value - range.start) / (range.endInclusive - range.start)).coerceIn(0f, 1f)
             val y = bottom - f * (bottom - top)
             drawCircle(Color.Black.copy(alpha = 0.35f), 13.dp.toPx(), Offset(cx, y))
             drawCircle(Accent, 11.dp.toPx(), Offset(cx, y))

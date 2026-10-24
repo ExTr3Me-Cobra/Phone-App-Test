@@ -210,7 +210,8 @@ class EraseBackgroundComponent @AssistedInject internal constructor(
         }
     }
 
-    private suspend fun getErasedBitmap(canTrim: Boolean): Bitmap? {
+    // Viper Vision: public so the editor's Cut out tool can take the result.
+    suspend fun getErasedBitmap(canTrim: Boolean): Bitmap? {
         return if (autoEraseCount == 0) {
             imageDrawApplier.applyEraseToImage(
                 pathPaints = _paths.value,

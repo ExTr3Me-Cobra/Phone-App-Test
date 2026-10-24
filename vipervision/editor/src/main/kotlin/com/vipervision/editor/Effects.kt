@@ -43,7 +43,7 @@ class EditFinisher(
         uprightWidth: Int,
         uprightHeight: Int
     ): Bitmap {
-        var image = applyAdjustments(context, turned, state.adjustments)
+        var image = applyCurves(context, applyAdjustments(context, turned, state.adjustments), state.curves)
         for (effect in state.effects) {
             val filtered = runCatching {
                 imageTransformer.transform(

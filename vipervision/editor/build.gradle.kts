@@ -21,6 +21,11 @@ dependencies {
     implementation(projects.core.domain)
     // Image Toolbox's filter catalogue, pickers and settings cards (the Effects tab).
     implementation(projects.core.filters)
+    // Image Toolbox's Background Remover and drawing engine (Cut out).
+    implementation(projects.feature.eraseBackground)
+    implementation(projects.feature.draw)
+    // Image Toolbox's tone curves editor (Curves bubble).
+    implementation(projects.lib.curves)
     // Image Toolbox's heal engines: OpenCV content-aware fill and the LaMa AI model.
     implementation(projects.lib.opencvTools)
     implementation(projects.lib.neuralTools)

@@ -19,6 +19,9 @@ sealed interface PixelStep {
      * false, the Heal bubble) or its LaMa AI model ([generative] = true, the Object eraser).
      */
     data class Heal(val strokes: List<BrushStroke>, val generative: Boolean) : PixelStep
+
+    /** The Cut out tool's result (background removed by models, brushes and/or Smart select). */
+    data class CutOut(val id: Long = System.nanoTime()) : PixelStep
 }
 
 /**
@@ -28,8 +31,11 @@ sealed interface PixelStep {
  */
 data class BrushStroke(val points: List<Offset>, val radius: Float)
 
-/** A stroke being painted on screen: points as fractions of the shown photo, radius in screen pixels. */
-data class ScreenStroke(val points: List<Offset>, val radiusPx: Float)
+/**
+ * A stroke being painted on screen: points as fractions of the shown photo, radius in screen pixels.
+ * [exclude] marks Cut out's "not this" brush.
+ */
+data class ScreenStroke(val points: List<Offset>, val radiusPx: Float, val exclude: Boolean = false)
 
 /**
  * Maps a point on the shown photo (fractions of the rotated and cropped image) back to the upright

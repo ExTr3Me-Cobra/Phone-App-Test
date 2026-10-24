@@ -59,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Apps
+import com.t8rin.imagetoolbox.core.resources.icons.Curve
+import com.t8rin.imagetoolbox.core.resources.icons.Scissors
 import com.t8rin.imagetoolbox.core.resources.icons.AutoFixHigh
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
 import com.t8rin.imagetoolbox.core.resources.icons.Flip
@@ -87,6 +89,10 @@ internal fun EditorScreen(
     onRunAi: (AiTool) -> Unit,
     lamaReady: Boolean,
     onStartObjectEraser: () -> Unit,
+    onStartCutOut: () -> Unit,
+    onApplyCutOut: () -> Unit,
+    onCancelCutOut: () -> Unit,
+    onNeedSamDownload: () -> Unit,
     onApplyPaint: () -> Unit,
     onSave: () -> Unit,
     onOpenMoreTools: () -> Unit,
@@ -125,6 +131,17 @@ internal fun EditorScreen(
     val changed = !controller.state.isUnchanged
 
     BackHandler(enabled = changed) { showDiscardDialog = true }
+
+    controller.cutOut?.let { session ->
+        CutOutScreen(
+            session = session,
+            onCancel = onCancelCutOut,
+            onApply = onApplyCutOut,
+            onNeedSamDownload = onNeedSamDownload
+        )
+        if (controller.isBusy) BusyOverlay(controller.busyMessage)
+        return
+    }
 
     Column(
         Modifier
@@ -249,7 +266,10 @@ internal fun EditorScreen(
             Modifier
                 .fillMaxWidth()
                 .then(
-                    if (controller.tab == EditorTab.Effects && controller.paint == null && controller.selectedEffectId != null) {
+                    if (controller.paint == null && (
+                            (controller.tab == EditorTab.Effects && controller.selectedEffectId != null) ||
+                                    (controller.tab == EditorTab.Adjust && controller.curvesOpen))
+                    ) {
                         Modifier.heightIn(min = 184.dp)
                     } else Modifier.height(184.dp)
                 ),
@@ -264,8 +284,10 @@ internal fun EditorScreen(
                 )
             } else {
                 when (controller.tab) {
-                    EditorTab.Adjust -> AdjustPanel(controller)
-                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser)
+                    EditorTab.Adjust -> if (controller.curvesOpen) {
+                        CurvesPanel(controller, remember(base) { base?.scaledToFit(512) })
+                    } else AdjustPanel(controller)
+                    EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut)
                     EditorTab.Transform -> TransformPanel(controller)
                     EditorTab.Effects -> EffectsPanel(controller, toolbox, thumbnail)
                 }
@@ -416,6 +438,20 @@ private fun AdjustPanel(controller: EditorController) {
                         Icon(Icons.Rounded.Healing, "Heal", tint = Color.White, modifier = Modifier.size(26.dp))
                     }
                 }
+                // Curves: Image Toolbox's tone curve editor.
+                item {
+                    val active = controller.state.curves?.isDefault() == false
+                    Box(
+                        Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(if (active) Accent.copy(alpha = 0.45f) else BubbleGrey)
+                            .clickable(enabled = !controller.isBusy) { controller.curvesOpen = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Outlined.Curve, "Curves", tint = Color.White, modifier = Modifier.size(26.dp))
+                    }
+                }
             }
         }
         Spacer(Modifier.height(12.dp))
@@ -434,7 +470,8 @@ private fun AiPanel(
     aiReady: (AiTool) -> Boolean,
     onRunAi: (AiTool) -> Unit,
     lamaReady: Boolean,
-    onStartObjectEraser: () -> Unit
+    onStartObjectEraser: () -> Unit,
+    onStartCutOut: () -> Unit
 ) {
     var selected by remember { mutableStateOf<AiTool?>(null) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
@@ -462,6 +499,19 @@ private fun AiPanel(
                     selected = false,
                     enabled = !controller.isBusy,
                     onClick = onStartObjectEraser
+                )
+            }
+            // Cut out: Image Toolbox's full background remover, with Smart select (paint roughly,
+            // MobileSAM finds the edge), all its models and erase/restore brushes.
+            item {
+                AiBubble(
+                    icon = Icons.Rounded.Scissors,
+                    label = "Cut out",
+                    download = null,
+                    applied = controller.state.pixelSteps.any { it is PixelStep.CutOut },
+                    selected = false,
+                    enabled = !controller.isBusy,
+                    onClick = onStartCutOut
                 )
             }
             itemsIndexed(AiTool.entries) { _, tool ->
@@ -658,6 +708,25 @@ private fun BottomTabs(controller: EditorController, onOpenMoreTools: () -> Unit
 private fun TabIcon(icon: ImageVector, label: String, selected: Boolean, onClick: () -> Unit) {
     IconButton(onClick = onClick, modifier = Modifier.size(52.dp)) {
         Icon(icon, label, tint = if (selected) Accent else Color.White, modifier = Modifier.size(30.dp))
+    }
+}
+
+@Composable
+private fun BusyOverlay(message: String?) {
+    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)), contentAlignment = Alignment.Center) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clip(RoundedCornerShape(18.dp))
+                .background(Color.Black.copy(alpha = 0.8f))
+                .padding(20.dp)
+        ) {
+            CircularProgressIndicator(color = Accent)
+            message?.let {
+                Spacer(Modifier.height(12.dp))
+                Text(it, color = Color.White, fontSize = 14.sp)
+            }
+        }
     }
 }
 
