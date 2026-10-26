@@ -40,8 +40,6 @@ import androidx.compose.ui.unit.dp
 import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.R
 import com.t8rin.imagetoolbox.core.resources.icons.FileOpen
-import com.t8rin.imagetoolbox.core.resources.icons.QrCodeScanner
-import com.t8rin.imagetoolbox.core.ui.utils.content_pickers.rememberBarcodeScanner
 import com.t8rin.imagetoolbox.core.ui.utils.content_pickers.rememberFilePicker
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedButton
 import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedIconButton
@@ -53,10 +51,7 @@ internal fun FilterTemplateAddingGroup(
     onAddTemplateFilterFromString: (string: String) -> Unit,
     onAddTemplateFilterFromUri: (uri: String) -> Unit
 ) {
-    val scanner = rememberBarcodeScanner {
-        onAddTemplateFilterFromString(it.raw)
-    }
-
+    // Viper Vision: no QR scanning (it needed the camera); templates import from a file.
     val importFromFileLauncher = rememberFilePicker { uri: Uri ->
         onAddTemplateFilterFromUri(uri.toString())
     }
@@ -72,15 +67,6 @@ internal fun FilterTemplateAddingGroup(
             .padding(top = 16.dp)
             .fillMaxWidth()
     ) {
-        EnhancedIconButton(
-            onClick = scanner::scan,
-            containerColor = MaterialTheme.colorScheme.tertiary
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.QrCodeScanner,
-                contentDescription = "Scan QR"
-            )
-        }
         EnhancedIconButton(
             onClick = importFromFileLauncher::pickFile,
             containerColor = MaterialTheme.colorScheme.secondary

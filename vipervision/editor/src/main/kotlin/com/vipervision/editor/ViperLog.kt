@@ -42,18 +42,24 @@ object ViperLog {
         line("APP", "──── Viper Vision started (pid ${Process.myPid()}) ${versionOf(app)} ────")
         line("APP", deviceSummary(app))
         logPreviousExits(app)
-
-        val previous = Thread.getDefaultUncaughtExceptionHandler()
-        Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-            error("CRASH", "Uncaught on thread ${thread.name}", error)
-            previous?.uncaughtException(thread, error)
-        }
         app.registerComponentCallbacks(object : ComponentCallbacks2 {
             override fun onTrimMemory(level: Int) = line("MEM", "Android asked to free memory (level $level). ${memory()}")
             override fun onConfigurationChanged(newConfig: Configuration) = Unit
             @Deprecated("Deprecated in Java")
             override fun onLowMemory() = line("MEM", "Android says memory is very low. ${memory()}")
         })
+    }
+
+    /**
+     * Logs crashes, then hands them on. Call after the app's other crash handlers are set: Image
+     * Toolbox's ends the process without passing the crash on, so it must come after this one.
+     */
+    fun catchCrashes() {
+        val previous = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, error ->
+            error("CRASH", "Uncaught on thread ${thread.name}", error)
+            previous?.uncaughtException(thread, error)
+        }
     }
 
     fun i(tag: String, message: String) = line(tag, message)

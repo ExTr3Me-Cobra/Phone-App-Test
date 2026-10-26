@@ -88,13 +88,9 @@ internal fun HelpUsSection(
 
 @Composable
 internal fun OtherSection(
-    showMoreApps: Boolean,
-    onMoreAppsClick: () -> Unit,
-    onPrivacyPolicyClick: () -> Unit,
     onLicenseClick: () -> Unit,
     versionName: String,
     packageName: String,
-    onVersionClick: () -> Unit,
 ) {
     SettingsGroup(title = {
         SettingsTitleTextComponent(
@@ -102,19 +98,6 @@ internal fun OtherSection(
             modifier = titleStartPadding
         )
     }) {
-        if (showMoreApps) {
-            TwoLinerTextItem(
-                click = onMoreAppsClick,
-                text = stringResource(id = R.string.more_fossify_apps),
-                icon = R.drawable.ic_apps_vector
-            )
-        }
-
-        TwoLinerTextItem(
-            click = onPrivacyPolicyClick,
-            text = stringResource(id = R.string.privacy_policy),
-            icon = R.drawable.ic_policy_outline_vector
-        )
         TwoLinerTextItem(
             click = onLicenseClick,
             text = stringResource(id = R.string.third_party_licences),
@@ -122,7 +105,6 @@ internal fun OtherSection(
         )
         SettingsListItem(
             tint = SimpleTheme.colorScheme.onSurface,
-            click = onVersionClick,
             text = versionName,
             description = packageName,
             icon = R.drawable.ic_info_outline_vector,
@@ -136,11 +118,7 @@ internal fun OtherSection(
 
 @Composable
 internal fun AboutSection(
-    setupFAQ: Boolean,
-    setupKnownIssues: Boolean,
     onFAQClick: () -> Unit,
-    onKnownIssuesClick: () -> Unit,
-    onEmailClick: () -> Unit,
 ) {
     SettingsGroup(title = {
         SettingsTitleTextComponent(
@@ -148,26 +126,10 @@ internal fun AboutSection(
             modifier = titleStartPadding
         )
     }) {
-        if (setupFAQ) {
-            TwoLinerTextItem(
-                click = onFAQClick,
-                text = stringResource(id = R.string.frequently_asked_questions),
-                icon = R.drawable.ic_help_outline_vector
-            )
-        }
-
-        if (setupKnownIssues) {
-            TwoLinerTextItem(
-                click = onKnownIssuesClick,
-                text = stringResource(R.string.known_issues),
-                icon = R.drawable.ic_bug_report_outline_vector
-            )
-        }
-
         TwoLinerTextItem(
-            click = onEmailClick,
-            text = stringResource(id = R.string.my_email),
-            icon = R.drawable.ic_contact_support_outline_vector
+            click = onFAQClick,
+            text = stringResource(id = R.string.frequently_asked_questions),
+            icon = R.drawable.ic_help_outline_vector
         )
         SettingsHorizontalDivider()
     }
@@ -253,12 +215,7 @@ private fun AboutScreenPreview() {
                 )
             },
             aboutSection = {
-                AboutSection(
-                    setupFAQ = true,
-                    setupKnownIssues = true,
-                    onFAQClick = {},
-                    onKnownIssuesClick = {},
-                    onEmailClick = {})
+                AboutSection(onFAQClick = {})
             },
             socialSection = {
                 SocialSection(
@@ -269,13 +226,9 @@ private fun AboutScreenPreview() {
             }
         ) {
             OtherSection(
-                showMoreApps = true,
-                onMoreAppsClick = {},
-                onPrivacyPolicyClick = {},
                 onLicenseClick = {},
                 versionName = "5.0.4",
-                packageName = "org.fossify.commons.samples",
-                onVersionClick = {}
+                packageName = "org.fossify.commons.samples"
             )
         }
     }

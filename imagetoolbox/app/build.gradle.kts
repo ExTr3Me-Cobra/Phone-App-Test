@@ -195,8 +195,6 @@ dependencies {
     implementation(projects.lib.neuralTools)
 
 
-    "marketImplementation"(libs.quickie.bundled)
-    "fossImplementation"(libs.quickie.foss)
 }
 
 baselineProfile {

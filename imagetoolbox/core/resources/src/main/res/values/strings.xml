@@ -2683,7 +2683,7 @@
     <string name="send_logs">Send Logs</string>
     <string name="send_logs_sub">Click to share app logs file, this can help me to spot the problem and fix issues</string>
     <string name="crash_title">Oops… Something went wrong</string>
-    <string name="crash_subtitle">You can contact me using options below and I will try to find solution.\n(Do not forget to attach logs)</string>
+    <string name="crash_subtitle">Viper Vision closed unexpectedly. The details are saved in Settings → Diagnostic log, or you can share them below.</string>
     <string name="ocr_write_to_file">Write To File</string>
     <string name="ocr_write_to_file_sub">Extract text from batch of images and store it in the one text file</string>
     <string name="ocr_write_to_metadata">Write To Metadata</string>

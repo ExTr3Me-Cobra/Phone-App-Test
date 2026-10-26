@@ -94,7 +94,6 @@ include(":core:utils")
 include(":lib:neural-tools")
 include(":lib:ascii")
 include(":lib:opencv-tools")
-include(":lib:documentscanner")
 include(":lib:snowfall")
 include(":lib:curves")
 include(":lib:dynamic-theme")
@@ -110,7 +109,6 @@ include(":lib:archive")
 
 include(":benchmark")
 // Viper Vision: Image Toolbox's on-device test suite is left out; it covers removed tools.
-// include(":instrumentation-tests")
 
 // Viper Vision: Fossify Gallery and Fossify Commons, built from their own folders next to this one.
 // The build files for these two live in ../vipervision; their source stays untouched in place.

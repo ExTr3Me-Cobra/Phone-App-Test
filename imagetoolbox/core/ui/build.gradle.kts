@@ -101,11 +101,6 @@ dependencies {
     "marketImplementation"(libs.app.update)
     "marketImplementation"(libs.app.update.ktx)
 
-    "marketImplementation"(libs.mlkit.document.scanner)
-    "fossImplementation"(projects.lib.documentscanner)
-
-    "marketImplementation"(libs.quickie.bundled)
-    "fossImplementation"(libs.quickie.foss)
     implementation(libs.zxing.core)
 
     implementation(projects.lib.qrose)

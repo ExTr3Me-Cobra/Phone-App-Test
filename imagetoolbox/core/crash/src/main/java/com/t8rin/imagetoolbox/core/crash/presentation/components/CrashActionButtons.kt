@@ -71,41 +71,8 @@ internal fun CrashActionButtons(
     ) {
         val containerWidth = maxWidth
         Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val linkHandler = LocalUriHandler.current
-                LargeEnhancedButton(
-                    onClick = {
-                        onCopyCrashInfo()
-                        linkHandler.openUri(TELEGRAM_GROUP_LINK)
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .width(containerWidth / 2f)
-                        .padding(end = 8.dp),
-                    containerColor = Blue,
-                    contentColor = White,
-                    icon = Icons.Rounded.Telegram,
-                    text = stringResource(R.string.contact_me)
-                )
-                LargeEnhancedButton(
-                    onClick = {
-                        onCopyCrashInfo()
-                        linkHandler.openUri(githubLink)
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .width(containerWidth / 2f),
-                    containerColor = Black,
-                    contentColor = White,
-                    icon = Icons.Rounded.Github,
-                    text = stringResource(id = R.string.create_issue),
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
+            // Viper Vision: no "Contact me" (Telegram) / "Create issue" (GitHub) buttons; they went
+            // to Image Toolbox's developer. The crash is also in Settings → Diagnostic log.
             LargeEnhancedButton(
                 onClick = {
                     onCopyCrashInfo()

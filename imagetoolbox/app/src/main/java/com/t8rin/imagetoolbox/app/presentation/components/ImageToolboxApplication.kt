@@ -63,6 +63,7 @@ class ImageToolboxApplication : ComposeApplication() {
         // Viper Vision: the diagnostic log (Settings → Diagnostic log), first so it sees everything.
         com.vipervision.editor.ViperLog.install(this)
         runSetup()
+        com.vipervision.editor.ViperLog.catchCrashes()
     }
 
     override fun runSetup() {

@@ -71,50 +71,23 @@ class AboutActivity : BaseComposeActivity() {
                 val showGithubRelations = showGithubRelations()
                 val showDonationLinks = remember { !isThankYouInstalled() || !showGoogleRelations }
                 val onEmailClickAlertDialogState = getOnEmailClickAlertDialogState()
+                // Viper Vision: only the FAQ, licences and version. Fossify's donation, rating,
+                // contributor, email, social and privacy-policy links are about Fossify, not this app.
                 AboutScreen(
                     goBack = ::finish,
-                    helpUsSection = {
-                        HelpUsSection(
-                            onRateThisAppClick = ::onRateThisAppClick,
-                            onInviteClick = ::onInviteClick,
-                            onContributorsClick = ::onContributorsClick,
-                            showDonate = showDonationLinks,
-                            onDonateClick = ::onDonateClick,
-                            showInvite = showGoogleRelations || showGithubRelations,
-                            showRateUs = showGoogleRelations
-                        )
-                    },
+                    helpUsSection = {},
                     aboutSection = {
-                        val setupFAQ = showFAQ()
-                        if (setupFAQ || showGithubRelations) {
-                            AboutSection(
-                                setupFAQ = setupFAQ,
-                                setupKnownIssues = showGithubRelations,
-                                onFAQClick = ::launchFAQActivity,
-                                onKnownIssuesClick = ::launchIssueTracker,
-                                onEmailClick = {
-                                    onEmailClick(onEmailClickAlertDialogState::show)
-                                }
-                            )
+                        if (showFAQ()) {
+                            AboutSection(onFAQClick = ::launchFAQActivity)
                         }
                     },
-                    socialSection = {
-                        SocialSection(
-                            onGithubClick = ::onGithubClick,
-                            onRedditClick = ::onRedditClick,
-                            onTelegramClick = ::onTelegramClick
-                        )
-                    }
+                    socialSection = {}
                 ) {
                     val (versionName, packageName) = getPackageInfo()
                     OtherSection(
-                        showMoreApps = showGoogleRelations,
-                        onMoreAppsClick = ::launchMoreAppsFromUsIntent,
-                        onPrivacyPolicyClick = ::onPrivacyPolicyClick,
                         onLicenseClick = ::onLicenseClick,
                         versionName = versionName,
-                        packageName = packageName,
-                        onVersionClick = ::onVersionClick
+                        packageName = packageName
                     )
                 }
             }

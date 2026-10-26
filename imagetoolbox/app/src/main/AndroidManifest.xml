@@ -26,10 +26,6 @@
         androidx.pdf.core" />
 
     <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-
-    <uses-feature
         android:name="android.hardware.screen.portrait"
         android:required="false" />
 
@@ -43,7 +39,10 @@
         android:name="android.permission.READ_PHONE_STATE"
         tools:node="remove" />
 
-    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Viper Vision: no camera (the QR and document scanners were removed). -->
+    <uses-permission
+        android:name="android.permission.CAMERA"
+        tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -73,20 +72,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ImageToolbox.Launcher"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="false"
         tools:replace="android:name, android:allowBackup, android:label, android:icon, android:roundIcon, android:theme"
         tools:targetApi="tiramisu">
 
-        <profileable
-            android:shell="true"
-            tools:targetApi="29" />
-
-        <meta-data
-            android:name="firebase_crashlytics_collection_enabled"
-            android:value="false" />
-        <meta-data
-            android:name="firebase_analytics_collection_enabled"
-            android:value="false" />
+        <!-- Viper Vision: ONNX Runtime's usage telemetry (it reports to Microsoft) is switched off. -->
+        <provider
+            android:name="ai.onnxruntime.TelemetryInitializer"
+            android:authorities="${applicationId}.onnxruntime_telemetry_initializer"
+            tools:node="remove" />
 
         <!-- Viper Vision: Image Toolbox's own main screen (AppActivity) and its tools were removed.
              The launcher opens Gallery; editing opens Viper Vision's editor. -->
