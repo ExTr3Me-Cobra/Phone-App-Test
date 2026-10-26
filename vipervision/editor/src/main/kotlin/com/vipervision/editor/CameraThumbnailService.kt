@@ -238,10 +238,10 @@ class CameraThumbnailService : AccessibilityService() {
         val session = SamsungHandoff.active ?: return hideReturnButton()
         val root = samsungRoot() ?: return
         logScreen(root)
-        // On Photo assist's last screen the button sits exactly over Samsung's Save copy (it does
-        // that job, then comes back); before that, near the top.
+        // The button appears only on Photo assist's last screen, exactly over Samsung's Save copy
+        // (it does that job, then comes back). Anywhere else it stays hidden.
         val saveArea = findNode(root, SAVE_LABELS, exact = true)?.let(::tappableBounds)
-        showReturnButton(saveArea)
+        if (saveArea != null) showReturnButton(saveArea) else hideReturnButton()
         if (session.toolOpened || session.returnRequested || session.tapAttempts >= MAX_TAP_ATTEMPTS) return
         session.tapAttempts++
         val tool = findNode(root, session.tool.samsungLabels, exact = true)
