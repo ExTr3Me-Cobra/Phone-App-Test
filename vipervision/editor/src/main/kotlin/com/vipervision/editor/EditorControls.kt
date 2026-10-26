@@ -215,21 +215,6 @@ internal fun ValueWheel(
     }
 }
 
-/** Small rounded text button used for "Auto". */
-@Composable
-internal fun PillButton(text: String, active: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
-            .background(if (active) Color.White else BubbleGrey)
-            .clickable(onClick = onClick)
-            .size(width = 64.dp, height = 64.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text, color = if (active) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
 /**
  * The wheel sticks at 0: the finger has to travel [ZERO_STICK] units' worth past it before the
  * value moves to ±1, so it's easy to land on 0 and hard to slip off it. Elsewhere one unit of

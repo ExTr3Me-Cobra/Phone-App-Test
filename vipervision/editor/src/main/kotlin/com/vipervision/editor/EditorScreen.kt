@@ -499,9 +499,6 @@ private fun AdjustPanel(controller: EditorController) {
     val selected = controller.selected
     val adjustments = controller.state.adjustments
     val listState = rememberLazyListState()
-    val base = controller.workingPreview
-    val autoValues = remember(base) { base?.let(::autoAdjust) }
-    val autoActive = autoValues != null && adjustments == autoValues
 
     LaunchedEffect(selected) {
         listState.animateScrollToItem(Adjustment.entries.indexOf(selected).coerceAtLeast(0))
@@ -510,18 +507,6 @@ private fun AdjustPanel(controller: EditorController) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         // Each dial's name is under its bubble (as on the AI tab).
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Spacer(Modifier.width(12.dp))
-            PillButton(
-                text = "Auto",
-                active = autoActive,
-                onClick = {
-                    if (autoActive) {
-                        controller.change(controller.state.copy(adjustments = Adjustments()))
-                    } else {
-                        controller.autoEnhance()
-                    }
-                }
-            )
             LazyRow(
                 state = listState,
                 // The bubbles are 72dp wide with their names (64dp circles), so the circles stay 10dp apart.
@@ -812,12 +797,11 @@ private fun TransformPanel(controller: EditorController, onStartCropStudio: () -
     val base = controller.workingPreview
     val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        // The same five spots as the Adjust tab: the first where its Auto button is (12dp in, 64dp
-        // wide), then where its dials are (14dp further, 72dp apart with a 2dp gap).
+        // The same spots as the Adjust tab's dials: 14dp in, 72dp wide with a 2dp gap.
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(14.dp))
             ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(2.dp))
             ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
             Spacer(Modifier.width(2.dp))
             ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }

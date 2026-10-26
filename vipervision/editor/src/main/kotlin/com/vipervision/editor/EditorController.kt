@@ -252,11 +252,4 @@ class EditorController {
         cropAspect = CropAspect.Free
         change(state.copy(geometry = state.geometry.copy(crop = CropRect())))
     }
-
-
-    fun autoEnhance() {
-        val preview = workingPreview ?: return
-        change(state.copy(adjustments = autoAdjust(preview)))
-        tab = EditorTab.Adjust
-    }
 }
