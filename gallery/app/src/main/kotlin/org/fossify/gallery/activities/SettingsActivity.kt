@@ -810,10 +810,19 @@ class SettingsActivity : SimpleActivity() {
         }
 
         binding.settingsClearCacheHolder.setOnClickListener {
-            ensureBackgroundThread {
-                cacheDir.deleteRecursively()
-                runOnUiThread {
-                    binding.settingsClearCacheSize.text = cacheDir.getProperSize(true).formatSize()
+            // Viper Vision: says what goes (and what stays) before clearing.
+            ConfirmationDialog(
+                this,
+                message = getString(R.string.vv_clear_cache_warning),
+                positive = R.string.vv_clear_cache_confirm,
+                negative = org.fossify.commons.R.string.cancel,
+                dialogTitle = getString(org.fossify.commons.R.string.clear_cache)
+            ) {
+                ensureBackgroundThread {
+                    cacheDir.deleteRecursively()
+                    runOnUiThread {
+                        binding.settingsClearCacheSize.text = cacheDir.getProperSize(true).formatSize()
+                    }
                 }
             }
         }

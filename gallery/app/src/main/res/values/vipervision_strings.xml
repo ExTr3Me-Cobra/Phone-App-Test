@@ -20,6 +20,8 @@
     <string name="vv_select_folder">Select folder</string>
     <string name="vv_restore_all_again">Are you really sure you want to restore all %1$d items?</string>
     <string name="vv_diagnostics">Diagnostic log</string>
+    <string name="vv_clear_cache_confirm">Clear</string>
+    <string name="vv_clear_cache_warning">This deletes the saved thumbnails, so photos and albums load more slowly for a while as they\'re made again, plus temporary files left over from editing (AI results and video previews).\n\nYour photos and videos, edits you\'ve saved, the recycle bin, downloaded AI models, the originals kept for "Revert to original" and your settings all stay.</string>
     <string name="vv_diagnostics_about">What the app was doing when something went wrong, to copy and send</string>
     <string name="vv_copy_to_album">Copy to album</string>
     <string name="vv_move_to_album">Move to album</string>
