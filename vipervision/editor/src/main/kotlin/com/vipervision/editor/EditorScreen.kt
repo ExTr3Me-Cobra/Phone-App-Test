@@ -811,10 +811,11 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
 private fun TransformPanel(controller: EditorController, onStartCropStudio: () -> Unit) {
     val base = controller.workingPreview
     val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 3.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        // Same 64dp circles at the same height as the other tabs' bubbles; five fit across.
         Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.Top
         ) {
             ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
             ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
@@ -853,7 +854,7 @@ private fun ToolBubble(icon: ImageVector, label: String, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(68.dp)) {
         Box(
             Modifier
-                .size(58.dp)
+                .size(64.dp)
                 .clip(CircleShape)
                 .background(BubbleGrey)
                 .clickable(onClick = onClick),
@@ -861,8 +862,9 @@ private fun ToolBubble(icon: ImageVector, label: String, onClick: () -> Unit) {
         ) {
             Icon(icon, label, tint = Color.White, modifier = Modifier.size(28.dp))
         }
-        Spacer(Modifier.height(6.dp))
-        Text(label, color = Color.White, fontSize = 12.sp, maxLines = 1)
+        Spacer(Modifier.height(4.dp))
+        // Slightly small so "Rotate right" fits under a 64dp circle in a 68dp column.
+        Text(label, color = Color.White, fontSize = 10.5.sp, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
     }
 }
 
