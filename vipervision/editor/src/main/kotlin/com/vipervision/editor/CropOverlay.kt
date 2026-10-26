@@ -43,7 +43,10 @@ internal fun CropOverlay(
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
-    val touchSlop = with(density) { 28.dp.toPx() }
+    // Generous, so a handle is easy to catch even at the very edge of the photo area (the
+    // photo can fill it, leaving nothing to grab outside the frame).
+    val touchSlop = with(density) { 44.dp.toPx() }
+    val cornerSlop = with(density) { 56.dp.toPx() }
     // Gesture handlers are created once; these keep them reading the latest values.
     val currentCrop by rememberUpdatedState(crop)
     val currentAspect by rememberUpdatedState(aspectRatio)
@@ -61,7 +64,7 @@ internal fun CropOverlay(
                     onDragStart = { start ->
                         val image = fittedImageRect(size.width.toFloat(), size.height.toFloat(), imageWidth, imageHeight)
                         working = currentCrop
-                        handle = pickHandle(start, working.toScreen(image), touchSlop, currentAspect != null)
+                        handle = pickHandle(start, working.toScreen(image), touchSlop, cornerSlop, currentAspect != null)
                         dragging = handle != null
                     },
                     onDragEnd = {
@@ -147,26 +150,32 @@ private fun CropRect.toScreen(image: Rect) = Rect(
     image.top + bottom * image.height
 )
 
-private fun pickHandle(point: Offset, frame: Rect, slop: Float, locked: Boolean): CropHandle? {
-    fun near(a: Float, b: Float) = abs(a - b) <= slop
-    val nearLeft = near(point.x, frame.left)
-    val nearRight = near(point.x, frame.right)
-    val nearTop = near(point.y, frame.top)
-    val nearBottom = near(point.y, frame.bottom)
-    val withinX = point.x in (frame.left - slop)..(frame.right + slop)
-    val withinY = point.y in (frame.top - slop)..(frame.bottom + slop)
-    return when {
-        nearLeft && nearTop -> CropHandle.TopLeft
-        nearRight && nearTop -> CropHandle.TopRight
-        nearLeft && nearBottom -> CropHandle.BottomLeft
-        nearRight && nearBottom -> CropHandle.BottomRight
-        !locked && nearLeft && withinY -> CropHandle.Left
-        !locked && nearRight && withinY -> CropHandle.Right
-        !locked && nearTop && withinX -> CropHandle.Top
-        !locked && nearBottom && withinX -> CropHandle.Bottom
-        frame.contains(point) -> CropHandle.Move
-        else -> null
+private fun pickHandle(point: Offset, frame: Rect, slop: Float, cornerSlop: Float, locked: Boolean): CropHandle? {
+    // On a small frame the zones would overlap and swallow Move; keep a middle area for it.
+    val edgeSlop = min(slop, min(frame.width, frame.height) / 3f)
+    val cornerReach = min(cornerSlop, min(frame.width, frame.height) / 2.5f)
+    fun near(a: Float, b: Float, reach: Float) = abs(a - b) <= reach
+    // Corners first (they win near both edges), then the closest side.
+    val corners = listOf(
+        CropHandle.TopLeft to Offset(frame.left, frame.top),
+        CropHandle.TopRight to Offset(frame.right, frame.top),
+        CropHandle.BottomLeft to Offset(frame.left, frame.bottom),
+        CropHandle.BottomRight to Offset(frame.right, frame.bottom)
+    )
+    corners.filter { (_, c) -> near(point.x, c.x, cornerReach) && near(point.y, c.y, cornerReach) }
+        .minByOrNull { (_, c) -> (point - c).getDistance() }
+        ?.let { return it.first }
+    if (!locked) {
+        val withinX = point.x in (frame.left - edgeSlop)..(frame.right + edgeSlop)
+        val withinY = point.y in (frame.top - edgeSlop)..(frame.bottom + edgeSlop)
+        listOfNotNull(
+            (CropHandle.Left to abs(point.x - frame.left)).takeIf { withinY },
+            (CropHandle.Right to abs(point.x - frame.right)).takeIf { withinY },
+            (CropHandle.Top to abs(point.y - frame.top)).takeIf { withinX },
+            (CropHandle.Bottom to abs(point.y - frame.bottom)).takeIf { withinX }
+        ).filter { it.second <= edgeSlop }.minByOrNull { it.second }?.let { return it.first }
     }
+    return if (frame.contains(point)) CropHandle.Move else null
 }
 
 /**
