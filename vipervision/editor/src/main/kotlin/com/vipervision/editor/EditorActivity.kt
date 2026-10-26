@@ -134,9 +134,12 @@ class EditorActivity : ComposeActivity() {
         if (!::source.isInitialized) return
         val source = source
         val realPath = realPath
+        val appAccent = remember { appAccentColor(this) }
         ImageToolboxCompositionLocals(
-            settingsState = settingsState.forEditor().toUiState()
+            settingsState = settingsState.forEditor(appAccent).toUiState()
         ) {
+          // Draw, Text & layers and the other tools opened here use the app's colour (Settings).
+          androidx.compose.runtime.CompositionLocalProvider(LocalAccent provides appAccent) {
             run {
                 val scope = rememberCoroutineScope()
 
@@ -242,6 +245,7 @@ class EditorActivity : ComposeActivity() {
                 }
 
             }
+          }
         }
     }
 

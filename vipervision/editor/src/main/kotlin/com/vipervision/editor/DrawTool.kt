@@ -163,11 +163,11 @@ internal fun DrawScreen(
                 Icon(Icons.Rounded.Redo, "Redo", tint = if (component.undonePaths.isNotEmpty()) Color.White else Color.Gray)
             }
             IconButton(onClick = { session.isEraserOn = !session.isEraserOn }) {
-                Icon(Icons.Rounded.Eraser, "Eraser", tint = if (session.isEraserOn) Accent else Color.White)
+                Icon(Icons.Rounded.Eraser, "Eraser", tint = if (session.isEraserOn) LocalAccent.current else Color.White)
             }
             IconButton(onClick = {
                 if (component.pendingSpotHealPaths.isNotEmpty()) component.applySpotHeal() else onApply()
-            }) { Icon(Icons.Rounded.Done, "Apply", tint = Accent) }
+            }) { Icon(Icons.Rounded.Done, "Apply", tint = LocalAccent.current) }
         }
 
         Box(
@@ -243,7 +243,7 @@ internal fun DrawScreen(
                             .background(color)
                             .border(
                                 width = if (session.drawColor == color) 3.dp else 1.dp,
-                                color = if (session.drawColor == color) Accent else Color.Gray,
+                                color = if (session.drawColor == color) LocalAccent.current else Color.Gray,
                                 shape = CircleShape
                             )
                             .clickable { session.drawColor = color }
@@ -275,10 +275,10 @@ internal fun DrawScreen(
                         Modifier
                             .size(48.dp)
                             .clip(CircleShape)
-                            .background(if (selected) Accent else BubbleGrey)
+                            .background(if (selected) LocalAccent.current else BubbleGrey)
                             .clickable { if (!selected) component.updateDrawMode(make()) else session.showSettings = true },
                         contentAlignment = Alignment.Center
-                    ) { Icon(icon, label, tint = if (selected) Color.Black else Color.White, modifier = Modifier.size(22.dp)) }
+                    ) { Icon(icon, label, tint = if (selected) LocalAccent.current.contentOn() else Color.White, modifier = Modifier.size(22.dp)) }
                     Spacer(Modifier.height(3.dp))
                     Text(label, color = Color.White, fontSize = 10.sp, maxLines = 1)
                 }

@@ -94,7 +94,7 @@ internal fun MarkupScreen(
             IconButton(onClick = component::redo, enabled = component.canRedo) {
                 Icon(Icons.Rounded.Redo, "Redo", tint = if (component.canRedo) Color.White else Color.Gray)
             }
-            IconButton(onClick = onApply) { Icon(Icons.Rounded.Done, "Apply", tint = Accent) }
+            IconButton(onClick = onApply) { Icon(Icons.Rounded.Done, "Apply", tint = LocalAccent.current) }
         }
 
         ViperMarkupCanvas(
@@ -149,10 +149,10 @@ private fun MarkupBubble(label: String, icon: ImageVector, selected: Boolean = f
             Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(if (selected) Accent else BubbleGrey)
+                .background(if (selected) LocalAccent.current else BubbleGrey)
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
-        ) { Icon(icon, label, tint = if (selected) Color.Black else Color.White, modifier = Modifier.size(22.dp)) }
+        ) { Icon(icon, label, tint = if (selected) LocalAccent.current.contentOn() else Color.White, modifier = Modifier.size(22.dp)) }
         Spacer(Modifier.height(3.dp))
         Text(label, color = Color.White, fontSize = 10.sp, maxLines = 1)
     }

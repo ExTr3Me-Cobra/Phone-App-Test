@@ -1,5 +1,6 @@
 package com.vipervision.editor
 
+import androidx.compose.runtime.remember
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -60,7 +61,7 @@ class ViperStudioActivity : ComposeActivity() {
 
     @Composable
     override fun Content() {
-        ImageToolboxCompositionLocals(settingsState = settingsState.forEditor().toUiState()) {
+        ImageToolboxCompositionLocals(settingsState = settingsState.forEditor(remember { appAccentColor(this@ViperStudioActivity) }).toUiState()) {
             CompositionLocalProvider(LocalViperStyle provides true) {
                 when (val component = screen) {
                     is CompareComponent -> CompareContent(component)

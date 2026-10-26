@@ -107,7 +107,7 @@ internal fun CropStudioScreen(
                 Icon(Icons.Rounded.Redo, "Redo", tint = if (cropperState.canRedo) Color.White else Color.Gray)
             }
             IconButton(onClick = onApply, enabled = component.isBitmapChanged) {
-                Icon(Icons.Rounded.Done, "Apply", tint = if (component.isBitmapChanged) Accent else Color.Gray)
+                Icon(Icons.Rounded.Done, "Apply", tint = if (component.isBitmapChanged) LocalAccent.current else Color.Gray)
             }
         }
 

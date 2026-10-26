@@ -6,14 +6,15 @@ import com.t8rin.imagetoolbox.core.settings.domain.model.SettingsState
 
 /**
  * Image Toolbox's settings as the editor uses them: always dark with black backgrounds and the
- * editor's accent colour, so Image Toolbox's sheets and controls match Viper Vision's editor.
+ * app's colour ([accent], from Settings), so Image Toolbox's sheets and tools (Draw, Text &
+ * layers...) match the rest of Viper Vision.
  * Everything else (haptics, fonts, favourite filters...) follows the user's settings.
  */
-internal fun SettingsState.forEditor(): SettingsState = copy(
+internal fun SettingsState.forEditor(accent: androidx.compose.ui.graphics.Color = Accent): SettingsState = copy(
     nightMode = NightMode.Dark,
     isAmoledMode = true,
     isDynamicColors = false,
     allowChangeColorByImage = false,
     isInvertThemeColors = false,
-    appColorTuple = Accent.toArgb().toString()
+    appColorTuple = accent.toArgb().toString()
 )
