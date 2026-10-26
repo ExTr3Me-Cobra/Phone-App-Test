@@ -31,6 +31,12 @@ abstract class MyRecyclerViewAdapter(val activity: BaseSimpleActivity, val recyc
     private var actBarTextView: TextView? = null
     private var lastLongPressedItem = -1
 
+    /**
+     * Viper Vision: whether a long press on a second item also selects everything between it and
+     * the previous one (like Shift on a PC). Albums turn this off.
+     */
+    protected open val selectRangeOnLongPress = true
+
     abstract fun getActionMenuId(): Int
 
     abstract fun prepareActionMode(menu: Menu)
@@ -161,6 +167,7 @@ abstract class MyRecyclerViewAdapter(val activity: BaseSimpleActivity, val recyc
 
     fun itemLongClicked(position: Int) {
         recyclerView.setDragSelectActive(position)
+        if (!selectRangeOnLongPress) return
         lastLongPressedItem = if (lastLongPressedItem == -1) {
             position
         } else {

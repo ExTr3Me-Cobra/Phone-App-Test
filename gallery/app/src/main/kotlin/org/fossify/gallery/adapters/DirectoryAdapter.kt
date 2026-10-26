@@ -144,8 +144,12 @@ class DirectoryAdapter(
     var dateFormat = config.dateFormat
     var timeFormat = activity.getTimeFormat()
 
+    // Viper Vision: albums select only the ones touched (no range on a second long press, no
+    // drag-to-select across albums).
+    override val selectRangeOnLongPress = false
+
     init {
-        setupDragListener(true)
+        setupDragListener(false)
         fillLockedFolders()
     }
 
