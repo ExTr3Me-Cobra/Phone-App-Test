@@ -256,9 +256,9 @@ internal fun EditorScreen(
             contentAlignment = Alignment.Center
         ) {
             val shown = if (showOriginal) controller.basePreview else controller.editedPreview ?: base
-            // The photo is the same size as on the other tabs. A little room at the sides only
-            // matters for wide photos: it keeps the side handles clear of the back-swipe edge.
-            val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(horizontal = 20.dp) else Modifier.fillMaxSize()
+            // The photo is the same size as on the other tabs (unless it's wider than the screen
+            // allows, where the 8dp sides keep the handles off the very edge).
+            val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(horizontal = 8.dp) else Modifier.fillMaxSize()
             val paintZoom = controller.viewZoom
             if (shown != null) {
                 val shownModifier = if (!cropMode) with(paintZoom) { imageModifier.zoomed() } else imageModifier
@@ -812,15 +812,18 @@ private fun TransformPanel(controller: EditorController, onStartCropStudio: () -
     val base = controller.workingPreview
     val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        // Same 64dp circles at the same height as the other tabs' bubbles; five fit across.
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalAlignment = Alignment.Top
-        ) {
+        // The same five spots as the Adjust tab: the first where its Auto button is (12dp in, 64dp
+        // wide), then where its dials are (14dp further, 72dp apart with a 2dp gap).
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Spacer(Modifier.width(8.dp))
             ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
+            Spacer(Modifier.width(10.dp))
             ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
+            Spacer(Modifier.width(2.dp))
             ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }
+            Spacer(Modifier.width(2.dp))
             ToolBubble(EditorIcons.CropRotate, "Reset crop") { controller.resetCrop() }
+            Spacer(Modifier.width(2.dp))
             // Straighten by any angle, perspective crop and crop shapes (Image Toolbox's Crop).
             ToolBubble(Icons.Rounded.Tune, "Advanced") { onStartCropStudio() }
         }
@@ -851,7 +854,7 @@ private fun TransformPanel(controller: EditorController, onStartCropStudio: () -
 
 @Composable
 private fun ToolBubble(icon: ImageVector, label: String, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(68.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(72.dp)) {
         Box(
             Modifier
                 .size(64.dp)
@@ -863,8 +866,8 @@ private fun ToolBubble(icon: ImageVector, label: String, onClick: () -> Unit) {
             Icon(icon, label, tint = Color.White, modifier = Modifier.size(28.dp))
         }
         Spacer(Modifier.height(4.dp))
-        // Slightly small so "Rotate right" fits under a 64dp circle in a 68dp column.
-        Text(label, color = Color.White, fontSize = 10.5.sp, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
+        // Same size as the Adjust dials' names.
+        Text(label, color = Color.White, fontSize = 11.sp, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
     }
 }
 
