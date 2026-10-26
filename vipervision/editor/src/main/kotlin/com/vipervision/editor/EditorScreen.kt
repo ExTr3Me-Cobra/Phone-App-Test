@@ -6,7 +6,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +20,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -50,7 +53,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -62,12 +67,10 @@ import com.t8rin.imagetoolbox.core.resources.Icons
 import com.t8rin.imagetoolbox.core.resources.icons.Tune
 import com.t8rin.imagetoolbox.core.resources.icons.Draw
 import com.t8rin.imagetoolbox.core.resources.icons.TextFields
-import com.t8rin.imagetoolbox.core.resources.icons.Curve
 import com.t8rin.imagetoolbox.core.resources.icons.Scissors
 import com.t8rin.imagetoolbox.core.resources.icons.AutoAwesome
 import com.t8rin.imagetoolbox.core.resources.icons.Flip
 import com.t8rin.imagetoolbox.core.resources.icons.Eraser
-import com.t8rin.imagetoolbox.core.resources.icons.Healing
 import com.t8rin.imagetoolbox.core.resources.icons.LightMode
 import com.t8rin.imagetoolbox.core.resources.icons.MoreVert
 import com.t8rin.imagetoolbox.core.resources.icons.Redo
@@ -106,7 +109,10 @@ internal fun EditorScreen(
     onCancelCropStudio: () -> Unit,
     onApplyPaint: () -> Unit,
     onSave: () -> Unit,
+    onSaveCopy: () -> Unit,
     onSaveAs: () -> Unit,
+    canRevert: Boolean,
+    onRevert: () -> Unit,
     onSaveWithOptions: () -> Unit,
     onClose: () -> Unit
 ) {
@@ -153,6 +159,7 @@ internal fun EditorScreen(
 
     var showOriginal by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
+    var showRevertDialog by remember { mutableStateOf(false) }
     val changed = !controller.state.isUnchanged
 
     BackHandler(enabled = changed) { showDiscardDialog = true }
@@ -195,33 +202,64 @@ internal fun EditorScreen(
             controller = controller,
             changed = changed,
             onSave = onSave,
+            onSaveCopy = onSaveCopy,
             onSaveAs = onSaveAs,
+            canRevert = canRevert,
+            onRevert = { showRevertDialog = true },
             onDiscard = { if (changed) showDiscardDialog = true else onClose() }
         )
 
-        // The photo, as large as the space allows. Press and hold to see the original (except
-        // while cropping, where dragging moves the crop frame).
+        // The photo, as large as the space allows. Pinch to zoom (one finger moves around once
+        // zoomed in); the zoom stays while editing. Press and hold still to see the original.
+        // Not while cropping, where dragging moves the crop frame, or painting (PaintOverlay
+        // handles the same zoom itself).
         Box(
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                // A zoomed-in photo stays inside its area, under the top bar and the panels.
+                .clipToBounds()
                 .pointerInput(cropMode, controller.paint) {
                     if (cropMode || controller.paint != null) return@pointerInput
-                    detectTapGestures(onPress = {
-                        showOriginal = true
-                        tryAwaitRelease()
-                        showOriginal = false
-                    })
+                    val zoom = controller.viewZoom
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        // Held still for a moment: show the original until the finger lifts.
+                        val gesture = withTimeoutOrNull(HOLD_FOR_ORIGINAL_MS) {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                if (event.changes.none { it.pressed }) return@withTimeoutOrNull false
+                                val moved = event.changes.any { (it.position - down.position).getDistance() > viewConfiguration.touchSlop }
+                                if (event.changes.count { it.pressed } > 1 || moved) return@withTimeoutOrNull true
+                            }
+                            @Suppress("UNREACHABLE_CODE") false
+                        }
+                        when (gesture) {
+                            null -> {
+                                showOriginal = true
+                                do { val event = awaitPointerEvent() } while (event.changes.any { it.pressed })
+                                showOriginal = false
+                            }
+                            true -> {
+                                val viewSize = androidx.compose.ui.geometry.Size(size.width.toFloat(), size.height.toFloat())
+                                do {
+                                    val event = awaitPointerEvent()
+                                    zoom.transform(event.calculateCentroid(), event.calculatePan(), event.calculateZoom(), viewSize)
+                                    event.changes.forEach { if (it.positionChanged()) it.consume() }
+                                } while (event.changes.any { it.pressed })
+                            }
+                            else -> Unit
+                        }
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
             val shown = if (showOriginal) controller.basePreview else controller.editedPreview ?: base
             // Room around the photo for the crop handles.
             val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(20.dp) else Modifier.fillMaxSize()
-            // Pinch-zoom while painting; back to the whole photo when painting ends.
-            val paintZoom = remember(controller.paint) { PaintZoom() }
+            val paintZoom = controller.viewZoom
             if (shown != null) {
-                val shownModifier = if (controller.paint != null) with(paintZoom) { imageModifier.zoomed() } else imageModifier
+                val shownModifier = if (!cropMode) with(paintZoom) { imageModifier.zoomed() } else imageModifier
                 // Transparent parts (after Remove background or Cut out) show the usual grey checks, not black.
                 if (shown.hasAlpha()) Checkerboard(shownModifier, shown.width, shown.height)
                 Image(
@@ -308,15 +346,15 @@ internal fun EditorScreen(
             }
         }
 
+        // Adjust, Rotate & crop and Draw: a shorter panel (the photo gets the room) with the
+        // bubbles at its top, so they sit at the same height on each of these tabs.
+        val compactPanel = controller.paint == null && controller.tab != EditorTab.Ai
         Box(
             Modifier
                 .fillMaxWidth()
-                .then(
-                    if (controller.paint == null && controller.tab == EditorTab.Adjust && controller.curvesOpen) {
-                        Modifier.heightIn(min = 184.dp)
-                    } else Modifier.height(184.dp)
-                ),
-            contentAlignment = Alignment.Center
+                .height(if (compactPanel) COMPACT_PANEL_HEIGHT else PANEL_HEIGHT)
+                .padding(top = if (compactPanel) BUBBLES_TOP else 0.dp),
+            contentAlignment = if (compactPanel) Alignment.TopCenter else Alignment.Center
         ) {
             val paint = controller.paint
             if (paint != null) {
@@ -327,9 +365,7 @@ internal fun EditorScreen(
                 )
             } else {
                 when (controller.tab) {
-                    EditorTab.Adjust -> if (controller.curvesOpen) {
-                        CurvesPanel(controller, remember(base) { base?.scaledToFit(512) })
-                    } else AdjustPanel(controller)
+                    EditorTab.Adjust -> AdjustPanel(controller)
                     EditorTab.Ai -> AiPanel(controller, aiReady, onRunAi, lamaReady, onStartObjectEraser, onStartCutOut, samsungAvailable, onSamsungTool)
                     EditorTab.Transform -> TransformPanel(controller, onStartCropStudio)
                     EditorTab.Decorate -> DecoratePanel(controller, onStartDraw, onStartMarkup)
@@ -364,6 +400,20 @@ internal fun EditorScreen(
             }
         )
     }
+
+    if (showRevertDialog) {
+        AlertDialog(
+            onDismissRequest = { showRevertDialog = false },
+            title = { Text("Revert to original?") },
+            text = { Text("The photo goes back to how it was before it was first edited or rotated. Every saved change to it is undone.") },
+            confirmButton = {
+                TextButton(onClick = { showRevertDialog = false; onRevert() }) { Text("Revert") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRevertDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
 }
 
 @Composable
@@ -371,7 +421,10 @@ private fun TopBar(
     controller: EditorController,
     changed: Boolean,
     onSave: () -> Unit,
+    onSaveCopy: () -> Unit,
     onSaveAs: () -> Unit,
+    canRevert: Boolean,
+    onRevert: () -> Unit,
     onDiscard: () -> Unit
 ) {
     var menuOpen by remember { mutableStateOf(false) }
@@ -414,9 +467,21 @@ private fun TopBar(
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                     DropdownMenuItem(
+                        text = { Text("Save as copy") },
+                        enabled = changed && !controller.isBusy,
+                        onClick = { menuOpen = false; onSaveCopy() }
+                    )
+                    DropdownMenuItem(
                         text = { Text("Save as… (format, size, details)") },
                         onClick = { menuOpen = false; onSaveAs() }
                     )
+                    if (canRevert) {
+                        DropdownMenuItem(
+                            text = { Text("Revert to original") },
+                            enabled = !controller.isBusy,
+                            onClick = { menuOpen = false; onRevert() }
+                        )
+                    }
                     DropdownMenuItem(
                         text = { Text(if (changed) "Discard changes and close" else "Close") },
                         onClick = { menuOpen = false; onDiscard() }
@@ -441,17 +506,8 @@ private fun AdjustPanel(controller: EditorController) {
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            selected.label,
-            color = Color.White,
-            fontSize = 15.sp,
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(Color.Black.copy(alpha = 0.6f))
-                .padding(horizontal = 10.dp, vertical = 2.dp)
-        )
-        Spacer(Modifier.height(10.dp))
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // Each dial's name is under its bubble (as on the AI tab).
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
             Spacer(Modifier.width(12.dp))
             PillButton(
                 text = "Auto",
@@ -466,7 +522,8 @@ private fun AdjustPanel(controller: EditorController) {
             )
             LazyRow(
                 state = listState,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                // The bubbles are 72dp wide with their names (64dp circles), so the circles stay 10dp apart.
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
                 contentPadding = PaddingValues(horizontal = 14.dp)
             ) {
                 itemsIndexed(Adjustment.entries) { _, adjustment ->
@@ -477,38 +534,9 @@ private fun AdjustPanel(controller: EditorController) {
                         onClick = { controller.selected = adjustment }
                     )
                 }
-                // Heal: paint over spots or small objects and fill them in (no AI, works offline).
-                item {
-                    Box(
-                        Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(BubbleGrey)
-                            .clickable(enabled = !controller.isBusy) {
-                                controller.paint = PaintSession(PaintPurpose.Heal)
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Rounded.Healing, "Heal", tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
-                // Curves: Image Toolbox's tone curve editor.
-                item {
-                    val active = controller.state.curves?.isDefault() == false
-                    Box(
-                        Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(if (active) Accent.copy(alpha = 0.45f) else BubbleGrey)
-                            .clickable(enabled = !controller.isBusy) { controller.curvesOpen = true },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Outlined.Curve, "Curves", tint = Color.White, modifier = Modifier.size(26.dp))
-                    }
-                }
             }
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         ValueWheel(
             value = adjustments[selected],
             onValueChange = {
@@ -783,7 +811,19 @@ private fun PaintPanel(session: PaintSession, onCancel: () -> Unit, onApply: () 
 private fun TransformPanel(controller: EditorController, onStartCropStudio: () -> Unit) {
     val base = controller.workingPreview
     val size = base?.let { controller.state.geometry.turnedSize(it.width, it.height) }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 3.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
+            ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
+            ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }
+            ToolBubble(EditorIcons.CropRotate, "Reset crop") { controller.resetCrop() }
+            // Straighten by any angle, perspective crop and crop shapes (Image Toolbox's Crop).
+            ToolBubble(Icons.Rounded.Tune, "Advanced") { onStartCropStudio() }
+        }
+        Spacer(Modifier.height(10.dp))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
@@ -804,18 +844,6 @@ private fun TransformPanel(controller: EditorController, onStartCropStudio: () -
                         .padding(horizontal = 14.dp, vertical = 8.dp)
                 )
             }
-        }
-        Spacer(Modifier.height(16.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ToolBubble(Icons.Rounded.RotateLeft, "Rotate left") { controller.rotate(clockwise = false) }
-            ToolBubble(Icons.Rounded.RotateRight, "Rotate right") { controller.rotate(clockwise = true) }
-            ToolBubble(Icons.Outlined.Flip, "Flip") { controller.flip() }
-            ToolBubble(EditorIcons.CropRotate, "Reset crop") { controller.resetCrop() }
-            // Straighten by any angle, perspective crop and crop shapes (Image Toolbox's Crop).
-            ToolBubble(Icons.Rounded.Tune, "Advanced") { onStartCropStudio() }
         }
     }
 }
@@ -883,8 +911,6 @@ private fun TabIcon(icon: ImageVector, label: String, selected: Boolean, onClick
 @Composable
 private fun DecoratePanel(controller: EditorController, onStartDraw: () -> Unit, onStartMarkup: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text("Draw and decorate", color = Color.White, fontSize = 14.sp)
-        Spacer(Modifier.height(10.dp))
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
@@ -943,3 +969,13 @@ internal fun Bitmap.scaledToFit(maxSide: Int): Bitmap {
     val scale = maxSide.toFloat() / longSide
     return Bitmap.createScaledBitmap(this, (width * scale).toInt().coerceAtLeast(1), (height * scale).toInt().coerceAtLeast(1), true)
 }
+
+/** How long a still press takes to show the original (shorter would flash it at every pinch). */
+private const val HOLD_FOR_ORIGINAL_MS = 220L
+
+/** Height of the panel under the photo on the AI tab and while painting. */
+private val PANEL_HEIGHT = 184.dp
+
+/** The shorter panel of Adjust, Rotate & crop and Draw, and the gap above their bubbles. */
+private val COMPACT_PANEL_HEIGHT = 152.dp
+private val BUBBLES_TOP = 6.dp

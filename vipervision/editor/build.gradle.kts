@@ -30,8 +30,6 @@ dependencies {
     // The Studio's tools (Compare, Fuse frames).
     implementation(projects.feature.compare)
     implementation(projects.feature.multiFrameFusion)
-    // Image Toolbox's tone curves editor (Curves bubble).
-    implementation(projects.lib.curves)
     // Image Toolbox's heal engines: OpenCV content-aware fill and the LaMa AI model.
     implementation(projects.lib.opencvTools)
     implementation(projects.lib.neuralTools)

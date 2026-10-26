@@ -118,6 +118,7 @@ import org.fossify.gallery.extensions.openEditor
 import org.fossify.gallery.extensions.openPath
 import org.fossify.gallery.extensions.restoreRecycleBinPath
 import org.fossify.gallery.extensions.saveRotatedImageToFile
+import org.fossify.gallery.helpers.ViperOriginals
 import org.fossify.gallery.extensions.setAs
 import org.fossify.gallery.extensions.shareMediumPath
 import org.fossify.gallery.extensions.showFileOnMap
@@ -192,6 +193,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
         const val FROM_CAMERA_SHORTCUT = "vv_from_camera_shortcut"
         private const val REQUEST_VIEW_VIDEO = 1
         private const val SAVED_PATH = "current_path"
+        private const val ROTATION_SAVE_DELAY = 1000L
     }
 
     private var mPath = ""
@@ -259,6 +261,10 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
         }
 
         initBottomActions()
+        if (reloadAfterEditor) {
+            reloadAfterEditor = false
+            reloadEditedPhoto()
+        }
         mOriginalBrightness = window.updateBrightness(config.maxBrightness, mOriginalBrightness)
         setupOrientation()
         refreshMenuItems()
@@ -270,6 +276,26 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     override fun onPause() {
         super.onPause()
         stopSlideshow()
+        saveRotation()
+    }
+
+    /** Viper Vision: set while the editor is open, so the photo is reloaded when coming back. */
+    private var reloadAfterEditor = false
+
+    private fun openEditorForCurrent() {
+        reloadAfterEditor = true
+        openEditor(getCurrentPath())
+    }
+
+    /** Viper Vision: the editor saves over the original (or reverts it), so show the file anew. */
+    private fun reloadEditedPhoto() {
+        ensureBackgroundThread {
+            Glide.get(applicationContext).clearDiskCache()
+            runOnUiThread {
+                Glide.get(applicationContext).clearMemory()
+                getCurrentPhotoFragment()?.reloadFromFile()
+            }
+        }
     }
 
     override fun startActivityForResult(intent: Intent, requestCode: Int, options: Bundle?) {
@@ -395,7 +421,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
                 R.id.menu_delete -> checkDeleteConfirmation()
                 R.id.menu_rename -> checkMediaManagementAndRename()
                 R.id.menu_print -> printFile()
-                R.id.menu_edit -> openEditor(getCurrentPath())
+                R.id.menu_edit -> saveRotation { openEditorForCurrent() }
                 R.id.menu_properties -> showProperties()
                 R.id.menu_show_on_map -> showFileOnMap(getCurrentPath())
                 R.id.menu_rotate_right -> rotateImage(90)
@@ -869,6 +895,56 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     private fun rotateBy(degrees: Int) {
         getCurrentPhotoFragment()?.rotateImageViewBy(degrees)
         refreshMenuItems()
+        // Viper Vision: the rotation is written into the photo itself shortly after the last tap.
+        getCurrentPhotoFragment()?.let { rotationTarget = it to getCurrentPath() }
+        rotationSaveHandler.removeCallbacks(rotationSaveRunnable)
+        rotationSaveHandler.postDelayed(rotationSaveRunnable, ROTATION_SAVE_DELAY)
+    }
+
+    private val rotationSaveHandler = Handler(android.os.Looper.getMainLooper())
+    private val rotationSaveRunnable = Runnable { saveRotation() }
+
+    /** The photo (page and file) last rotated, until its rotation is saved. */
+    private var rotationTarget: Pair<PhotoFragment, String>? = null
+
+    /**
+     * Viper Vision: writes the current photo's unsaved rotation into the file (over the original;
+     * a private copy of the untouched photo is kept first for the editor's Revert to original),
+     * then runs [then]. With nothing to save, runs [then] straight away.
+     */
+    private fun saveRotation(then: (() -> Unit)? = null) {
+        rotationSaveHandler.removeCallbacks(rotationSaveRunnable)
+        val (fragment, path) = rotationTarget ?: (null to "")
+        val degrees = fragment?.mCurrentRotationDegrees ?: 0
+        rotationTarget = null
+        if (fragment == null || degrees % 360 == 0 || path.isEmpty()) {
+            then?.invoke()
+            return
+        }
+        val finished = java.util.concurrent.atomic.AtomicBoolean(false)
+        fun done(saved: Boolean) {
+            if (!finished.compareAndSet(false, true)) return
+            runOnUiThread {
+                if (saved) {
+                    // Taps made while it was saving stay as unsaved rotation.
+                    val pending = ((fragment.mCurrentRotationDegrees - degrees) % 360 + 360) % 360
+                    fragment.reloadFromFile(pending)
+                    refreshMenuItems()
+                    if (pending != 0) {
+                        rotationTarget = fragment to path
+                        rotationSaveHandler.postDelayed(rotationSaveRunnable, ROTATION_SAVE_DELAY)
+                    }
+                } else {
+                    toast(org.fossify.commons.R.string.unknown_error_occurred)
+                }
+                then?.invoke()
+            }
+        }
+        ensureBackgroundThread {
+            ViperOriginals.keep(this, path)
+            saveRotatedImageToFile(path, path, degrees, false) { done(true) }
+            done(false)
+        }
     }
 
     private fun toggleOrientation(orientation: Int) {
@@ -991,7 +1067,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
         binding.bottomActions.bottomEdit.beVisibleIf(visibleBottomActions and BOTTOM_ACTION_EDIT != 0 && currentMedium?.isSVG() == false)
         binding.bottomActions.bottomEdit.setOnLongClickListener { toast(R.string.edit); true }
         binding.bottomActions.bottomEdit.setOnClickListener {
-            openEditor(getCurrentPath())
+            saveRotation { openEditorForCurrent() }
         }
 
         binding.bottomActions.bottomShare.beVisibleIf(visibleBottomActions and BOTTOM_ACTION_SHARE != 0)
@@ -1561,6 +1637,8 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
 
     override fun onPageSelected(position: Int) {
         if (mPos != position) {
+            // Viper Vision: the photo being left keeps its rotation (it's the "current" one still).
+            saveRotation()
             mPos = position
             updateActionbarTitle()
             refreshMenuItems()

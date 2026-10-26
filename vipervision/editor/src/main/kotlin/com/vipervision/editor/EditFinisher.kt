@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 
 /**
- * Everything that happens after rotate/crop: the Adjust dials, then the tone curves. Used for the
+ * Everything that happens after rotate/crop: the Adjust dials. Used for the
  * preview and for saving, so both look the same.
  */
 class EditFinisher {
@@ -16,13 +16,13 @@ class EditFinisher {
         uprightWidth: Int,
         uprightHeight: Int
     ): Bitmap {
-        val finished = applyCurves(context, applyAdjustments(context, turned, state.adjustments), state.curves)
+        val finished = applyAdjustments(context, turned, state.adjustments)
         return if (turned.hasAlpha() && finished !== turned) finished.withAlphaOf(turned) else finished
     }
 }
 
 /**
- * The dials and curves run through GPU filters that can fill transparent areas (after a
+ * The dials run through GPU filters that can fill transparent areas (after a
  * background remover or a shaped crop) with black. This puts [source]'s transparency back.
  */
 private fun Bitmap.withAlphaOf(source: Bitmap): Bitmap {

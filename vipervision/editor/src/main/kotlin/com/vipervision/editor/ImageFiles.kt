@@ -203,7 +203,7 @@ class EncodedPhoto(val bytes: ByteArray, val extension: String, val mimeType: St
 
 /**
  * Renders the edits at full size and saves them as a new photo next to the original, named
- * "<original>_edited". The original file is never changed. Returns the new photo's uri.
+ * "<original>_edited" (Save as copy / Save as…). The original file isn't changed. Returns the new photo's uri.
  * [encode] turns the rendered photo into a file (JPEG/PNG by default; "Save as…" picks any format,
  * quality and size); [metadata] then sets the photo details (null keeps the original's).
  */
@@ -270,6 +270,71 @@ suspend fun saveEditedCopy(
         MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf(mime), null)
     }
     return uri
+}
+
+/**
+ * The edits rendered and encoded in the original's own format (JPEG, PNG or WebP), ready to go
+ * over the original file, or null when they can't (another format, or a JPEG that now has
+ * transparency): those are saved as a copy instead.
+ */
+suspend fun encodeForOverwrite(
+    context: Context,
+    source: Uri,
+    realPath: String?,
+    geometry: Geometry,
+    finish: FinishEdits,
+    renderFrom: Uri,
+    needsTransparency: Boolean
+): ByteArray? {
+    val name = sourceInfo(context, source, realPath).displayName.lowercase()
+    val format = when {
+        name.endsWith(".png") -> Bitmap.CompressFormat.PNG
+        needsTransparency -> return null
+        name.endsWith(".jpg") || name.endsWith(".jpeg") -> Bitmap.CompressFormat.JPEG
+        name.endsWith(".webp") -> @Suppress("DEPRECATION") Bitmap.CompressFormat.WEBP
+        else -> return null
+    }
+    val rendered = renderFull(context, renderFrom, geometry, finish)
+    return java.io.ByteArrayOutputStream().also { rendered.compress(format, 95, it) }.toByteArray()
+        .also { rendered.recycle() }
+}
+
+/**
+ * Replaces the photo's file with [bytes]: through its file path when the app can write there,
+ * otherwise through Android's media library. Throws [SecurityException] when Android wants the
+ * user's OK first (see [mediaStoreUri] and MediaStore.createWriteRequest).
+ * [detailsFrom] is the original (kept copy), whose photo details are copied over.
+ */
+fun writeOverOriginal(context: Context, source: Uri, realPath: String?, bytes: ByteArray, detailsFrom: File?) {
+    val file = realPath?.let(::File)
+    val wroteFile = file != null && file.canWrite() && runCatching {
+        file.outputStream().use { it.write(bytes) }
+    }.isSuccess
+    val target: Uri = if (wroteFile) Uri.fromFile(file) else {
+        val uri = realPath?.let { mediaStoreUri(context, it) } ?: source
+        context.contentResolver.openOutputStream(uri, "wt")?.use { it.write(bytes) }
+            ?: error("Couldn't write the photo")
+        uri
+    }
+    if (detailsFrom != null) copyExif(context, Uri.fromFile(detailsFrom), target)
+    if (realPath != null) MediaScannerConnection.scanFile(context, arrayOf(realPath), null, null)
+}
+
+/** The media library's entry for a photo file, for asking permission to change it. */
+fun mediaStoreUri(context: Context, realPath: String): Uri? {
+    @Suppress("DEPRECATION")
+    context.contentResolver.query(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        arrayOf(MediaStore.Images.Media._ID),
+        "${MediaStore.Images.Media.DATA} = ?",
+        arrayOf(realPath),
+        null
+    )?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            return android.content.ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(0))
+        }
+    }
+    return null
 }
 
 /** Sets (or, for null values, removes) photo details in a saved photo. */

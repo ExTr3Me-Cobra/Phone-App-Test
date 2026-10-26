@@ -14,13 +14,10 @@ data class EditState(
     val geometry: Geometry = Geometry(),
     val adjustments: Adjustments = Adjustments(),
     /** AI tools and heals applied, in order. They run first, on the upright photo. */
-    val pixelSteps: List<PixelStep> = emptyList(),
-    /** Tone curves (the Curves bubble), applied after the adjustments. */
-    val curves: com.t8rin.curves.ImageCurvesEditorState? = null
+    val pixelSteps: List<PixelStep> = emptyList()
 ) {
     val isUnchanged: Boolean
-        get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty() &&
-                (curves == null || curves.isDefault())
+        get() = geometry.isIdentity && adjustments.isIdentity && pixelSteps.isEmpty()
 }
 
 enum class EditorTab { Ai, Transform, Adjust, Decorate }
@@ -83,6 +80,9 @@ class EditorController {
         private set
     var tab by mutableStateOf(EditorTab.Adjust)
     var selected by mutableStateOf(Adjustment.Brightness)
+
+    /** Pinch zoom on the photo; stays where it was left through edits, tabs and painting. */
+    val viewZoom = PaintZoom()
 
     /** Screen-sized copy of the photo, upright, before any edits. */
     var basePreview by mutableStateOf<Bitmap?>(null)
@@ -253,8 +253,6 @@ class EditorController {
         change(state.copy(geometry = state.geometry.copy(crop = CropRect())))
     }
 
-    /** Set while the Curves editor is open (Adjust tab). */
-    var curvesOpen by mutableStateOf(false)
 
     fun autoEnhance() {
         val preview = workingPreview ?: return

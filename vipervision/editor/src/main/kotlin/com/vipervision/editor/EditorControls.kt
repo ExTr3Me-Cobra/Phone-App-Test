@@ -6,6 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -85,8 +88,9 @@ internal fun AdjustBubble(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.width(72.dp)) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .size(64.dp)
             .clip(CircleShape)
             .clickable(onClick = onClick),
@@ -113,6 +117,16 @@ internal fun AdjustBubble(
         } else {
             Icon(adjustment.icon, contentDescription = adjustment.label, tint = Color.White, modifier = Modifier.size(26.dp))
         }
+    }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            adjustment.label,
+            color = if (selected) Accent else Color.White,
+            fontSize = 11.sp,
+            maxLines = 1,
+            softWrap = false,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
     }
 }
 

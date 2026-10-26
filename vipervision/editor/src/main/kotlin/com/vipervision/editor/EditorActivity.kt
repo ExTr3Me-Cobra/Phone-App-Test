@@ -44,7 +44,8 @@ import kotlin.math.min
 
 /**
  * Viper Vision's photo editor: opened by Gallery's Edit button with the photo's uri as data and
- * its file path in [EXTRA_REAL_PATH]. Saves edits as a new photo next to the original.
+ * its file path in [EXTRA_REAL_PATH]. Save writes the edits over the original (a private copy of
+ * the untouched photo is kept for Revert to original); Save as copy / Save as… add a new photo.
  */
 @AndroidEntryPoint
 class EditorActivity : ComposeActivity() {
@@ -116,6 +117,12 @@ class EditorActivity : ComposeActivity() {
         )) {
             java.io.File(java.io.File(filesDir, "ai_models"), name).delete()
         }
+        lifecycleScope.launch {
+            hasOriginal = withContext(Dispatchers.IO) {
+                Originals.prune(this@EditorActivity)
+                Originals.backup(this@EditorActivity, data, realPath) != null
+            }
+        }
     }
 
     /**
@@ -170,8 +177,11 @@ class EditorActivity : ComposeActivity() {
                     onApplyCropStudio = { scope.applyCropStudio() },
                     onCancelCropStudio = ::closeCropStudio,
                     onApplyPaint = { scope.applyPaint(source) },
-                    onSave = { scope.save(source, realPath) },
+                    onSave = { scope.saveOverOriginal(source, realPath) },
+                    onSaveCopy = { scope.save(source, realPath) },
                     onSaveAs = { openSaveAs(source) },
+                    canRevert = hasOriginal,
+                    onRevert = { scope.revertToOriginal(source, realPath) },
                     onSaveWithOptions = {
                         val options = controller.saveAs?.options
                         controller.saveAs = null
@@ -257,7 +267,108 @@ class EditorActivity : ComposeActivity() {
         )
     }
 
-    private fun CoroutineScope.save(source: Uri, realPath: String?, options: SaveOptions? = null) = launch {
+    /** Whether a kept original exists for this photo (Revert to original). */
+    private var hasOriginal by mutableStateOf(false)
+
+    /** Bytes waiting for Android's OK to change the photo, and what to do once written. */
+    private var pendingWrite: Pair<ByteArray, () -> Unit>? = null
+
+    private val writeRequest = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        val (bytes, after) = pendingWrite ?: return@registerForActivityResult
+        pendingWrite = null
+        if (result.resultCode != RESULT_OK) {
+            ViperLog.i("SAVE", "Permission to change the photo was refused")
+            Toast.makeText(this, "Not saved: Android wasn't allowed to change the photo", Toast.LENGTH_LONG).show()
+            controller.isBusy = false
+            return@registerForActivityResult
+        }
+        lifecycleScope.launch { writeThen(bytes, after) }
+    }
+
+    /**
+     * Writes [bytes] over the photo (keeping the untouched original first), then runs [after].
+     * When Android asks, shows its "Allow Viper Vision to modify this photo?" and continues after.
+     */
+    private suspend fun writeThen(bytes: ByteArray, after: () -> Unit) {
+        val source = source
+        val realPath = realPath
+        runCatching {
+            withContext(Dispatchers.IO) {
+                Originals.keep(this@EditorActivity, source, realPath)
+                writeOverOriginal(this@EditorActivity, source, realPath, bytes, Originals.backup(this@EditorActivity, source, realPath))
+            }
+        }.onSuccess {
+            controller.isBusy = false
+            after()
+        }.onFailure { error ->
+            val mediaUri = realPath?.let { mediaStoreUri(this, it) }
+            if (error is SecurityException && mediaUri != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                ViperLog.i("SAVE", "Asking Android for permission to change the photo")
+                pendingWrite = bytes to after
+                val request = android.provider.MediaStore.createWriteRequest(contentResolver, listOf(mediaUri))
+                writeRequest.launch(androidx.activity.result.IntentSenderRequest.Builder(request.intentSender).build())
+            } else {
+                ViperLog.error("SAVE", "writing over the photo failed", error)
+                Toast.makeText(this, "Couldn't save: ${error.message}", Toast.LENGTH_LONG).show()
+                controller.isBusy = false
+            }
+        }
+    }
+
+    /** Save: the edits go over the original photo (a private copy of the untouched one is kept). */
+    private fun CoroutineScope.saveOverOriginal(source: Uri, realPath: String?) = launch {
+        if (controller.isBusy) return@launch
+        controller.isBusy = true
+        val state = controller.state
+        val renderFrom = controller.workingFile?.let(Uri::fromFile) ?: source
+        ViperLog.i("SAVE", "Saving over the original (${state.pixelSteps.size} AI/paint steps). ${ViperLog.memory()}")
+        val bytes = runCatching {
+            withContext(Dispatchers.IO) {
+                encodeForOverwrite(this@EditorActivity, source, realPath, state.geometry, finishFor(state), renderFrom, controller.needsPng)
+            }
+        }.getOrElse {
+            ViperLog.error("EDITOR", "save failed", it)
+            Toast.makeText(this@EditorActivity, "Couldn't save: ${it.message}", Toast.LENGTH_LONG).show()
+            controller.isBusy = false
+            return@launch
+        }
+        if (bytes == null) {
+            // Its format can't take these edits (or the transparency): keep the original, add a copy.
+            controller.isBusy = false
+            ViperLog.i("SAVE", "Original's format can't hold the edits; saving a copy instead")
+            save(source, realPath, copyNote = if (controller.needsPng) "Saved as a new PNG to keep the transparency" else "This format can't be saved over, so it was saved as a new photo")
+            return@launch
+        }
+        writeThen(bytes) {
+            Toast.makeText(this@EditorActivity, "Saved", Toast.LENGTH_SHORT).show()
+            setResult(RESULT_OK, Intent().setData(source))
+            finish()
+        }
+    }
+
+    /** Revert to original: puts the kept untouched photo back and closes the editor. */
+    private fun CoroutineScope.revertToOriginal(source: Uri, realPath: String?) = launch {
+        if (controller.isBusy) return@launch
+        val backup = Originals.backup(this@EditorActivity, source, realPath) ?: return@launch
+        controller.isBusy = true
+        ViperLog.i("SAVE", "Reverting to the original")
+        val bytes = withContext(Dispatchers.IO) { backup.readBytes() }
+        writeThen(bytes) {
+            Originals.forget(this@EditorActivity, source, realPath)
+            Toast.makeText(this@EditorActivity, "Back to the original photo", Toast.LENGTH_SHORT).show()
+            setResult(RESULT_OK, Intent().setData(source))
+            finish()
+        }
+    }
+
+    private fun CoroutineScope.save(
+        source: Uri,
+        realPath: String?,
+        options: SaveOptions? = null,
+        copyNote: String = "Saved as a new photo"
+    ) = launch {
         if (controller.isBusy) return@launch
         controller.isBusy = true
         val state = controller.state
@@ -280,7 +391,7 @@ class EditorActivity : ComposeActivity() {
                 )
             }
         }.onSuccess {
-            Toast.makeText(this@EditorActivity, "Saved as a new photo", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@EditorActivity, copyNote, Toast.LENGTH_SHORT).show()
             setResult(RESULT_OK, Intent().setData(it))
             finish()
         }.onFailure {

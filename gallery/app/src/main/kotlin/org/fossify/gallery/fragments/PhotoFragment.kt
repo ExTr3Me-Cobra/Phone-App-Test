@@ -901,6 +901,20 @@ class PhotoFragment : ViewPagerFragment() {
         }
     }
 
+    /**
+     * Viper Vision: the photo file changed (a rotation was written into it, or the editor saved
+     * over it). Shows the file as it is now, keeping [stillPending] degrees of unsaved rotation.
+     */
+    fun reloadFromFile(stillPending: Int = 0) {
+        mCurrentRotationDegrees = stillPending
+        if (view == null || !mWasInit) return
+        mIsSubsamplingVisible = false
+        binding.subsamplingView.recycle()
+        binding.subsamplingView.beGone()
+        mLoadZoomableViewHandler.removeCallbacksAndMessages(null)
+        loadImage()
+    }
+
     fun rotateImageViewBy(degrees: Int) {
         if (mIsSubsamplingVisible) {
             binding.subsamplingView.rotateBy(degrees)
