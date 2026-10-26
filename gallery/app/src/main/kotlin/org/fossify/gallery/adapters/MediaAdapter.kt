@@ -1,5 +1,6 @@
 package org.fossify.gallery.adapters
 
+import org.fossify.gallery.views.SelectionGlowView
 import org.fossify.commons.extensions.getFinalUriFromPath
 
 import org.fossify.gallery.BuildConfig
@@ -765,6 +766,14 @@ class MediaAdapter(
             if (isSelected) {
                 mediumCheck.background?.applyColorFilter(properPrimaryColor)
                 mediumCheck.applyColorFilter(contrastColor)
+            }
+            // Viper Vision: selected tiles get an outline, tint and sweeping shine (grid only;
+            // list rows already highlight).
+            if (!isListViewType) {
+                val radius = if (config.fileRoundedCorners) {
+                    root.resources.getDimension(org.fossify.gallery.extensions.cornerRadiusRes(ROUNDED_CORNERS_BIG))
+                } else 0f
+                SelectionGlowView.apply(root, mediumThumbnail, isSelected, properPrimaryColor, radius, mediumCheck)
             }
 
             if (isListViewType) {

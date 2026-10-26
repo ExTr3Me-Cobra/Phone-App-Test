@@ -346,9 +346,9 @@ internal fun EditorScreen(
             }
         }
 
-        // Adjust, Rotate & crop and Draw: a shorter panel (the photo gets the room) with the
-        // bubbles at its top, so they sit at the same height on each of these tabs.
-        val compactPanel = controller.paint == null && controller.tab != EditorTab.Ai
+        // The four tabs share one shorter panel with their bubbles at its top: the photo is the
+        // same (larger) size on each, and the bubbles sit at the same height.
+        val compactPanel = controller.paint == null
         Box(
             Modifier
                 .fillMaxWidth()
@@ -566,16 +566,6 @@ private fun AiPanel(
     var selected by remember { mutableStateOf<AiTool?>(null) }
     var choosing by remember { mutableStateOf<AiTool?>(null) }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            selected?.description ?: "AI tools — tap one to apply it to the photo",
-            color = Color.White,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
-        Spacer(Modifier.height(10.dp))
         // One AI tool's bubble: runs it straight away when its only model is here, otherwise shows the choice.
         val aiToolBubble: @Composable (AiTool) -> Unit = { tool ->
             val single = tool.choices.singleOrNull()
@@ -973,9 +963,9 @@ internal fun Bitmap.scaledToFit(maxSide: Int): Bitmap {
 /** How long a still press takes to show the original (shorter would flash it at every pinch). */
 private const val HOLD_FOR_ORIGINAL_MS = 220L
 
-/** Height of the panel under the photo on the AI tab and while painting. */
+/** Height of the panel under the photo while painting. */
 private val PANEL_HEIGHT = 184.dp
 
-/** The shorter panel of Adjust, Rotate & crop and Draw, and the gap above their bubbles. */
+/** The shorter panel of the four tabs, and the gap above their bubbles. */
 private val COMPACT_PANEL_HEIGHT = 152.dp
 private val BUBBLES_TOP = 6.dp

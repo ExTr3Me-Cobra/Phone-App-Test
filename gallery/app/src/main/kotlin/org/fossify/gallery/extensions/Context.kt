@@ -1427,7 +1427,7 @@ fun Context.resolveUriScheme(
 }
 
 /** The corner radius for thumbnails with [roundCorners] (Viper Vision adds the folder tiles' size). */
-private fun cornerRadiusRes(roundCorners: Int) = when (roundCorners) {
+internal fun cornerRadiusRes(roundCorners: Int) = when (roundCorners) {
     ROUNDED_CORNERS_SMALL -> org.fossify.commons.R.dimen.rounded_corner_radius_small
     ROUNDED_CORNERS_FOLDER -> R.dimen.vv_folder_corner_radius
     else -> org.fossify.commons.R.dimen.rounded_corner_radius_big

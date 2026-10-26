@@ -1,5 +1,6 @@
 package org.fossify.gallery.adapters
 
+import org.fossify.gallery.views.SelectionGlowView
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
@@ -916,6 +917,15 @@ class DirectoryAdapter(
             if (isSelected) {
                 dirCheck.background?.applyColorFilter(properPrimaryColor)
                 dirCheck.applyColorFilter(contrastColor)
+            }
+            // Viper Vision: selected album tiles get an outline, tint and sweeping shine.
+            if (!isListViewType) {
+                val corners = if (folderStyle == FOLDER_STYLE_SQUARE) ROUNDED_CORNERS_FOLDER else ROUNDED_CORNERS_BIG
+                val radius = root.resources.getDimension(org.fossify.gallery.extensions.cornerRadiusRes(corners))
+                SelectionGlowView.apply(
+                    root, dirThumbnail, isSelected, properPrimaryColor, radius,
+                    root.findViewById<View>(R.id.vv_dir_select) ?: dirCheck
+                )
             }
 
             if (isListViewType) {
