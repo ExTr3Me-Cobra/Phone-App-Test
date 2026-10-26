@@ -1,0 +1,279 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+package com.t8rin.imagetoolbox.feature.media_picker.presentation.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.t8rin.imagetoolbox.core.settings.domain.model.FlingType
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.enhancedFlingBehavior
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.longPress
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.dragHandler
+import com.t8rin.imagetoolbox.feature.media_picker.domain.model.Media
+import com.t8rin.imagetoolbox.feature.media_picker.domain.model.MediaItem
+import com.t8rin.imagetoolbox.feature.media_picker.domain.model.MediaState
+import com.t8rin.imagetoolbox.feature.media_picker.domain.model.isHeaderKey
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+@Composable
+internal fun MediaPickerGrid(
+    state: MediaState,
+    isSelectionOfAll: Boolean,
+    selectedMedia: SnapshotStateList<Media>,
+    allowMultiple: Boolean,
+    isGalleryMode: Boolean,
+    isButtonVisible: Boolean,
+    onRequestManagePermission: () -> Unit,
+    isManagePermissionAllowed: Boolean,
+    bottomContentPadding: Dp = 0.dp
+) {
+    val scope = rememberCoroutineScope()
+    val gridState = rememberLazyGridState()
+    val hapticFeedback = LocalHapticFeedback.current
+
+    LaunchedEffect(state.mappedMedia) {
+        gridState.requestScrollToItem(0)
+    }
+
+    var imagePreviewUri by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    val onMediaClick: (Media) -> Unit = {
+        if (allowMultiple) {
+            if (selectedMedia.contains(it)) selectedMedia.remove(it)
+            else selectedMedia.add(it)
+        } else {
+            if (selectedMedia.contains(it)) selectedMedia.remove(it)
+            else {
+                if (selectedMedia.isNotEmpty()) selectedMedia[0] = it
+                else selectedMedia.add(it)
+            }
+        }
+    }
+
+    val layoutDirection = LocalLayoutDirection.current
+    val selection = selectedMedia.toList()
+    val selectionIndices = remember(selection) {
+        buildMap {
+            selection.forEachIndexed { index, media ->
+                putIfAbsent(media, index)
+            }
+        }
+    }
+    val privateSelection = remember {
+        mutableStateOf(emptySet<Int>())
+    }
+
+    LaunchedEffect(state.mappedMedia, isSelectionOfAll, selectedMedia.size) {
+        if (isSelectionOfAll) {
+            privateSelection.value = withContext(Dispatchers.Default) {
+                state.mappedMedia.mapIndexedNotNull { index, item ->
+                    if (item is MediaItem.MediaViewItem && item.media in selectionIndices) {
+                        index
+                    } else null
+                }.toSet()
+            }
+        }
+    }
+
+    LaunchedEffect(selectedMedia.size) {
+        if (selectedMedia.isEmpty() && isSelectionOfAll) {
+            privateSelection.value = emptySet()
+        }
+    }
+
+    val cutout = WindowInsets.displayCutout.asPaddingValues()
+    val navBar = WindowInsets.navigationBars.asPaddingValues()
+
+    LazyVerticalGrid(
+        state = gridState,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(
+                start = cutout.calculateStartPadding(layoutDirection),
+                end = cutout.calculateEndPadding(layoutDirection)
+            )
+            .dragHandler(
+                enabled = isSelectionOfAll && allowMultiple &&
+                        (!isGalleryMode || selectedMedia.isNotEmpty()),
+                key = state.mappedMedia,
+                itemIndex = { item ->
+                    (item.index - if (isManagePermissionAllowed) 0 else 1).takeIf { it >= 0 }
+                },
+                lazyGridState = gridState,
+                isVertical = true,
+                selectedItems = privateSelection,
+                onSelectionChange = { indices ->
+                    val media = indices.mapNotNull {
+                        (state.mappedMedia.getOrNull(it) as? MediaItem.MediaViewItem)?.media
+                    }
+                    selectedMedia.clear()
+                    selectedMedia.addAll(media)
+                },
+                onLongTap = {
+                    if (selectedMedia.isEmpty()) {
+                        imagePreviewUri =
+                            (state.mappedMedia[it + 1] as? MediaItem.MediaViewItem)?.media?.uri
+                    }
+                },
+                shouldHandleLongTap = selectedMedia.isNotEmpty()
+            ),
+        columns = GridCells.Adaptive(100.dp),
+        horizontalArrangement = Arrangement.spacedBy(1.dp),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+        contentPadding = remember(
+            navBar,
+            layoutDirection,
+            isButtonVisible,
+            selectedMedia.isNotEmpty(),
+            bottomContentPadding
+        ) {
+            PaddingValues(
+                bottom = navBar.calculateBottomPadding().plus(
+                    if (isButtonVisible) 80.dp
+                    else 0.dp
+                ).plus(
+                    if (selectedMedia.isNotEmpty()) 52.dp
+                    else 0.dp
+                ).coerceAtLeast(navBar.calculateBottomPadding() + bottomContentPadding)
+            )
+        },
+        flingBehavior = enhancedFlingBehavior(FlingType.IOS_STYLE)
+    ) {
+        if (!isManagePermissionAllowed) {
+            item(
+                span = {
+                    GridItemSpan(maxLineSpan)
+                }
+            ) {
+                ManageExternalStorageWarning(onRequestManagePermission)
+            }
+        }
+        itemsIndexed(
+            items = state.mappedMedia,
+            key = { _, item -> item.key },
+            contentType = { _, item -> item.key.startsWith("media_") },
+            span = { _, item ->
+                GridItemSpan(if (item.key.isHeaderKey) maxLineSpan else 1)
+            }
+        ) { _, item ->
+            when (item) {
+                is MediaItem.Header -> {
+                    val isChecked = rememberSaveable { mutableStateOf(false) }
+                    if (allowMultiple) {
+                        LaunchedEffect(selectedMedia.size, item.data) {
+                            // Partial check of media items should not check the header
+                            isChecked.value = selectionIndices.keys.containsAll(item.data)
+                        }
+                    }
+                    MediaStickyHeader(
+                        date = item.text,
+                        isChecked = isChecked.value,
+                        onChecked = if (
+                            allowMultiple && (!isGalleryMode || selectedMedia.isNotEmpty())
+                        ) {
+                            {
+                                hapticFeedback.longPress()
+                                scope.launch {
+                                    isChecked.value = !isChecked.value
+                                    if (isChecked.value) {
+                                        val toAdd = item.data.toMutableList().apply {
+                                            // Avoid media from being added twice to selection
+                                            removeIf { it in selectionIndices }
+                                        }
+                                        selectedMedia.addAll(toAdd)
+                                    } else selectedMedia.removeAll(item.data.toSet())
+                                }
+                            }
+                        } else null
+                    )
+                }
+
+                is MediaItem.MediaViewItem -> {
+                    val selectionIndex = selectionIndices[item.media] ?: -1
+
+                    MediaImage(
+                        media = item.media,
+                        isInSelection = !isGalleryMode || selectionIndex >= 0,
+                        canClick = if (isGalleryMode) {
+                            selectedMedia.isEmpty() || !isSelectionOfAll || !allowMultiple
+                        } else {
+                            !isSelectionOfAll || !allowMultiple
+                        },
+                        onItemClick = {
+                            if (isGalleryMode && selectedMedia.isEmpty()) {
+                                imagePreviewUri = it.uri
+                            } else {
+                                hapticFeedback.longPress()
+                                onMediaClick(it)
+                            }
+                        },
+                        onItemLongClick = {
+                            if (isGalleryMode) {
+                                onMediaClick(it)
+                            } else {
+                                imagePreviewUri = it.uri
+                            }
+                        },
+                        selectionIndex = if (selectedMedia.size > 1) selectionIndex else -1,
+                        isSelected = selectionIndex >= 0
+                    )
+                }
+            }
+        }
+    }
+
+    MediaImagePager(
+        imagePreviewUri = imagePreviewUri,
+        onDismiss = { imagePreviewUri = null },
+        media = state.media,
+        selectedMedia = selectedMedia,
+        onMediaClick = onMediaClick
+    )
+}

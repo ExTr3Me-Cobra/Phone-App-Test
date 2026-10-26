@@ -1,0 +1,146 @@
+name: Build Viper Vision APK
+
+on:
+  push:
+    paths:
+      - 'gallery/**'
+      - 'fossify-commons/**'
+      - 'imagetoolbox/**'
+      - 'vipervision/**'
+      - '.github/workflows/build-vipervision-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+# One build at a time. A newer push cancels a build that's still running, since only the newest
+# version matters (the signing key already exists, so a cancelled build can't lose it).
+concurrency:
+  group: vipervision-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: imagetoolbox
+    steps:
+      - uses: actions/checkout@v4
+
+      # Image Toolbox is a big build; extra swap keeps the runner from running out of memory.
+      - name: Add swap space
+        working-directory: .
+        run: |
+          sudo swapoff -a || true
+          sudo fallocate -l 10G /swapfile2
+          sudo chmod 600 /swapfile2
+          sudo mkswap /swapfile2
+          sudo swapon /swapfile2
+          free -h
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # Save the build cache from this branch too (by default only the main branch saves it),
+      # so later builds don't recompile everything.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      # Every build must be signed with the same key, or Android refuses to install it as an
+      # update ("App not installed"). The key is made once and kept in the build cache.
+      - name: Reuse the same signing key
+        uses: actions/cache@v4
+        with:
+          path: signing/vipervision.keystore
+          key: vipervision-signing-key-v1
+
+      - name: Make the signing key (first build only)
+        working-directory: .
+        run: |
+          mkdir -p signing
+          if [ ! -f signing/vipervision.keystore ]; then
+            keytool -genkeypair -v -keystore signing/vipervision.keystore -alias vipervision \
+              -keyalg RSA -keysize 2048 -validity 36500 \
+              -storepass android -keypass android -dname "CN=Viper Vision"
+          fi
+          keytool -list -v -keystore signing/vipervision.keystore -storepass android | grep SHA256
+
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleFossRelease --stacktrace
+          ls -la app/build/outputs/apk/foss/release/
+
+      - name: Sign
+        run: |
+          APKSIGNER=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -1)apksigner
+          OUT=app/build/outputs/apk/foss/release
+          sign() {
+            $APKSIGNER sign --ks ../signing/vipervision.keystore --ks-key-alias vipervision \
+              --ks-pass pass:android --key-pass pass:android --out "../$2" "$1"
+          }
+          # With one ABI there's a single APK; with several, use the universal one.
+          APK=$(ls $OUT/*universal*.apk 2>/dev/null || ls $OUT/*.apk | head -1)
+          sign "$APK" ViperVision.apk
+          ls -la ../ViperVision*.apk
+
+      - name: Publish download on the Releases page
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: vipervision-build-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Viper Vision (build ${{ github.run_number }})
+          body: |
+            On your phone, tap **ViperVision.apk** below to download it, then open it to install.
+
+            Fossify Gallery (GPL-3.0) for browsing photos, with Viper Vision's own photo and video
+            editor (built on Image Toolbox's engines, Apache-2.0).
+          files: ViperVision.apk
+          make_latest: false
+
+  # Keeps GitHub tidy after a good build: only the newest few Viper Vision releases, build logs
+  # and this branch's build caches. Other apps' releases, workflows and caches are left alone,
+  # and no signing key is ever deleted.
+  cleanup:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      KEEP: 3
+    steps:
+      - name: Delete old Viper Vision releases and their tags
+        run: |
+          gh api --paginate "repos/$REPO/releases?per_page=100" --jq '.[].tag_name' \
+            | grep -E '^vipervision-build-[0-9]+$' | sort -t- -k3 -n -r | tail -n +$((KEEP + 1)) \
+            | while read -r tag; do
+                echo "Deleting release $tag"
+                gh release delete "$tag" --repo "$REPO" --yes --cleanup-tag || true
+              done
+
+      - name: Delete old build logs
+        run: |
+          gh api --paginate "repos/$REPO/actions/workflows/build-vipervision-apk.yml/runs?status=completed&per_page=100" \
+            --jq '.workflow_runs[].id' | sort -n -r | tail -n +$((KEEP + 1)) \
+            | while read -r id; do
+                gh api -X DELETE "repos/$REPO/actions/runs/$id" || true
+              done
+          # Stored files from older builds (the APK is on the Releases page instead).
+          gh api --paginate "repos/$REPO/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.name == "ViperVision-apk") | .id' \
+            | while read -r id; do gh api -X DELETE "repos/$REPO/actions/artifacts/$id" || true; done
+
+      - name: Delete build caches this build didn't use
+        run: |
+          # The build just saved and used its caches; anything of this branch untouched for 3
+          # hours is stale. Signing keys (this app's or any other's) are never deleted.
+          cutoff=$(date -u -d '3 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+          gh api --paginate "repos/$REPO/actions/caches?per_page=100&ref=${{ github.ref }}" \
+            --jq ".actions_caches[] | select((.key | test(\"sign|keystore\"; \"i\") | not) and .last_accessed_at < \"$cutoff\") | .id" \
+            | while read -r id; do gh api -X DELETE "repos/$REPO/actions/caches/$id" || true; done

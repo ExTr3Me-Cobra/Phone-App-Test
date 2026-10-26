@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Viper Vision: menu entries for the Studio's tools. -->
+<resources>
+    <string name="vv_compare">Compare</string>
+    <string name="vv_fuse_frames">Fuse frames (HDR, focus, low light)</string>
+    <string name="vv_camera_shortcut_menu">Camera thumbnail → Viper Vision</string>
+    <string name="vv_camera_shortcut_how">Turn on \"Viper Vision camera thumbnail\" (under Installed apps). If it\'s greyed out: App info → ⋮ → Allow restricted settings, then try again.</string>
+    <string name="vv_grid_view">Go to\ngrid view</string>
+    <string name="vv_file_view">Go to\nalbum view</string>
+    <string name="vv_settings_section">Viper Vision</string>
+    <string name="vv_camera_shortcut_on">On: Samsung Camera\'s thumbnail opens Viper Vision. Tap to change.</string>
+    <string name="vv_camera_shortcut_off">Off. Tap to turn on in Accessibility settings.</string>
+    <string name="vv_set_folder_cover">Set as album thumbnail</string>
+    <string name="vv_folder_cover_set">Album thumbnail set</string>
+    <string name="vv_merge">Merge</string>
+    <string name="vv_merge_into">Merge into which folder?</string>
+    <string name="vv_merge_confirm">Move everything from the other %1$d folders into \"%2$s\"?</string>
+    <string name="vv_hide_confirm">Hide %1$s? It won\'t show in the gallery.</string>
+    <string name="vv_hide_confirm_again">Are you really sure you want to hide %1$s?</string>
+    <string name="vv_select_folder">Select folder</string>
+    <string name="vv_restore_all_again">Are you really sure you want to restore all %1$d items?</string>
+    <string name="vv_diagnostics">Diagnostic log</string>
+    <string name="vv_diagnostics_about">What the app was doing when something went wrong, to copy and send</string>
+    <string name="vv_copy_to_album">Copy to album</string>
+    <string name="vv_move_to_album">Move to album</string>
+    <string name="vv_set_as_wallpaper">Set as wallpaper</string>
+    <string name="vv_samsung_ai_tools">Samsung AI tools in the editor</string>
+</resources>

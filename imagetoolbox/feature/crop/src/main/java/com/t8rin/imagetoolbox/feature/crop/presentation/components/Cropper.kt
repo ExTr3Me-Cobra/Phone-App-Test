@@ -1,0 +1,262 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.feature.crop.presentation.components
+
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.plus
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableFloatState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import com.t8rin.crop.advanced.compose.AdvancedCropper
+import com.t8rin.crop.advanced.compose.HorizontalWheelSliderConfig
+import com.t8rin.cropper.ImageCropper
+import com.t8rin.cropper.model.AspectRatio
+import com.t8rin.cropper.settings.CropDefaults
+import com.t8rin.cropper.settings.CropProperties
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.icons.Flip
+import com.t8rin.imagetoolbox.core.resources.icons.Rotate90Ccw
+import com.t8rin.imagetoolbox.core.settings.presentation.provider.LocalSettingsState
+import com.t8rin.imagetoolbox.core.ui.widget.modifier.transparencyChecker
+import com.t8rin.imagetoolbox.core.ui.widget.other.ZoomBadge
+import com.t8rin.opencv_tools.free_corners_crop.compose.FreeCornersCropper
+import kotlinx.coroutines.launch
+
+@Composable
+fun Cropper(
+    modifier: Modifier = Modifier,
+    bitmap: Bitmap,
+    imageUri: Uri,
+    imageSize: IntSize,
+    crop: Boolean,
+    onImageCropStarted: () -> Unit,
+    onImageCropFinished: (Uri?) -> Unit,
+    cropType: CropType,
+    coercePointsToImageArea: Boolean,
+    state: CropperState,
+    rotationState: MutableFloatState,
+    cropProperties: CropProperties,
+    addVerticalInsets: Boolean
+) {
+    LaunchedEffect(crop) {
+        if (crop) onImageCropStarted()
+    }
+
+    val settingsState = LocalSettingsState.current
+
+    AnimatedContent(
+        targetState = cropType,
+        transitionSpec = { fadeIn() togetherWith fadeOut() }
+    ) { type ->
+        when (type) {
+            CropType.Default -> {
+                Box {
+                    var zoomLevel by remember {
+                        mutableFloatStateOf(1f)
+                    }
+
+                    val scope = rememberCoroutineScope()
+                    val currentCrop by rememberUpdatedState(crop)
+                    val currentOnImageCropFinished by rememberUpdatedState(onImageCropFinished)
+                    val onLoadingStateChange: (Boolean) -> Unit = remember {
+                        { isLoading ->
+                            if (!isLoading) {
+                                scope.launch {
+                                    withFrameNanos { }
+                                    if (currentCrop) {
+                                        currentOnImageCropFinished(null)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    AdvancedCropper(
+                        imageModel = imageUri,
+                        aspectRatio = if (cropProperties.aspectRatio != AspectRatio.Original) {
+                            cropProperties.aspectRatio.value
+                        } else null,
+                        modifier = Modifier.transparencyChecker(),
+                        containerModifier = Modifier.fillMaxSize(),
+                        croppingTrigger = crop,
+                        onCropped = onImageCropFinished,
+                        sliderConfig = remember {
+                            HorizontalWheelSliderConfig(
+                                mirrorIcon = Icons.Outlined.Flip,
+                                rotate90Icon = Icons.Outlined.Rotate90Ccw
+                            )
+                        },
+                        isOverlayDraggable = settingsState.cropOverlayDraggable,
+                        state = state.advancedCropperState,
+                        rotationAngleState = rotationState,
+                        onLoadingStateChange = onLoadingStateChange,
+                        onTransformationCommitted = {
+                            state.recordCropperTransformation(CropType.Default)
+                        },
+                        onZoomChange = { newZoom ->
+                            zoomLevel = newZoom
+                        },
+                        contentPadding = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+                            .let {
+                                if (addVerticalInsets) it.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                                else it.only(WindowInsetsSides.Horizontal)
+                            }.asPaddingValues() + PaddingValues(top = 16.dp),
+                        gridColor = MaterialTheme.colorScheme.primaryFixed.copy(0.5f),
+                        handlesColor = MaterialTheme.colorScheme.primaryFixed
+                    )
+                    ZoomBadge(
+                        zoomLevel = zoomLevel,
+                        modifier = Modifier.align(Alignment.TopStart),
+                    )
+                }
+            }
+
+            CropType.NoRotation -> {
+                AnimatedContent(
+                    targetState = bitmap,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    modifier = modifier.fillMaxSize(),
+                ) { bitmap ->
+                    Box {
+                        var zoomLevel by remember {
+                            mutableFloatStateOf(1f)
+                        }
+                        val bmp = remember(bitmap) { bitmap.asImageBitmap() }
+                        ImageCropper(
+                            backgroundModifier = Modifier.transparencyChecker(),
+                            imageBitmap = bmp,
+                            sourceImageUri = imageUri,
+                            sourceImageSize = imageSize,
+                            contentDescription = null,
+                            cropProperties = cropProperties.copy(
+                                fixedAspectRatio = cropProperties.fixedAspectRatio,
+                                maxZoom = 20f
+                            ),
+                            state = state.imageCropperState,
+                            onCropStart = onImageCropStarted,
+                            crop = crop,
+                            cropStyle = CropDefaults.style(
+                                overlayColor = MaterialTheme.colorScheme.primaryFixed.copy(0.5f),
+                                handleColor = MaterialTheme.colorScheme.primaryFixed
+                            ),
+                            onZoomChange = { newZoom ->
+                                zoomLevel = newZoom
+                            },
+                            onCropSuccess = onImageCropFinished,
+                            onTransformationCommitted = {
+                                state.recordCropperTransformation(CropType.NoRotation)
+                            },
+                            isOverlayDraggable = settingsState.cropOverlayDraggable
+                        )
+                        ZoomBadge(
+                            zoomLevel = zoomLevel,
+                            modifier = Modifier.align(Alignment.TopStart),
+                        )
+                    }
+                }
+            }
+
+            CropType.FreeCorners -> {
+                AnimatedContent(
+                    targetState = bitmap,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    modifier = modifier.fillMaxSize()
+                ) { bitmap ->
+                    Box {
+                        var zoomLevel by remember {
+                            mutableFloatStateOf(1f)
+                        }
+                        FreeCornersCropper(
+                            bitmap = bitmap,
+                            sourceImageUri = imageUri,
+                            sourceImageSize = imageSize,
+                            croppingTrigger = crop,
+                            onCropped = onImageCropFinished,
+                            state = state.freeCornersCropperState,
+                            onTransformationCommitted = {
+                                state.recordCropperTransformation(CropType.FreeCorners)
+                            },
+                            coercePointsToImageArea = coercePointsToImageArea,
+                            modifier = Modifier.transparencyChecker(),
+                            contentPadding = WindowInsets.systemBars
+                                .union(WindowInsets.displayCutout)
+                                .let {
+                                    if (addVerticalInsets) {
+                                        it.only(
+                                            WindowInsetsSides.Horizontal +
+                                                    WindowInsetsSides.Bottom
+                                        )
+                                    } else {
+                                        it.only(WindowInsetsSides.Horizontal)
+                                    }
+                                }
+                                .union(
+                                    WindowInsets(
+                                        left = 16.dp,
+                                        top = 32.dp,
+                                        right = 16.dp,
+                                        bottom = 32.dp
+                                    )
+                                )
+                                .asPaddingValues(),
+                            onZoomChange = { newZoom ->
+                                zoomLevel = newZoom
+                            },
+                            showMagnifier = settingsState.magnifierEnabled,
+                            isOverlayDraggable = settingsState.cropOverlayDraggable,
+                            gridColor = MaterialTheme.colorScheme.primaryFixed.copy(0.5f),
+                            handlesColor = MaterialTheme.colorScheme.primaryFixed
+                        )
+                        ZoomBadge(
+                            zoomLevel = zoomLevel,
+                            modifier = Modifier.align(Alignment.TopStart),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

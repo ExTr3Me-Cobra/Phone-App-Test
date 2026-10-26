@@ -1,0 +1,206 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.core.filters.presentation.widget
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import coil3.request.ImageRequest
+import coil3.request.error
+import coil3.request.transformations
+import coil3.transform.Transformation
+import com.t8rin.imagetoolbox.core.domain.remote.DownloadProgress
+import com.t8rin.imagetoolbox.core.domain.remote.RemoteResources
+import com.t8rin.imagetoolbox.core.filters.presentation.model.UiFilter
+import com.t8rin.imagetoolbox.core.resources.Icons
+import com.t8rin.imagetoolbox.core.resources.R
+import com.t8rin.imagetoolbox.core.resources.icons.Bookmark
+import com.t8rin.imagetoolbox.core.resources.icons.BookmarkRemove
+import com.t8rin.imagetoolbox.core.resources.icons.Info
+import com.t8rin.imagetoolbox.core.ui.theme.outlineVariant
+import com.t8rin.imagetoolbox.core.ui.utils.helper.AppToastHost
+import com.t8rin.imagetoolbox.core.ui.utils.helper.LocalFilterPreviewModelProvider
+import com.t8rin.imagetoolbox.core.ui.widget.enhanced.EnhancedIconButton
+import com.t8rin.imagetoolbox.core.ui.widget.preferences.PreferenceItemOverload
+import com.t8rin.imagetoolbox.core.utils.appContext
+import com.t8rin.imagetoolbox.core.utils.isNetworkAvailable
+
+@Composable
+internal fun FilterSelectionItem(
+    filter: UiFilter<*>,
+    isFavoritePage: Boolean,
+    canOpenPreview: Boolean,
+    showPreviewImage: Boolean,
+    isInFavorite: Boolean,
+    onLongClick: (() -> Unit)?,
+    onOpenPreview: () -> Unit,
+    onClick: (UiFilter<*>?) -> Unit,
+    onToggleFavorite: () -> Unit,
+    onRequestFilterMapping: ((UiFilter<*>) -> Transformation),
+    shape: Shape,
+    modifier: Modifier,
+    cubeLutRemoteResources: RemoteResources? = null,
+    cubeLutDownloadProgress: DownloadProgress? = null,
+    onCubeLutDownloadRequest: (forceUpdate: Boolean, downloadOnlyNewData: Boolean) -> Unit = { _, _ -> }
+) {
+    val previewModel = LocalFilterPreviewModelProvider.current.preview
+    var showHelp by rememberSaveable(filter.title) { mutableStateOf(false) }
+
+    var showDownloadDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var downloadOnlyNewData by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var forceUpdate by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    PreferenceItemOverload(
+        title = stringResource(filter.title),
+        startIcon = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                FilterPreviewPicture(
+                    model = remember(filter, previewModel) {
+                        ImageRequest.Builder(appContext)
+                            .data(previewModel.data)
+                            .error(R.drawable.filter_preview_source)
+                            .transformations(onRequestFilterMapping(filter))
+                            .diskCacheKey(filter::class.simpleName + previewModel.data.hashCode())
+                            .memoryCacheKey(filter::class.simpleName + previewModel.data.hashCode())
+                            .size(160, 160)
+                            .build()
+                    },
+                    canShowImage = showPreviewImage,
+                    canOpenPreview = canOpenPreview,
+                    onOpenPreview = onOpenPreview
+                )
+                Spacer(Modifier.width(16.dp))
+                Box(
+                    modifier = Modifier
+                        .height(36.dp)
+                        .width(1.dp)
+                        .background(MaterialTheme.colorScheme.outlineVariant())
+                )
+            }
+        },
+        endIcon = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.offset(8.dp)
+            ) {
+                EnhancedIconButton(onClick = { showHelp = true }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = stringResource(R.string.help_tips)
+                    )
+                }
+                EnhancedIconButton(
+                    onClick = onToggleFavorite
+                ) {
+                    AnimatedContent(
+                        targetState = isInFavorite to isFavoritePage,
+                        transitionSpec = {
+                            (fadeIn() + scaleIn(initialScale = 0.85f))
+                                .togetherWith(fadeOut() + scaleOut(targetScale = 0.85f))
+                        }
+                    ) { (isInFavorite, isFavPage) ->
+                        val icon = remember(isInFavorite, isFavPage) {
+                            when {
+                                isFavPage && isInFavorite -> Icons.Rounded.BookmarkRemove
+                                isInFavorite -> Icons.Rounded.Bookmark
+                                else -> Icons.Outlined.Bookmark
+                            }
+                        }
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null
+                        )
+                    }
+                }
+            }
+        },
+        modifier = modifier.fillMaxWidth(),
+        shape = shape,
+        onLongClick = onLongClick,
+        onClick = { onClick(null) },
+        drawStartIconContainer = false,
+        bottomContent = {
+            FilterSelectionCubeLutBottomContent(
+                cubeLutRemoteResources = cubeLutRemoteResources,
+                shape = shape,
+                onShowDownloadDialog = { forceUpdateP, downloadOnlyNewDataP ->
+                    showDownloadDialog = true
+                    forceUpdate = forceUpdateP
+                    downloadOnlyNewData = downloadOnlyNewDataP
+                },
+                onRequestFilterMapping = onRequestFilterMapping,
+                onClick = onClick
+            )
+        }
+    )
+
+    FilterHelpDialog(
+        filter = filter,
+        visible = showHelp,
+        onDismiss = { showHelp = false }
+    )
+
+    CubeLutDownloadDialog(
+        visible = showDownloadDialog,
+        onDismiss = { showDownloadDialog = false },
+        onDownload = {
+            if (appContext.isNetworkAvailable()) {
+                onCubeLutDownloadRequest(
+                    forceUpdate, downloadOnlyNewData
+                )
+                showDownloadDialog = false
+            } else {
+                AppToastHost.showNoConnection()
+            }
+        },
+        downloadOnlyNewData = downloadOnlyNewData,
+        cubeLutDownloadProgress = cubeLutDownloadProgress
+    )
+}

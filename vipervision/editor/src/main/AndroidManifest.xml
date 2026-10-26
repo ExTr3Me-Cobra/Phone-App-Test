@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Viper Vision: to find Samsung's photo editor (the Samsung AI bubbles). -->
+    <queries>
+        <package android:name="com.sec.android.mimage.photoretouching" />
+        <package android:name="com.sec.android.gallery3d" />
+        <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.EDIT" />
+            <data android:scheme="content" android:mimeType="image/*" />
+        </intent>
+    </queries>
+
+    <application>
+        <activity
+            android:name=".EditorActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- Gallery's Edit button for videos: trim and the Adjust dials. -->
+        <activity
+            android:name=".VideoEditorActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- Settings → Diagnostic log (ViperLog). -->
+        <activity
+            android:name=".DiagnosticsActivity"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- Compare, Fuse frames, Convert, and the Create menu's tools. -->
+        <activity
+            android:name=".ViperStudioActivity"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- Samsung Camera's thumbnail opens Viper Vision (turned on in Settings → Accessibility). -->
+        <service
+            android:name=".CameraThumbnailService"
+            android:exported="false"
+            android:label="@string/vv_camera_shortcut"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/vv_camera_shortcut" />
+        </service>
+    </application>
+
+</manifest>

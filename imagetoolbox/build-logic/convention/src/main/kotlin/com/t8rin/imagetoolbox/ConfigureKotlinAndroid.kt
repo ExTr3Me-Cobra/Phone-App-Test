@@ -1,0 +1,120 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox
+
+import com.android.build.api.dsl.CommonExtension
+import org.gradle.api.JavaVersion
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+
+internal fun Project.configureKotlinAndroid(
+    commonExtension: CommonExtension,
+    createFlavors: Boolean = true
+) {
+    commonExtension.apply {
+        compileSdk = libs.versions.androidCompileSdk.get().toIntOrNull()
+        compileSdkMinor = libs.versions.androidCompileSdkMinor.get().toIntOrNull()
+        compileSdkExtension = libs.versions.androidCompileSdkExtension.get().toIntOrNull()
+
+        defaultConfig.apply {
+            minSdk = libs.versions.androidMinSdk.get().toIntOrNull()
+        }
+
+        if (createFlavors) {
+            flavorDimensions += "app"
+
+            productFlavors.apply {
+                create("foss") {
+                    dimension = "app"
+                }
+                create("market") {
+                    dimension = "app"
+                }
+            }
+        }
+
+        compileOptions.apply {
+            sourceCompatibility = javaVersion
+            targetCompatibility = javaVersion
+            isCoreLibraryDesugaringEnabled = true
+        }
+
+        buildFeatures.apply {
+            compose = false
+            aidl = false
+            shaders = false
+            buildConfig = false
+            resValues = false
+        }
+
+        packaging.apply {
+            jniLibs {
+                pickFirsts.add("**/libc++_shared.so")
+            }
+            resources {
+                excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+                excludes.add("META-INF/LICENSE.md")
+            }
+        }
+
+        lint.apply {
+            disable += "UsingMaterialAndMaterial3Libraries"
+            disable += "ModifierParameter"
+            disable += "ConvertLongToDuration"
+        }
+    }
+
+    configureKotlin<KotlinAndroidProjectExtension>()
+
+    dependencies {
+        coreLibraryDesugaring(libs.desugaring)
+    }
+}
+
+val Project.javaVersion: JavaVersion
+    get() = JavaVersion.toVersion(
+        libs.versions.jvmTarget.get()
+    )
+
+/**
+ * Configure base Kotlin options
+ */
+private inline fun <reified T : KotlinBaseExtension> Project.configureKotlin() = configure<T> {
+    // Treat all Kotlin warnings as errors (disabled by default)
+    // Override by setting warningsAsErrors=true in your ~/.gradle/gradle.properties
+    val warningsAsErrors = findProperty("warningsAsErrors")?.toString().toBoolean()
+    when (this) {
+        is KotlinAndroidProjectExtension -> compilerOptions
+        is KotlinJvmProjectExtension -> compilerOptions
+        else -> error("Unsupported project extension $this ${T::class}")
+    }.apply {
+        jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
+        allWarningsAsErrors.set(warningsAsErrors)
+        optIn.addAll(
+            "kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "kotlinx.coroutines.FlowPreview",
+            "kotlinx.coroutines.DelicateCoroutinesApi",
+            "kotlin.contracts.ExperimentalContracts"
+        )
+    }
+}

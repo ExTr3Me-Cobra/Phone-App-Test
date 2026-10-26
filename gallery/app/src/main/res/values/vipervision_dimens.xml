@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Viper Vision: folder tiles' corners, twice the usual big radius (10dp). -->
+    <dimen name="vv_folder_corner_radius">20dp</dimen>
+</resources>

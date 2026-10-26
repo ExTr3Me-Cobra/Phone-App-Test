@@ -1,0 +1,15 @@
+/build/
+/release/
+/foss/
+/market/
+/jxl/
+/build
+/release
+/foss
+/market
+/jxl
+/src/main/generated/*
+!/src/main/generated/baselineProfiles/
+/src/main/generated/baselineProfiles/*
+!/src/main/generated/baselineProfiles/baseline-prof.txt
+!/src/main/generated/baselineProfiles/startup-prof.txt

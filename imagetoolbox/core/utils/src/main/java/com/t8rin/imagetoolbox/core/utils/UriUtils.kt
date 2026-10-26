@@ -1,0 +1,605 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+package com.t8rin.imagetoolbox.core.utils
+
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
+import android.os.ParcelFileDescriptor
+import android.provider.DocumentsContract
+import android.provider.MediaStore
+import android.provider.OpenableColumns
+import android.system.Os
+import android.webkit.MimeTypeMap
+import androidx.core.net.toFile
+import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
+import com.t8rin.imagetoolbox.core.domain.model.FileModel
+import com.t8rin.imagetoolbox.core.domain.model.ImageModel
+import com.t8rin.imagetoolbox.core.domain.model.IntegerSize
+import com.t8rin.imagetoolbox.core.domain.model.SortType
+import com.t8rin.imagetoolbox.core.domain.utils.ListUtils.sortedByKey
+import com.t8rin.imagetoolbox.core.resources.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.util.LinkedList
+import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
+
+fun Uri?.uiPath(
+    default: String,
+    context: Context = appContext
+): String = this?.let { uri ->
+    runCatching {
+        if (DocumentFile.isDocumentUri(context, uri)) {
+            DocumentFile.fromSingleUri(context, uri)
+        } else {
+            DocumentFile.fromTreeUri(context, uri)
+        }?.uri?.path?.split(":")
+            ?.lastOrNull()?.let { p ->
+                val endPath = p.takeIf {
+                    it.isNotEmpty()
+                }?.let { "/$it" } ?: ""
+                val startPath = if (
+                    uri.toString()
+                        .split("%")[0]
+                        .contains("primary")
+                ) context.getString(R.string.device_storage)
+                else context.getString(R.string.external_storage)
+
+                startPath + endPath
+            }?.decodeEscaped()
+    }.getOrNull()
+} ?: default
+
+fun Uri.lastModified(): Long? = tryExtractOriginal().run {
+    runCatching {
+        if (this.toString().startsWith("file:///")) {
+            return toFile().lastModified()
+        }
+
+        with(appContext.contentResolver) {
+            val query = query(this@lastModified, null, null, null, null)
+
+            query?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val columnNames = listOf(
+                        DocumentsContract.Document.COLUMN_LAST_MODIFIED,
+                        "datetaken", // When sharing an Image from Google Photos into the app.
+                    )
+
+                    val millis = columnNames.firstNotNullOfOrNull {
+                        val index = cursor.getColumnIndex(it)
+                        if (!cursor.isNull(index)) {
+                            cursor.getLong(index)
+                        } else {
+                            null
+                        }
+                    }
+
+                    return millis
+                }
+            }
+        }
+
+        return DocumentFile.fromSingleUri(appContext, this)?.lastModified()
+    }.onFailure { it.printStackTrace() }
+
+    return null
+}
+
+fun Uri.path(): String? = tryExtractOriginal().run {
+    getStringColumn(MediaStore.MediaColumns.DATA)?.takeIf {
+        ".transforms" !in it
+    }.orEmpty().ifEmpty {
+        runCatching {
+            val path = DocumentFile.fromSingleUri(appContext, this)?.uri?.path?.split(":")
+                ?.lastOrNull() ?: return@run null
+
+            if ("cloud" in path) {
+                "/cloud/${path.substringAfterLast('/')}"
+            } else {
+                path
+            }
+        }.getOrNull()
+    }
+}
+
+fun Uri.dateAdded(): Long? = tryExtractOriginal().run {
+    getLongColumn(MediaStore.MediaColumns.DATE_ADDED)?.times(1000)
+}
+
+fun Uri.filename(
+    context: Context = appContext
+): String? = tryExtractOriginal().run {
+    if (this.toString().startsWith("file:///")) {
+        this.toString().takeLastWhile { it != '/' }
+    } else {
+        DocumentFile.fromSingleUri(context, this)?.name
+    }?.decodeEscaped()
+}
+
+fun Uri.extension(
+    context: Context = appContext
+): String? {
+    val filename = filename(context) ?: ""
+    if (filename.endsWith(".qoi")) return "qoi"
+    if (filename.endsWith(".jxl")) return "jxl"
+    return if (ContentResolver.SCHEME_CONTENT == scheme) {
+        MimeTypeMap.getSingleton()
+            .getExtensionFromMimeType(
+                context.contentResolver.getType(this)
+            )
+    } else {
+        MimeTypeMap.getFileExtensionFromUrl(this.toString()).lowercase(Locale.getDefault())
+    }?.replace(".", "")
+}
+
+fun Uri.mimeType(
+    context: Context = appContext
+): String? {
+    val filename = filename(context) ?: ""
+    if (filename.endsWith(".qoi")) return "image/qoi"
+    if (filename.endsWith(".jxl")) return "image/jxl"
+    return if (ContentResolver.SCHEME_CONTENT == scheme) {
+        context.contentResolver.getType(this) ?: MimeTypeMap
+            .getSingleton()
+            .getMimeTypeFromExtension(extension(context))
+    } else {
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension(context))
+    }
+}
+
+fun Uri.fileSize(): Long? = tryExtractOriginal().run {
+    if (this.scheme == "content") {
+        runCatching {
+            appContext.contentResolver
+                .query(this, arrayOf(OpenableColumns.SIZE), null, null, null, null)
+                .use { cursor ->
+                    if (cursor != null && cursor.moveToFirst()) {
+                        val sizeIndex: Int = cursor.getColumnIndex(OpenableColumns.SIZE)
+                        if (!cursor.isNull(sizeIndex)) {
+                            return cursor.getLong(sizeIndex)
+                        }
+                    }
+                }
+        }
+    } else {
+        runCatching {
+            return this.toFile().length()
+        }
+    }
+    return null
+}
+
+fun Uri.imageSize(): IntegerSize? = tryExtractOriginal().run {
+    val mediaStoreSize = if (scheme == ContentResolver.SCHEME_CONTENT) {
+        runCatching {
+            appContext.contentResolver.query(
+                this,
+                arrayOf(MediaStore.MediaColumns.WIDTH, MediaStore.MediaColumns.HEIGHT),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val widthIndex = cursor.getColumnIndex(MediaStore.MediaColumns.WIDTH)
+                    val heightIndex = cursor.getColumnIndex(MediaStore.MediaColumns.HEIGHT)
+                    val width = widthIndex
+                        .takeIf { it != -1 && !cursor.isNull(it) }
+                        ?.let(cursor::getInt)
+                    val height = heightIndex
+                        .takeIf { it != -1 && !cursor.isNull(it) }
+                        ?.let(cursor::getInt)
+
+                    IntegerSize(width ?: 0, height ?: 0).takeIf { it.isValidImageSize() }
+                } else null
+            }
+        }.getOrNull()
+    } else null
+
+    mediaStoreSize ?: runCatching {
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        if (scheme == ContentResolver.SCHEME_CONTENT) {
+            appContext.contentResolver.openInputStream(this)?.use {
+                BitmapFactory.decodeStream(it, null, options)
+            }
+        } else {
+            BitmapFactory.decodeFile(toFile().absolutePath, options)
+        }
+        IntegerSize(options.outWidth, options.outHeight).takeIf { it.isValidImageSize() }
+    }.getOrNull()
+}
+
+private fun IntegerSize.isValidImageSize(): Boolean = width > 0 && height > 0
+
+fun Uri.tryExtractOriginal(): Uri = UriReplacements.resolve(this).run {
+    try {
+        if ("com.android.externalstorage.documents" in this.toString()) {
+            return this.makeLog("tryExtractOriginal") { "already ok - $it" }
+        }
+
+        val mimeType = getStringColumn(MediaStore.MediaColumns.MIME_TYPE).orEmpty()
+
+        val contentUri = when {
+            "image" in mimeType -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            "video" in mimeType -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            "audio" in mimeType -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            else -> return this
+        }
+
+        UriReplacements.resolve(
+            ContentUris.withAppendedId(
+                contentUri,
+                this.toString().decodeEscaped().substringAfterLast('/').filter { it.isDigit() }
+                    .toLong()
+            )
+        )
+    } catch (e: Throwable) {
+        e.makeLog("tryExtractOriginal")
+        this.makeLog("tryExtractOriginal") { "failed - $it" }
+    }
+}
+
+suspend fun List<Uri>.distinctUris(): List<Uri> = withContext(Dispatchers.IO) {
+    val identities = HashSet<UriIdentity>(size)
+
+    return@withContext filter { uri ->
+        identities.add(uri.uriIdentity())
+    }
+}
+
+private fun Uri.uriIdentity(): UriIdentity {
+    val normalizedUri = tryExtractOriginal()
+
+    normalizedUri.fileDescriptorIdentity()?.let {
+        return it
+    }
+
+    if (normalizedUri.scheme == ContentResolver.SCHEME_FILE) {
+        normalizedUri.path?.let(::File)?.let { file ->
+            return UriIdentity.FilePath(
+                runCatching { file.canonicalPath }.getOrDefault(file.absolutePath)
+            )
+        }
+    }
+
+    return UriIdentity.NormalizedUri(normalizedUri.normalizeScheme().toString())
+}
+
+private fun Uri.fileDescriptorIdentity(): UriIdentity.FileDescriptor? = runCatching {
+    openFileDescriptor()?.use { descriptor ->
+        Os.fstat(descriptor.fileDescriptor).let { stat ->
+            UriIdentity.FileDescriptor(
+                device = stat.st_dev,
+                inode = stat.st_ino
+            ).takeIf { stat.st_ino != 0L }
+        }
+    }
+}.getOrNull()
+
+private fun Uri.openFileDescriptor(): ParcelFileDescriptor? = when (scheme) {
+    ContentResolver.SCHEME_FILE -> path?.let(::File)?.let { file ->
+        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+    }
+
+    ContentResolver.SCHEME_CONTENT -> appContext.contentResolver.openFileDescriptor(this, "r")
+    else -> null
+}
+
+private sealed interface UriIdentity {
+    data class FileDescriptor(
+        val device: Long,
+        val inode: Long
+    ) : UriIdentity
+
+    data class FilePath(val path: String) : UriIdentity
+
+    data class NormalizedUri(val uri: String) : UriIdentity
+}
+
+suspend fun List<Uri>.sortedByType(
+    sortType: SortType,
+): List<Uri> = coroutineScope {
+    when (sortType) {
+        SortType.DateModified -> sortedByDateModified()
+        SortType.DateModifiedReversed -> sortedByDateModified(descending = true)
+        SortType.Name -> sortedByName()
+        SortType.NameReversed -> sortedByName(descending = true)
+        SortType.Size -> sortedBySize()
+        SortType.SizeReversed -> sortedBySize(descending = true)
+        SortType.MimeType -> sortedByMimeType()
+        SortType.MimeTypeReversed -> sortedByMimeType(descending = true)
+        SortType.Extension -> sortedByExtension()
+        SortType.ExtensionReversed -> sortedByExtension(descending = true)
+        SortType.DateAdded -> sortedByDateAdded()
+        SortType.DateAddedReversed -> sortedByDateAdded(descending = true)
+        SortType.Reverse -> reversed()
+        SortType.Shuffle -> shuffled()
+    }
+}
+
+fun ImageModel.toUri(): Uri? = when (data) {
+    is Uri -> data as Uri
+    is String -> (data as String).toUri()
+    else -> null
+}
+
+fun Any.toImageModel() = ImageModel(this)
+
+fun String.toFileModel() = FileModel(this)
+
+fun String.decodeEscaped(): String = runCatching {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        URLDecoder.decode(URLDecoder.decode(this, Charsets.UTF_8), Charsets.UTF_8)
+    } else {
+        @Suppress("DEPRECATION")
+        URLDecoder.decode(URLDecoder.decode(this))
+    }
+}.getOrDefault(this)
+
+fun String.encodeEscaped(): String {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        URLEncoder.encode(this, Charsets.UTF_8)
+    } else {
+        @Suppress("DEPRECATION")
+        URLEncoder.encode(this)
+    }
+}
+
+fun Uri.isApng(): Boolean {
+    return filename().toString().endsWith(".png")
+        .or(appContext.contentResolver.getType(this)?.contains("png") == true)
+        .or(appContext.contentResolver.getType(this)?.contains("apng") == true)
+}
+
+fun Uri.isWebp(): Boolean {
+    return filename().toString().endsWith(".webp")
+        .or(appContext.contentResolver.getType(this)?.contains("webp") == true)
+}
+
+fun Uri.isJxl(): Boolean {
+    return filename().toString().endsWith(".jxl")
+        .or(appContext.contentResolver.getType(this)?.contains("jxl") == true)
+}
+
+fun Uri.isGif(): Boolean {
+    return filename().toString().endsWith(".gif")
+        .or(appContext.contentResolver.getType(this)?.contains("gif") == true)
+}
+
+suspend fun Uri.listFilesInDirectory(): List<Uri> =
+    listFilesInDirectoryAsFlowImpl().filterIsInstance<DirUri.All>().first().uris
+
+fun Uri.listFilesInDirectoryProgressive(): Flow<Uri> = listFilesInDirectoryAsFlowImpl()
+    .filterIsInstance<DirUri.Entry>()
+    .map { it.uri }
+
+fun String?.getPath(
+    context: Context = appContext
+) = this?.takeIf { it.isNotEmpty() }?.toUri().uiPath(
+    default = context.getString(R.string.default_folder)
+)
+
+private fun Uri.listFilesInDirectoryAsFlowImpl(): Flow<DirUri> = channelFlow {
+    val rootUri = this@listFilesInDirectoryAsFlowImpl
+
+    var childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
+        rootUri,
+        DocumentsContract.getTreeDocumentId(rootUri)
+    )
+
+    val files: MutableList<Pair<Uri, Long>> = LinkedList()
+
+    val dirNodes: MutableList<Uri> = LinkedList()
+    dirNodes.add(childrenUri)
+    while (dirNodes.isNotEmpty()) {
+        childrenUri = dirNodes.removeAt(0)
+
+        appContext.contentResolver.query(
+            childrenUri,
+            arrayOf(
+                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                DocumentsContract.Document.COLUMN_LAST_MODIFIED,
+                DocumentsContract.Document.COLUMN_MIME_TYPE,
+            ),
+            null,
+            null,
+            null
+        ).use {
+            while (it!!.moveToNext()) {
+                val docId = it.getString(0)
+                val lastModified = it.getLong(1)
+                val mime = it.getString(2)
+                if (isDirectory(mime)) {
+                    val newNode = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, docId)
+                    dirNodes.add(newNode)
+                } else {
+                    val uri = DocumentsContract.buildDocumentUriUsingTree(rootUri, docId)
+
+                    channel.send(DirUri.Entry(uri))
+
+                    files.add(
+                        uri to lastModified
+                    )
+                }
+            }
+        }
+    }
+
+    files.sortedByDescending { it.second }.map { it.first }.also {
+        channel.send(DirUri.All(it))
+        channel.close()
+    }
+}.flowOn(Dispatchers.IO)
+
+private sealed interface DirUri {
+    data class Entry(val uri: Uri) : DirUri
+    data class All(val uris: List<Uri>) : DirUri
+}
+
+private fun isDirectory(mimeType: String): Boolean {
+    return DocumentsContract.Document.MIME_TYPE_DIR == mimeType
+}
+
+private fun List<Uri>.sortedByExtension(
+    descending: Boolean = false
+) = sortedByKey(descending) {
+    it.filename()?.substringAfterLast(
+        delimiter = '.',
+        missingDelimiterValue = ""
+    )?.lowercase()
+}
+
+private fun List<Uri>.sortedByDateModified(
+    descending: Boolean = false
+) = sortedByKey(descending) { it.lastModified() }
+
+private fun List<Uri>.sortedByName(
+    descending: Boolean = false
+): List<Uri> {
+    val comparator = Comparator<Pair<Uri, String?>> { first, second ->
+        first.second.orEmpty().naturalCompareTo(second.second.orEmpty())
+    }.let { if (descending) it.reversed() else it }
+
+    return map { it to it.filename() }
+        .sortedWith(comparator)
+        .map { it.first }
+}
+
+private fun String.naturalCompareTo(other: String): Int {
+    var firstIndex = 0
+    var secondIndex = 0
+
+    while (firstIndex < length && secondIndex < other.length) {
+        val firstChar = this[firstIndex]
+        val secondChar = other[secondIndex]
+
+        if (firstChar.isDigit() && secondChar.isDigit()) {
+            val firstEnd = indexOfFirstNonDigit(firstIndex)
+            val secondEnd = other.indexOfFirstNonDigit(secondIndex)
+            val firstNumber = substring(firstIndex, firstEnd)
+            val secondNumber = other.substring(secondIndex, secondEnd)
+            val firstSignificant = firstNumber.trimStart('0').ifEmpty { "0" }
+            val secondSignificant = secondNumber.trimStart('0').ifEmpty { "0" }
+
+            val lengthComparison = firstSignificant.length.compareTo(secondSignificant.length)
+            if (lengthComparison != 0) return lengthComparison
+
+            val numberComparison = firstSignificant.compareTo(secondSignificant)
+            if (numberComparison != 0) return numberComparison
+
+            val leadingZeroComparison = firstNumber.length.compareTo(secondNumber.length)
+            if (leadingZeroComparison != 0) return leadingZeroComparison
+
+            firstIndex = firstEnd
+            secondIndex = secondEnd
+        } else {
+            val characterComparison =
+                firstChar.lowercaseChar().compareTo(secondChar.lowercaseChar())
+            if (characterComparison != 0) return characterComparison
+
+            firstIndex++
+            secondIndex++
+        }
+    }
+
+    return length.compareTo(other.length)
+}
+
+private fun String.indexOfFirstNonDigit(startIndex: Int): Int {
+    var index = startIndex
+    while (index < length && this[index].isDigit()) index++
+    return index
+}
+
+private fun List<Uri>.sortedBySize(
+    descending: Boolean = false
+) = sortedByKey(descending) {
+    it.getLongColumn(OpenableColumns.SIZE)
+}
+
+private fun List<Uri>.sortedByMimeType(
+    descending: Boolean = false
+) = sortedByKey(descending) {
+    it.getStringColumn(
+        column = DocumentsContract.Document.COLUMN_MIME_TYPE
+    )
+}
+
+private fun List<Uri>.sortedByDateAdded(
+    descending: Boolean = false
+) = sortedByKey(descending) {
+    it.dateAdded()
+}
+
+private fun Uri.getLongColumn(column: String): Long? =
+    appContext.contentResolver.query(this, arrayOf(column), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val index = cursor.getColumnIndex(column)
+            if (index != -1 && !cursor.isNull(index)) cursor.getLong(index) else null
+        } else null
+    }
+
+private fun Uri.getStringColumn(column: String): String? =
+    appContext.contentResolver.query(this, arrayOf(column), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val index = cursor.getColumnIndex(column)
+            if (index != -1 && !cursor.isNull(index)) cursor.getString(index) else null
+        } else null
+    }
+
+object UriReplacements {
+    private val replacements = ConcurrentHashMap<String, String>()
+
+    fun register(
+        originalUri: Uri,
+        replacementUri: Uri
+    ) {
+        if (originalUri == Uri.EMPTY || originalUri == replacementUri) return
+        replacements[originalUri.toString()] = resolve(replacementUri.toString())
+    }
+
+    fun resolve(uri: String): String {
+        var current = uri
+        val visited = mutableSetOf<String>()
+
+        while (visited.add(current)) {
+            current = replacements[current] ?: break
+        }
+
+        return current
+    }
+
+    fun resolve(uri: Uri): Uri = resolve(uri.toString()).toUri()
+}

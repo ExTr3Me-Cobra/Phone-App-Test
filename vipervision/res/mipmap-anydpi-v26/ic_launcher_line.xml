@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Viper Vision: the line-art eye (Settings → Customise colours → Line icon). -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@android:color/black" />
+    <foreground android:drawable="@drawable/vv_launcher_line_fg" />
+    <monochrome android:drawable="@drawable/vv_launcher_line_fg" />
+</adaptive-icon>

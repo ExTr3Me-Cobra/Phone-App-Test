@@ -1,0 +1,258 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+@file:Suppress("UnstableApiUsage")
+
+import com.android.build.api.artifact.SingleArtifact
+import com.t8rin.imagetoolbox.OptimizeReleaseApksTask
+import java.util.Properties
+
+// Viper Vision: the combined app's identity.
+val vipervision = Properties().apply {
+    rootDir.resolve("../vipervision/vipervision.properties").inputStream().use(::load)
+}
+
+// On GitHub, each build gets the workflow's run number, so every release has a higher version
+// and shows which build it is (e.g. "1.0.0 build 12"). Local builds use the properties file.
+val buildNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()
+val vipervisionVersionCode = buildNumber ?: vipervision["VERSION_CODE"].toString().toInt()
+val vipervisionVersionName = vipervision["VERSION_NAME"].toString() + (buildNumber?.let { " build $it" } ?: "")
+
+plugins {
+    alias(libs.plugins.image.toolbox.application)
+    alias(libs.plugins.image.toolbox.hilt)
+    id("androidx.baselineprofile")
+}
+
+android {
+    // Viper Vision: which processor types to build for (ABIS in vipervision.properties). Each one
+    // adds a slow compression step to release builds, so only arm64 is built by default.
+    val supportedAbi = vipervision["ABIS"].toString().split(",").map(String::trim).toTypedArray()
+
+    namespace = "com.t8rin.imagetoolbox"
+
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+
+        // Viper Vision: the app's name, ID and version come from ../vipervision/vipervision.properties.
+        applicationId = vipervision["APP_ID"].toString()
+        // Gallery needs Android 8.0 (API 26) or newer.
+        minSdk = 26
+
+        versionCode = vipervisionVersionCode
+        versionName = vipervisionVersionName
+
+        ndk {
+            abiFilters.clear()
+            //noinspection ChromeOsAbiSupport
+            abiFilters += supportedAbi.toSet()
+        }
+    }
+
+    androidResources {
+        // Viper Vision: its own screens are English, so other languages' translations of Image
+        // Toolbox and Gallery (about a fifth of the app's size) are left out.
+        localeFilters += listOf("en")
+    }
+
+    flavorDimensions += "app"
+
+    productFlavors {
+        create("foss") {
+            dimension = "app"
+            // Viper Vision: no "-foss" on the version shown to the user.
+            extra.set("gmsEnabled", false)
+        }
+        create("market") {
+            dimension = "app"
+            extra.set("gmsEnabled", true)
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            // Viper Vision: own names, so it never clashes with an installed Image Toolbox.
+            resValue("string", "app_launcher_name", "${vipervision["APP_NAME"]} DEBUG")
+            resValue("string", "app_name", "${vipervision["APP_NAME"]} DEBUG")
+            resValue("string", "file_provider", "${vipervision["APP_ID"]}.fileprovider.debug")
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Viper Vision: own names, so it never clashes with an installed Image Toolbox.
+            resValue("string", "app_launcher_name", vipervision["APP_NAME"].toString())
+            resValue("string", "app_name", vipervision["APP_NAME"].toString())
+            resValue("string", "file_provider", "${vipervision["APP_ID"]}.fileprovider")
+        }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+        }
+    }
+
+    splits {
+        abi {
+            // Detect app bundle and conditionally disable split abis
+            // This is needed due to a "Sequence contains more than one matching element" error
+            // present since AGP 8.9.0, for more info see:
+            // https://issuetracker.google.com/issues/402800800
+
+            // AppBundle tasks usually contain "bundle" in their name
+            //noinspection WrongGradleMethod
+            val isBuildingBundle =
+                gradle.startParameter.taskNames.any { it.lowercase().contains("bundle") }
+
+            // Disable split abis when building appBundle
+            // Viper Vision: and when only one ABI is built (one plain APK, no splits).
+            isEnable = !isBuildingBundle && supportedAbi.size > 1
+            reset()
+            //noinspection ChromeOsAbiSupport
+            include(*supportedAbi)
+            isUniversalApk = supportedAbi.size > 1
+        }
+    }
+
+    lint {
+        disable += "Instantiatable"
+    }
+
+    packaging {
+        jniLibs {
+            keepDebugSymbols.add("**/*.so")
+            pickFirsts.add("lib/*/libcoder.so")
+            pickFirsts.add("**/libdatstore_shared_counter.so")
+            useLegacyPackaging = true
+        }
+        resources {
+            excludes += "META-INF/"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "kotlin/"
+            excludes += "org/"
+            excludes += ".properties"
+            excludes += ".bin"
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
+    }
+
+    buildFeatures {
+        resValues = true
+    }
+
+    // Viper Vision: app-level resources (the app icon) from ../vipervision/res.
+    sourceSets {
+        getByName("main") {
+            res.directories.add(rootDir.resolve("../vipervision/res").path)
+        }
+    }
+}
+
+base {
+    archivesName = "vipervision-${vipervisionVersionCode}"
+}
+
+aboutLibraries {
+    export.excludeFields.addAll("generated")
+}
+
+dependencies {
+    baselineProfile(project(":benchmark"))
+
+    // Viper Vision: Fossify Gallery (photo browsing), opened from the launcher icon.
+    implementation(projects.vipervisionGallery)
+    // Viper Vision: the Samsung-style photo editor Gallery opens for Edit.
+    implementation(projects.vipervisionEditor)
+
+    // Viper Vision: Image Toolbox's main screen (feature.root, with all its tools) and quick
+    // settings tiles are gone; the picker stays for the Studio tools, and the filters module for
+    // the filter engine the editor's tools are built on.
+    implementation(projects.feature.mediaPicker)
+    implementation(projects.feature.filters)
+    // Image Toolbox's settings storage (SettingsManager/SettingsProvider bindings) that the
+    // editor's tools use; it used to come in through the removed format-conversion module.
+    implementation(projects.feature.settings)
+
+    implementation(projects.lib.opencvTools)
+    implementation(projects.lib.neuralTools)
+
+
+    "marketImplementation"(libs.quickie.bundled)
+    "fossImplementation"(libs.quickie.foss)
+}
+
+baselineProfile {
+    automaticGenerationDuringBuild = false
+    dexLayoutOptimization = true
+    mergeIntoMain = true
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        variant.packaging.jniLibs.keepDebugSymbols.set(emptySet())
+        // Viper Vision: the extra recompression below takes ~10 minutes per APK to save ~4% of
+        // the download size, so it's off unless OPTIMIZE_APK=true in vipervision.properties.
+        if (!vipervision["OPTIMIZE_APK"].toString().toBoolean()) return@onVariants
+        val buildToolsVersion = android.buildToolsVersion
+        val executable = if (System.getProperty("os.name").startsWith("Windows")) {
+            "zipalign.exe"
+        } else {
+            "zipalign"
+        }
+
+        val optimizeApks = tasks.register<OptimizeReleaseApksTask>(
+            "optimize${variant.name.replaceFirstChar(Char::uppercase)}Apks"
+        ) {
+            description = "Compresses and aligns unsigned ${variant.name} APKs before signing."
+            zipalign.set(sdkComponents.sdkDirectory.map { sdk ->
+                sdk.file("build-tools/$buildToolsVersion/$executable")
+            })
+            outputDirectory.set(layout.buildDirectory.dir("outputs/apk/${variant.flavorName}/release"))
+        }
+        val request = variant.artifacts.use(optimizeApks)
+            .wiredWithDirectories(
+                OptimizeReleaseApksTask::inputDirectory,
+                OptimizeReleaseApksTask::outputDirectory
+            )
+            .toTransformMany(SingleArtifact.APK)
+        optimizeApks.configure { transformationRequest.set(request) }
+    }
+
+    beforeVariants(selector().all()) { variantBuilder ->
+        val flavorName = variantBuilder.productFlavors.firstOrNull()?.second.orEmpty()
+        val flavorCap = flavorName.replaceFirstChar(Char::uppercase)
+
+        val gmsEnabled = android.productFlavors
+            .findByName(flavorName)
+            ?.extra
+            ?.get("gmsEnabled") == true
+
+        tasks.configureEach {
+            val isTargetTask = listOf("GoogleServices", "Crashlytics").any { marker ->
+                name.contains(marker)
+            } && name.contains(flavorCap)
+
+            if (isTargetTask) {
+                enabled = gmsEnabled
+            }
+        }
+    }
+}

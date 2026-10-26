@@ -1,0 +1,1431 @@
+/*
+ * ImageToolbox is an image editor for android
+ * Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * You should have received a copy of the Apache License
+ * along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
+ */
+
+@file:Suppress("FunctionName")
+
+package com.t8rin.imagetoolbox.feature.ai_tools.domain.model
+
+import com.t8rin.imagetoolbox.core.domain.HF_BASE_URL
+import com.t8rin.imagetoolbox.core.resources.R
+
+data class NeuralModel(
+    val downloadLink: String,
+    val name: String = downloadLink.substringAfterLast("/"),
+    val title: String,
+    val description: Int?,
+    val type: Type?,
+    val speed: Speed?,
+    val downloadSize: Long,
+    val checksum: String,
+    val aiDetectionContract: AiDetectionContract? = null
+) {
+    val isStyleTransfer = type == Type.STYLE_TRANSFER
+    val isOptimizationStyleTransfer = name == OPTIMIZATION_STYLE_TRANSFER_MODEL_NAME
+    // Viper Vision: CodeFormer (FaceFusion's ONNX) is a face restorer too.
+    val isFaceRestoration = name == "gfpgan_v1.4.onnx" || name == "codeformer.onnx"
+    val isCodeFormer = name == "codeformer.onnx"
+    val supportsStrength = name.contains("fbcnn_", true) || isStyleTransfer || isFaceRestoration
+    val isImported = downloadLink == "imported"
+
+    val isWatermarkRemover = name == WATERMARK_REMOVER_MODEL_NAME
+    val isUvDocUnwarper = name == "uvdoc_grid.onnx"
+    val isDocShadow = name == "docshadow_sd7k.onnx"
+    val isAiDetector = type == Type.AI_DETECTION && aiDetectionContract != null
+
+    val isNonChunkable =
+        name.contains("ddcolor") || type == Type.REMOVE_BG || isWatermarkRemover ||
+                isUvDocUnwarper || isStyleTransfer || type == Type.DEPTH || isAiDetector ||
+                isDocShadow || isFaceRestoration || name == "dehazeformer_t.onnx"
+
+    val pointerLink: String = downloadLink.replace("/resolve/", "/blob/")
+
+    enum class Type {
+        UPSCALE, REMOVE_BG, COLORIZE, DE_JPEG, DENOISE, ARTIFACTS, ENHANCE, ANIME, SCANS,
+        STYLE_TRANSFER, DEPTH, AI_DETECTION
+    }
+
+    sealed interface Speed {
+        val speedValue: Float
+
+        fun clone(value: Float): Speed = when (this) {
+            is Fast -> copy(speedValue = value)
+            is Normal -> copy(speedValue = value)
+            is Slow -> copy(speedValue = value)
+            is VeryFast -> copy(speedValue = value)
+            is VerySlow -> copy(speedValue = value)
+        }
+
+        data class VeryFast(override val speedValue: Float) : Speed
+        data class Fast(override val speedValue: Float) : Speed
+        data class Normal(override val speedValue: Float) : Speed
+        data class Slow(override val speedValue: Float) : Speed
+        data class VerySlow(override val speedValue: Float) : Speed
+
+        companion object {
+            val entries by lazy {
+                listOf(
+                    VeryFast(0f),
+                    Fast(0f),
+                    Normal(0f),
+                    Slow(0f),
+                    VerySlow(0f)
+                )
+            }
+        }
+    }
+
+    companion object {
+        private const val WATERMARK_REMOVER_MODEL_NAME = "watermark_mit_b5_sigmoid.onnx"
+
+        private const val OPTIMIZATION_STYLE_TRANSFER_MODEL_NAME =
+            "vgg19_optimization_style_transfer_onnx.zip"
+
+        val entries: List<NeuralModel> by lazy {
+            listOf(
+                NeuralModel(
+                    downloadLink = res("gfpgan_v1.4.onnx"),
+                    title = "GFPGAN v1.4",
+                    description = R.string.model_gfpgan,
+                    type = Type.ENHANCE,
+                    downloadSize = 340_358_310,
+                    speed = Speed.Normal(2.252f),
+                    checksum = "45e9e0e4ec9cdf15e8649b6cfc6a18d7253df5059c87e002a6a0b76dee782b79"
+                ),
+                NeuralModel(
+                    downloadLink = res("dehazeformer_t.onnx"),
+                    title = "DehazeFormer-T",
+                    description = R.string.model_dehazeformer,
+                    type = Type.ENHANCE,
+                    downloadSize = 3_125_722,
+                    speed = Speed.VeryFast(0.833f),
+                    checksum = "bba9008d0d5cd82b41125fce5b55a388d4a135eac61afd62ff36772e328306f2"
+                ),
+                NeuralModel(
+                    downloadLink = res("scans/docshadow_sd7k.onnx"),
+                    title = "DocShadow SD7K",
+                    description = R.string.model_docshadow,
+                    type = Type.SCANS,
+                    downloadSize = 120_041_674,
+                    speed = Speed.VeryFast(0.604f),
+                    checksum = "8c09b9320a0fb3c53806cdf9cb8410b3706c77caed81f4ec1cb0bf2cbd14b049"
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_mirage_siglip2_base_fp16.onnx"),
+                    title = "Mirage SigLIP2 Base (FP16)",
+                    description = R.string.model_ai_detector_mirage,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 172_999_176,
+                    speed = Speed.VeryFast(0.059f),
+                    checksum = "ed37099bc56b5fdece9012986b147caf72c63bf63cf0d469a9dd0fdd96bdc0b0",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.5f, 0.5f, 0.5f),
+                        std = RgbValues(0.5f, 0.5f, 0.5f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(1)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_mirage_siglip2_base_fp32.onnx"),
+                    title = "Mirage SigLIP2 Base (FP32)",
+                    description = R.string.model_ai_detector_mirage_fp32,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 344_590_299,
+                    speed = Speed.VeryFast(0.029f),
+                    checksum = "2f42b7beebe11b6470d0066726083edad90cd08141b42ac045d69dc8cc9e564f",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.5f, 0.5f, 0.5f),
+                        std = RgbValues(0.5f, 0.5f, 0.5f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(1)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_lpx_swinv2_large_fp32.onnx"),
+                    title = "LPX AI Detector SwinV2 Large",
+                    description = R.string.model_ai_detector_lpx_swinv2,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 904_854_552,
+                    speed = Speed.VerySlow(0.451f),
+                    checksum = "a2346d0e9f56d2d1593ba76758988b4e8da4e65a5bc65e7c3cf9798a86c9a2bf",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 256,
+                        mean = RgbValues(0.485f, 0.456f, 0.406f),
+                        std = RgbValues(0.229f, 0.224f, 0.225f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(0)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_convnext_tiny_fp32.onnx"),
+                    title = "ConvNeXT Tiny AI Detector",
+                    description = R.string.model_ai_detector_convnext,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 111_372_433,
+                    speed = Speed.VeryFast(0.070f),
+                    checksum = "fa1a4cc62639a1d2c8020a46dca21810f50766b9f961ac2e497c0908ab4a4110",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        resizeSize = 256,
+                        resizeMode = AiDetectionContract.ResizeMode.ShortestSideCenterCrop,
+                        mean = RgbValues(0.485f, 0.456f, 0.406f),
+                        std = RgbValues(0.229f, 0.224f, 0.225f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(0)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_resnet50_fp32.onnx"),
+                    title = "ResNet-50 AI Detector",
+                    description = R.string.model_ai_detector_resnet,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 93_978_312,
+                    speed = Speed.VeryFast(0.046f),
+                    checksum = "ce8e30aebdad71e7a6b55d1ce08ff25496d1be3207bfd1dbd7285d8133a102ee",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        resizeSize = 256,
+                        resizeMode = AiDetectionContract.ResizeMode.ShortestSideCenterCrop,
+                        mean = RgbValues(0.485f, 0.456f, 0.406f),
+                        std = RgbValues(0.229f, 0.224f, 0.225f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(0)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_ai_vs_deepfake_vs_real_fp32.onnx"),
+                    title = "AI vs Deepfake vs Real",
+                    description = R.string.model_ai_detector_ai_vs_deepfake,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 343_417_229,
+                    speed = Speed.Normal(0.178f),
+                    checksum = "6ce5eb048dbf95c9702525abc24db5a38030221754024e0e1e31fdebc6c512b1",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.5f, 0.5f, 0.5f),
+                        std = RgbValues(0.5f, 0.5f, 0.5f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(0, 1)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_capcheck_vit_base_fp32.onnx"),
+                    title = "CapCheck AI Image Detection",
+                    description = R.string.model_ai_detector_capcheck,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 343_401_688,
+                    speed = Speed.Fast(0.136f),
+                    checksum = "44cb205f596f2530686bf4895e3678f08f9483c926b6bdc0e02998d5b54978a2",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.5f, 0.5f, 0.5f),
+                        std = RgbValues(0.5f, 0.5f, 0.5f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(1)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_deepfake_v2_vit_base_fp32.onnx"),
+                    title = "Deep Fake Detector V2",
+                    description = R.string.model_ai_detector_deepfake_v2,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 343_401_688,
+                    speed = Speed.Fast(0.144f),
+                    checksum = "2e0662a81744aca769e240fd1daa3f44225c50d0565fd8fb8f702d1f26609c91",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.5f, 0.5f, 0.5f),
+                        std = RgbValues(0.5f, 0.5f, 0.5f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(1)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_distilled_vit_small_fp32.onnx"),
+                    title = "AI Image Detect Distilled",
+                    description = R.string.model_ai_detector_distilled,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 58_410_332,
+                    speed = Speed.VeryFast(0.041f),
+                    checksum = "87b4331f22418a4cb50901851a1c28f64a0ca4f58728442d073b4bed9922ba86",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.5f, 0.5f, 0.5f),
+                        std = RgbValues(0.5f, 0.5f, 0.5f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(0)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_community_forensics_vit_small_384_fp32.onnx"),
+                    title = "Community Forensics ViT-S/384",
+                    description = R.string.model_ai_detector_community_forensics,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 143_845_409,
+                    speed = Speed.Slow(0.214f),
+                    checksum = "55602c73f457858f0b48c19bfa03bc6bd218f37027cb1f6b569ee24e2f954d03",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 384,
+                        resizeSize = 440,
+                        resizeMode = AiDetectionContract.ResizeMode.ShortestSideCenterCrop,
+                        mean = RgbValues(0.48145467f, 0.4578275f, 0.40821072f),
+                        std = RgbValues(0.26862955f, 0.2613026f, 0.2757771f),
+                        output = AiDetectionContract.Output.Sigmoid
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("detectors/ai_detector_smogy_swin_base_fp32.onnx"),
+                    title = "SMOGY Swin Base",
+                    description = R.string.model_ai_detector_smogy,
+                    type = Type.AI_DETECTION,
+                    downloadSize = 351_983_641,
+                    speed = Speed.Fast(0.153f),
+                    checksum = "51bd73cb17e68cde821eda4b978ef63b3ae4063e25b79a2c99bf84399988ea39",
+                    aiDetectionContract = AiDetectionContract(
+                        inputSize = 224,
+                        mean = RgbValues(0.485f, 0.456f, 0.406f),
+                        std = RgbValues(0.229f, 0.224f, 0.225f),
+                        output = AiDetectionContract.Output.Softmax(
+                            aiClassIndices = listOf(0)
+                        )
+                    )
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v2_vits_q4.onnx"),
+                    title = "Depth Anything V2 Small (Q4)",
+                    description = R.string.model_depth_anything_v2_small,
+                    type = Type.DEPTH,
+                    downloadSize = 27_404_416,
+                    speed = Speed.Normal(2.537f),
+                    checksum = "5d55b02762e1907589158af3e366bd61ddf648155852a07bbf5e3a074639fcf8"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v2_vits_fp32.onnx"),
+                    title = "Depth Anything V2 Small (FP32)",
+                    description = R.string.model_depth_anything_v2_small_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 99_060_839,
+                    speed = Speed.Normal(4.917f),
+                    checksum = "afb6a5c28f3b6bf1618c6e43f02073ef9dfdc70e937502d51603e57b0a1df10c"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v2_vitb_q4.onnx"),
+                    title = "Depth Anything V2 Base (Q4)",
+                    description = R.string.model_depth_anything_v2_base,
+                    type = Type.DEPTH,
+                    downloadSize = 102_269_714,
+                    speed = Speed.Slow(8.147f),
+                    checksum = "af9d3df88b2a0776a5c512bd98f4c1d94cc1328b6334745b196de38b0da2468d"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v2_vitb_fp32.onnx"),
+                    title = "Depth Anything V2 Base (FP32)",
+                    description = R.string.model_depth_anything_v2_base_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 388_917_010,
+                    speed = Speed.Slow(15.761f),
+                    checksum = "dab40f67d5ead5e0ed52acfae41a717a708b02bc57f6cb761c5de828f26a7289"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v2_vitl_q4.onnx"),
+                    title = "Depth Anything V2 Large (Q4)",
+                    description = R.string.model_depth_anything_v2_large,
+                    type = Type.DEPTH,
+                    downloadSize = 317_720_789,
+                    speed = Speed.VerySlow(25.274f),
+                    checksum = "995173eacf031473a88682e0f5d5c3c984c64a270ca6e669228dc790b0448ce0"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v2_vitl_fp32.onnx"),
+                    title = "Depth Anything V2 Large (FP32)",
+                    description = R.string.model_depth_anything_v2_large_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 1_336_922_232,
+                    speed = Speed.VerySlow(49.386f),
+                    checksum = "a93aa89b5e92e30e0afbe0f7c3ec692b35cfca791ae9004a190fb0ca2010e905"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_small_int8.onnx"),
+                    title = "Depth Anything 3 Small (INT8)",
+                    description = R.string.model_depth_anything_v3_small,
+                    type = Type.DEPTH,
+                    downloadSize = 28_941_058,
+                    speed = Speed.Normal(4.183f),
+                    checksum = "b6eaf064414e1474c88ca58cdafe414771e058996b99ea58e694e256e8738b43"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_small_fp32.onnx"),
+                    title = "Depth Anything 3 Small (FP32)",
+                    description = R.string.model_depth_anything_v3_small_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 105_329_872,
+                    speed = Speed.Normal(5.947f),
+                    checksum = "b622801c69643a7e32fafbba4190b3c6de0a3f06b6d8cc566d4a582035003b65"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_base_int4.onnx"),
+                    title = "Depth Anything 3 Base (INT4)",
+                    description = R.string.model_depth_anything_v3_base,
+                    type = Type.DEPTH,
+                    downloadSize = 118_091_821,
+                    speed = Speed.Slow(12.443f),
+                    checksum = "dc4630d051cd8492431ff11f6d8ea440181a98e5a765442198d2b99c694ee0d3"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_base_fp32.onnx"),
+                    title = "Depth Anything 3 Base (FP32)",
+                    description = R.string.model_depth_anything_v3_base_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 412_701_787,
+                    speed = Speed.Slow(19.682f),
+                    checksum = "10d93bf3dfe27d0c5f47f6774dd1c14ae9c4c2d1165a0182d44833b3f518e198"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_large_int4.onnx"),
+                    title = "Depth Anything 3 Large (INT4)",
+                    description = R.string.model_depth_anything_v3_large,
+                    type = Type.DEPTH,
+                    downloadSize = 306_328_602,
+                    speed = Speed.VerySlow(35.718f),
+                    checksum = "133787b3e634e9a24d5547494d3ead64d217ba79f3431178ecf033c15d8ff7a9"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_large_fp32.onnx"),
+                    title = "Depth Anything 3 Large (FP32)",
+                    description = R.string.model_depth_anything_v3_large_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 1_382_809_180,
+                    speed = Speed.VerySlow(58.241f),
+                    checksum = "a8d5ddab18bc2c2974d8359c06b582a6e78938e5a2e6be6d5c1712d51b7701bb"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_mono_large_q4.onnx"),
+                    title = "Depth Anything 3 Mono Large (Q4)",
+                    description = R.string.model_depth_anything_v3_mono_large,
+                    type = Type.DEPTH,
+                    downloadSize = 292_902_819,
+                    speed = Speed.VerySlow(31.684f),
+                    checksum = "153ccf2305e05a8ed9548b5beae843f9ff4242ab9f37c19d3f0ad658abec6dbb"
+                ),
+                NeuralModel(
+                    downloadLink = res("depth/depth_anything_v3_mono_large_fp32.onnx"),
+                    title = "Depth Anything 3 Mono Large (FP32)",
+                    description = R.string.model_depth_anything_v3_mono_large_fp32,
+                    type = Type.DEPTH,
+                    downloadSize = 1_340_744_258,
+                    speed = Speed.VerySlow(46.927f),
+                    checksum = "4f251eb04cc30d00cdea29a09656acb0ff42e27689ca65a3b292c2ec5718cfa0"
+                ),
+                NeuralModel(
+                    downloadLink = res("arbitrary_style_transfer_onnx.zip"),
+                    title = "Arbitrary Style Transfer",
+                    description = R.string.model_arbitrary_style_transfer,
+                    type = Type.STYLE_TRANSFER,
+                    downloadSize = 10_826_290,
+                    speed = Speed.Fast(0.953f),
+                    checksum = "f772d5af93a523949fc5e9ac44aadde4b42b11376608a046993644f65ef80e8f"
+                ),
+                NeuralModel(
+                    downloadLink = res("microast_style_transfer_onnx.zip"),
+                    title = "MicroAST",
+                    description = R.string.model_microast_style_transfer,
+                    type = Type.STYLE_TRANSFER,
+                    downloadSize = 1_764_122,
+                    speed = Speed.VeryFast(0.512f),
+                    checksum = "1129bbd19ec754d01405368b8583e669469a77ba3d771b8b93896586beaf52d2"
+                ),
+                NeuralModel(
+                    downloadLink = res("aesfa_style_transfer_onnx.zip"),
+                    title = "AesFA",
+                    description = R.string.model_aesfa_style_transfer,
+                    type = Type.STYLE_TRANSFER,
+                    downloadSize = 11_986_814,
+                    speed = Speed.Fast(1.514f),
+                    checksum = "efb744958b7adc29de1577b785d27c75929798aaa54b36f5adc2f608a136df51"
+                ),
+                NeuralModel(
+                    downloadLink = res(OPTIMIZATION_STYLE_TRANSFER_MODEL_NAME),
+                    title = "VGG19 Optimization",
+                    description = R.string.model_vgg19_optimization_style_transfer,
+                    type = Type.STYLE_TRANSFER,
+                    downloadSize = 47_994_728,
+                    speed = Speed.VerySlow(43.912f),
+                    checksum = "d1a4cd235ab08f2aa531f3a668f8e245bd0ad80caf4c444d597172142657a811"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/fbcnn/fbcnn_color_fp16.onnx"),
+                    title = "FBCNN Color",
+                    description = R.string.model_fbcnn_color_fp16,
+                    type = Type.DE_JPEG,
+                    downloadSize = 143910675,
+                    speed = Speed.Fast(2.003f),
+                    checksum = "1a678ff4f721b557fd8a7e560b99cb94ba92f201545c7181c703e7808b93e922"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/fbcnn/fbcnn_grey_fp16.onnx"),
+                    title = "FBCNN Grayscale",
+                    description = R.string.model_fbcnn_gray_fp16,
+                    type = Type.DE_JPEG,
+                    downloadSize = 143903294,
+                    speed = Speed.VeryFast(1.992f),
+                    checksum = "e220b9637a9f2c34a36c98b275b2c9d2b9c2c029e365be82111072376afbec54"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/fbcnn/fbcnn_gray_double_fp16.onnx"),
+                    title = "FBCNN Grayscale Strong",
+                    description = R.string.model_fbcnn_gray_double_fp16,
+                    type = Type.DE_JPEG,
+                    downloadSize = 143903294,
+                    speed = Speed.VeryFast(1.934f),
+                    checksum = "17feadd8970772f5ff85596cb9fb152ae3c2b82bca4deb52a7c8b3ecb2f7ac14"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_color-GAN.onnx"),
+                    title = "SCUNet Color GAN",
+                    description = R.string.model_scunet_color_gan_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 91264256,
+                    speed = Speed.Fast(2.715f),
+                    checksum = "79ae6073c91c2d25d1f199137a67c8d0f0807df27219cdd7d890f3cc6d5b43e7"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_color-PSNR.onnx"),
+                    title = "SCUNet Color PSNR",
+                    description = R.string.model_scunet_color_psnr_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 91264256,
+                    speed = Speed.Fast(2.633f),
+                    checksum = "b0f8c12f1575bb49e39a85924152f1c6d4b527a4aae0432c9e5c7397123465e3"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_gray_15_fp16.onnx"),
+                    title = "SCUNet Grayscale 15",
+                    description = R.string.model_scunet_gray_15_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 37741895,
+                    speed = Speed.Fast(3.048f),
+                    checksum = "8e8740cea4306c9a61215194f315e5c0dc9e06c726a9ddea77d978d804da7663"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_gray_25_fp16.onnx"),
+                    title = "SCUNet Grayscale 25",
+                    description = R.string.model_scunet_gray_25_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 37741895,
+                    speed = Speed.Fast(3.033f),
+                    checksum = "dec631fbdca7705bbff1fc779cf85a657dcb67f55359c368464dd6e734e1f2b7"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_gray_50_fp16.onnx"),
+                    title = "SCUNet Grayscale 50",
+                    description = R.string.model_scunet_gray_50_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 37741895,
+                    speed = Speed.Fast(3.058f),
+                    checksum = "48b7d07229a03d98b892d2b33aa4c572ea955301772e7fcb5fd10723552a1874"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_color_15_fp16.onnx"),
+                    title = "SCUNet Color 15",
+                    description = R.string.model_scunet_color_15_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 42555584,
+                    speed = Speed.Fast(7.095f),
+                    checksum = "25a3a07de278867df9d29e9d08fe555523bb0f9f78f8956c4af943a4eeb8c934"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_color_25_fp16.onnx"),
+                    title = "SCUNet Color 25",
+                    description = R.string.model_scunet_color_25_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 42555584,
+                    speed = Speed.Fast(6.994f),
+                    checksum = "34d25ec2187d24f9f25b9dc9d918e94e87217c129471adda8c9fdf2e5a1cb62a"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/scunet/scunet_color_50_fp16.onnx"),
+                    title = "SCUNet Color 50",
+                    description = R.string.model_scunet_color_50_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 42555584,
+                    speed = Speed.Normal(7.229f),
+                    checksum = "1c6bdc6d9e0c1dea314cf22d41c261d4c744bf0ae1ae6c59b9505c4b4d50febb"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1x-AnimeUndeint-Compact-fp16.onnx"),
+                    title = "Anime Undeint",
+                    description = R.string.model_anime_undeint,
+                    type = Type.ANIME,
+                    downloadSize = 2391605,
+                    speed = Speed.VeryFast(0.497f),
+                    checksum = "e2927fe5c09ad61975bfa52f7a879e3cf044a190d5b25f147a363540cd00ccd3"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1x-BroadcastToStudio_Compact-fp16.onnx"),
+                    title = "Broadcast To Studio",
+                    description = R.string.model_broadcast,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 1200682,
+                    speed = Speed.VeryFast(0.625f),
+                    checksum = "52836c782140058bcc695e90102c3ef54961ebab2c12e66298eaba25d42570bc"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1x-RGB-max-Denoise-fp16.onnx"),
+                    title = "RGB Max Denoise",
+                    description = R.string.model_rgb_max_denoise_fp16,
+                    type = Type.DENOISE,
+                    downloadSize = 310212,
+                    speed = Speed.VeryFast(0.172f),
+                    checksum = "1bb02e6444f306fd8ad17758ed474f6e21b909cceda1cba9606b6e923f65a102"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1x-WB-Denoise-fp16.onnx"),
+                    title = "WB Denoise",
+                    description = R.string.model_wb_denoise,
+                    type = Type.DENOISE,
+                    downloadSize = 310212,
+                    speed = Speed.VeryFast(0.177f),
+                    checksum = "50978ca2777b5720d1d57c8f284d5274c96746c8721c3c2fdccb1dfcea823af1"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1x-span-anime-pretrain-fp16.onnx"),
+                    title = "SPAN Anime Pretrain",
+                    description = R.string.model_span_anime_pretrain,
+                    type = Type.ANIME,
+                    downloadSize = 825768,
+                    speed = Speed.VeryFast(0.399f),
+                    checksum = "1311da8ad10af1d763b6b22797150429b377f36dda1fb26af5e3ec9bcc2701d2"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1xBook-Compact-fp16.onnx"),
+                    title = "Book Scan",
+                    description = R.string.model_book_scan,
+                    type = Type.SCANS,
+                    downloadSize = 1200682,
+                    speed = Speed.VeryFast(0.452f),
+                    checksum = "7305ec3a592c5209fc2887d1f12d9b79163fca37020a719f55c83344effdb3c0"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/nanomodels/1xOverExposureCorrection_compact-fp16.onnx"),
+                    title = "Overexposure Correction",
+                    description = R.string.model_overexposure,
+                    type = Type.ENHANCE,
+                    downloadSize = 2391605,
+                    speed = Speed.VeryFast(0.492f),
+                    checksum = "8fef8e73062d2eff56aacea17caa1162b094a8c8a8010f51084c7e2cf9403ded"
+                ),
+                NeuralModel(
+                    downloadLink = res("zero_dcepp.onnx"),
+                    title = "Zero-DCE++",
+                    description = R.string.model_zero_dcepp,
+                    type = Type.ENHANCE,
+                    downloadSize = 52261,
+                    speed = Speed.VeryFast(0.002f),
+                    checksum = "8a78b1d5dd66dae64a12b87e9908215d70fc9ae941dd55006b2beebdf9c510a3"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-Anti-Aliasing-fp16.onnx"),
+                    title = "Anti-Aliasing",
+                    description = R.string.model_antialias,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(14.806f),
+                    checksum = "acd4f12a59ec606772df496f422e27099d629316671b41793b7362e6e13fe8dd"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_ColorizerV2_22000G-fp16.onnx"),
+                    title = "Colorizer",
+                    description = R.string.model_colorizer,
+                    type = Type.COLORIZE,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(15.125f),
+                    checksum = "c42520288f29a61d85107439ffea4a755129cb2f3eddfabb396598dc5d867f40"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_DeSharpen-fp16.onnx"),
+                    title = "DeSharpen",
+                    description = R.string.model_desharpen,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.VerySlow(15.593f),
+                    checksum = "3c08f894e9b05bba52f3b10cf1fb712a2370a5f352b88c3cdb246a3c295c6531"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_DeEdge-fp16.onnx"),
+                    title = "DeEdge",
+                    description = R.string.model_deedge,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(14.099f),
+                    checksum = "ead4873ec5f6870343e7dbe121f3054335941b12cf6fa4d0b54010c2cc3c0675"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_GainresV4-fp16.onnx"),
+                    title = "GainRes",
+                    description = R.string.model_gainres,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(14.415f),
+                    checksum = "a23d8157c6f809492ebbdd42632b865ce3e6c360221e7195aecc519ce610f3ac"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-DeBink-v4.onnx"),
+                    title = "DeBink v4",
+                    description = R.string.model_debink_v4,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(12.947f),
+                    checksum = "be52e251dff5a0c4504c559bb84d1b611c2e809edc99f1c261db646cd89a12fb"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-DeBink-v5.onnx"),
+                    title = "DeBink v5",
+                    description = R.string.model_debink_v5,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(13.597f),
+                    checksum = "f545222af1655b96f5b2aa3d46c40d8f256937cd2cbc2f77a6f89f29abf01e46"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-DeBink-v6.onnx"),
+                    title = "DeBink v6",
+                    description = R.string.model_debink_v6,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(13.789f),
+                    checksum = "e1c216804795a061218aa29617db52b91fb741c92bb00691da7caf9a64ef4f18"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-KDM003-scans-fp16.onnx"),
+                    title = "KDM003 Scans",
+                    description = R.string.model_kdm003_scans,
+                    type = Type.SCANS,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(14.948f),
+                    checksum = "85c740d5bdf8aa714b5b53eea1aa67c4c9e5483652702a31779a10f7a2ec9e45"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-NMKD-Jaywreck3-Lite-fp16.onnx"),
+                    title = "NMKD Jaywreck3 Lite",
+                    description = R.string.model_nmkd_jaywreck3_lite,
+                    type = Type.ENHANCE,
+                    downloadSize = 10114140,
+                    speed = Speed.Fast(4.896f),
+                    checksum = "4f72d8532e0632e87bcb0d03ff611bdac348e615873bb7c990c6291b0f08a495"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-SpongeColor-Lite-fp16.onnx"),
+                    title = "SpongeColor Lite",
+                    description = R.string.model_spongecolor_lite,
+                    type = Type.COLORIZE,
+                    downloadSize = 10112988,
+                    speed = Speed.Fast(4.731f),
+                    checksum = "c0b9df99d0cb0857eb96e0f8fb718c9010c2eeab9c30c17b0deacee79e2d2851"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-cinepak-fp16.onnx"),
+                    title = "Cinepak",
+                    description = R.string.model_cinepak,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.VerySlow(15.515f),
+                    checksum = "55cd3df1d3700dd31f09309beedce65f4d178d4b6e7777ecce05818bb60a2c67"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_BCGone-DetailedV2_40-60_115000_G-fp16.onnx"),
+                    title = "BCGone Detailed V2",
+                    description = R.string.model_bcgone_detailed_v2,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(14.694f),
+                    checksum = "a5237ef67f250871626020af3fc817bb6647888886cfc5b82a8e49718e52d3f4"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_BCGone_Smooth_110000_G-fp16.onnx"),
+                    title = "BCGone Smooth",
+                    description = R.string.model_bcgone_smooth,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.VerySlow(15.44f),
+                    checksum = "597ac90e1cc3105631b3a06c354cf055f1bccdfc440e4fdfe069918d228c3cdf"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_Bandage-Smooth-fp16.onnx"),
+                    title = "Bandage Smooth",
+                    description = R.string.model_bandage_smooth,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(15.176f),
+                    checksum = "40f98955aba23e2360b7f9f2e800e896be0d6a8071a3ff0a4bbb6cf24cd8656d"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_Bendel_Halftone-fp32.onnx"),
+                    title = "Bendel Halftone",
+                    description = R.string.model_bendel_halftone,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 8660947,
+                    speed = Speed.Fast(4.019f),
+                    checksum = "6982ab0c770ac4c210dd6df435c96aca609dfbec8745d8ff6c57db6bae88eead"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_DitherDeleterV3-Smooth-fp16.onnx"),
+                    title = "Dither Deleter V3 Smooth",
+                    description = R.string.model_dither_deleter_v3_smooth,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.VerySlow(15.618f),
+                    checksum = "55b0189c77caa8aa848d8b4c1dbf737a265d2a22f3ad0ea3805d9d6fc0881b3b"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_JPEGDestroyerV2_96000G-fp16.onnx"),
+                    title = "JPEG Destroyer V2",
+                    description = R.string.model_jpeg_destroyer_v2,
+                    type = Type.DE_JPEG,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(14.9f),
+                    checksum = "96734e021e1b616ab3e74376244895bbeed118e454e051a548f5b98a113305c9"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NMKD-h264Texturize-fp16.onnx"),
+                    title = "NMKD H264 Texturize",
+                    description = R.string.model_nmkd_h264_texturize,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(14.886f),
+                    checksum = "4291323f8f4eee0623d9c01416cb8f918b61285b6e4f4112f0dfc341c0f39397"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/VHS-Sharpen-1x_46000_G-fp16.onnx"),
+                    title = "VHS Sharpen",
+                    description = R.string.model_vhs_sharpen,
+                    type = Type.ENHANCE,
+                    downloadSize = 33456842,
+                    speed = Speed.Slow(15.192f),
+                    checksum = "6d69cc4fb4fdcc34dd779a95032ddf5f32e99d5399c9dffcd557c0c3859ab866"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_artifacts_dithering_alsa-fp16.onnx"),
+                    title = "Artifacts Dithering ALSA",
+                    description = R.string.model_artifacts_dithering_alsa,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33421271,
+                    speed = Speed.VerySlow(15.392f),
+                    checksum = "668bf366457c774e10cb46a756bf9744165c53671180969d4bab47ce935cd520"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NMKD-BrightenRedux_200k-fp16.onnx"),
+                    title = "NMKD Brighten Redux",
+                    description = R.string.model_nmkd_brighten_redux,
+                    type = Type.ENHANCE,
+                    downloadSize = 33421271,
+                    speed = Speed.Slow(14.863f),
+                    checksum = "93f50904fa78948da69ff541b42fd9ce3e0fa096d87ca22f1f2f0ebb929f1c76"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_nmkdbrighten_10000_G-fp16.onnx"),
+                    title = "NMKD Brighten",
+                    description = R.string.model_nmkd_brighten,
+                    type = Type.ENHANCE,
+                    downloadSize = 33421271,
+                    speed = Speed.Slow(14.803f),
+                    checksum = "e1c354370c04bc0433bdb54fc81898c1ade0c2db02cc02878a58aac6195c7f52"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NMKDDetoon_97500_G-fp16.onnx"),
+                    title = "NMKD Detoon",
+                    description = R.string.model_nmkd_detoon,
+                    type = Type.ENHANCE,
+                    downloadSize = 33421271,
+                    speed = Speed.Slow(14.817f),
+                    checksum = "b75acf61a6067777dc591cb31c77a79fb73db3b72468796d69ceec73e58ac32d"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NoiseToner-Poisson-Detailed_108000_G-fp16.onnx"),
+                    title = "Noise Toner Poisson Detailed",
+                    description = R.string.model_noise_toner_poisson_detailed,
+                    type = Type.DENOISE,
+                    downloadSize = 33421271,
+                    speed = Speed.Normal(14.463f),
+                    checksum = "ed6bb382f71385032df8fcf16ea0a1d0469de801338ed32abcc5a01557944460"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NoiseToner-Poisson-Soft_101000_G-fp16.onnx"),
+                    title = "Noise Toner Poisson Soft",
+                    description = R.string.model_noise_toner_poisson_soft,
+                    type = Type.DENOISE,
+                    downloadSize = 33421271,
+                    speed = Speed.Normal(14.606f),
+                    checksum = "e4d18cc399e4fbf2b5239b00b640c8ff0e80811bf88ded7f151eec6760eb0471"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NoiseToner-Uniform-Detailed_100000_G-fp16.onnx"),
+                    title = "Noise Toner Uniform Detailed",
+                    description = R.string.model_noise_toner_uniform_detailed,
+                    type = Type.DENOISE,
+                    downloadSize = 33421271,
+                    speed = Speed.Normal(14.802f),
+                    checksum = "e5602a5e1aabb8ec6ee98969d834224ac1b4b366f89a4ec26b3fae93077a4dbf"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_NoiseToner-Uniform-Soft_100000_G-fp16.onnx"),
+                    title = "Noise Toner Uniform Soft",
+                    description = R.string.model_noise_toner_uniform_soft,
+                    type = Type.DENOISE,
+                    downloadSize = 33421271,
+                    speed = Speed.Slow(15.001f),
+                    checksum = "54622791711ab457565fa0a750f668f209171a0194d0f94c206243d9a649f797"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_Repainter_20000_G-fp16.onnx"),
+                    title = "Repainter",
+                    description = R.string.model_repainter,
+                    type = Type.ENHANCE,
+                    downloadSize = 33421271,
+                    speed = Speed.Normal(14.775f),
+                    checksum = "202fdce20d84ab0da25ea0d348d2f2c29546a28509e778ef8d699fb82fcf873d"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-Debandurh-FS-Ultra-lite-fp16.onnx"),
+                    title = "Debandurh FS Ultra Lite",
+                    description = R.string.model_debandurh_fs_ultra_lite,
+                    type = Type.ENHANCE,
+                    downloadSize = 1371141,
+                    speed = Speed.VeryFast(0.741f),
+                    checksum = "6aef5e015176c48984db80e95c31539d0d1e2c1fef9bac04b335253ce372b8a9"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_JPEG_00-20.ort"),
+                    title = "JPEG 0-20",
+                    description = R.string.model_jpeg_0_20,
+                    type = Type.DE_JPEG,
+                    downloadSize = 35277480,
+                    speed = Speed.VerySlow(15.994f),
+                    checksum = "9230d501dc34fd6ef3c6dcc7640df95c20627482ff93cb236a93060bd0c9826b"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_JPEG_20-40.ort"),
+                    title = "JPEG 20-40",
+                    description = R.string.model_jpeg_20_40,
+                    type = Type.DE_JPEG,
+                    downloadSize = 35277488,
+                    speed = Speed.VerySlow(15.754f),
+                    checksum = "bbdbd9cdb86d56a5a88b0ccf8ad833d6a1ebfc4202cc25c6d139bb09a6a2535d"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_JPEG_40-60.ort"),
+                    title = "JPEG 40-60",
+                    description = R.string.model_jpeg_40_60,
+                    type = Type.DE_JPEG,
+                    downloadSize = 35277480,
+                    speed = Speed.VerySlow(15.959f),
+                    checksum = "dc248a7166cbcdcf8577d6cbd80a6d8aab3a3a7c9e2ebda29341353b4050664b"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_JPEG_60-80.ort"),
+                    title = "JPEG 60-80",
+                    description = R.string.model_jpeg_60_80,
+                    type = Type.DE_JPEG,
+                    downloadSize = 35277488,
+                    speed = Speed.Normal(14.307f),
+                    checksum = "21ece5396cf88f39f35a264000baf2ff2ec084ca7fd41b125759d845b1bfb9c3"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_JPEG_80-100.ort"),
+                    title = "JPEG 80-100",
+                    description = R.string.model_jpeg_80_100,
+                    type = Type.DE_JPEG,
+                    downloadSize = 35277488,
+                    speed = Speed.Slow(15.018f),
+                    checksum = "1041060d1d151150e14e8d51c65cd5f6608606bb4bf7ac6b5271ae074e5c3913"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_DeBLR.ort"),
+                    title = "DeBLR",
+                    description = R.string.model_deblr,
+                    type = Type.ENHANCE,
+                    downloadSize = 35277480,
+                    speed = Speed.VerySlow(16.079f),
+                    checksum = "261eb9690bc284d8cee5d81dd6156d92f9c3338c582019387a3852257c8a7b3a"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_artifacts_jpg_00_20_alsa-fp16.ort"),
+                    title = "JPEG Artifacts 0-20",
+                    description = R.string.model_artifacts_jpg_0_20,
+                    type = Type.DE_JPEG,
+                    downloadSize = 34729312,
+                    speed = Speed.Slow(15.041f),
+                    checksum = "8a416ffa7f1d78de7b3a8d211a123964b277fcb7c253f78b8e79970c7ed114bb"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_artifacts_jpg_20_40_alsa-fp16.ort"),
+                    title = "JPEG Artifacts 20-40",
+                    description = R.string.model_artifacts_jpg_20_40,
+                    type = Type.DE_JPEG,
+                    downloadSize = 34729312,
+                    speed = Speed.Normal(14.733f),
+                    checksum = "2abe485266cd1895e17b4166c5609f30a1d4d7283b9d8b2503c94f008a39244f"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_artifacts_jpg_40_60_alsa-fp16.ort"),
+                    title = "JPEG Artifacts 40-60",
+                    description = R.string.model_artifacts_jpg_40_60,
+                    type = Type.DE_JPEG,
+                    downloadSize = 34729312,
+                    speed = Speed.Slow(14.973f),
+                    checksum = "bd0116861368b83a459af687308a8acd7dc4c89aa8ba5c3dab76adb67ef9002f"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_artifacts_jpg_60_80_alsa-fp16.ort"),
+                    title = "JPEG Artifacts 60-80",
+                    description = R.string.model_artifacts_jpg_60_80,
+                    type = Type.DE_JPEG,
+                    downloadSize = 34729312,
+                    speed = Speed.Normal(14.572f),
+                    checksum = "5282f04a4520bcff4882836d134e99dbfc207f7fcaf4bf9166a99d623f579f4e"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_artifacts_jpg_80_100_alsa-fp16.ort"),
+                    title = "JPEG Artifacts 80-100",
+                    description = R.string.model_artifacts_jpg_80_100,
+                    type = Type.DE_JPEG,
+                    downloadSize = 34729312,
+                    speed = Speed.VerySlow(15.404f),
+                    checksum = "8d11451909d9318f54e1b292c0bf901856633bce835ee838bbcf4bfaf5cd174a"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_ReDetail_v2_126000_G-fp16.ort"),
+                    title = "ReDetail v2",
+                    description = R.string.model_redetail_v2,
+                    type = Type.ENHANCE,
+                    downloadSize = 34724216,
+                    speed = Speed.Slow(15.265f),
+                    checksum = "4a1790847f8e3b51ace425875abe928215d32e00d0b80af0ce90dd3481d6f272"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x-ITF-SkinDiffDetail-Lite-v1.ort"),
+                    title = "ITF Skin DiffDetail Lite",
+                    description = R.string.model_itf_skin_diffdetail_lite,
+                    type = Type.ENHANCE,
+                    downloadSize = 11070576,
+                    speed = Speed.Fast(5.138f),
+                    checksum = "813351fcee2447ff9037c86bf2807baee7a32be1db20352646c5a3eda8ced7b8"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_SBDV-DeJPEG-Lite_130000_G.ort"),
+                    title = "SBDV DeJPEG",
+                    description = R.string.model_sbdv_dejpeg,
+                    type = Type.DE_JPEG,
+                    downloadSize = 11070576,
+                    speed = Speed.Fast(5.158f),
+                    checksum = "3039271c69e3f5b3ca9af3673bea98749dffa9331930f88d057047b57d6001dc"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_ISO_denoise_v1.ort"),
+                    title = "ISO Denoise v1",
+                    description = R.string.model_iso_denoise_v1,
+                    type = Type.DENOISE,
+                    downloadSize = 35277480,
+                    speed = Speed.VerySlow(15.463f),
+                    checksum = "a16b9253a10a7e95aa10e451b2ad21b3d60124c1316ddaca746071f5843b312b"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/1x_DeJumbo.ort"),
+                    title = "DeJumbo",
+                    description = R.string.model_dejumbo,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 35277488,
+                    speed = Speed.VerySlow(15.717f),
+                    checksum = "17202a453ad7f7c89c6969d2dd0cd844b01f6685584876e54092e59f589ad180"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/other-models/ddcolor_paper_tiny.ort"),
+                    title = "DDColor Tiny",
+                    description = R.string.model_ddcolor_tiny,
+                    type = Type.COLORIZE,
+                    downloadSize = 220853232,
+                    speed = Speed.VeryFast(0.159f),
+                    checksum = "8186a8c21a5075c0c37860d7313043b6edb8a672067f73f3d8f5d362509f1bd3"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/RealESRGAN-x4v3.ort"),
+                    title = "RealESRGAN x4v3",
+                    description = R.string.model_realesrgan_x4v3,
+                    type = Type.UPSCALE,
+                    downloadSize = 2621440,
+                    speed = Speed.VeryFast(1.215f),
+                    checksum = "8dbd9c316f436c6e1d35a11ed29dbea0ce8f5b5b3ef082c9358ec93603a0398b"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/RealESRGAN_x2plus.ort"),
+                    title = "RealESRGAN x2 Plus",
+                    description = R.string.model_realesrgan_x2plus,
+                    type = Type.UPSCALE,
+                    downloadSize = 35456784,
+                    speed = Speed.Fast(4.437f),
+                    checksum = "cd6986ac4bd2d10d460c281dcd4f1df638fddb241f4810b53cb0eb98cfb420cd"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/RealESRGAN_x4plus.ort"),
+                    title = "RealESRGAN x4 Plus",
+                    description = R.string.model_realesrgan_x4plus,
+                    type = Type.UPSCALE,
+                    downloadSize = 35437480,
+                    speed = Speed.VerySlow(18.018f),
+                    checksum = "110818e1a29309d1da6087e8bbe201f50e43ea7679483ebca1df95ab333d2a66"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/RealESRGAN_x4plus_anime_6B.ort"),
+                    title = "RealESRGAN x4 Plus Anime 6B",
+                    description = R.string.model_realesrgan_x4plus_anime,
+                    type = Type.UPSCALE,
+                    downloadSize = 9488256,
+                    speed = Speed.Fast(5.793f),
+                    checksum = "e73004a743169923b28434b1487ed2f8c329fa99c057ffa15018502612b8bd36"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/RealESRNet_x4plus.ort"),
+                    title = "RealESRNet x4 Plus",
+                    description = R.string.model_realesrnet_x4plus,
+                    type = Type.UPSCALE,
+                    downloadSize = 35437480,
+                    speed = Speed.VerySlow(17.11f),
+                    checksum = "ed82b5cd61a6281db0eafa722c92803cecbf9eda8c88194c058e93e21407d38f"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/RealESRGAN_x4plus_anime_4B32F.ort"),
+                    title = "RealESRGAN x4 Plus Anime 4B",
+                    description = R.string.model_realesrgan_x4plus_anime_4b32f,
+                    type = Type.UPSCALE,
+                    downloadSize = 5241720,
+                    speed = Speed.VeryFast(1.534f),
+                    checksum = "ca05a00f6cb42fb1fdf03e3b132ae792a83d748fc8df0c0fa62f67e798385fd7"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/x4-UltraSharpV2_fp32_op17.ort"),
+                    title = "UltraSharp x4 V2",
+                    description = R.string.model_ultrasharp_v2_x4,
+                    type = Type.UPSCALE,
+                    downloadSize = 80518784,
+                    speed = Speed.VerySlow(36.695f),
+                    checksum = "6bbf8c91bced8c7c6fdacf841f34713b66b223fe5ccd5f579af04e077fa68302"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/enhance/upscale/x4-UltraSharpV2_Lite_fp16_op17.ort"),
+                    title = "UltraSharp x4 V2 Lite",
+                    description = R.string.model_ultrasharp_v2_lite_x4,
+                    type = Type.UPSCALE,
+                    downloadSize = 16055408,
+                    speed = Speed.Normal(7.718f),
+                    checksum = "f65092e0ee88c41bdbb1eb633aa4014479599228c150f796e85d429aea4d43a0"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/bgremove/RMBG_1.4.ort"),
+                    title = "RMBG 1.4",
+                    description = R.string.model_rmbg_1_4,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 88704616,
+                    speed = Speed.Normal(0.603f),
+                    checksum = "ecefc6e25e88a403762e74e2d112cd8f9dea4f4628c73f3da914ef169c91d86f"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/bgremove/inspyrenet.onnx"),
+                    title = "InSPyReNet",
+                    description = R.string.model_inspyrenet,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 395316574,
+                    speed = Speed.Slow(3.029f),
+                    checksum = "c108dd92b3ddfe3a2d9e9ac2b74730cc5acbb2ddc7ea863330c43f56ae832aa3"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/bgremove/u2net.onnx"),
+                    title = "U2Net",
+                    description = R.string.model_u2net,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 175997641,
+                    speed = Speed.Fast(0.19f),
+                    checksum = "8d10d2f3bb75ae3b6d527c77944fc5e7dcd94b29809d47a739a7a728a912b491"
+                ),
+                NeuralModel(
+                    downloadLink = res("onnx/bgremove/u2netp.onnx"),
+                    title = "U2NetP",
+                    description = R.string.model_u2netp,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 4574861,
+                    speed = Speed.VeryFast(0.074f),
+                    checksum = "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8"
+                ),
+                NeuralModel(
+                    downloadLink = res("ddcolor_modelscope.onnx"),
+                    title = "DDColor",
+                    description = R.string.model_ddcolor,
+                    type = Type.COLORIZE,
+                    downloadSize = 911801965,
+                    speed = Speed.VeryFast(0.362f),
+                    checksum = "cda896f3e61c0e489f2e11a657c6dfb711d0958364286335e3cd48fadbd621be"
+                ),
+                NeuralModel(
+                    downloadLink = res("ddcolor_artistic.onnx"),
+                    title = "DDColor Artistic",
+                    description = R.string.model_ddcolor_artistic,
+                    type = Type.COLORIZE,
+                    downloadSize = 911801965,
+                    speed = Speed.VeryFast(0.334f),
+                    checksum = "e7f6d8e48d609be3f2615b70637fbc7019cbad545038279a7ba26f229503d61c"
+                ),
+                NeuralModel(
+                    downloadLink = res("birefnet_swin_tiny.ort"),
+                    title = "BiRefNet",
+                    description = R.string.model_birefnet,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 247356800,
+                    speed = Speed.VerySlow(4.117f),
+                    checksum = "46512ae91e17171c09476e3154fa2f2f8b0a557b3c8e9c91c10d11f35bc3f70c"
+                ),
+                NeuralModel(
+                    downloadLink = res("modnet_portrait_matting.onnx"),
+                    title = "MODNet",
+                    description = R.string.model_modnet,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 25888640,
+                    speed = Speed.VeryFast(0.061f),
+                    checksum = "07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9"
+                ),
+                NeuralModel(
+                    downloadLink = res("isnet-general-use.onnx"),
+                    title = "ISNet",
+                    description = R.string.model_isnet,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 178647984,
+                    speed = Speed.Normal(0.573f),
+                    checksum = "4fcc3f7f7af1d16565dd7ec767e6e2500565ed6ba76c5c30b9934116ca32153e"
+                ),
+                NeuralModel(
+                    downloadLink = res(WATERMARK_REMOVER_MODEL_NAME),
+                    title = "Watermark Remover",
+                    description = R.string.model_watermark_remover,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 340_590_653,
+                    speed = Speed.Normal(8.324f),
+                    checksum = ""
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/1x-Fatality-DeBlur.onnx"),
+                    title = "Fatality DeBlur",
+                    description = R.string.model_fatality_deblur,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(11.609f),
+                    checksum = "ea7b0d0d873151265ed096a55f9911240a7ef0b66db419c6f6912f2cf0c94888"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/1x-UnResize-V3.onnx"),
+                    title = "UnResize V3",
+                    description = R.string.model_unresize_v3,
+                    type = Type.ARTIFACTS,
+                    downloadSize = 33456842,
+                    speed = Speed.Normal(12.356f),
+                    checksum = "f4d67d604a8cc3fb184a662f3e2fe427a80cef444e87870be8b8eedfda774fd2"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/2xLiveActionV1_SPAN_490000.onnx"),
+                    title = "LiveAction V1 SPAN x2",
+                    description = R.string.model_liveaction_v1_span,
+                    type = Type.UPSCALE,
+                    downloadSize = 1654748,
+                    speed = Speed.VeryFast(0.311f),
+                    checksum = "bfa72f3c6347076aed140d0836cee30c27ea434c047beeaf9466469483836ecc"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/2xVHS2HD-RealPLKSR.onnx"),
+                    title = "VHS to HD x2",
+                    description = R.string.model_vhs2hd_realplksr,
+                    type = Type.UPSCALE,
+                    downloadSize = 29718646,
+                    speed = Speed.Fast(5.591f),
+                    checksum = "441c8c8acedee4cf79c5629779e7720aef25952cfc68ca137034d835bbfa66f4"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/2x_Text2HD_v.1-RealPLKSR.onnx"),
+                    title = "Text2HD x2",
+                    description = R.string.model_text2hd_v1,
+                    type = Type.UPSCALE,
+                    downloadSize = 29718646,
+                    speed = Speed.Fast(5.550f),
+                    checksum = "0c3ef0e30de53ff0156da5fb4593dd4cbc89eee4707ca8e84d640302e4b9c3df"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/4x-FrankendataPretrainer_SRFormer400K.onnx"),
+                    title = "SRFormer x4",
+                    description = R.string.model_frankendata_pretrainer,
+                    type = Type.UPSCALE,
+                    downloadSize = 120837871,
+                    speed = Speed.Slow(15.130f),
+                    checksum = "6f505d321e07dadaa3f2f2cb91e4cb37cc47ba630a601fa4207abae6f8877bbc"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/4xRealWebPhoto_v2_rgt_s.onnx"),
+                    title = "RealWebPhoto v2 RGT-S x4",
+                    description = R.string.model_realwebphoto_v2,
+                    type = Type.UPSCALE,
+                    downloadSize = 48824340,
+                    speed = Speed.VerySlow(39.655f),
+                    checksum = "1c014ca191c9e3c41c47e26a6fe859a6847dd00d9d49073386e7104ac438450e"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/4xRealWebPhoto_v4_dat2.onnx"),
+                    title = "RealWebPhoto v4 DAT2 x4",
+                    description = R.string.model_realwebphoto_v4,
+                    type = Type.UPSCALE,
+                    downloadSize = 48760847,
+                    speed = Speed.VerySlow(25.959f),
+                    checksum = "a9a3a9099e0108b793556ed9cf2123a61a727bbc611dd8d93475f7144596589e"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/DAT_2_x2.onnx"),
+                    title = "DAT2 x2",
+                    description = R.string.model_dat_2x,
+                    type = Type.UPSCALE,
+                    downloadSize = 49503576,
+                    speed = Speed.VerySlow(25.567f),
+                    checksum = "fee6f4901207b1b5f68900ebbc7e0a2dbcb881b8ddfac97219f118af2cc53066"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/DAT_2_x3.onnx"),
+                    title = "DAT2 x3",
+                    description = R.string.model_dat_3x,
+                    type = Type.UPSCALE,
+                    downloadSize = 50242136,
+                    speed = Speed.VerySlow(25.736f),
+                    checksum = "59aeb6835c29f57dc9cab3b1367ec670eddc5b51d5a8177f3f921ad7ffb63ad9"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/DAT_2_x4.onnx"),
+                    title = "DAT2 x4",
+                    description = R.string.model_dat_4x,
+                    type = Type.UPSCALE,
+                    downloadSize = 50094919,
+                    speed = Speed.VerySlow(26.169f),
+                    checksum = "e6354e8fdd1b31b6e1114300843bf7bc31f91e4294fbb8e41282fc43f0a46cbc"
+                ),
+                NeuralModel(
+                    downloadLink = res("deblurring_nafnet_2025may.onnx"),
+                    title = "NAFNET deblurring",
+                    description = R.string.model_nafnet_deblurring,
+                    type = Type.DENOISE,
+                    downloadSize = 91736251,
+                    speed = Speed.VeryFast(1.371f),
+                    checksum = "07263f416febecce10193dd648e950b22e397cf521eedab1a114ef77b2bc9587"
+                ),
+                NeuralModel(
+                    downloadLink = res("restormer_deraining.onnx"),
+                    title = "Restormer Deraining",
+                    description = R.string.model_restormer_deraining,
+                    type = Type.ENHANCE,
+                    downloadSize = 107114307,
+                    speed = Speed.Normal(12.615f),
+                    checksum = "1ef76f2f59cfe98fd626590f11e2c2cbe5b0870d9a4ce4f2b01ca3f02caefc87"
+                ),
+                NeuralModel(
+                    downloadLink = res("uvdoc_grid.onnx"),
+                    title = "UVDOC Grid",
+                    description = R.string.model_uvdoc_grid,
+                    type = Type.SCANS,
+                    downloadSize = 31802768,
+                    speed = Speed.VeryFast(0.912f),
+                    checksum = "16cb598b88b186d49c1ab0d81df2bdb2a66c26159b119871f129c1c3f9c85fd2"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/swin2SR-x4-bsrgan-psnr.onnx"),
+                    title = "Swin2SR BSRGAN PSNR x4",
+                    description = R.string.model_swin2sr_x4_bsrgan_psnr,
+                    type = Type.UPSCALE,
+                    downloadSize = 53827735,
+                    speed = Speed.Normal(14.478f),
+                    checksum = "987d88b356554161cbb8f67b7a8f4162cad6dc147839c344e3d5142140f25d6f"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/BSRGAN_SwinIR-M_x4_GAN.onnx"),
+                    title = "SwinIR-M BSRGAN GAN x4",
+                    description = R.string.model_bsrgan_swinir_m_x4_gan,
+                    type = Type.UPSCALE,
+                    downloadSize = 61316800,
+                    speed = Speed.Normal(13.116f),
+                    checksum = "50a7b6fcaad6c4f342c5e1d059916a3e5d48e89d1d311270a476a7ce6a2ea09f"
+                ),
+                NeuralModel(
+                    downloadLink = res("upscalers/RealESR-AnimeVideo-x4v3.onnx"),
+                    title = "RealESR AnimeVideo x4v3",
+                    description = R.string.model_realesr_animevideo_v3x4,
+                    type = Type.UPSCALE,
+                    downloadSize = 2495473,
+                    speed = Speed.VeryFast(0.437f),
+                    checksum = "3d2dc0af5e2cdf3a31655c4c673df9ad74f14775d74237bd0dc68fc885bd6841"
+                ),
+                NeuralModel(
+                    downloadLink = res("yolo11x-seg.onnx"),
+                    title = "YOLO v11",
+                    description = R.string.model_yolo,
+                    type = Type.REMOVE_BG,
+                    downloadSize = 249033763,
+                    speed = Speed.Normal(1.260f),
+                    checksum = "ef451889f4744d3d5ab47b82c16b7ffe3f15d2233c7aa77dfd4773fd8221b508"
+                ),
+                // Viper Vision: extra model for the editor's Restore faces bubble.
+                NeuralModel(
+                    downloadLink = "https://github.com/facefusion/facefusion-assets/releases/download/models-3.0.0/codeformer.onnx",
+                    title = "CodeFormer",
+                    description = null,
+                    type = Type.ENHANCE,
+                    downloadSize = 376_951_650,
+                    speed = Speed.Normal(2.5f),
+                    checksum = "21710e7ab61c82683576c428e9c1b6fe1ed419586b7b39e394c3449c294b550f"
+                )
+            ).sortedBy { it.type?.ordinal }
+        }
+
+        fun find(name: String?): NeuralModel? = entries.find { model ->
+            model.name.equals(name, true)
+        }
+
+        fun Imported(
+            name: String,
+            checksum: String
+        ): NeuralModel = NeuralModel(
+            downloadLink = "imported",
+            name = name,
+            title = name.replace("_", " ").replace("-", " ").substringBefore('.'),
+            description = null,
+            type = null,
+            speed = null,
+            downloadSize = 0,
+            checksum = checksum
+        )
+
+        private fun res(path: String): String = HF_BASE_URL.replace("*", path)
+    }
+
+}

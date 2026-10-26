@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Viper Vision -->
+    <string name="vv_line_icon">Line icon</string>
+    <string name="vv_line_icon_transparent">Transparent background</string>
+    <string name="vv_line_icon_note">The home screen icon changes when you leave Viper Vision</string>
+</resources>
