@@ -164,14 +164,14 @@ internal fun ValueWheel(
             }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
-                    onDragStart = { dragValue = currentValue.toFloat() },
+                    onDragStart = { dragValue = rawFor(currentValue) },
                     onDragEnd = { currentOnValueChangeFinished() },
                     onDragCancel = { currentOnValueChangeFinished() },
                     onHorizontalDrag = { change, dragAmount ->
                         change.consume()
-                        val before = dragValue.roundToInt()
-                        dragValue = (dragValue - dragAmount / pxPerUnit).coerceIn(-100f, 100f)
-                        val after = dragValue.roundToInt()
+                        val before = valueFor(dragValue)
+                        dragValue = (dragValue - dragAmount / pxPerUnit).coerceIn(-RAW_LIMIT, RAW_LIMIT)
+                        val after = valueFor(dragValue)
                         if (after != before) {
                             currentOnValueChange(after)
                             if (after == 0 || after % 10 == 0 || abs(after) == 100) {
@@ -228,4 +228,27 @@ internal fun PillButton(text: String, active: Boolean, onClick: () -> Unit, modi
     ) {
         Text(text, color = if (active) Color.Black else Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
     }
+}
+
+/**
+ * The wheel sticks at 0: the finger has to travel [ZERO_STICK] units' worth past it before the
+ * value moves to ±1, so it's easy to land on 0 and hard to slip off it. Elsewhere one unit of
+ * travel is one step, as before.
+ */
+private const val ZERO_STICK = 4f
+private const val RAW_LIMIT = 100f + ZERO_STICK - 1f
+
+/** The value for a position of the finger along the wheel ([raw], in units). */
+private fun valueFor(raw: Float): Int {
+    val distance = abs(raw)
+    if (distance < ZERO_STICK) return 0
+    val value = (distance - ZERO_STICK + 1f).roundToInt().coerceIn(1, 100)
+    return if (raw < 0) -value else value
+}
+
+/** Where the finger's position starts for [value] (the inverse of [valueFor]). */
+private fun rawFor(value: Int): Float = when {
+    value == 0 -> 0f
+    value > 0 -> value + ZERO_STICK - 1f
+    else -> value - ZERO_STICK + 1f
 }
