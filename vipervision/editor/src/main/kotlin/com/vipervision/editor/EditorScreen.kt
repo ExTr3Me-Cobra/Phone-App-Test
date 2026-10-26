@@ -217,8 +217,9 @@ internal fun EditorScreen(
             Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                // A zoomed-in photo stays inside its area, under the top bar and the panels.
-                .clipToBounds()
+                // A zoomed-in photo stays inside its area, under the top bar and the panels. (Not
+                // while cropping: no zoom then, and the corner handles may reach just past it.)
+                .then(if (cropMode) Modifier else Modifier.clipToBounds())
                 .pointerInput(cropMode, controller.paint) {
                     if (cropMode || controller.paint != null) return@pointerInput
                     val zoom = controller.viewZoom
@@ -255,8 +256,9 @@ internal fun EditorScreen(
             contentAlignment = Alignment.Center
         ) {
             val shown = if (showOriginal) controller.basePreview else controller.editedPreview ?: base
-            // Room around the photo for the crop handles.
-            val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(20.dp) else Modifier.fillMaxSize()
+            // The photo is the same size as on the other tabs. A little room at the sides only
+            // matters for wide photos: it keeps the side handles clear of the back-swipe edge.
+            val imageModifier = if (cropMode) Modifier.fillMaxSize().padding(horizontal = 20.dp) else Modifier.fillMaxSize()
             val paintZoom = controller.viewZoom
             if (shown != null) {
                 val shownModifier = if (!cropMode) with(paintZoom) { imageModifier.zoomed() } else imageModifier
