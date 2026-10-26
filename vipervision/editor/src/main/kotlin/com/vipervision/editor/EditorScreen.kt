@@ -531,7 +531,15 @@ private fun AdjustPanel(controller: EditorController) {
                         adjustment = adjustment,
                         value = adjustments[adjustment],
                         selected = adjustment == selected,
-                        onClick = { controller.selected = adjustment }
+                        onClick = {
+                            // Tapping the dial that's already picked sets it back to 0.
+                            if (adjustment == selected && adjustments[adjustment] != 0) {
+                                controller.setAdjustment(adjustment, 0)
+                                controller.commit()
+                            } else {
+                                controller.selected = adjustment
+                            }
+                        }
                     )
                 }
             }
