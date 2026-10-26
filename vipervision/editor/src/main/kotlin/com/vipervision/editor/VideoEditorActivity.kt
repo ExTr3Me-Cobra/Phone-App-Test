@@ -542,7 +542,14 @@ private fun VideoEditorScreen(
                     adjustment = adjustment,
                     value = state.adjustments[adjustment],
                     selected = adjustment == state.selected,
-                    onClick = { state.selected = adjustment }
+                    onClick = {
+                        // Tapping the dial that's already picked sets it back to 0.
+                        if (adjustment == state.selected && state.adjustments[adjustment] != 0) {
+                            state.adjustments = state.adjustments.with(adjustment, 0)
+                        } else {
+                            state.selected = adjustment
+                        }
+                    }
                 )
             }
         }
