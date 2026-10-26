@@ -169,7 +169,6 @@ class SettingsActivity : SimpleActivity() {
             binding.settingsVvSamsungAi.toggle()
             prefs.edit().putBoolean("vv_samsung_ai", binding.settingsVvSamsungAi.isChecked).apply()
         }
-        binding.settingsVvAboutHolder.setOnClickListener { launchAbout() }
         binding.settingsVvDiagnosticsHolder.setOnClickListener {
             startActivity(Intent().setClassName(packageName, "com.vipervision.editor.DiagnosticsActivity"))
         }

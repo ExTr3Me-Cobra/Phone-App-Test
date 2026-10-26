@@ -77,7 +77,6 @@ import org.fossify.gallery.extensions.favoritesDB
 import org.fossify.gallery.extensions.getCachedMedia
 import org.fossify.gallery.extensions.getHumanizedFilename
 import org.fossify.gallery.extensions.isDownloadsFolder
-import org.fossify.gallery.extensions.launchAbout
 import org.fossify.gallery.extensions.launchCamera
 import org.fossify.gallery.extensions.launchSettings
 import org.fossify.gallery.extensions.launchGesturePlayer
@@ -345,7 +344,6 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
             findItem(R.id.folder_view).isVisible = mShowAll
             findItem(R.id.open_camera).isVisible = mShowAll
-            findItem(R.id.about).isVisible = mShowAll
             findItem(R.id.create_new_folder).isVisible =
                 !mShowAll && mPath != RECYCLE_BIN && mPath != FAVORITES
             findItem(R.id.open_recycle_bin).isVisible = config.useRecycleBin && mPath != RECYCLE_BIN
@@ -427,7 +425,6 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                     startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
                 }
                 R.id.settings -> launchSettings()
-                R.id.about -> launchAbout()
                 else -> return@setOnMenuItemClickListener false
             }
             return@setOnMenuItemClickListener true

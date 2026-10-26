@@ -20,8 +20,6 @@
     <string name="vv_select_folder">Select folder</string>
     <string name="vv_restore_all_again">Are you really sure you want to restore all %1$d items?</string>
     <string name="vv_diagnostics">Diagnostic log</string>
-    <string name="vv_about_faq">About &amp; FAQ</string>
-    <string name="vv_about_faq_summary">Frequently asked questions, open-source licences and version</string>
     <string name="vv_diagnostics_about">What the app was doing when something went wrong, to copy and send</string>
     <string name="vv_copy_to_album">Copy to album</string>
     <string name="vv_move_to_album">Move to album</string>
