@@ -193,7 +193,7 @@ internal fun samPrompt(
     return (include + exclude) to box
 }
 
-/** The Manual background remover, highlighted in the app's own colour (not the editor's yellow). */
+/** The Manual background remover, highlighted in the app's own colour. */
 @Composable
 internal fun CutOutScreen(
     session: CutOutSession,

@@ -177,7 +177,7 @@ class VideoEditorActivity : ComponentActivity() {
         scrubber = Scrubber(player)
 
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme(primary = Accent)) {
+            AccentTheme(this@VideoEditorActivity) {
                 val scope = rememberCoroutineScope()
                 LaunchedEffect(Unit) {
                     val reader = frames ?: return@LaunchedEffect
@@ -606,7 +606,7 @@ private fun VideoEditorScreen(
  * Frames from the video with two handles: drag either end to trim, or drag anywhere else to move
  * the playhead (white line). Press and hold to zoom the bar into the couple of seconds around
  * your finger for frame-accurate moves; it zooms back out when you let go. The part that's kept
- * is framed in yellow.
+ * is framed in the accent colour.
  */
 @Composable
 private fun TrimBar(state: VideoEditState, player: ExoPlayer, scrubber: Scrubber) {
@@ -644,6 +644,7 @@ private fun TrimBar(state: VideoEditState, player: ExoPlayer, scrubber: Scrubber
                     )
                 }
             }
+            val trimAccent = Accent
             Canvas(
                 Modifier
                     .matchParentSize()
@@ -759,20 +760,21 @@ private fun TrimBar(state: VideoEditState, player: ExoPlayer, scrubber: Scrubber
                 val startX = x(state.trimStart)
                 val endX = x(state.trimEnd)
                 val dim = Color.Black.copy(alpha = 0.65f)
+                val accent = trimAccent
                 clipRect {
                     drawRect(dim, Offset.Zero, Size(startX.coerceIn(0f, size.width), size.height))
                     drawRect(dim, Offset(endX.coerceIn(0f, size.width), 0f), Size(size.width - endX.coerceIn(0f, size.width), size.height))
                     val handle = 10.dp.toPx()
                     val border = 3.dp.toPx()
                     drawRoundRect(
-                        Accent,
+                        accent,
                         Offset(startX, border / 2),
                         Size(max(endX - startX, handle), size.height - border),
                         CornerRadius(6.dp.toPx()),
                         style = Stroke(border)
                     )
-                    drawRect(Accent, Offset(startX, 0f), Size(handle, size.height))
-                    drawRect(Accent, Offset(endX - handle, 0f), Size(handle, size.height))
+                    drawRect(accent, Offset(startX, 0f), Size(handle, size.height))
+                    drawRect(accent, Offset(endX - handle, 0f), Size(handle, size.height))
                     val playX = x(state.positionMs)
                     if (state.positionMs in state.trimStart..state.trimEnd) {
                         drawLine(Color.White, Offset(playX, 0f), Offset(playX, size.height), 2.dp.toPx())

@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,13 +42,18 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-internal val Accent = Color(0xFFF7DF5A)
+/** Only used when no colour has been set in Settings yet. */
+internal val DefaultAccent = Color(0xFFF7DF5A)
 
 /**
- * The highlight colour for shared controls (pills, sliders). The editor's yellow by default; the
- * Manual background remover provides the app's own colour (see [appAccentColor]).
+ * The highlight colour of every editor screen: the one picked in Viper Vision's Settings
+ * ([appAccentColor]), provided by each activity.
  */
-internal val LocalAccent = staticCompositionLocalOf { Accent }
+internal val LocalAccent = staticCompositionLocalOf { DefaultAccent }
+
+/** The Settings colour (see [LocalAccent]). */
+internal val Accent: Color
+    @Composable @ReadOnlyComposable get() = LocalAccent.current
 
 /** Black or white, whichever reads better on this colour. */
 internal fun Color.contentOn(): Color = if (luminance() > 0.5f) Color.Black else Color.White
@@ -55,7 +61,7 @@ internal fun Color.contentOn(): Color = if (luminance() > 0.5f) Color.Black else
 /**
  * The colour picked in Viper Vision's Settings (Fossify's theme: its "Prefs" file), the way
  * Fossify works it out: the system (Material You) colour when that's on, the accent colour for
- * the white and black-and-white themes, otherwise the primary colour. The editor's yellow if no
+ * the white and black-and-white themes, otherwise the primary colour. [DefaultAccent] if no
  * colour has been set.
  */
 internal fun appAccentColor(context: Context): Color {
@@ -63,7 +69,7 @@ internal fun appAccentColor(context: Context): Color {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && prefs.getBoolean("is_using_system_theme", true)) {
         return Color(context.getColor(android.R.color.system_accent1_400))
     }
-    if (!prefs.contains("primary_color_2")) return Accent
+    if (!prefs.contains("primary_color_2")) return DefaultAccent
     val primary = prefs.getInt("primary_color_2", 0)
     val text = prefs.getInt("text_color", 0)
     val background = prefs.getInt("background_color", 0)
@@ -88,6 +94,7 @@ internal fun AdjustBubble(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val accent = Accent
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.width(72.dp)) {
     Box(
         modifier = Modifier
@@ -100,7 +107,7 @@ internal fun AdjustBubble(
             drawCircle(if (selected) Color.White else BubbleGrey)
             if (value != 0) {
                 drawArc(
-                    color = if (selected) Accent else BubbleWedge,
+                    color = if (selected) accent else BubbleWedge,
                     startAngle = -90f,
                     sweepAngle = value / 100f * 360f,
                     useCenter = true
@@ -131,7 +138,7 @@ internal fun AdjustBubble(
 }
 
 /**
- * Tick-mark dial for picking a value from -100 to 100. Drag it sideways; the yellow line in the
+ * Tick-mark dial for picking a value from -100 to 100. Drag it sideways; the accent-coloured line in the
  * middle marks the current value and the dot marks zero. Double-tap resets to zero.
  */
 @Composable
@@ -151,6 +158,7 @@ internal fun ValueWheel(
     val currentOnValueChangeFinished by rememberUpdatedState(onValueChangeFinished)
     var dragValue by remember { mutableFloatStateOf(0f) }
 
+    val accent = Accent
     Canvas(
         modifier = modifier
             .fillMaxWidth()
@@ -207,7 +215,7 @@ internal fun ValueWheel(
             }
         }
         drawLine(
-            color = Accent,
+            color = accent,
             start = Offset(centerX, baseline - size.height * 0.55f),
             end = Offset(centerX, baseline + 2f),
             strokeWidth = with(density) { 3.dp.toPx() }
@@ -236,4 +244,16 @@ private fun rawFor(value: Int): Float = when {
     value == 0 -> 0f
     value > 0 -> value + ZERO_STICK - 1f
     else -> value - ZERO_STICK + 1f
+}
+
+/** A dark Material theme in the Settings colour, which it also provides as [LocalAccent]. */
+@Composable
+internal fun AccentTheme(context: Context, content: @Composable () -> Unit) {
+    val accent = remember { appAccentColor(context) }
+    androidx.compose.runtime.CompositionLocalProvider(LocalAccent provides accent) {
+        androidx.compose.material3.MaterialTheme(
+            colorScheme = androidx.compose.material3.darkColorScheme(primary = accent),
+            content = content
+        )
+    }
 }

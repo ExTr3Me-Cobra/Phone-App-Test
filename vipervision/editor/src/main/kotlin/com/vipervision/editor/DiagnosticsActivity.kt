@@ -48,7 +48,7 @@ class DiagnosticsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme(colorScheme = darkColorScheme(primary = Accent)) {
+            AccentTheme(this@DiagnosticsActivity) {
                 var report by remember { mutableStateOf<String?>(null) }
                 val scope = rememberCoroutineScope()
                 fun reload() = scope.launch { report = withContext(Dispatchers.IO) { ViperLog.report() } }

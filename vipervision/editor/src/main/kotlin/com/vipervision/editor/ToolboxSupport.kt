@@ -10,7 +10,7 @@ import com.t8rin.imagetoolbox.core.settings.domain.model.SettingsState
  * layers...) match the rest of Viper Vision.
  * Everything else (haptics, fonts, favourite filters...) follows the user's settings.
  */
-internal fun SettingsState.forEditor(accent: androidx.compose.ui.graphics.Color = Accent): SettingsState = copy(
+internal fun SettingsState.forEditor(accent: androidx.compose.ui.graphics.Color): SettingsState = copy(
     nightMode = NightMode.Dark,
     isAmoledMode = true,
     isDynamicColors = false,
