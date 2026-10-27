@@ -4,25 +4,14 @@
     <string name="vv_compare">Compare</string>
     <string name="vv_fuse_frames">Fuse frames (HDR, focus, low light)</string>
     <string name="vv_setup_access_title">Set up Viper Vision (1 of 2)</string>
-    <string name="vv_setup_access_message">Viper Vision needs its Accessibility service on, so it can:
-
-• open your newest photo from Samsung Camera\'s thumbnail
-• show Viper Vision\'s screenshot toolbar after each screenshot
-• open Samsung\'s AI Eraser, Move and Create from the editor
-
-It only watches Samsung Camera, Samsung\'s photo editor and new screenshots. Nothing leaves your phone.
-
-On the next screen: Installed apps → Viper Vision camera &amp; screenshots → turn it on.
-
-If it\'s greyed out (\"Restricted setting\"), tap App info, then ⋮ (top right) → Allow restricted settings, and try again.</string>
+    <string name="vv_setup_access_message">Accessibility is required for Viper Vision to work right.\n\n1. Tap Open Accessibility → Installed apps → Viper Vision camera &amp; screenshots. Tap it even if it\'s greyed out (otherwise the ⋮ in the next step won\'t be there). If it isn\'t greyed out, just turn it on and you\'re done.\n\n2. Come back and tap App info → ⋮ (top right) → Allow restricted settings.\n\n3. Come back, tap Open Accessibility again and turn Viper Vision camera &amp; screenshots on.</string>
     <string name="vv_setup_access_open">Open Accessibility</string>
     <string name="vv_setup_app_info">App info</string>
+    <string name="vv_setup_do_1st">Do 1st</string>
+    <string name="vv_setup_do_2nd">Do 2nd</string>
+    <string name="vv_setup_do_3rd">Do 3rd</string>
     <string name="vv_setup_toolbar_title">Set up Viper Vision (2 of 2)</string>
-    <string name="vv_setup_toolbar_message">Turn off Samsung\'s own screenshot toolbar, so Viper Vision\'s shows instead:
-
-Settings → Advanced features → Screenshots and screen recordings → turn off \"Show toolbar after capturing\".
-
-If Viper Vision sees Samsung\'s toolbar again later, it will ask again.</string>
+    <string name="vv_setup_toolbar_message">Turn off Samsung\'s own screenshot toolbar, so Viper Vision\'s shows instead:\n\nSettings → Advanced features → Screenshots and screen recordings → turn off \"Show toolbar after capturing\".\n\nIf Viper Vision sees Samsung\'s toolbar again later, it will ask again.</string>
     <string name="vv_setup_toolbar_open">Open Settings</string>
     <string name="vv_setup_toolbar_done">It\'s off</string>
     <string name="vv_grid_view">Go to\ngrid view</string>

@@ -10,7 +10,10 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Video
 import android.view.ViewGroup
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import org.fossify.commons.dialogs.CreateNewFolderDialog
@@ -517,6 +520,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private var viperSetupDialog: androidx.appcompat.app.AlertDialog? = null
+    private val APP_INFO_OPENED = "vv_setup_app_info_opened"
 
     /**
      * Viper Vision, Samsung phones only: a setup that can't be skipped, shown each time this
@@ -542,17 +546,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             !serviceOn -> builder
                 .setTitle(R.string.vv_setup_access_title)
                 .setMessage(R.string.vv_setup_access_message)
-                .setPositiveButton(R.string.vv_setup_access_open) { _, _ ->
-                    runCatching { startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
-                }
-                .setNeutralButton(R.string.vv_setup_app_info) { _, _ ->
-                    runCatching {
-                        startActivity(
-                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                .setData(android.net.Uri.fromParts("package", packageName, null))
-                        )
-                    }
-                }
+                .setView(accessibilitySetupButtons(prefs))
 
             prefs.getBoolean("vv_screenshot_toolbar", true) && !prefs.getBoolean("vv_samsung_toolbar_off", false) -> builder
                 .setTitle(R.string.vv_setup_toolbar_title)
@@ -569,6 +563,56 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
         viperSetupDialog = builder.show()
         return true
+    }
+
+    /**
+     * The accessibility step's two buttons, each with its turn above it: Open Accessibility
+     * ("Do 1st": tapping the greyed-out service there is what makes Allow restricted settings
+     * appear), App info ("Do 2nd"). Once App info has been opened, Open Accessibility is
+     * "Do 3rd" (turning it on).
+     */
+    private fun accessibilitySetupButtons(prefs: android.content.SharedPreferences): View {
+        val density = resources.displayMetrics.density
+        val appInfoOpened = prefs.getBoolean(APP_INFO_OPENED, false)
+        fun column(label: Int, button: Int, onClick: () -> Unit) = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            addView(TextView(context).apply {
+                setText(label)
+                setTextColor(getProperTextColor())
+                alpha = 0.7f
+                textSize = 13f
+                gravity = android.view.Gravity.CENTER
+            })
+            addView(com.google.android.material.button.MaterialButton(context, null, androidx.appcompat.R.attr.borderlessButtonStyle).apply {
+                setText(button)
+                isAllCaps = false
+                textSize = 16f
+                setTextColor(getProperPrimaryColor())
+                setOnClickListener {
+                    viperSetupDialog?.dismiss()
+                    onClick()
+                }
+            })
+        }
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val pad = (16 * density).toInt()
+            setPadding(pad, pad / 2, pad, 0)
+            addView(column(if (appInfoOpened) R.string.vv_setup_do_3rd else R.string.vv_setup_do_1st, R.string.vv_setup_access_open) {
+                runCatching { startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+            })
+            addView(column(R.string.vv_setup_do_2nd, R.string.vv_setup_app_info) {
+                prefs.edit().putBoolean(APP_INFO_OPENED, true).apply()
+                runCatching {
+                    startActivity(
+                        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            .setData(android.net.Uri.fromParts("package", packageName, null))
+                    )
+                }
+            })
+        }
     }
 
     /** Viper Vision: no search; the top-left button switches to the photo grid. */

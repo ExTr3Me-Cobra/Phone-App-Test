@@ -381,9 +381,7 @@
     <string name="cannot_be_undone">This action cannot be undone.</string>
     <string name="save_before_closing">You have unsaved changes. Save before exit?</string>
     <string name="apply_to_all_apps">Apply theme to all Fossify Apps</string>
-    <string name="app_icon_color_warning">If an icon theme is turned on in your phone\'s settings (for example, from Galaxy Themes or Theme Park), it can block this setting from changing Viper Vision\'s icon. If the icon doesn\'t change, turn the icon theme off.
-
-The new icon appears once you leave Viper Vision.</string>
+    <string name="app_icon_color_warning">If an icon theme is turned on in your phone\'s settings (for example, from Galaxy Themes or Theme Park), it can block this setting from changing Viper Vision\'s icon. If the icon doesn\'t change, turn the icon theme off.\n\nThe new icon appears once you leave Viper Vision.</string>
     <string name="global_theme_success">The current theme has been successfully applied to all Fossify apps. Any future changes to this theme will be synced automatically.</string>
     <string name="purchase_thank_you">
         <![CDATA[

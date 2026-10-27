@@ -48,9 +48,7 @@
     <string name="primary_color">Primary colour</string>
     <string name="accent_color_black_and_white">Accent colour of Black &amp; White theme</string>
     <string name="foreground_color">Foreground colour</string>
-    <string name="app_icon_color_warning">If an icon theme is turned on in your phone\'s settings (for example, from Galaxy Themes or Theme Park), it can block this setting from changing Viper Vision\'s icon. If the icon doesn\'t change, turn the icon theme off.
-
-The new icon appears once you leave Viper Vision.</string>
+    <string name="app_icon_color_warning">If an icon theme is turned on in your phone\'s settings (for example, from Galaxy Themes or Theme Park), it can block this setting from changing Viper Vision\'s icon. If the icon doesn\'t change, turn the icon theme off.\n\nThe new icon appears once you leave Viper Vision.</string>
     <string name="email">Email</string>
     <string name="previous">Previous</string>
     <string name="playpause">Play / Pause</string>
