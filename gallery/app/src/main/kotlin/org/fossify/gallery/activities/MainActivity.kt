@@ -678,6 +678,21 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     /**
+     * Straight to Viper Vision's own switch (Android 11+ has a page per service), else the
+     * Accessibility list.
+     */
+    private fun openViperAccessibilitySwitch() {
+        val service = android.content.ComponentName(packageName, "com.vipervision.editor.CameraThumbnailService")
+        val direct = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R && runCatching {
+            startActivity(
+                Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS")
+                    .putExtra(Intent.EXTRA_COMPONENT_NAME, service.flattenToString())
+            )
+        }.isSuccess
+        if (!direct) runCatching { startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+    }
+
+    /**
      * The accessibility step's two buttons, each with its turn above it: Open Accessibility
      * ("Do 1st": tapping the greyed-out service there is what makes Allow restricted settings
      * appear), App info ("Do 2nd"). Once App info has been opened, Open Accessibility is
@@ -713,7 +728,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             val pad = (16 * density).toInt()
             setPadding(pad, pad / 2, pad, 0)
             addView(column(if (appInfoOpened) R.string.vv_setup_do_3rd else R.string.vv_setup_do_1st, R.string.vv_setup_access_open) {
-                runCatching { startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+                openViperAccessibilitySwitch()
             })
             addView(column(R.string.vv_setup_do_2nd, R.string.vv_setup_app_info) {
                 prefs.edit().putBoolean(APP_INFO_OPENED, true).apply()
