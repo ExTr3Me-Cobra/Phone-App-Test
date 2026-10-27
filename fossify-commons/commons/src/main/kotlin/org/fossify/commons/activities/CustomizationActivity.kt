@@ -258,22 +258,7 @@ class CustomizationActivity : BaseSimpleActivity() {
         binding.customizationTheme.text = getThemeText()
         updateAutoThemeFields()
         handleAccentColorLayout()
-        binding.customizationThemeHolder.setOnClickListener {
-            if (baseConfig.wasAppIconCustomizationWarningShown) {
-                themePickerClicked()
-            } else {
-                ConfirmationDialog(
-                    activity = this,
-                    message = "",
-                    messageId = R.string.app_icon_color_warning,
-                    positive = R.string.ok,
-                    negative = 0
-                ) {
-                    baseConfig.wasAppIconCustomizationWarningShown = true
-                    themePickerClicked()
-                }
-            }
-        }
+        binding.customizationThemeHolder.setOnClickListener { themePickerClicked() }
     }
 
     private fun themePickerClicked() {
@@ -472,7 +457,6 @@ class CustomizationActivity : BaseSimpleActivity() {
             // Viper Vision: switching right away closed the app (Android closes it when the
             // launcher entry it was opened from goes off), so it waits until you leave the app.
             applyLineIconWhenLeaving()
-            toast(R.string.vv_line_icon_note)
         }
 
         FontHelper.clearCache()
@@ -559,22 +543,7 @@ class CustomizationActivity : BaseSimpleActivity() {
 
         handleAccentColorLayout()
         binding.applyToAllHolder.setOnClickListener { applyToAll() }
-        binding.customizationAppIconColorHolder.setOnClickListener {
-            if (baseConfig.wasAppIconCustomizationWarningShown) {
-                pickAppIconColor()
-            } else {
-                ConfirmationDialog(
-                    activity = this,
-                    message = "",
-                    messageId = R.string.app_icon_color_warning,
-                    positive = R.string.ok,
-                    negative = 0
-                ) {
-                    baseConfig.wasAppIconCustomizationWarningShown = true
-                    pickAppIconColor()
-                }
-            }
-        }
+        binding.customizationAppIconColorHolder.setOnClickListener { pickAppIconColor() }
 
         setupFontPicker()
         setupLineIcon()
@@ -582,7 +551,7 @@ class CustomizationActivity : BaseSimpleActivity() {
 
     /**
      * Viper Vision: the Line icon tick box, with a small preview. The launcher icon changes once
-     * you leave the app (see applyLineIconWhenLeaving); a toast says so.
+     * you leave the app (see applyLineIconWhenLeaving); [showIconChangeNote] says so.
      */
     private fun setupLineIcon() {
         fun refresh() {
@@ -600,19 +569,32 @@ class CustomizationActivity : BaseSimpleActivity() {
             binding.customizationLineIconClearHolder.beVisibleIf(isLineIconEnabled)
         }
         refresh()
-        fun note() = toast(R.string.vv_line_icon_note)
         binding.customizationLineIconHolder.setOnClickListener {
-            note()
+            showIconChangeNote()
             isLineIconEnabled = !isLineIconEnabled
             applyLineIconWhenLeaving()
             refresh()
         }
         binding.customizationLineIconClearHolder.setOnClickListener {
-            note()
+            showIconChangeNote()
             isLineIconTransparent = !isLineIconTransparent
             applyLineIconWhenLeaving()
             refresh()
         }
+    }
+
+    /**
+     * Viper Vision: shown each time the launcher icon is changed (colour, line icon, its
+     * background): when it changes, and that a phone icon theme can stop it changing.
+     */
+    private fun showIconChangeNote() {
+        ConfirmationDialog(
+            activity = this,
+            message = "",
+            messageId = R.string.app_icon_color_warning,
+            positive = R.string.ok,
+            negative = 0
+        ) {}
     }
 
     private fun hasColorChanged(old: Int, new: Int) = abs(old - new) > 1
@@ -849,6 +831,7 @@ class CustomizationActivity : BaseSimpleActivity() {
         ) { wasPositivePressed, color ->
             if (wasPositivePressed) {
                 if (hasColorChanged(curAppIconColor, color)) {
+                    showIconChangeNote()
                     curAppIconColor = color
                     colorChanged()
                     updateColorTheme(getCurrentThemeId())
