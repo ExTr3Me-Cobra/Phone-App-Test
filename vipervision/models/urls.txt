@@ -9,16 +9,7 @@ https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/onnx/enhance/other
 https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/zero_dcepp.onnx
 https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/onnx/enhance/other-models/nanomodels/1xOverExposureCorrection_compact-fp16.onnx
 https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/birefnet_swin_tiny.ort
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/birefnet_fp16.ort
 https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/onnx/inpaint/lama/LaMa_dynamic.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/onnx/bgremove/u2net.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/onnx/bgremove/RMBG_1.4.ort
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/onnx/bgremove/inspyrenet.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/isnet-general-use.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/modnet_portrait_matting.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/yolo11x-seg.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/mobile_sam/mobile_sam_image_encoder.onnx
-https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/mobile_sam/sam_mask_decoder_single.onnx
 https://huggingface.co/chongzhou/EdgeSAM/resolve/main/edge_sam_3x_encoder.onnx
 https://huggingface.co/chongzhou/EdgeSAM/resolve/main/edge_sam_3x_decoder.onnx
 https://huggingface.co/T8RIN/imagetoolbox-models/resolve/main/paddleocr/paddleocr_v5_en.zip

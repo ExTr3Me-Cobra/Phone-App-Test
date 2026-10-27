@@ -52,4 +52,10 @@ jobs:
             gh release upload "$TAG" "models/$name" --repo "$REPO" --clobber
             rm -f "models/$name"
           done < vipervision/models/urls.txt
+          # Models taken off the list (no longer used by the app) leave the release too.
+          wanted=$(while read -r url; do [ -z "$url" ] && continue; clean="${url%%\?*}"
+            if [[ "$clean" == *"/resolve/"* ]]; then n="${clean#*/resolve/*/}"; else n="${clean##*/}"; fi; echo "${n//\//__}"; done < vipervision/models/urls.txt)
+          for asset in $(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[].name'); do
+            grep -qxF "$asset" <<< "$wanted" || { echo "Removing unused $asset"; gh release delete-asset "$TAG" "$asset" --repo "$REPO" --yes; }
+          done
           gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[] | "\(.name) \(.size)"'

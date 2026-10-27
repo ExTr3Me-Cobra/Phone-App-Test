@@ -148,5 +148,9 @@ class AiModelsActivity : ComponentActivity() {
     }
 
     private fun gb(bytes: Long) = "%.1f GB".format(bytes / 1e9)
-    private fun mb(bytes: Long) = if (bytes >= 1e9) gb(bytes) else "%.0f MB".format(bytes / 1e6)
+    private fun mb(bytes: Long) = when {
+        bytes >= 1e9 -> gb(bytes)
+        bytes < 1_000_000 -> "<1 MB"
+        else -> "%.0f MB".format(bytes / 1e6)
+    }
 }

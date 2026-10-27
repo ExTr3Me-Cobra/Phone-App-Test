@@ -196,7 +196,7 @@ class SettingsActivity : SimpleActivity() {
             prefs.getLong("vv_models_here_bytes", 0L) > 0L -> getString(
                 R.string.vv_ai_models_partly,
                 "%.1f".format(prefs.getLong("vv_models_here_bytes", 0L) / 1e9),
-                "%.1f".format(prefs.getLong("vv_models_total_bytes", 3_750_000_000L) / 1e9)
+                "%.1f".format(prefs.getLong("vv_models_total_bytes", 2_100_000_000L) / 1e9)
             )
             else -> getString(R.string.vv_ai_models_none)
         }

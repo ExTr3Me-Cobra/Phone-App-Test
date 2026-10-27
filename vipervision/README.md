@@ -242,8 +242,8 @@ upstream, these are the things to carry over.
 
 ## AI models and AI search
 
-* **AI models**: every model the app uses (the editor's AI bubbles, Blemish remover, Manual
-  background remover's models and Smart select, and AI search), about 3.7 GB, is mirrored into
+* **AI models**: every model the app uses (the editor's AI bubbles, Blemish remover, Smart
+  select and AI search), about 2.1 GB, is mirrored into
   this repository's permanent `vipervision-ai-models` release (`vipervision/models/urls.txt`,
   `.github/workflows/mirror-ai-models.yml`). The app downloads from there first, falling back to
   the original site (`AndroidDownloadManager.mirrorUrl`). Settings → AI models (offered once on

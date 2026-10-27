@@ -33,7 +33,7 @@
     <string name="vv_set_as_wallpaper">Set as wallpaper</string>
     <string name="vv_ai_search">AI search</string>
     <string name="vv_ai_models">AI models</string>
-    <string name="vv_ai_models_none">For every AI tool and AI search: about 3.7 GB, downloaded once. Tap to download</string>
+    <string name="vv_ai_models_none">For every AI tool and AI search: about 2.1 GB, downloaded once. Tap to download</string>
     <string name="vv_ai_models_partly">%1$s of %2$s GB downloaded. Tap to download the rest</string>
     <string name="vv_ai_models_all">All downloaded; they stay through updates</string>
     <string name="vv_ai_models_downloading">Downloading… %1$d%%</string>

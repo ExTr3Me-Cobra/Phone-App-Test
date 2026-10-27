@@ -29,9 +29,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
- * Every AI model Viper Vision uses, fetched once (about 3.7 GB) and kept through updates: the
- * editor's AI bubbles, Blemish remover, Manual background remover (all its models and Smart
- * select) and the AI search. Each comes from the app's own permanent copy first (the
+ * Every AI model Viper Vision uses, fetched once (about 2.1 GB) and kept through updates: the
+ * editor's AI bubbles (Auto background remover's BiRefNet also does Manual background remover's
+ * Refine edges), Blemish remover, Smart select and the AI search. Each comes from the app's own permanent copy first (the
  * "vipervision-ai-models" release; see AndroidDownloadManager.mirrorUrl), else its original site.
  * Each is fetched through its own tool, so it lands exactly where that tool looks for it.
  */
@@ -61,12 +61,31 @@ object ModelPack {
         fetch = { _, deps, progress -> deps.aiTools().downloadModel(model).follow(progress) }
     )
 
-    private fun remover(type: BgRemover.Type, title: String, size: Long) = Item(
-        name = title,
-        size = size,
-        isHere = { BgRemover.getRemover(type).checkModel() },
-        fetch = { _, _, progress -> BgRemover.downloadModel(type).followTool(progress) }
+    /**
+     * Manual background remover's other models (its Auto button, since removed). Nothing in the
+     * app uses them any more; earlier builds may have downloaded them (about 1.65 GB), so they're
+     * deleted when the app starts.
+     */
+    private val unusedRemovers = listOf(
+        BgRemover.Type.BiRefNet, BgRemover.Type.U2Net, BgRemover.Type.RMBG1_4, BgRemover.Type.InSPyReNet,
+        BgRemover.Type.ISNet, BgRemover.Type.MODNet, BgRemover.Type.YOLO
     )
+
+    private fun deleteUnused() {
+        for (type in unusedRemovers) {
+            val remover = BgRemover.getRemover(type)
+            if (remover.modelFile.exists()) {
+                remover.close()
+                ViperLog.i("MODELS", "Deleting unused ${remover.modelFile.name} (${remover.modelFile.length() / 1_000_000} MB)")
+                remover.modelFile.delete()
+                remover.checkModel()
+            }
+        }
+        if (com.t8rin.neural_tools.bgremover.MobileSAM.isDownloaded()) {
+            ViperLog.i("MODELS", "Deleting unused MobileSAM")
+            com.t8rin.neural_tools.bgremover.MobileSAM.deleteModels()
+        }
+    }
 
     /** Everything, in the order it's fetched (the editor's bubbles first, search last). */
     val items: List<Item> by lazy {
@@ -81,14 +100,6 @@ object ModelPack {
             Item("EdgeSAM (Smart select)", 38_035_306, { EdgeSAM.isDownloaded() }) { _, _, progress ->
                 EdgeSAM.download(progress)
             },
-            remover(BgRemover.Type.BiRefNet, "BiRefNet", 491_692_464),
-            remover(BgRemover.Type.U2Net, "U2Net", 175_997_641),
-            remover(BgRemover.Type.RMBG1_4, "RMBG 1.4", 88_704_616),
-            remover(BgRemover.Type.InSPyReNet, "InSPyReNet", 395_316_574),
-            remover(BgRemover.Type.ISNet, "ISNet", 178_647_984),
-            remover(BgRemover.Type.MODNet, "MODNet", 25_888_640),
-            remover(BgRemover.Type.YOLO, "YOLO v11", 249_033_763),
-            remover(BgRemover.Type.MobileSAM, "MobileSAM", 44_658_416),
             Item("PaddleOCR (reads text, AI search)", 12_265_739, { PaddleOCR.isModelDownloaded(PaddleOCR.Model.English) }) { _, _, progress ->
                 PaddleOCR.startDownload(PaddleOCR.Model.English).followTool(progress)
             },
@@ -114,6 +125,7 @@ object ModelPack {
      * is left. Run when the app starts, off the main thread.
      */
     fun refreshState(context: Context) {
+        runCatching { deleteUnused() }.onFailure { ViperLog.error("MODELS", "couldn't delete unused models", it) }
         val (here, complete) = state(context)
         prefs(context).edit()
             .putBoolean(KEY_COMPLETE, complete)
