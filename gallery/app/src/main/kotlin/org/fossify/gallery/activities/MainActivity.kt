@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.MediaStore.Images
 import android.provider.MediaStore.Video
@@ -296,7 +297,12 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     override fun onResume() {
         super.onResume()
-        offerAiModelsOnce()
+        if (org.fossify.gallery.ViperVisionGallery.cameToFront) {
+            org.fossify.gallery.ViperVisionGallery.cameToFront = false
+            offerAiModelsOnResume = true
+            aiModelsChecks = 0
+        }
+        if (offerAiModelsOnResume) offerAiModels()
         updateMenuColors()
         config.isThirdPartyIntent = false
         mDateFormat = config.dateFormat
@@ -480,17 +486,27 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         }
     }
 
+    /** Viper Vision: set when the app is opened, so the AI models offer shows once per opening. */
+    private var offerAiModelsOnResume = false
+    private var aiModelsChecks = 0
+
     /**
-     * Viper Vision: the first time the gallery opens (with access to photos), offers the one-time
-     * AI model download (the editor's AiModelsActivity, which remembers it was offered).
+     * Viper Vision: each time the gallery is opened (from the launcher or app list, not the
+     * screenshot window or camera shortcut), opens the AI models screen (the editor's
+     * AiModelsActivity) if any AI model is missing and none is downloading. Waits for photo access
+     * and for the app's check of which models are already here (vv_models_checked, done when it
+     * starts), so someone who has them all isn't asked.
      */
-    private fun offerAiModelsOnce() {
+    private fun offerAiModels() {
         if (mIsThirdPartyIntent || !hasPermission(getPermissionToRequest())) return
         val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
-        // Only once the app has checked which models are already here (vv_models_checked), so
-        // someone who has them all from an earlier build isn't offered the download.
-        if (!prefs.getBoolean("vv_models_checked", false)) return
-        if (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_prompted", false)) return
+        if (!prefs.getBoolean("vv_models_checked", false)) {
+            // The check is still running (it takes a moment when the app starts); look again.
+            if (aiModelsChecks++ < 10) Handler(Looper.getMainLooper()).postDelayed({ if (offerAiModelsOnResume && !isFinishing) offerAiModels() }, 500)
+            return
+        }
+        offerAiModelsOnResume = false
+        if (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_running", false)) return
         runCatching { startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity")) }
     }
 

@@ -117,17 +117,18 @@ class AiModelsActivity : ComponentActivity() {
                     Spacer(Modifier.height(10.dp))
                     // Only what's missing is downloaded (models from earlier builds are kept).
                     val left = ModelPack.totalSize - hereBytes
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Button(
-                            onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = false) },
-                            colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn())
-                        ) { Text(if (hereBytes > 0) "Download the rest (${gb(left)}) on Wi-Fi" else "Download on Wi-Fi") }
-                        TextButton(onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = true) }) {
-                            Text("Use mobile data too", color = Color.White)
-                        }
-                    }
+                    Button(
+                        onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = false) },
+                        colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn()),
+                        modifier = Modifier.fillMaxWidth().height(50.dp)
+                    ) { Text(if (hereBytes > 0) "Download the rest (${gb(left)}) on Wi-Fi" else "Download on Wi-Fi", fontSize = 16.sp) }
                     Spacer(Modifier.height(4.dp))
-                    TextButton(onClick = { finish() }) { Text("Later", color = Color.Gray) }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        TextButton(onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = true) }) {
+                            Text("Use mobile data too", color = Color.White, fontSize = 15.sp)
+                        }
+                        TextButton(onClick = { finish() }) { Text("Later", color = Color.Gray, fontSize = 15.sp) }
+                    }
                 }
             }
             Spacer(Modifier.height(16.dp))
