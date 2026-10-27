@@ -303,9 +303,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         super.onResume()
         if (org.fossify.gallery.ViperVisionGallery.cameToFront) {
             org.fossify.gallery.ViperVisionGallery.cameToFront = false
-            offerAiModelsOnResume = true
             aiModelsChecks = 0
         }
+        // Checked each time this screen shows (e.g. after Back from the AI models screen), so
+        // the download can't be skipped.
+        offerAiModelsOnResume = true
         // Samsung phones: the required setup first, then the AI models.
         if (!showViperSetup() && offerAiModelsOnResume) offerAiModels()
         updateMenuColors()
@@ -496,9 +498,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var aiModelsChecks = 0
 
     /**
-     * Viper Vision: each time the gallery is opened (from the launcher or app list, not the
-     * screenshot window or camera shortcut), opens the AI models screen (the editor's
-     * AiModelsActivity) if any AI model is missing and none is downloading. Waits for photo access
+     * Viper Vision: each time this screen shows, opens the AI models screen (the editor's
+     * AiModelsActivity) if any AI model is missing and no download has been asked for (started,
+     * or waiting for Wi-Fi), so it can't be skipped. Waits for photo access
      * and for the app's check of which models are already here (vv_models_checked, done when it
      * starts), so someone who has them all isn't asked. The all-in-one APK shows it every time
      * until it has switched to the normal APK.
@@ -515,7 +517,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         // The all-in-one APK shows the screen until it has unpacked its models and switched to the
         // normal APK (which has no vv_models).
         val allInOne = runCatching { assets.open("vv_models/index.txt").close(); true }.getOrDefault(false)
-        if (!allInOne && (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_running", false))) return
+        val downloadAsked = prefs.getBoolean("vv_models_requested", false)
+        if (!allInOne && (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_running", false) || downloadAsked)) return
         runCatching { startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity")) }
     }
 

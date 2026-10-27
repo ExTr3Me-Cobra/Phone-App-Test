@@ -183,6 +183,9 @@ object ModelPack {
 
     fun isRunning(context: Context) = prefs(context).getBoolean(KEY_RUNNING, false)
 
+    /** A download has been asked for (it may be running, or waiting for Wi-Fi). */
+    fun isRequested(context: Context) = prefs(context).getBoolean(KEY_REQUESTED, false)
+
     /** Queued but not started (waiting for Wi-Fi). Blocks briefly; call off the main thread. */
     fun isWaiting(context: Context): Boolean = !isRunning(context) && runCatching {
         WorkManager.getInstance(context).getWorkInfosForUniqueWork(WORK).get()
@@ -194,7 +197,7 @@ object ModelPack {
 
     /** Starts (or continues) fetching everything missing, in the background. */
     fun start(context: Context, allowMobileData: Boolean) {
-        prefs(context).edit().putBoolean(KEY_PROMPTED, true).remove(KEY_ERROR).apply()
+        prefs(context).edit().putBoolean(KEY_PROMPTED, true).putBoolean(KEY_REQUESTED, true).remove(KEY_ERROR).apply()
         WorkManager.getInstance(context).enqueueUniqueWork(
             WORK,
             // The newest choice wins over a download still waiting (e.g. for Wi-Fi); one already
@@ -268,6 +271,8 @@ object ModelPack {
     // Shared with the gallery (it offers the download once and shows the status in Settings).
     const val KEY_PROMPTED = "vv_models_prompted"
     const val KEY_COMPLETE = "vv_models_complete"
+    // Read by the gallery: once asked for, the AI models screen isn't forced open any more.
+    const val KEY_REQUESTED = "vv_models_requested"
     const val KEY_CHECKED = "vv_models_checked"
     const val KEY_HERE_BYTES = "vv_models_here_bytes"
     const val KEY_TOTAL_BYTES = "vv_models_total_bytes"

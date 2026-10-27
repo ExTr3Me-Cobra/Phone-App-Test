@@ -140,10 +140,12 @@ class AiModelsActivity : ComponentActivity() {
         val s = state
         val hereBytes = s?.let { items.filterIndexed { i, _ -> it.here[i] }.sumOf { it.size } } ?: 0L
         val complete = s != null && s.here.all { it }
-        // Opened when the app starts with models missing: it can't be skipped. Back works once the
+        // Opened when the app starts with models missing: it can't be skipped (and the gallery
+        // reopens it if it's left anyway). Back works once the
         // download is under way or waiting for Wi-Fi (it carries on in the background), or when
         // all are here; the all-in-one APK's only while unpacking, until it has switched.
-        val canLeave = s != null && if (allInOne) s.running else complete || s.running || s.waitingForWifi
+        val canLeave = s != null && if (allInOne) s.running else complete || s.running || s.waitingForWifi ||
+                ModelPack.isRequested(this)
         androidx.activity.compose.BackHandler(enabled = !canLeave) {}
 
         Column(
