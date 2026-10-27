@@ -140,6 +140,11 @@ class AiModelsActivity : ComponentActivity() {
         val s = state
         val hereBytes = s?.let { items.filterIndexed { i, _ -> it.here[i] }.sumOf { it.size } } ?: 0L
         val complete = s != null && s.here.all { it }
+        // Opened when the app starts with models missing: it can't be skipped. Back works once the
+        // download is under way or waiting for Wi-Fi (it carries on in the background), or when
+        // all are here; the all-in-one APK's only while unpacking, until it has switched.
+        val canLeave = s != null && if (allInOne) s.running else complete || s.running || s.waitingForWifi
+        androidx.activity.compose.BackHandler(enabled = !canLeave) {}
 
         Column(
             Modifier
@@ -182,12 +187,17 @@ class AiModelsActivity : ComponentActivity() {
                         Spacer(Modifier.height(6.dp))
                         Text(it, color = Color.Gray, fontSize = 13.sp)
                     }
-                    TextButton(onClick = { finish() }) { Text("Later", color = Color.Gray, fontSize = 15.sp) }
                 }
                 complete -> {
                     // (Also tells the gallery, in case they came from an earlier build.)
                     getSharedPreferences("Prefs", MODE_PRIVATE).edit().putBoolean(ModelPack.KEY_COMPLETE, true).apply()
                     Text("All downloaded (${gb(hereBytes)}).", color = accent, fontSize = 15.sp)
+                    Spacer(Modifier.height(10.dp))
+                    Button(
+                        onClick = { finish() },
+                        colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn()),
+                        modifier = Modifier.fillMaxWidth().height(50.dp)
+                    ) { Text("Done", fontSize = 16.sp) }
                 }
                 s.running -> {
                     Text(
@@ -236,13 +246,14 @@ class AiModelsActivity : ComponentActivity() {
                         colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn()),
                         modifier = Modifier.fillMaxWidth().height(50.dp)
                     ) { Text(if (hereBytes > 0) "Download the rest (${gb(left)})" else "Download (${gb(left)})", fontSize = 16.sp) }
-                    Spacer(Modifier.height(4.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                        TextButton(onClick = { finish() }) { Text("Later", color = Color.Gray, fontSize = 15.sp) }
-                    }
                     if (askAboutData) {
                         AlertDialog(
-                            onDismissRequest = { askAboutData = false },
+                            // A choice has to be made (no tapping outside or Back).
+                            onDismissRequest = {},
+                            properties = androidx.compose.ui.window.DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = false
+                            ),
                             title = { Text("You're on mobile data") },
                             text = { Text("The AI models are ${gb(left)}. Download them on mobile data now, or wait until you're on Wi-Fi?") },
                             confirmButton = {
