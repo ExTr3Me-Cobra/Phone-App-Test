@@ -60,6 +60,11 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
 
     private val observer = object : ContentObserver(handler) {
         override fun onChange(selfChange: Boolean) {
+            // The setup's check starts the moment the screenshot appears, not once it's saved.
+            if (service.getSharedPreferences("Prefs", Context.MODE_PRIVATE).getBoolean(CHECK_PENDING, false)) {
+                startSetupCheck()
+                return
+            }
             // Samsung writes the file in steps; look once it has settled.
             handler.removeCallbacks(check)
             handler.postDelayed(check, 500)
@@ -84,14 +89,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
 
     /** The newest screenshot, if it was just taken and not shown yet. */
     private fun checkForScreenshot() {
-        val prefs = service.getSharedPreferences("Prefs", Context.MODE_PRIVATE)
-        if (prefs.getBoolean(CHECK_PENDING, false)) {
-            val shot = runCatching { newestScreenshot() }.getOrNull() ?: return
-            if (shot.id == lastShownId) return
-            lastShownId = shot.id
-            checkSamsungToolbar()
-            return
-        }
+        if (service.getSharedPreferences("Prefs", Context.MODE_PRIVATE).getBoolean(CHECK_PENDING, false)) return
         if (!enabled()) return
         if (service.getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true) return
         val shot = runCatching { newestScreenshot() }.getOrNull() ?: return
@@ -99,6 +97,40 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         lastShownId = shot.id
         ViperLog.i("SCREENSHOT", "New screenshot: ${shot.path ?: shot.uri}")
         show(shot)
+    }
+
+    private var lastCheckedId = -1L
+
+    /** Starts the setup's check for a screenshot just taken, while it's still being saved. */
+    private fun startSetupCheck() {
+        val id = runCatching { newestScreenshotIncludingUnsaved() }.getOrNull() ?: return
+        if (id == lastCheckedId) return
+        lastCheckedId = id
+        checkSamsungToolbar()
+    }
+
+    /** The newest screenshot's id, also while Samsung is still writing it; null if none just now. */
+    private fun newestScreenshotIncludingUnsaved(): Long? {
+        val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATE_ADDED)
+        val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            resolver.query(collection, projection, android.os.Bundle().apply {
+                putString(android.content.ContentResolver.QUERY_ARG_SQL_SELECTION, "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?")
+                putStringArray(android.content.ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS, arrayOf("%Screenshots%"))
+                putStringArray(android.content.ContentResolver.QUERY_ARG_SORT_COLUMNS, arrayOf(MediaStore.Images.Media.DATE_ADDED))
+                putInt(android.content.ContentResolver.QUERY_ARG_SORT_DIRECTION, android.content.ContentResolver.QUERY_SORT_DIRECTION_DESCENDING)
+                putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_INCLUDE)
+            }, null)
+        } else {
+            @Suppress("DEPRECATION")
+            resolver.query(collection, projection, "${MediaStore.Images.Media.DATA} LIKE ?", arrayOf("%/Screenshots/%"), "${MediaStore.Images.Media.DATE_ADDED} DESC")
+        }
+        cursor?.use {
+            if (!it.moveToFirst()) return null
+            if (System.currentTimeMillis() / 1000 - it.getLong(1) > MAX_AGE_SECONDS) return null
+            return it.getLong(0)
+        }
+        return null
     }
 
     /** When Samsung's own screenshot toolbar was last seen on screen (set by the service). */
@@ -129,7 +161,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             override fun run() {
                 when {
                     samsungOnScreen() -> finish(false)
-                    System.currentTimeMillis() - started > 3000 -> finish(true)
+                    System.currentTimeMillis() - started > 2000 -> finish(true)
                     else -> handler.postDelayed(this, 250)
                 }
             }
