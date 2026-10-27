@@ -30,8 +30,12 @@ object Siglip {
     val files = listOf(
         ModelFile("$SOURCE/onnx/vision_model_quantized.onnx", "vision_model_quantized.onnx", 94_737_653),
         ModelFile("$SOURCE/onnx/text_model_quantized.onnx", "text_model_quantized.onnx", 283_438_275),
-        ModelFile("$SOURCE/tokenizer.json", "tokenizer.json", 34_363_039)
+        // The word pieces of the model's tokenizer.json (34 MB) in the compact form the search
+        // reads (3.5 MB), made by vipervision/models/make_vocab.py into the app's model release.
+        ModelFile("$MIRROR/siglip2__vocab.bin", "vocab.bin", 3_472_160)
     )
+
+    private const val MIRROR = "https://github.com/ExTr3Me-Cobra/Phone-App-Test/releases/download/vipervision-ai-models"
 
     const val DIMENSION = 768
     private const val IMAGE_SIZE = 256
@@ -178,20 +182,27 @@ object Siglip {
         return out
     }
 
-    /** The 256,000 word pieces: read once from tokenizer.json, then from a compact copy. */
+    /** The 256,000 word pieces, from vocab.bin. */
     private fun vocabulary(context: Context): Map<String, Int> {
         vocabulary?.let { return it }
-        val compact = File(folder(context), "vocab.bin")
         val map = HashMap<String, Int>(300_000)
-        if (compact.isFile) {
-            runCatching {
-                DataInputStream(compact.inputStream().buffered()).use { input ->
-                    repeat(input.readInt()) { map[input.readUTF()] = input.readInt() }
-                }
-            }.onFailure { map.clear() }
+        DataInputStream(File(folder(context), files[2].name).inputStream().buffered()).use { input ->
+            repeat(input.readInt()) { map[input.readUTF()] = input.readInt() }
         }
-        if (map.isEmpty()) {
-            JsonReader(File(folder(context), files[2].name).reader().buffered()).use { reader ->
+        return map.also { vocabulary = it }
+    }
+
+    /**
+     * Earlier builds downloaded the whole tokenizer.json (34 MB) and kept a vocab.bin made from
+     * it; makes that vocab.bin if it's missing, then deletes tokenizer.json.
+     */
+    fun replaceTokenizer(context: Context) {
+        val json = File(folder(context), "tokenizer.json")
+        if (!json.isFile) return
+        val compact = File(folder(context), files[2].name)
+        if (compact.length() != files[2].size) {
+            val map = LinkedHashMap<String, Int>(300_000)
+            JsonReader(json.reader().buffered()).use { reader ->
                 reader.beginObject()
                 while (reader.hasNext()) {
                     if (reader.nextName() != "model") { reader.skipValue(); continue }
@@ -205,13 +216,16 @@ object Siglip {
                     reader.endObject()
                 }
             }
-            runCatching {
-                DataOutputStream(compact.outputStream().buffered()).use { out ->
-                    out.writeInt(map.size)
-                    for ((piece, id) in map) { out.writeUTF(piece); out.writeInt(id) }
-                }
+            val tmp = File(compact.path + ".tmp")
+            DataOutputStream(tmp.outputStream().buffered()).use { out ->
+                out.writeInt(map.size)
+                for ((piece, id) in map) { out.writeUTF(piece); out.writeInt(id) }
+            }
+            if (tmp.length() != files[2].size || !tmp.renameTo(compact)) {
+                tmp.delete()
+                return
             }
         }
-        return map.also { vocabulary = it }
+        json.delete()
     }
 }

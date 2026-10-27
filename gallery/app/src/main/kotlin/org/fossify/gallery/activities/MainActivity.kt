@@ -495,7 +495,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
      * screenshot window or camera shortcut), opens the AI models screen (the editor's
      * AiModelsActivity) if any AI model is missing and none is downloading. Waits for photo access
      * and for the app's check of which models are already here (vv_models_checked, done when it
-     * starts), so someone who has them all isn't asked.
+     * starts), so someone who has them all isn't asked. The all-in-one APK shows it every time
+     * until it has switched to the normal APK.
      */
     private fun offerAiModels() {
         if (mIsThirdPartyIntent || !hasPermission(getPermissionToRequest())) return
@@ -506,7 +507,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             return
         }
         offerAiModelsOnResume = false
-        if (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_running", false)) return
+        // The all-in-one APK shows the screen until it has unpacked its models and switched to the
+        // normal APK (which has no vv_models).
+        val allInOne = runCatching { assets.open("vv_models/index.txt").close(); true }.getOrDefault(false)
+        if (!allInOne && (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_running", false))) return
         runCatching { startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity")) }
     }
 

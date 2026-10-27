@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - 'vipervision/models/urls.txt'
+      - 'vipervision/models/make_vocab.py'
       - '.github/workflows/mirror-ai-models.yml'
 
 permissions:
@@ -52,9 +53,18 @@ jobs:
             gh release upload "$TAG" "models/$name" --repo "$REPO" --clobber
             rm -f "models/$name"
           done < vipervision/models/urls.txt
+          # The AI search's word pieces, made from SigLIP 2's tokenizer.json (34 MB → 3.5 MB).
+          if ! grep -qxF siglip2__vocab.bin <<< "$existing"; then
+            echo "Making siglip2__vocab.bin"
+            curl -fL --retry 4 --retry-delay 5 -o models/tokenizer.json \
+              https://huggingface.co/onnx-community/siglip2-base-patch16-256-ONNX/resolve/main/tokenizer.json
+            python3 vipervision/models/make_vocab.py models/tokenizer.json models/siglip2__vocab.bin
+            gh release upload "$TAG" models/siglip2__vocab.bin --repo "$REPO" --clobber
+            rm -f models/tokenizer.json models/siglip2__vocab.bin
+          fi
           # Models taken off the list (no longer used by the app) leave the release too.
-          wanted=$(while read -r url; do [ -z "$url" ] && continue; clean="${url%%\?*}"
-            if [[ "$clean" == *"/resolve/"* ]]; then n="${clean#*/resolve/*/}"; else n="${clean##*/}"; fi; echo "${n//\//__}"; done < vipervision/models/urls.txt)
+          wanted=$( (echo siglip2__vocab.bin; while read -r url; do [ -z "$url" ] && continue; clean="${url%%\?*}"
+            if [[ "$clean" == *"/resolve/"* ]]; then n="${clean#*/resolve/*/}"; else n="${clean##*/}"; fi; echo "${n//\//__}"; done < vipervision/models/urls.txt) )
           for asset in $(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[].name'); do
             grep -qxF "$asset" <<< "$wanted" || { echo "Removing unused $asset"; gh release delete-asset "$TAG" "$asset" --repo "$REPO" --yes; }
           done

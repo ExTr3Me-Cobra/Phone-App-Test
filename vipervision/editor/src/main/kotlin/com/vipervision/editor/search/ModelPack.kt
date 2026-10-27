@@ -1,6 +1,11 @@
 package com.vipervision.editor.search
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.os.Build
 import android.graphics.Bitmap
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -120,12 +125,50 @@ object ModelPack {
     private fun prefs(context: Context) = context.getSharedPreferences("Prefs", Context.MODE_PRIVATE)
 
     /**
+     * The all-in-one APK carries every model (assets/vv_models, see AndroidDownloadManager's
+     * copyBundled) plus the normal APK (assets/vv_slim.apk): the models are unpacked from it with
+     * no internet, then the app replaces itself with the normal one (same app and signature, so
+     * nothing is lost) and Android deletes the big one.
+     */
+    fun isAllInOne(context: Context): Boolean =
+        runCatching { context.assets.open("vv_models/index.txt").close(); true }.getOrDefault(false)
+
+    /**
+     * Installs the normal APK over this all-in-one one. Android shows its usual "Update" prompt
+     * (sent back to [AiModelsActivity] as [ACTION_SLIM_INSTALLED] when it needs the user's OK).
+     */
+    fun switchToSlim(activity: Activity) {
+        val installer = activity.packageManager.packageInstaller
+        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+            .apply { setAppPackageName(activity.packageName) }
+        val id = installer.createSession(params)
+        installer.openSession(id).use { session ->
+            activity.assets.open(SLIM_APK).use { input ->
+                session.openWrite("base.apk", 0, -1).use { output ->
+                    input.copyTo(output, 1 shl 20)
+                    session.fsync(output)
+                }
+            }
+            val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+                    if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
+            val pending = PendingIntent.getActivity(
+                activity, id,
+                Intent(activity, AiModelsActivity::class.java).setAction(ACTION_SLIM_INSTALLED),
+                flags
+            )
+            session.commit(pending.intentSender)
+        }
+        ViperLog.i("MODELS", "Switching to the normal APK")
+    }
+
+    /**
      * Checks which models are already on the phone (e.g. downloaded by an earlier build, one tool
      * at a time) and notes it for the gallery: whether to offer the download at all, and how much
      * is left. Run when the app starts, off the main thread.
      */
     fun refreshState(context: Context) {
         runCatching { deleteUnused() }.onFailure { ViperLog.error("MODELS", "couldn't delete unused models", it) }
+        runCatching { Siglip.replaceTokenizer(context) }.onFailure { ViperLog.error("MODELS", "couldn't shrink the search vocabulary", it) }
         val (here, complete) = state(context)
         prefs(context).edit()
             .putBoolean(KEY_COMPLETE, complete)
@@ -133,6 +176,8 @@ object ModelPack {
             .putLong(KEY_TOTAL_BYTES, totalSize)
             .putBoolean(KEY_CHECKED, true)
             .apply()
+        // The all-in-one APK unpacks its models straight away (no internet needed).
+        if (!complete && isAllInOne(context) && !isRunning(context)) start(context, allowMobileData = true)
         ViperLog.i("MODELS", "AI models on the phone: ${here / 1_000_000} of ${totalSize / 1_000_000} MB" + if (complete) " (all)" else "")
     }
 
@@ -146,11 +191,18 @@ object ModelPack {
         prefs(context).edit().putBoolean(KEY_PROMPTED, true).remove(KEY_ERROR).apply()
         WorkManager.getInstance(context).enqueueUniqueWork(
             WORK,
-            ExistingWorkPolicy.KEEP,
+            // (An all-in-one APK replaces a download still waiting for Wi-Fi.)
+            if (isAllInOne(context)) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP,
             OneTimeWorkRequestBuilder<Worker>()
                 .setConstraints(
                     Constraints.Builder()
-                        .setRequiredNetworkType(if (allowMobileData) NetworkType.CONNECTED else NetworkType.UNMETERED)
+                        .setRequiredNetworkType(
+                            when {
+                                isAllInOne(context) -> NetworkType.NOT_REQUIRED
+                                allowMobileData -> NetworkType.CONNECTED
+                                else -> NetworkType.UNMETERED
+                            }
+                        )
                         .build()
                 )
                 .build()
@@ -164,6 +216,7 @@ object ModelPack {
             val prefs = prefs(context)
             prefs.edit().putBoolean(KEY_RUNNING, true).apply()
             val total = totalSize.toFloat()
+            val verb = if (isAllInOne(context)) "Unpacking" else "Downloading"
             var done = 0L
             try {
                 for (item in items) {
@@ -172,7 +225,7 @@ object ModelPack {
                         done += item.size
                         continue
                     }
-                    ViperLog.i("MODELS", "Downloading ${item.name}")
+                    ViperLog.i("MODELS", "$verb ${item.name}")
                     prefs.edit().putString(KEY_CURRENT, item.name).apply()
                     var lastShown = -1
                     item.fetch(context, deps) { fraction ->
@@ -181,7 +234,7 @@ object ModelPack {
                         if (percent != lastShown) {
                             lastShown = percent
                             prefs.edit().putFloat(KEY_PROGRESS, overall).apply()
-                            setForegroundAsync(AiSearch.foreground(context, "Downloading AI models: $percent% (${item.name})", percent))
+                            setForegroundAsync(AiSearch.foreground(context, "$verb AI models: $percent% (${item.name})", percent))
                         }
                     }
                     done += item.size
@@ -203,6 +256,8 @@ object ModelPack {
     }
 
     private const val WORK = "vv_model_pack"
+    private const val SLIM_APK = "vv_slim.apk"
+    const val ACTION_SLIM_INSTALLED = "com.vipervision.SLIM_INSTALLED"
     // Shared with the gallery (it offers the download once and shows the status in Settings).
     const val KEY_PROMPTED = "vv_models_prompted"
     const val KEY_COMPLETE = "vv_models_complete"

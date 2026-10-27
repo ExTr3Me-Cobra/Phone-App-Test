@@ -16,6 +16,10 @@
         </intent>
     </queries>
 
+    <!-- Only for the all-in-one APK: after unpacking its AI models it replaces itself with the
+         normal APK (search/ModelPack.switchToSlim), after the user taps Update. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <application>
         <activity
             android:name=".EditorActivity"
@@ -41,6 +45,7 @@
         <activity
             android:name=".search.AiModelsActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:theme="@style/ViperEditorTheme" />
 
         <!-- AI search indexing and the AI model download run as background work with a

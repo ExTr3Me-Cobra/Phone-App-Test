@@ -64,6 +64,9 @@ internal class AndroidDownloadManager @Inject constructor(
     ): Unit = withContext(defaultDispatcher) {
         var temporaryFile: File? = null
 
+        // Viper Vision: the all-in-one APK carries every AI model, so it's copied from there.
+        if (copyBundled(url, destinationPath, onStart, onProgress, onFinish)) return@withContext
+
         if (!appContext.isNetworkAvailable()) {
             failureNotifier.sendNoConnection()
             onFinish(UnknownHostException())
@@ -254,6 +257,63 @@ private fun File.resolveZipEntry(filename: String): File {
     require(output.path.startsWith(destinationPrefix))
 
     return output
+}
+
+/**
+ * Viper Vision: the all-in-one APK (built by the build workflow) carries every AI model in its
+ * assets/vv_models folder, named like the model release (see [mirrorUrl]), with index.txt listing
+ * each name and size. The normal APK has none of it.
+ */
+private val bundledModels: Map<String, Long> by lazy {
+    runCatching {
+        appContext.assets.open("vv_models/index.txt").bufferedReader().useLines { lines ->
+            lines.mapNotNull { line ->
+                val parts = line.trim().split(' ')
+                if (parts.size == 2) parts[0] to parts[1].toLong() else null
+            }.toMap()
+        }
+    }.getOrDefault(emptyMap())
+}
+
+/** Copies [url]'s model out of the all-in-one APK; false if this APK doesn't have it. */
+private suspend fun copyBundled(
+    url: String,
+    destinationPath: String,
+    onStart: suspend () -> Unit,
+    onProgress: suspend (DownloadProgress) -> Unit,
+    onFinish: suspend (Throwable?) -> Unit
+): Boolean {
+    val name = (mirrorUrl(url) ?: url.substringBefore('?')).removePrefix(MIRROR_BASE)
+    val size = bundledModels[name] ?: return false
+    onStart()
+    val destination = File(destinationPath)
+    val tmp = destination.createTemporarySibling()
+    val error = runCatching {
+        appContext.assets.open("vv_models/$name").use { input ->
+            tmp.outputStream().use { output ->
+                val buffer = ByteArray(1 shl 20)
+                var copied = 0L
+                var shown = -1
+                while (true) {
+                    val read = input.read(buffer)
+                    if (read < 0) break
+                    output.write(buffer, 0, read)
+                    copied += read
+                    val percent = (copied * 100 / size).toInt()
+                    if (percent != shown) {
+                        shown = percent
+                        onProgress(DownloadProgress(currentPercent = copied.toFloat() / size, currentTotalSize = size))
+                    }
+                }
+            }
+        }
+        check(tmp.length() == size) { "$name wasn't copied completely" }
+        tmp.replaceAtomically(destination)
+    }.exceptionOrNull()
+    tmp.delete()
+    if (error == null) "Copied $name from the app".makeLog("Download")
+    onFinish(error)
+    return true
 }
 
 /**

@@ -130,17 +130,77 @@ jobs:
           name: Viper Vision (build ${{ github.run_number }})
           body: |
             On your phone, tap **ViperVision.apk** below to download it, then open it to install.
+            It downloads its AI models (about 2 GB) itself, once.
+
+            **ViperVision-AllInOne.apk** (added a few minutes after the build) is the same app with
+            every AI model inside it, for a fresh install with no internet afterwards: it unpacks the
+            models, then switches itself to the normal version (tap Update when Android asks).
 
             Fossify Gallery (GPL-3.0) for browsing photos, with Viper Vision's own photo and video
             editor (built on Image Toolbox's engines, Apache-2.0).
           files: ViperVision.apk
           make_latest: false
 
+  # The all-in-one APK: the APK just built plus every AI model from the "vipervision-ai-models"
+  # release (compressed, about 2 GB → 1.7 GB) and a copy of the normal APK, which the app installs
+  # over itself once it has unpacked the models (ModelPack.switchToSlim). GitHub takes files up to
+  # 2 GiB. Its own runner, since the build's runner has little disk left.
+  all-in-one:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      TAG: vipervision-build-${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get the signing key
+        uses: actions/cache/restore@v4
+        with:
+          path: signing/vipervision.keystore
+          key: vipervision-signing-key-v1
+          fail-on-cache-miss: true
+
+      - name: Make the all-in-one APK
+        run: |
+          mkdir -p slim pack/assets/vv_models
+          gh release download "$TAG" --repo "$REPO" --pattern ViperVision.apk --dir slim
+          gh release download vipervision-ai-models --repo "$REPO" --dir pack/assets/vv_models
+          # The names and sizes the app looks for (AndroidDownloadManager.copyBundled).
+          (cd pack/assets/vv_models && for f in *; do [ "$f" = index.txt ] && continue; echo "$f $(stat -c%s "$f")"; done > index.txt)
+          cat pack/assets/vv_models/index.txt
+          grep -q '^siglip2__vocab.bin ' pack/assets/vv_models/index.txt || { echo "::error::The model release has no siglip2__vocab.bin yet (Mirror AI models workflow)"; exit 1; }
+          cp slim/ViperVision.apk pack/assets/vv_slim.apk
+          # Start from the normal APK without its signature, add the models (compressed) and the
+          # normal APK (stored as is, so it can be streamed to the installer).
+          cp slim/ViperVision.apk work.apk
+          for pattern in 'META-INF/*.SF' 'META-INF/*.RSA' 'META-INF/*.EC' 'META-INF/*.DSA' 'META-INF/MANIFEST.MF'; do
+            zip -q -d work.apk "$pattern" || true
+          done
+          (cd pack && zip -q -9 -r ../work.apk assets/vv_models && zip -q -0 ../work.apk assets/vv_slim.apk)
+          rm -rf pack slim
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -1)
+          ${BUILD_TOOLS}zipalign -P 16 -f 4 work.apk aligned.apk || ${BUILD_TOOLS}zipalign -p -f 4 work.apk aligned.apk
+          rm work.apk
+          ${BUILD_TOOLS}apksigner sign --ks signing/vipervision.keystore --ks-key-alias vipervision \
+            --ks-pass pass:android --key-pass pass:android --out ViperVision-AllInOne.apk aligned.apk
+          rm aligned.apk
+          ${BUILD_TOOLS}apksigner verify ViperVision-AllInOne.apk
+          size=$(stat -c%s ViperVision-AllInOne.apk)
+          echo "All-in-one APK: $size bytes"
+          [ "$size" -lt 2147483648 ] || { echo "::error::The all-in-one APK is over GitHub's 2 GiB limit"; exit 1; }
+
+      - name: Add it to the release
+        run: gh release upload "$TAG" ViperVision-AllInOne.apk --repo "$REPO" --clobber
+
   # Keeps GitHub tidy after a good build: only the newest few Viper Vision releases, build logs
   # and this branch's build caches. Other apps' releases, workflows and caches are left alone,
   # and no signing key is ever deleted.
   cleanup:
-    needs: build
+    needs: [build, all-in-one]
+    if: always() && needs.build.result == 'success'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}

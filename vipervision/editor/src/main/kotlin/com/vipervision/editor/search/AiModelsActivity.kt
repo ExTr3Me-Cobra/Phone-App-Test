@@ -1,6 +1,15 @@
 package com.vipervision.editor.search
 
+import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -45,11 +54,67 @@ class AiModelsActivity : ComponentActivity() {
 
     private class State(val here: List<Boolean>, val running: Boolean, val progress: Float, val current: String?, val error: String?)
 
+    private val allInOne by lazy { ModelPack.isAllInOne(this) }
+    private var switchMessage by mutableStateOf<String?>(null)
+    private var switchWhenAllowed = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Offered once: opening this screen counts.
         getSharedPreferences("Prefs", MODE_PRIVATE).edit().putBoolean(ModelPack.KEY_PROMPTED, true).apply()
         setContent { Screen() }
+        onSwitchResult(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        onSwitchResult(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Back from allowing Viper Vision to install apps.
+        if (switchWhenAllowed && canInstall()) {
+            switchWhenAllowed = false
+            switchToSlim()
+        }
+    }
+
+    private fun canInstall() = Build.VERSION.SDK_INT < 26 || packageManager.canRequestPackageInstalls()
+
+    private fun switchToSlim() {
+        if (!canInstall()) {
+            // Android asks once whether Viper Vision may install apps (only to replace itself).
+            switchWhenAllowed = true
+            switchMessage = "Turn on \"Allow from this source\", then come back."
+            runCatching {
+                startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName")))
+            }
+            return
+        }
+        switchMessage = "Preparing…"
+        lifecycleScope.launch {
+            val error = withContext(Dispatchers.IO) { runCatching { ModelPack.switchToSlim(this@AiModelsActivity) }.exceptionOrNull() }
+            switchMessage = error?.let { "Couldn't switch: ${it.message ?: it.javaClass.simpleName}" }
+        }
+    }
+
+    /** Android's answer to [ModelPack.switchToSlim]: its Update prompt, or why it failed. */
+    private fun onSwitchResult(intent: Intent?) {
+        if (intent?.action != ModelPack.ACTION_SLIM_INSTALLED) return
+        when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
+            PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                @Suppress("DEPRECATION")
+                val prompt = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+                if (prompt != null) runCatching { startActivity(prompt) }
+                switchMessage = null
+            }
+            // On success Android closes the app while replacing it, so this rarely shows.
+            PackageInstaller.STATUS_SUCCESS -> switchMessage = "Done."
+            PackageInstaller.STATUS_FAILURE_ABORTED -> switchMessage = null
+            else -> switchMessage = "Couldn't switch: " +
+                    (intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE) ?: "Android refused the install")
+        }
     }
 
     @Composable
@@ -86,13 +151,37 @@ class AiModelsActivity : ComponentActivity() {
             Spacer(Modifier.height(8.dp))
             Text(
                 "Every AI tool in Viper Vision and the AI search use these: about ${gb(ModelPack.totalSize)} in all. " +
-                        "Downloaded once, they stay through every update. They come from Viper Vision's own " +
-                        "permanent copy (falling back to the original sites).",
+                        if (allInOne) "This all-in-one version has them inside it; they're unpacked once, with no " +
+                                "internet needed, and stay through every update."
+                        else "Downloaded once, they stay through every update. They come from Viper Vision's own " +
+                                "permanent copy (falling back to the original sites).",
                 color = Color.Gray, fontSize = 14.sp
             )
             Spacer(Modifier.height(16.dp))
             when {
                 s == null -> Unit
+                complete && allInOne -> {
+                    getSharedPreferences("Prefs", MODE_PRIVATE).edit().putBoolean(ModelPack.KEY_COMPLETE, true).apply()
+                    Text("All unpacked (${gb(hereBytes)}).", color = accent, fontSize = 15.sp)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Last step: switch to the normal version of the app. It's the same app without the " +
+                                "packed copy of the models, which frees about ${gb(apkSize())}. Your settings, " +
+                                "models and photos all stay. Android will ask you to tap Update.",
+                        color = Color.White, fontSize = 14.sp
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Button(
+                        onClick = { switchToSlim() },
+                        colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn()),
+                        modifier = Modifier.fillMaxWidth().height(50.dp)
+                    ) { Text("Switch now", fontSize = 16.sp) }
+                    switchMessage?.let {
+                        Spacer(Modifier.height(6.dp))
+                        Text(it, color = Color.Gray, fontSize = 13.sp)
+                    }
+                    TextButton(onClick = { finish() }) { Text("Later", color = Color.Gray, fontSize = 15.sp) }
+                }
                 complete -> {
                     // (Also tells the gallery, in case they came from an earlier build.)
                     getSharedPreferences("Prefs", MODE_PRIVATE).edit().putBoolean(ModelPack.KEY_COMPLETE, true).apply()
@@ -100,13 +189,27 @@ class AiModelsActivity : ComponentActivity() {
                 }
                 s.running -> {
                     Text(
-                        "Downloading… ${(s.progress * 100).toInt()}%" + (s.current?.let { " · $it" } ?: ""),
+                        (if (allInOne) "Unpacking… " else "Downloading… ") + "${(s.progress * 100).toInt()}%" + (s.current?.let { " · $it" } ?: ""),
                         color = Color.White, fontSize = 15.sp
                     )
                     Spacer(Modifier.height(8.dp))
                     LinearProgressIndicator(progress = { s.progress }, color = accent, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(6.dp))
                     Text("It keeps going in the background; you can leave this screen.", color = Color.Gray, fontSize = 12.sp)
+                }
+                allInOne -> {
+                    // Unpacking starts by itself when the app opens; this restarts it after a stop.
+                    Text(
+                        "${gb(hereBytes)} of ${gb(ModelPack.totalSize)} unpacked." +
+                                (s.error?.let { "\nLast try stopped: $it" } ?: ""),
+                        color = Color.White, fontSize = 15.sp
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    Button(
+                        onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = true) },
+                        colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn()),
+                        modifier = Modifier.fillMaxWidth().height(50.dp)
+                    ) { Text("Unpack", fontSize = 16.sp) }
                 }
                 else -> {
                     Text(
@@ -147,6 +250,8 @@ class AiModelsActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun apkSize() = runCatching { java.io.File(applicationInfo.sourceDir).length() }.getOrDefault(0L)
 
     private fun gb(bytes: Long) = "%.1f GB".format(bytes / 1e9)
     private fun mb(bytes: Long) = when {
