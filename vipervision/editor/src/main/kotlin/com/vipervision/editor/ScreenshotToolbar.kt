@@ -269,18 +269,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             fun weighted(end: Int) = LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = end }
             addView(pill("Share", false) { share(keep = false) }, weighted(dp(8)))
             addView(pill("Save", true) { save() }, weighted(dp(8)))
-            addView(pill("Share & Save", false) { share(keep = true) }, weighted(dp(8)))
-            // Deletes the screenshot straight away (the setup made sure of All files access, so
-            // Android doesn't ask).
-            addView(FrameLayout(service).apply {
-                background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(grey) }
-                contentDescription = "Delete screenshot"
-                addView(ImageView(service).apply {
-                    setImageResource(android.R.drawable.ic_menu_delete)
-                    setColorFilter(0xFFE5484D.toInt())
-                }, FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER))
-                setOnClickListener { deleteNow() }
-            }, LinearLayout.LayoutParams(dp(40), dp(40)).apply { gravity = Gravity.CENTER_VERTICAL })
+            addView(pill("Share & Save", false) { share(keep = true) }, weighted(0))
         }.also { actions = it }
 
         // Full screen and opaque; it stays until Share, Save, Share & Save or the trash can.
@@ -299,6 +288,25 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         }
         showPreview()
 
+        // The trash can, in the screen's bottom left corner: deletes the screenshot straight away
+        // (the setup made sure of All files access, so Android doesn't ask).
+        val trash = FrameLayout(service).also { trashButton = it }.apply {
+            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(grey) }
+            contentDescription = "Delete screenshot"
+            addView(ImageView(service).apply {
+                setImageResource(android.R.drawable.ic_menu_delete)
+                setColorFilter(0xFFE5484D.toInt())
+            }, FrameLayout.LayoutParams(dp(24), dp(24), Gravity.CENTER))
+            setOnClickListener { deleteNow() }
+        }
+        val window = FrameLayout(service).apply {
+            addView(page)
+            addView(trash, FrameLayout.LayoutParams(dp(40), dp(40), Gravity.BOTTOM or Gravity.START).apply {
+                marginStart = dp(10)
+                bottomMargin = systemBar("navigation_bar_height") + dp(10)
+            })
+        }
+
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -312,14 +320,15 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             }
         }
         runCatching {
-            service.getSystemService(WindowManager::class.java).addView(page, params)
-            card = page
+            service.getSystemService(WindowManager::class.java).addView(window, params)
+            card = window
         }.onFailure { ViperLog.error("SCREENSHOT", "couldn't show the toolbar", it) }
     }
 
     /** The screenshot (as edited so far), with the Crop and Draw bubbles under it. */
     private fun showPreview() {
         val stage = stage ?: return
+        trashButton?.visibility = View.VISIBLE
         val controls = controls ?: return
         setActionsEnabled(true)
         stage.removeAllViews()
@@ -355,7 +364,11 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         })
     }
 
+    // Hidden while cropping or drawing (their own buttons use the bottom of the screen).
+    private var trashButton: View? = null
+
     private fun startCrop() {
+        trashButton?.visibility = View.GONE
         val picture = edited ?: original ?: return
         val stage = stage ?: return
         val controls = controls ?: return
@@ -375,6 +388,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
     }
 
     private fun startDraw() {
+        trashButton?.visibility = View.GONE
         val picture = edited ?: original ?: return
         val stage = stage ?: return
         val controls = controls ?: return
