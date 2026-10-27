@@ -9,6 +9,11 @@ on:
       - 'vipervision/**'
       - '.github/workflows/build-vipervision-apk.yml'
   workflow_dispatch:
+    inputs:
+      all_in_one:
+        description: 'Also make the all-in-one APK (every AI model inside, about 1.8 GB)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -132,8 +137,8 @@ jobs:
             On your phone, tap **ViperVision.apk** below to download it, then open it to install.
             It downloads its AI models (about 2 GB) itself, once.
 
-            **ViperVision-AllInOne.apk** (added a few minutes after the build) is the same app with
-            every AI model inside it, for a fresh install with no internet afterwards: it unpacks the
+            When this build was asked for with the all-in-one, **ViperVision-AllInOne.apk** (added
+            a few minutes after the build) is the same app with every AI model inside it, for a fresh install with no internet afterwards: it unpacks the
             models, then switches itself to the normal version (tap Update when Android asks).
 
             Fossify Gallery (GPL-3.0) for browsing photos, with Viper Vision's own photo and video
@@ -144,9 +149,11 @@ jobs:
   # The all-in-one APK: the APK just built plus every AI model from the "vipervision-ai-models"
   # release (compressed, about 2 GB → 1.7 GB) and a copy of the normal APK, which the app installs
   # over itself once it has unpacked the models (ModelPack.switchToSlim). GitHub takes files up to
-  # 2 GiB. Its own runner, since the build's runner has little disk left.
+  # 2 GiB. Its own runner, since the build's runner has little disk left. Only when asked for
+  # (Run workflow with "all-in-one" ticked); pushes make just the normal APK.
   all-in-one:
     needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.all_in_one
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -209,8 +216,13 @@ jobs:
     steps:
       - name: Delete old Viper Vision releases and their tags
         run: |
+          # The newest release with an all-in-one APK is kept too, however old.
+          keep_aio=$(gh api --paginate "repos/$REPO/releases?per_page=100" \
+            --jq '.[] | select(any(.assets[]; .name == "ViperVision-AllInOne.apk")) | .tag_name' \
+            | grep -E '^vipervision-build-[0-9]+$' | sort -t- -k3 -n -r | head -1 || true)
+          echo "Keeping the newest all-in-one: ${keep_aio:-none}"
           gh api --paginate "repos/$REPO/releases?per_page=100" --jq '.[].tag_name' \
-            | grep -E '^vipervision-build-[0-9]+$' | sort -t- -k3 -n -r | tail -n +$((KEEP + 1)) \
+            | grep -E '^vipervision-build-[0-9]+$' | grep -vxF "${keep_aio:-none}" | sort -t- -k3 -n -r | tail -n +$((KEEP + 1)) \
             | while read -r tag; do
                 echo "Deleting release $tag"
                 gh release delete "$tag" --repo "$REPO" --yes --cleanup-tag || true
