@@ -163,9 +163,15 @@ class SettingsActivity : SimpleActivity() {
         // Samsung AI Eraser / Move / Create bubbles in the editor. Shared with the editor through
         // the same settings file (key "vv_samsung_ai"); on by default on Samsung phones only.
         val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
-        binding.settingsVvSamsungAi.isChecked =
-            prefs.getBoolean("vv_samsung_ai", android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true))
+        val isSamsung = android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true)
+        // Other phones don't have Samsung's photo editor: off, greyed out, and a note says why.
+        if (!isSamsung) prefs.edit().putBoolean("vv_samsung_ai", false).apply()
+        binding.settingsVvSamsungAi.isChecked = prefs.getBoolean("vv_samsung_ai", isSamsung)
+        binding.settingsVvSamsungAi.isEnabled = isSamsung
+        binding.settingsVvSamsungAi.alpha = if (isSamsung) 1f else 0.5f
+        binding.settingsVvSamsungAiNote.beVisibleIf(!isSamsung)
         binding.settingsVvSamsungAiHolder.setOnClickListener {
+            if (!isSamsung) return@setOnClickListener
             binding.settingsVvSamsungAi.toggle()
             prefs.edit().putBoolean("vv_samsung_ai", binding.settingsVvSamsungAi.isChecked).apply()
         }
@@ -187,22 +193,6 @@ class SettingsActivity : SimpleActivity() {
             startActivity(Intent().setClassName(packageName, "com.vipervision.editor.DiagnosticsActivity"))
         }
         setupKeptOriginals()
-        // The one-time AI model download (the editor's search/ModelPack and AiModelsActivity,
-        // which keep their status in the shared "Prefs" file).
-        binding.settingsVvAiModelsStatus.text = when {
-            prefs.getBoolean("vv_models_complete", false) -> getString(R.string.vv_ai_models_all)
-            prefs.getBoolean("vv_models_running", false) ->
-                getString(R.string.vv_ai_models_downloading, (prefs.getFloat("vv_models_progress", 0f) * 100).toInt())
-            prefs.getLong("vv_models_here_bytes", 0L) > 0L -> getString(
-                R.string.vv_ai_models_partly,
-                "%.1f".format(prefs.getLong("vv_models_here_bytes", 0L) / 1e9),
-                "%.1f".format(prefs.getLong("vv_models_total_bytes", 2_100_000_000L) / 1e9)
-            )
-            else -> getString(R.string.vv_ai_models_none)
-        }
-        binding.settingsVvAiModelsHolder.setOnClickListener {
-            startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity"))
-        }
     }
 
     /**
