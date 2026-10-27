@@ -91,8 +91,14 @@ internal class AndroidDownloadManager @Inject constructor(
                 }
 
                 try {
+                    // Viper Vision: AI models come from this app's own permanent copy first (see
+                    // mirrorUrl); the original site is only used if that copy isn't there.
+                    val sources = listOfNotNull(mirrorUrl(url), url)
+                    var lastError: Throwable? = null
+                    for (source in sources) {
+                        lastError = runCatching {
                     client.getWithProgress(
-                        url = url,
+                        url = source,
                         onProgress = { bytesSentTotal, contentLength ->
                             val progress = contentLength
                                 ?.takeIf { it > 0L }
@@ -113,6 +119,12 @@ internal class AndroidDownloadManager @Inject constructor(
                             }
                         }
                     )
+                        }.exceptionOrNull()
+                        if (lastError == null) break
+                        if (lastError is kotlinx.coroutines.CancellationException) throw lastError
+                        "$source failed (${lastError.message}), trying the next source".makeLog("Download")
+                    }
+                    lastError?.let { throw it }
 
                     tmp.replaceAtomically(destination)
                     onFinish(null)
@@ -243,3 +255,24 @@ private fun File.resolveZipEntry(filename: String): File {
 
     return output
 }
+
+/**
+ * Viper Vision: where this app keeps its own copy of a downloaded AI model, so models keep working
+ * if the original site goes away. Every model is mirrored into the "vipervision-ai-models" release
+ * of the app's repository (.github/workflows/mirror-ai-models.yml, which names files the same way:
+ * the path inside a Hugging Face repository, or else the file name, with "/" as "__").
+ * Null for anything that isn't an AI model.
+ */
+internal fun mirrorUrl(url: String): String? {
+    val clean = url.substringBefore('?')
+    val isModel = listOf(".onnx", ".ort", ".zip", "tokenizer.json").any { clean.endsWith(it) }
+    if (!isModel || clean.startsWith(MIRROR_BASE)) return null
+    val path = if ("/resolve/" in clean) {
+        clean.substringAfter("/resolve/").substringAfter('/')
+    } else {
+        clean.substringAfterLast('/')
+    }
+    return MIRROR_BASE + path.replace("/", "__")
+}
+
+private const val MIRROR_BASE = "https://github.com/ExTr3Me-Cobra/Phone-App-Test/releases/download/vipervision-ai-models/"

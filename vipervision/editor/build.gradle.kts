@@ -37,6 +37,8 @@ dependencies {
     implementation(libs.aire)
     implementation(libs.toolbox.gpuimage)
     implementation(libs.activityCompose)
+    // AI search indexing and the one-time AI model download run in the background.
+    implementation(libs.androidx.work.runtime)
     // Video editing: playback with live effects, trimming and export (same version as Gallery's player).
     implementation("androidx.media3:media3-exoplayer:1.10.1")
     implementation("androidx.media3:media3-effect:1.10.1")

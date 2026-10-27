@@ -187,6 +187,17 @@ class SettingsActivity : SimpleActivity() {
             startActivity(Intent().setClassName(packageName, "com.vipervision.editor.DiagnosticsActivity"))
         }
         setupKeptOriginals()
+        // The one-time AI model download (the editor's search/ModelPack and AiModelsActivity,
+        // which keep their status in the shared "Prefs" file).
+        binding.settingsVvAiModelsStatus.text = when {
+            prefs.getBoolean("vv_models_complete", false) -> getString(R.string.vv_ai_models_all)
+            prefs.getBoolean("vv_models_running", false) ->
+                getString(R.string.vv_ai_models_downloading, (prefs.getFloat("vv_models_progress", 0f) * 100).toInt())
+            else -> getString(R.string.vv_ai_models_none)
+        }
+        binding.settingsVvAiModelsHolder.setOnClickListener {
+            startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity"))
+        }
     }
 
     /**

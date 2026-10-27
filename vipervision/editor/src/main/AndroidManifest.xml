@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Viper Vision: to find Samsung's photo editor (the Samsung AI bubbles). -->
     <queries>
@@ -28,6 +29,26 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:exported="false"
             android:theme="@style/ViperEditorTheme" />
+
+        <!-- The gallery's AI search (magnifier button). -->
+        <activity
+            android:name=".search.AiSearchActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- Settings → AI models: the one-time download of every AI model (search/ModelPack). -->
+        <activity
+            android:name=".search.AiModelsActivity"
+            android:exported="false"
+            android:theme="@style/ViperEditorTheme" />
+
+        <!-- AI search indexing and the AI model download run as background work with a
+             notification (data sync). -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
 
         <!-- Settings → Diagnostic log (ViperLog). -->
         <activity

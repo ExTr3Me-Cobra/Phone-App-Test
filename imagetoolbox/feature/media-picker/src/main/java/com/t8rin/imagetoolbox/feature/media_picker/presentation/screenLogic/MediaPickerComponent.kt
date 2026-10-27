@@ -386,9 +386,10 @@ class MediaPickerComponent @AssistedInject internal constructor(
         }
     }
 
+    // Viper Vision: Image Toolbox's CLIP search is switched off (the gallery has its own AI search).
     fun setSemanticSearchAutoIndexing(enabled: Boolean) = runSemanticSearchOperation {
-        settingsManager.setSemanticSearchEnabled(enabled)
-        if (enabled) {
+        settingsManager.setSemanticSearchEnabled(false)
+        if (false) {
             semanticSearchScheduler.refresh()
         } else {
             clearSearchImage()
@@ -795,13 +796,9 @@ class MediaPickerComponent @AssistedInject internal constructor(
         runBlocking {
             _settingsState.value = settingsManager.getSettingsState()
         }
-        _isSemanticSearchEnabled.value = settingsState.isSemanticSearchEnabled
+        // Viper Vision: always off (see setSemanticSearchAutoIndexing).
+        _isSemanticSearchEnabled.value = false
         settingsManager.settingsState.onEach {
-            if (settingsState.isSemanticSearchEnabled != it.isSemanticSearchEnabled) {
-                if (!it.isSemanticSearchEnabled) clearSearchImage()
-                _isSemanticSearchEnabled.value = it.isSemanticSearchEnabled &&
-                        allowedMedia !is AllowedMedia.Videos
-            }
             _settingsState.value = it
         }.launchIn(componentScope)
     }

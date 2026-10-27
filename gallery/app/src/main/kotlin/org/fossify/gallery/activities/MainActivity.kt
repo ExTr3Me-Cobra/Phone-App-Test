@@ -107,6 +107,7 @@ import org.fossify.gallery.extensions.handleMediaManagementPrompt
 import org.fossify.gallery.extensions.isDownloadsFolder
 import org.fossify.gallery.extensions.launchCamera
 import org.fossify.gallery.extensions.launchSettings
+import org.fossify.gallery.extensions.openAiSearch
 import org.fossify.gallery.extensions.mediaDB
 import org.fossify.gallery.extensions.movePathsInRecycleBin
 import org.fossify.gallery.extensions.movePinnedDirectoriesToFront
@@ -295,6 +296,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     override fun onResume() {
         super.onResume()
+        offerAiModelsOnce()
         updateMenuColors()
         config.isThirdPartyIntent = false
         mDateFormat = config.dateFormat
@@ -474,8 +476,19 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
             // Viper Vision: only Sort and ⋮ (Settings); the grid/folders switch is the
             // top-left button.
-            keepOnlyViperVisionItems(R.id.settings, R.id.create_new_folder)
+            keepOnlyViperVisionItems(R.id.settings, R.id.create_new_folder, R.id.vv_ai_search)
         }
+    }
+
+    /**
+     * Viper Vision: the first time the gallery opens (with access to photos), offers the one-time
+     * AI model download (the editor's AiModelsActivity, which remembers it was offered).
+     */
+    private fun offerAiModelsOnce() {
+        if (mIsThirdPartyIntent || !hasPermission(getPermissionToRequest())) return
+        val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_prompted", false)) return
+        runCatching { startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity")) }
     }
 
     /** Viper Vision: no search; the top-left button switches to the photo grid. */
@@ -541,6 +554,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 R.id.set_as_default_folder -> setAsDefaultFolder()
                 R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
                 R.id.settings -> launchSettings()
+                R.id.vv_ai_search -> openAiSearch()
                 else -> return@setOnMenuItemClickListener false
             }
             return@setOnMenuItemClickListener true

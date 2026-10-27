@@ -31,6 +31,11 @@
     <string name="vv_copy_to_album">Copy to album</string>
     <string name="vv_move_to_album">Move to album</string>
     <string name="vv_set_as_wallpaper">Set as wallpaper</string>
+    <string name="vv_ai_search">AI search</string>
+    <string name="vv_ai_models">AI models</string>
+    <string name="vv_ai_models_none">For every AI tool and AI search: about 3.7 GB, downloaded once. Tap to download</string>
+    <string name="vv_ai_models_all">All downloaded; they stay through updates</string>
+    <string name="vv_ai_models_downloading">Downloading… %1$d%%</string>
     <string name="vv_samsung_ai_tools">Samsung AI tools in the editor</string>
     <string name="vv_screenshot_toolbar">Screenshot toolbar after each screenshot</string>
     <string name="vv_screenshot_toolbar_how">It also needs Viper Vision\'s accessibility service on (the next screen), and Samsung\'s own screenshot toolbar off</string>

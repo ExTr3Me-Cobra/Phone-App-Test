@@ -79,7 +79,10 @@ class ImageToolboxApplication : ComposeApplication() {
             attachLogWriter()
             applyGlobalExceptionHandler()
             injectBaseComponent()
-            semanticSearchScheduler.start()
+            // Viper Vision: Image Toolbox's CLIP search is replaced by the gallery's AI search
+            // (SigLIP 2 + text reading); free the space its model took, and keep the new index up to date.
+            java.io.File(filesDir, "ai_models/clip_search").deleteRecursively()
+            com.vipervision.editor.search.AiSearch.onAppStart(this)
             // Viper Vision: start up the Gallery side of the app too.
             ViperVisionGallery.init(this)
 

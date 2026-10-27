@@ -511,10 +511,8 @@ internal fun MediaPickerGridWithOverlays(
                                                     )
                                                 }
                                             }
-                                            MediaSemanticSearchControls(
-                                                component = component,
-                                                onSearchImagePicked = onSearchImagePicked
-                                            )
+                                            // Viper Vision: no AI search here (its CLIP model was replaced by
+                                            // the gallery's own AI search, the magnifier button).
                                         }
                                     }
                                 },

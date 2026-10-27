@@ -239,3 +239,16 @@ upstream, these are the things to carry over.
 * `SharedPreferencesProducerExtensions.kt`: rewritten for newer Kotlin (no context receivers).
 * Strings `error`, `size` renamed to `commons_*` (same reason as above).
 * `extensions/SupportPrompt.kt`: Fossify's automatic donation / rating prompt is off.
+
+## AI models and AI search
+
+* **AI models**: every model the app uses (the editor's AI bubbles, Blemish remover, Manual
+  background remover's models and Smart select, and AI search), about 3.7 GB, is mirrored into
+  this repository's permanent `vipervision-ai-models` release (`vipervision/models/urls.txt`,
+  `.github/workflows/mirror-ai-models.yml`). The app downloads from there first, falling back to
+  the original site (`AndroidDownloadManager.mirrorUrl`). Settings → AI models (offered once on
+  first launch) downloads them all at once; they stay through updates.
+* **AI search** (magnifier button on the albums and photos screens, `search/`): Google's SigLIP 2
+  (base, 256 px) for what's in each photo, plus PaddleOCR for words in it; a search adds both
+  scores. Photos are indexed in the background (WorkManager), new ones as they arrive. Image
+  Toolbox's CLIP search in its photo picker is switched off.

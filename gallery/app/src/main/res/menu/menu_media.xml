@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="AppCompatResource">
+    <!-- Viper Vision: AI search (the editor's AiSearchActivity). -->
+    <item
+        android:id="@+id/vv_ai_search"
+        android:icon="@drawable/ic_search_vector"
+        android:title="@string/vv_ai_search"
+        app:showAsAction="always" />
     <item
         android:id="@+id/toggle_filename"
         android:icon="@drawable/ic_label_vector"

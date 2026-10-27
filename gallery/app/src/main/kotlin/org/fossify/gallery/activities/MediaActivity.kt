@@ -79,6 +79,7 @@ import org.fossify.gallery.extensions.getHumanizedFilename
 import org.fossify.gallery.extensions.isDownloadsFolder
 import org.fossify.gallery.extensions.launchCamera
 import org.fossify.gallery.extensions.launchSettings
+import org.fossify.gallery.extensions.openAiSearch
 import org.fossify.gallery.extensions.launchGesturePlayer
 import org.fossify.gallery.extensions.mediaDB
 import org.fossify.gallery.extensions.movePathsInRecycleBin
@@ -361,7 +362,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
             // Viper Vision: only Sort and ⋮ (Settings) — plus the recycle bin's own actions
             // when in it; the grid/folders switch is the top-left button.
-            keepOnlyViperVisionItems(R.id.settings, R.id.sort, R.id.empty_recycle_bin, R.id.restore_all_files)
+            keepOnlyViperVisionItems(R.id.settings, R.id.sort, R.id.empty_recycle_bin, R.id.restore_all_files, R.id.vv_ai_search)
             // Settings (⋮) only on the all-photos grid, not inside an album or the recycle bin.
             findItem(R.id.settings).isVisible = mShowAll
         }
@@ -425,6 +426,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                     startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
                 }
                 R.id.settings -> launchSettings()
+                R.id.vv_ai_search -> openAiSearch()
                 else -> return@setOnMenuItemClickListener false
             }
             return@setOnMenuItemClickListener true

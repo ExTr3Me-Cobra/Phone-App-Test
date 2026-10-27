@@ -156,6 +156,15 @@ fun Activity.openViperStudio(tool: String, paths: List<String> = emptyList()) {
     }
 }
 
+/** Viper Vision: the AI search screen (vipervision/editor, search/AiSearchActivity). */
+fun Activity.openAiSearch() {
+    try {
+        startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiSearchActivity"))
+    } catch (e: Exception) {
+        showErrorToast(e)
+    }
+}
+
 fun Activity.launchCamera() {
     val intent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
     launchActivityIntent(intent)
