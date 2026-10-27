@@ -47,7 +47,8 @@ import java.io.File
  * - Crop and Draw: simple versions that work right there (see ScreenshotEditViews); the three
  *   above then use the edited screenshot (Save writes it over the original).
  *
- * It covers the whole screen and stays until one of the three is picked. Runs inside
+ * It covers the whole screen and stays until one of the three is picked, or the red trash can
+ * (deletes the screenshot without asking). Runs inside
  * [CameraThumbnailService]; Settings → "Screenshot toolbar" turns it off.
  */
 class ScreenshotToolbar(private val service: AccessibilityService) {
@@ -268,10 +269,21 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             fun weighted(end: Int) = LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = end }
             addView(pill("Share", false) { share(keep = false) }, weighted(dp(8)))
             addView(pill("Save", true) { save() }, weighted(dp(8)))
-            addView(pill("Share & Save", false) { share(keep = true) }, weighted(0))
+            addView(pill("Share & Save", false) { share(keep = true) }, weighted(dp(8)))
+            // Deletes the screenshot straight away (the setup made sure of All files access, so
+            // Android doesn't ask).
+            addView(FrameLayout(service).apply {
+                background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(grey) }
+                contentDescription = "Delete screenshot"
+                addView(ImageView(service).apply {
+                    setImageResource(android.R.drawable.ic_menu_delete)
+                    setColorFilter(0xFFE5484D.toInt())
+                }, FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER))
+                setOnClickListener { deleteNow() }
+            }, LinearLayout.LayoutParams(dp(40), dp(40)).apply { gravity = Gravity.CENTER_VERTICAL })
         }.also { actions = it }
 
-        // Full screen and opaque; it stays until Share, Save or Share & Save.
+        // Full screen and opaque; it stays until Share, Save, Share & Save or the trash can.
         val page = LinearLayout(service).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(android.graphics.Color.BLACK)
@@ -453,6 +465,16 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
     }
 
     /** Save: keeps the screenshot, with the Crop / Draw edits if there are any. */
+    /** The trash can: deletes the screenshot without asking and closes. */
+    private fun deleteNow() {
+        val shot = shot ?: return
+        hide()
+        ViperLog.i("SCREENSHOT", "Trash can: deleting the screenshot")
+        if (!delete(service, shot.uri, shot.path, quietly = true, mayAsk = false)) {
+            Toast.makeText(service, "Couldn't delete the screenshot", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun save() {
         val shot = shot ?: return
         val picture = edited
@@ -544,7 +566,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
          * Deletes the screenshot: through the media library, or its file; if Android wants the
          * user's OK, [ScreenshotDeleteActivity] asks for it.
          */
-        internal fun delete(context: Context, uri: Uri, path: String?, quietly: Boolean = false) {
+        internal fun delete(context: Context, uri: Uri, path: String?, quietly: Boolean = false, mayAsk: Boolean = true): Boolean {
             val deleted = runCatching { context.contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) ||
                     (path != null && runCatching {
                         File(path).delete().also { if (it) MediaScannerConnection.scanFile(context, arrayOf(path), null, null) }
@@ -552,8 +574,9 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             if (deleted) {
                 ViperLog.i("SCREENSHOT", "Deleted the screenshot")
                 if (!quietly) Toast.makeText(context, "Shared, screenshot deleted", Toast.LENGTH_SHORT).show()
-                return
+                return true
             }
+            if (!mayAsk) return false
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 context.startActivity(
                     Intent(context, ScreenshotDeleteActivity::class.java)
@@ -564,6 +587,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             } else {
                 ViperLog.i("SCREENSHOT", "Couldn't delete the screenshot after sharing")
             }
+            return false
         }
     }
 }

@@ -554,6 +554,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             contentResolver, android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         ).orEmpty().split(':').any { it.equals(service, ignoreCase = true) }
         val builder = getAlertDialogBuilder().setCancelable(false)
+        // Test screenshots from step 2 go once nothing would make Android ask about deleting them.
+        if (!needsAllFiles) deleteTestScreenshots(prefs)
         when {
             !isSamsung && !needsAllFiles -> return false
 
@@ -587,19 +589,28 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     /**
-     * Deletes the screenshots taken for step 2's check (listed by the editor's ScreenshotToolbar).
-     * If Android wants the user's OK for some, it asks once for all of them.
+     * Deletes the screenshots taken for step 2's check (listed by the editor's ScreenshotToolbar),
+     * without asking: only once All files access is granted (the last step), so Android has no
+     * reason to ask. Until then they stay listed.
      */
     private fun deleteTestScreenshots(prefs: android.content.SharedPreferences) {
         val ids = prefs.getString(TOOLBAR_CHECK_SHOTS, "").orEmpty().split(',').mapNotNull { it.toLongOrNull() }
+        if (ids.isEmpty()) return
+        if (isRPlus() && !android.os.Environment.isExternalStorageManager()) return
         prefs.edit().remove(TOOLBAR_CHECK_SHOTS).apply()
-        val left = ids.map { android.content.ContentUris.withAppendedId(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, it) }
-            .filterNot { uri -> runCatching { contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) }
-            // Ones already gone (deleted by hand) don't need asking about.
-            .filter { uri -> runCatching { contentResolver.query(uri, arrayOf(android.provider.BaseColumns._ID), null, null, null)?.use { it.count > 0 } }.getOrNull() == true }
-        if (left.isNotEmpty() && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            runCatching {
-                startIntentSenderForResult(android.provider.MediaStore.createDeleteRequest(contentResolver, left).intentSender, 0, null, 0, 0, 0)
+        ensureBackgroundThread {
+            for (id in ids) {
+                val uri = android.content.ContentUris.withAppendedId(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                @Suppress("DEPRECATION")
+                val path = runCatching {
+                    contentResolver.query(uri, arrayOf(android.provider.MediaStore.Images.Media.DATA), null, null, null)
+                        ?.use { if (it.moveToFirst()) it.getString(0) else null }
+                }.getOrNull()
+                val deleted = runCatching { contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) ||
+                        (path != null && runCatching { java.io.File(path).delete() }.getOrDefault(false).also {
+                            if (it) android.media.MediaScannerConnection.scanFile(this, arrayOf(path), null, null)
+                        })
+                if (!deleted && path != null) android.util.Log.w("ViperSetup", "Couldn't delete test screenshot $path")
             }
         }
     }
@@ -622,7 +633,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             isAllCaps = false
             textSize = 16f
             setOnClickListener {
-                deleteTestScreenshots(prefs)
                 prefs.edit().putBoolean("vv_samsung_toolbar_off", true)
                     .putBoolean(TOOLBAR_CHECK_PENDING, false).remove(TOOLBAR_CHECK_RESULT).apply()
                 viperSetupDialog?.dismiss()
