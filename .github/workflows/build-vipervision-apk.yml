@@ -60,16 +60,48 @@ jobs:
           path: signing/vipervision.keystore
           key: vipervision-signing-key-v1
 
-      - name: Make the signing key (first build only)
+      # The build cache forgets anything unused for 7 days, so the key is also kept as an
+      # encrypted copy in the "vipervision-signing-key" release, locked with the passphrase saved
+      # as the repository secret VIPERVISION_KEY_PASSPHRASE (only GitHub and its owner can read
+      # it). Without that secret nothing is backed up yet, and builds work as before.
+      - name: Make, restore or back up the signing key
         working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PASSPHRASE: ${{ secrets.VIPERVISION_KEY_PASSPHRASE }}
         run: |
           mkdir -p signing
-          if [ ! -f signing/vipervision.keystore ]; then
-            keytool -genkeypair -v -keystore signing/vipervision.keystore -alias vipervision \
+          KEY=signing/vipervision.keystore
+          BACKUP_TAG=vipervision-signing-key
+          has_backup() { gh release view "$BACKUP_TAG" --repo "$REPO" --json assets --jq '.assets[].name' 2>/dev/null | grep -qx vipervision.keystore.enc; }
+          if [ ! -f "$KEY" ] && has_backup; then
+            if [ -z "$PASSPHRASE" ]; then
+              echo "::error::The signing key is only in its encrypted backup, and the VIPERVISION_KEY_PASSPHRASE secret is missing. Add it (same passphrase as before) and run the build again."
+              exit 1
+            fi
+            gh release download "$BACKUP_TAG" --repo "$REPO" --pattern vipervision.keystore.enc --dir signing
+            openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in signing/vipervision.keystore.enc -out "$KEY" -pass env:PASSPHRASE
+            rm signing/vipervision.keystore.enc
+            echo "Restored the signing key from its encrypted backup."
+          fi
+          if [ ! -f "$KEY" ]; then
+            keytool -genkeypair -v -keystore "$KEY" -alias vipervision \
               -keyalg RSA -keysize 2048 -validity 36500 \
               -storepass android -keypass android -dname "CN=Viper Vision"
           fi
-          keytool -list -v -keystore signing/vipervision.keystore -storepass android | grep SHA256
+          keytool -list -v -keystore "$KEY" -storepass android | grep SHA256
+          if [ -n "$PASSPHRASE" ] && ! has_backup; then
+            gh release view "$BACKUP_TAG" --repo "$REPO" >/dev/null 2>&1 || gh release create "$BACKUP_TAG" --repo "$REPO" \
+              --title "Viper Vision signing key (encrypted)" --latest=false --target "${{ github.sha }}" \
+              --notes "An encrypted backup of the key every Viper Vision build is signed with, so updates keep installing over each other. Useless without the owner's passphrase. Nothing to download here."
+            openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$KEY" -out vipervision.keystore.enc -pass env:PASSPHRASE
+            gh release upload "$BACKUP_TAG" vipervision.keystore.enc --repo "$REPO"
+            rm vipervision.keystore.enc
+            echo "Backed up the signing key (encrypted)."
+          elif [ -z "$PASSPHRASE" ]; then
+            echo "::notice::The signing key has no backup yet: add the repository secret VIPERVISION_KEY_PASSPHRASE to keep one."
+          fi
 
       - name: Build
         run: |
