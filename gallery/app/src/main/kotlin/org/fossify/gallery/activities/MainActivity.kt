@@ -108,7 +108,7 @@ import org.fossify.gallery.extensions.getNoMediaFoldersSync
 import org.fossify.gallery.extensions.getOTGFolderChildrenNames
 import org.fossify.gallery.extensions.getSortedDirectories
 import org.fossify.gallery.extensions.handleExcludedFolderPasswordProtection
-import org.fossify.gallery.extensions.handleMediaManagementPrompt
+import org.fossify.gallery.extensions.launchGrantAllFilesIntent
 import org.fossify.gallery.extensions.isDownloadsFolder
 import org.fossify.gallery.extensions.launchCamera
 import org.fossify.gallery.extensions.launchSettings
@@ -180,7 +180,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private var mLoadedInitialPhotos = false
     private var mShouldStopFetching = false
     private var mWasDefaultFolderChecked = false
-    private var mWasMediaManagementPromptShown = false
     private var mLatestMediaId = 0L
     private var mLatestMediaDateId = 0L
 
@@ -285,12 +284,10 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     private fun handleMediaPermissions(callback: (() -> Unit)? = null) {
+        // Viper Vision: All files access is a step of the setup (showViperSetup) instead of
+        // Fossify's prompt here, which could appear on top of it.
         requestMediaPermissions(enableRationale = true) {
             callback?.invoke()
-            if (isRPlus() && !mWasMediaManagementPromptShown) {
-                mWasMediaManagementPromptShown = true
-                handleMediaManagementPrompt { }
-            }
         }
     }
 
@@ -544,9 +541,13 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private fun showViperSetup(): Boolean {
         viperSetupDialog?.dismiss()
         viperSetupDialog = null
-        if (mIsThirdPartyIntent || !android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true)) return false
+        if (mIsThirdPartyIntent) return false
         // After the photo permission, so the two don't overlap.
         if (!hasPermission(getPermissionToRequest())) return false
+        val isSamsung = android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true)
+        // Every phone (Android 11+) needs All files access; Samsung phones also the two steps before.
+        val needsAllFiles = isRPlus() && !android.os.Environment.isExternalStorageManager()
+        val steps = (if (isSamsung) 2 else 0) + if (isRPlus()) 1 else 0
         val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
         val service = "$packageName/com.vipervision.editor.CameraThumbnailService"
         val serviceOn = android.provider.Settings.Secure.getString(
@@ -554,19 +555,28 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         ).orEmpty().split(':').any { it.equals(service, ignoreCase = true) }
         val builder = getAlertDialogBuilder().setCancelable(false)
         when {
-            !serviceOn -> builder
-                .setTitle(R.string.vv_setup_access_title)
+            !isSamsung && !needsAllFiles -> return false
+
+            isSamsung && !serviceOn -> builder
+                .setTitle(getString(R.string.vv_setup_title, 1, steps))
                 .setMessage(R.string.vv_setup_access_message)
                 .setView(accessibilitySetupButtons(prefs))
 
-            prefs.getBoolean("vv_screenshot_toolbar", true) && !prefs.getBoolean("vv_samsung_toolbar_off", false) -> {
+            isSamsung && prefs.getBoolean("vv_screenshot_toolbar", true) && !prefs.getBoolean("vv_samsung_toolbar_off", false) -> {
                 // The screenshot toolbar (the editor's ScreenshotToolbar) checks the next screenshot.
                 prefs.edit().putBoolean(TOOLBAR_CHECK_PENDING, true).apply()
                 builder
-                    .setTitle(R.string.vv_setup_toolbar_title)
+                    .setTitle(getString(R.string.vv_setup_title, 2, steps))
                     .setMessage(R.string.vv_setup_toolbar_message)
                     .setView(toolbarCheckView(prefs))
             }
+
+            // Saving over originals, rotating, deleting, moving and hidden albums without Android
+            // asking each time. Only "All files" counts (checked here each time).
+            needsAllFiles -> builder
+                .setTitle(if (steps > 1) getString(R.string.vv_setup_title, steps, steps) else getString(R.string.vv_setup_title_single))
+                .setMessage(R.string.vv_setup_files_message)
+                .setPositiveButton(R.string.vv_setup_files_open) { _, _ -> launchGrantAllFilesIntent() }
 
             else -> return false
         }
