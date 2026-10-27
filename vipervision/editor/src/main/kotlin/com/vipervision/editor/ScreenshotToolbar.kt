@@ -79,7 +79,8 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
     }
 
     private fun enabled() =
-        service.getSharedPreferences("Prefs", Context.MODE_PRIVATE).getBoolean(PREF_ENABLED, true)
+        service.getSharedPreferences("Prefs", Context.MODE_PRIVATE)
+            .getBoolean(PREF_ENABLED, android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true))
 
     /** The newest screenshot, if it was just taken and not shown yet. */
     private fun checkForScreenshot() {

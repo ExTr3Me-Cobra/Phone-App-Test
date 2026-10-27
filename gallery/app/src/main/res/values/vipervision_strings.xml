@@ -3,13 +3,31 @@
 <resources>
     <string name="vv_compare">Compare</string>
     <string name="vv_fuse_frames">Fuse frames (HDR, focus, low light)</string>
-    <string name="vv_camera_shortcut_menu">Camera thumbnail → Viper Vision</string>
-    <string name="vv_camera_shortcut_how">Turn on \"Viper Vision camera thumbnail\" (under Installed apps). If it\'s greyed out: App info → ⋮ → Allow restricted settings, then try again.</string>
+    <string name="vv_setup_access_title">Set up Viper Vision (1 of 2)</string>
+    <string name="vv_setup_access_message">Viper Vision needs its Accessibility service on, so it can:
+
+• open your newest photo from Samsung Camera\'s thumbnail
+• show Viper Vision\'s screenshot toolbar after each screenshot
+• open Samsung\'s AI Eraser, Move and Create from the editor
+
+It only watches Samsung Camera, Samsung\'s photo editor and new screenshots. Nothing leaves your phone.
+
+On the next screen: Installed apps → Viper Vision camera &amp; screenshots → turn it on.
+
+If it\'s greyed out (\"Restricted setting\"), tap App info, then ⋮ (top right) → Allow restricted settings, and try again.</string>
+    <string name="vv_setup_access_open">Open Accessibility</string>
+    <string name="vv_setup_app_info">App info</string>
+    <string name="vv_setup_toolbar_title">Set up Viper Vision (2 of 2)</string>
+    <string name="vv_setup_toolbar_message">Turn off Samsung\'s own screenshot toolbar, so Viper Vision\'s shows instead:
+
+Settings → Advanced features → Screenshots and screen recordings → turn off \"Show toolbar after capturing\".
+
+If Viper Vision sees Samsung\'s toolbar again later, it will ask again.</string>
+    <string name="vv_setup_toolbar_open">Open Settings</string>
+    <string name="vv_setup_toolbar_done">It\'s off</string>
     <string name="vv_grid_view">Go to\ngrid view</string>
     <string name="vv_file_view">Go to\nalbum view</string>
     <string name="vv_settings_section">Viper Vision</string>
-    <string name="vv_camera_shortcut_on">On: Samsung Camera\'s thumbnail opens Viper Vision. Tap to change.</string>
-    <string name="vv_camera_shortcut_off">Off. Tap to turn on in Accessibility settings.</string>
     <string name="vv_set_folder_cover">Set as album thumbnail</string>
     <string name="vv_folder_cover_set">Album thumbnail set</string>
     <string name="vv_merge">Merge</string>

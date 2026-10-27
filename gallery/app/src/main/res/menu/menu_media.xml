@@ -99,12 +99,6 @@
         android:showAsAction="never"
         android:title="@string/slideshow"
         app:showAsAction="never" />
-    <!-- Viper Vision: make Samsung Camera's thumbnail open Viper Vision. -->
-    <item
-        android:id="@+id/vv_camera_shortcut"
-        android:showAsAction="never"
-        android:title="@string/vv_camera_shortcut_menu"
-        app:showAsAction="never" />
     <item
         android:id="@+id/settings"
         android:icon="@drawable/ic_settings_cog_vector"

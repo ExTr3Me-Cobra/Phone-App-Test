@@ -146,19 +146,10 @@ class SettingsActivity : SimpleActivity() {
         }
     }
 
-    /** Viper Vision: Group by (all photos) and the Samsung Camera thumbnail shortcut. */
+    /** Viper Vision: Group by (all photos), the Samsung AI tools and the screenshot toolbar. */
     private fun setupViperVision() {
         binding.settingsVvGroupByHolder.setOnClickListener {
             ChangeGroupingDialog(this, showUseForThisFolder = false) {}
-        }
-        val service = "$packageName/com.vipervision.editor.CameraThumbnailService"
-        val enabled = android.provider.Settings.Secure.getString(
-            contentResolver, android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        ).orEmpty().split(':').any { it.equals(service, ignoreCase = true) }
-        binding.settingsVvCameraShortcut.setText(if (enabled) R.string.vv_camera_shortcut_on else R.string.vv_camera_shortcut_off)
-        binding.settingsVvCameraShortcutHolder.setOnClickListener {
-            if (!enabled) toast(R.string.vv_camera_shortcut_how, android.widget.Toast.LENGTH_LONG)
-            startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
         // Samsung AI Eraser / Move / Create bubbles in the editor. Shared with the editor through
         // the same settings file (key "vv_samsung_ai"); on by default on Samsung phones only.
@@ -177,7 +168,8 @@ class SettingsActivity : SimpleActivity() {
         }
         // Viper Vision's screenshot toolbar (the editor's ScreenshotToolbar, run by the same
         // accessibility service as the camera shortcut). Key shared through the "Prefs" file.
-        binding.settingsVvScreenshotToolbar.isChecked = prefs.getBoolean("vv_screenshot_toolbar", true)
+        // On by default on Samsung phones (whose own toolbar it replaces).
+        binding.settingsVvScreenshotToolbar.isChecked = prefs.getBoolean("vv_screenshot_toolbar", isSamsung)
         binding.settingsVvScreenshotToolbarHolder.setOnClickListener {
             binding.settingsVvScreenshotToolbar.toggle()
             val on = binding.settingsVvScreenshotToolbar.isChecked

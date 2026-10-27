@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.fossify.commons.dialogs.CreateNewFolderDialog
 import org.fossify.commons.dialogs.FilePickerDialog
 import org.fossify.commons.dialogs.RadioGroupDialog
+import org.fossify.commons.extensions.getAlertDialogBuilder
 import org.fossify.commons.extensions.appLaunched
 import org.fossify.commons.extensions.fixDuplicateLauncherIcons
 import org.fossify.commons.extensions.appLockManager
@@ -302,7 +303,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             offerAiModelsOnResume = true
             aiModelsChecks = 0
         }
-        if (offerAiModelsOnResume) offerAiModels()
+        // Samsung phones: the required setup first, then the AI models.
+        if (!showViperSetup() && offerAiModelsOnResume) offerAiModels()
         updateMenuColors()
         config.isThirdPartyIntent = false
         mDateFormat = config.dateFormat
@@ -514,6 +516,61 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         runCatching { startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity")) }
     }
 
+    private var viperSetupDialog: androidx.appcompat.app.AlertDialog? = null
+
+    /**
+     * Viper Vision, Samsung phones only: a setup that can't be skipped, shown each time this
+     * screen comes back until it's done. 1) The accessibility service (the editor's
+     * CameraThumbnailService: Samsung Camera's thumbnail, the screenshot toolbar, the Samsung AI
+     * bubbles). 2) Samsung's own screenshot toolbar off, while Viper Vision's is on; the service
+     * clears "vv_samsung_toolbar_off" if it sees Samsung's toolbar again, which asks again.
+     * True if a step is showing.
+     */
+    private fun showViperSetup(): Boolean {
+        viperSetupDialog?.dismiss()
+        viperSetupDialog = null
+        if (mIsThirdPartyIntent || !android.os.Build.MANUFACTURER.equals("samsung", ignoreCase = true)) return false
+        // After the photo permission, so the two don't overlap.
+        if (!hasPermission(getPermissionToRequest())) return false
+        val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
+        val service = "$packageName/com.vipervision.editor.CameraThumbnailService"
+        val serviceOn = android.provider.Settings.Secure.getString(
+            contentResolver, android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ).orEmpty().split(':').any { it.equals(service, ignoreCase = true) }
+        val builder = getAlertDialogBuilder().setCancelable(false)
+        when {
+            !serviceOn -> builder
+                .setTitle(R.string.vv_setup_access_title)
+                .setMessage(R.string.vv_setup_access_message)
+                .setPositiveButton(R.string.vv_setup_access_open) { _, _ ->
+                    runCatching { startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+                }
+                .setNeutralButton(R.string.vv_setup_app_info) { _, _ ->
+                    runCatching {
+                        startActivity(
+                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                .setData(android.net.Uri.fromParts("package", packageName, null))
+                        )
+                    }
+                }
+
+            prefs.getBoolean("vv_screenshot_toolbar", true) && !prefs.getBoolean("vv_samsung_toolbar_off", false) -> builder
+                .setTitle(R.string.vv_setup_toolbar_title)
+                .setMessage(R.string.vv_setup_toolbar_message)
+                .setPositiveButton(R.string.vv_setup_toolbar_done) { _, _ ->
+                    prefs.edit().putBoolean("vv_samsung_toolbar_off", true).apply()
+                    if (!showViperSetup() && offerAiModelsOnResume) offerAiModels()
+                }
+                .setNeutralButton(R.string.vv_setup_toolbar_open) { _, _ ->
+                    runCatching { startActivity(Intent(android.provider.Settings.ACTION_SETTINGS)) }
+                }
+
+            else -> return false
+        }
+        viperSetupDialog = builder.show()
+        return true
+    }
+
     /** Viper Vision: no search; the top-left button switches to the photo grid. */
     private fun setupViperVisionBar() {
         if (mIsThirdPartyIntent) return
@@ -568,10 +625,6 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 R.id.temporarily_show_excluded -> tryToggleTemporarilyShowExcluded()
                 R.id.stop_showing_excluded -> tryToggleTemporarilyShowExcluded()
                 R.id.create_new_folder -> createNewFolder()
-                R.id.vv_camera_shortcut -> {
-                    toast(R.string.vv_camera_shortcut_how, android.widget.Toast.LENGTH_LONG)
-                    startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                }
                 R.id.open_recycle_bin -> openRecycleBin()
                 R.id.column_count -> changeColumnCount()
                 R.id.set_as_default_folder -> setAsDefaultFolder()

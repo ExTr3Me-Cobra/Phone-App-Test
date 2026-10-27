@@ -420,11 +420,6 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
                 R.id.set_as_default_folder -> setAsDefaultFolder()
                 R.id.unset_as_default_folder -> unsetAsDefaultFolder()
                 R.id.slideshow -> startSlideshow()
-                // Viper Vision: the camera thumbnail shortcut.
-                R.id.vv_camera_shortcut -> {
-                    toast(R.string.vv_camera_shortcut_how, android.widget.Toast.LENGTH_LONG)
-                    startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                }
                 R.id.settings -> launchSettings()
                 R.id.vv_ai_search -> openAiSearch()
                 else -> return@setOnMenuItemClickListener false

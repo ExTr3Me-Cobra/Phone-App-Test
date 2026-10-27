@@ -38,6 +38,17 @@ class CameraThumbnailService : AccessibilityService() {
     /** Viper Vision's screenshot toolbar (see ScreenshotToolbar), shown after each screenshot. */
     private val screenshots = ScreenshotToolbar(this)
 
+    /**
+     * Samsung's own screenshot toolbar showed up while Viper Vision's is on: the gallery's setup
+     * asks again to turn it off (MainActivity.showViperSetup, key "vv_samsung_toolbar_off").
+     */
+    private fun noticedSamsungToolbar() {
+        val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
+        if (!prefs.getBoolean(ScreenshotToolbar.PREF_ENABLED, true) || !prefs.getBoolean(SAMSUNG_TOOLBAR_OFF, false)) return
+        ViperLog.i("SCREENSHOT", "Samsung's screenshot toolbar is still on; the setup will ask again")
+        prefs.edit().putBoolean(SAMSUNG_TOOLBAR_OFF, false).apply()
+    }
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         screenshots.start()
@@ -46,6 +57,9 @@ class CameraThumbnailService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val pkg = event.packageName?.toString() ?: return
         handoffEvent(pkg, event)
+        if (pkg == SAMSUNG_CAPTURE_PACKAGE && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            noticedSamsungToolbar()
+        }
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 // Our own button and the system UI (notifications, keyboard) don't count as
@@ -459,6 +473,9 @@ class CameraThumbnailService : AccessibilityService() {
         val EDIT_LABELS = listOf("Edit")
         val SAVE_LABELS = listOf("Save copy", "Save as copy", "Save", "Done")
         const val CAMERA_PACKAGE = "com.sec.android.app.camera"
+        /** Samsung's screenshot toolbar (Smart capture). */
+        const val SAMSUNG_CAPTURE_PACKAGE = "com.samsung.android.app.smartcapture"
+        const val SAMSUNG_TOOLBAR_OFF = "vv_samsung_toolbar_off"
         const val VIEWER_ACTIVITY = "org.fossify.gallery.activities.ViewPagerActivity"
     }
 }
