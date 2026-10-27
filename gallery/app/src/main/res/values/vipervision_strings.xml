@@ -32,4 +32,6 @@
     <string name="vv_move_to_album">Move to album</string>
     <string name="vv_set_as_wallpaper">Set as wallpaper</string>
     <string name="vv_samsung_ai_tools">Samsung AI tools in the editor</string>
+    <string name="vv_screenshot_toolbar">Screenshot toolbar after each screenshot</string>
+    <string name="vv_screenshot_toolbar_how">It also needs Viper Vision\'s accessibility service on (the next screen), and Samsung\'s own screenshot toolbar off</string>
 </resources>

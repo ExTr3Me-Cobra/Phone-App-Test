@@ -169,6 +169,20 @@ class SettingsActivity : SimpleActivity() {
             binding.settingsVvSamsungAi.toggle()
             prefs.edit().putBoolean("vv_samsung_ai", binding.settingsVvSamsungAi.isChecked).apply()
         }
+        // Viper Vision's screenshot toolbar (the editor's ScreenshotToolbar, run by the same
+        // accessibility service as the camera shortcut). Key shared through the "Prefs" file.
+        binding.settingsVvScreenshotToolbar.isChecked = prefs.getBoolean("vv_screenshot_toolbar", true)
+        binding.settingsVvScreenshotToolbarHolder.setOnClickListener {
+            binding.settingsVvScreenshotToolbar.toggle()
+            val on = binding.settingsVvScreenshotToolbar.isChecked
+            prefs.edit().putBoolean("vv_screenshot_toolbar", on).apply()
+            val serviceOn = android.provider.Settings.Secure.getString(contentResolver, android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+                .orEmpty().contains("$packageName/com.vipervision.editor.CameraThumbnailService")
+            if (on && !serviceOn) {
+                toast(R.string.vv_screenshot_toolbar_how, android.widget.Toast.LENGTH_LONG)
+                startActivity(Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            }
+        }
         binding.settingsVvDiagnosticsHolder.setOnClickListener {
             startActivity(Intent().setClassName(packageName, "com.vipervision.editor.DiagnosticsActivity"))
         }

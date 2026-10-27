@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="vv_camera_shortcut">Viper Vision camera thumbnail</string>
-    <string name="vv_camera_shortcut_description">Makes the thumbnail in the bottom left of Samsung Camera open your newest photo or video in Viper Vision instead of Samsung Gallery. It only watches for Samsung Camera and where its thumbnail is, and does nothing on the lock screen. When you use the Samsung AI Eraser, Move or Create bubbles in Viper Vision\'s editor, it also opens that tool in Samsung\'s photo editor for you and shows a Back to Viper Vision button there.</string>
+    <string name="vv_camera_shortcut">Viper Vision camera &amp; screenshots</string>
+    <string name="vv_camera_shortcut_description">Makes the thumbnail in the bottom left of Samsung Camera open your newest photo or video in Viper Vision instead of Samsung Gallery. It only watches for Samsung Camera and where its thumbnail is, and does nothing on the lock screen. When you use the Samsung AI Eraser, Move or Create bubbles in Viper Vision\'s editor, it also opens that tool in Samsung\'s photo editor for you and shows a Back to Viper Vision button there. After you take a screenshot, it shows Viper Vision\'s screenshot toolbar (Share, Save, Crop, Draw); turn off Samsung\'s own toolbar in Settings → Advanced features → Screenshots.</string>
 </resources>

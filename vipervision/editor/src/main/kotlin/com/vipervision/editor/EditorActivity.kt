@@ -105,6 +105,9 @@ class EditorActivity : ComposeActivity() {
         }
         source = data
         realPath = intent.getStringExtra(EXTRA_REAL_PATH)
+        // Opened from the screenshot toolbar's Crop or Draw.
+        pendingStart = intent.getStringExtra(EXTRA_START)
+        if (pendingStart == START_CROP) controller.tab = EditorTab.Transform
         ViperLog.i("EDITOR", "Opened the photo editor: $data (${intent.type ?: contentResolver.getType(data)})")
         super.onCreate(savedInstanceState)
         ViperLog.i("SAMSUNG", "Photo editors on this phone: ${SamsungHandoff.describeEditors(this)}")
@@ -148,7 +151,11 @@ class EditorActivity : ComposeActivity() {
                     val metrics = resources.displayMetrics
                     val side = min(2048, max(metrics.widthPixels, metrics.heightPixels))
                     runCatching { withContext(Dispatchers.IO) { decodeImage(this@EditorActivity, source, side) } }
-                        .onSuccess { controller.basePreview = it }
+                        .onSuccess {
+                            controller.basePreview = it
+                            if (pendingStart == START_DRAW) startDraw(source)
+                            pendingStart = null
+                        }
                         .onFailure { ViperLog.error("EDITOR", "opening the photo failed", it);  controller.error = "Couldn't open this photo." }
                 }
 
@@ -270,6 +277,9 @@ class EditorActivity : ComposeActivity() {
             height = (turnedHeight * geometry.crop.height).toInt().coerceAtLeast(1)
         )
     }
+
+    /** Draw to open once the editor is up (screenshot toolbar), see [EXTRA_START]. */
+    private var pendingStart: String? = null
 
     /** Whether a kept original exists for this photo (Revert to original). */
     private var hasOriginal by mutableStateOf(false)
@@ -851,5 +861,10 @@ class EditorActivity : ComposeActivity() {
     companion object {
         /** Absolute file path of the photo, so the edited copy can be saved in the same folder. */
         const val EXTRA_REAL_PATH = "com.vipervision.editor.REAL_PATH"
+
+        /** Which tool to open on: [START_CROP] (Rotate & crop tab) or [START_DRAW]. */
+        const val EXTRA_START = "com.vipervision.editor.START"
+        const val START_CROP = "crop"
+        const val START_DRAW = "draw"
     }
 }

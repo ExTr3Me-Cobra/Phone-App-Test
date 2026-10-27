@@ -35,6 +35,14 @@ class CameraThumbnailService : AccessibilityService() {
     private var cameraOnScreen = false
     private val refresh = Runnable { update() }
 
+    /** Viper Vision's screenshot toolbar (see ScreenshotToolbar), shown after each screenshot. */
+    private val screenshots = ScreenshotToolbar(this)
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        screenshots.start()
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val pkg = event.packageName?.toString() ?: return
         handoffEvent(pkg, event)
@@ -200,6 +208,7 @@ class CameraThumbnailService : AccessibilityService() {
     override fun onInterrupt() = Unit
 
     override fun onDestroy() {
+        screenshots.stop()
         handler.removeCallbacks(refresh)
         handler.removeCallbacks(handoffRefresh)
         hide()

@@ -41,6 +41,19 @@
             android:exported="false"
             android:theme="@style/ViperEditorTheme" />
 
+        <!-- Screenshot toolbar (ScreenshotToolbar): Share deletes the screenshot once an app is
+             picked; when Android wants the user's OK for that, the invisible activity asks. -->
+        <receiver
+            android:name=".ScreenshotSharedReceiver"
+            android:exported="false" />
+        <activity
+            android:name=".ScreenshotDeleteActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="false"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <!-- Samsung Camera's thumbnail opens Viper Vision (turned on in Settings → Accessibility). -->
         <service
             android:name=".CameraThumbnailService"

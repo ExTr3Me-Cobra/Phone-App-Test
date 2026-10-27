@@ -96,6 +96,21 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/settings_vv_screenshot_toolbar_holder"
+                style="@style/SettingsHolderSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyMaterialSwitch
+                    android:id="@+id/settings_vv_screenshot_toolbar"
+                    style="@style/SettingsSwitchStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/vv_screenshot_toolbar" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/settings_vv_diagnostics_holder"
                 style="@style/SettingsHolderTextViewStyle"
                 android:layout_width="match_parent"
