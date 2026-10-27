@@ -521,6 +521,8 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     private var viperSetupDialog: androidx.appcompat.app.AlertDialog? = null
     private val APP_INFO_OPENED = "vv_setup_app_info_opened"
+    private val TOOLBAR_CHECK_PENDING = "vv_toolbar_check_pending"
+    private val TOOLBAR_CHECK_RESULT = "vv_toolbar_check_result"
 
     /**
      * Viper Vision, Samsung phones only: a setup that can't be skipped, shown each time this
@@ -548,21 +550,103 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 .setMessage(R.string.vv_setup_access_message)
                 .setView(accessibilitySetupButtons(prefs))
 
-            prefs.getBoolean("vv_screenshot_toolbar", true) && !prefs.getBoolean("vv_samsung_toolbar_off", false) -> builder
-                .setTitle(R.string.vv_setup_toolbar_title)
-                .setMessage(R.string.vv_setup_toolbar_message)
-                .setPositiveButton(R.string.vv_setup_toolbar_done) { _, _ ->
-                    prefs.edit().putBoolean("vv_samsung_toolbar_off", true).apply()
-                    if (!showViperSetup() && offerAiModelsOnResume) offerAiModels()
-                }
-                .setNeutralButton(R.string.vv_setup_toolbar_open) { _, _ ->
-                    runCatching { startActivity(Intent(android.provider.Settings.ACTION_SETTINGS)) }
-                }
+            prefs.getBoolean("vv_screenshot_toolbar", true) && !prefs.getBoolean("vv_samsung_toolbar_off", false) -> {
+                // The screenshot toolbar (the editor's ScreenshotToolbar) checks the next screenshot.
+                prefs.edit().putBoolean(TOOLBAR_CHECK_PENDING, true).apply()
+                builder
+                    .setTitle(R.string.vv_setup_toolbar_title)
+                    .setMessage(R.string.vv_setup_toolbar_message)
+                    .setView(toolbarCheckView(prefs))
+            }
 
             else -> return false
         }
-        viperSetupDialog = builder.show()
+        viperSetupDialog = builder.show().apply {
+            setOnDismissListener { toolbarCheckListener?.let(prefs::unregisterOnSharedPreferenceChangeListener) }
+        }
         return true
+    }
+
+    private var toolbarCheckListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
+
+    /**
+     * Step 2's check: what the last test screenshot showed, Open Settings, and Continue, which
+     * stays greyed out with a red ✗ until a screenshot is taken without Samsung's toolbar
+     * appearing (then a green ✓). Updates as soon as the result comes in.
+     */
+    private fun toolbarCheckView(prefs: android.content.SharedPreferences): View {
+        val density = resources.displayMetrics.density
+        val pad = (16 * density).toInt()
+        val status = TextView(this).apply {
+            textSize = 15f
+            setPadding(pad + pad / 2, 0, pad, pad / 2)
+        }
+        val continueButton = com.google.android.material.button.MaterialButton(this, null, androidx.appcompat.R.attr.borderlessButtonStyle).apply {
+            isAllCaps = false
+            textSize = 16f
+            setOnClickListener {
+                prefs.edit().putBoolean("vv_samsung_toolbar_off", true)
+                    .putBoolean(TOOLBAR_CHECK_PENDING, false).remove(TOOLBAR_CHECK_RESULT).apply()
+                viperSetupDialog?.dismiss()
+                if (!showViperSetup() && offerAiModelsOnResume) offerAiModels()
+            }
+        }
+        val red = 0xFFE5484D.toInt()
+        val green = 0xFF30A46C.toInt()
+        fun refresh() {
+            val result = prefs.getString(TOOLBAR_CHECK_RESULT, null)
+            val passed = result == "pass"
+            status.setText(
+                when (result) {
+                    "pass" -> R.string.vv_setup_check_passed
+                    "fail" -> R.string.vv_setup_check_failed
+                    else -> R.string.vv_setup_check_waiting
+                }
+            )
+            status.setTextColor(
+                when (result) {
+                    "pass" -> green
+                    "fail" -> red
+                    else -> getProperTextColor()
+                }
+            )
+            val mark = if (passed) "✓" else "✗"
+            continueButton.text = android.text.SpannableString("$mark  ${getString(R.string.vv_setup_continue)}").apply {
+                setSpan(android.text.style.ForegroundColorSpan(if (passed) green else red), 0, 1, 0)
+                setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, 1, 0)
+            }
+            continueButton.setTextColor(getProperPrimaryColor())
+            continueButton.isEnabled = passed
+            continueButton.alpha = if (passed) 1f else 0.5f
+        }
+        refresh()
+        toolbarCheckListener?.let(prefs::unregisterOnSharedPreferenceChangeListener)
+        toolbarCheckListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == TOOLBAR_CHECK_RESULT) runOnUiThread { refresh() }
+        }.also(prefs::registerOnSharedPreferenceChangeListener)
+
+        val openSettings = com.google.android.material.button.MaterialButton(this, null, androidx.appcompat.R.attr.borderlessButtonStyle).apply {
+            setText(R.string.vv_setup_toolbar_open)
+            isAllCaps = false
+            textSize = 16f
+            setTextColor(getProperPrimaryColor())
+            setOnClickListener {
+                viperSetupDialog?.dismiss()
+                runCatching { startActivity(Intent(android.provider.Settings.ACTION_SETTINGS)) }
+            }
+        }
+        val buttons = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(pad, 0, pad, 0)
+            addView(openSettings, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(continueButton, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(0, pad / 2, 0, 0)
+            addView(status)
+            addView(buttons)
+        }
     }
 
     /**

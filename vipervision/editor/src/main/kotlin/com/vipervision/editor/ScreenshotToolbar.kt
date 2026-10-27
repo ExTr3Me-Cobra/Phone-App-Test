@@ -84,6 +84,14 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
 
     /** The newest screenshot, if it was just taken and not shown yet. */
     private fun checkForScreenshot() {
+        val prefs = service.getSharedPreferences("Prefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean(CHECK_PENDING, false)) {
+            val shot = runCatching { newestScreenshot() }.getOrNull() ?: return
+            if (shot.id == lastShownId) return
+            lastShownId = shot.id
+            checkSamsungToolbar()
+            return
+        }
         if (!enabled()) return
         if (service.getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true) return
         val shot = runCatching { newestScreenshot() }.getOrNull() ?: return
@@ -91,6 +99,42 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         lastShownId = shot.id
         ViperLog.i("SCREENSHOT", "New screenshot: ${shot.path ?: shot.uri}")
         show(shot)
+    }
+
+    /** When Samsung's own screenshot toolbar was last seen on screen (set by the service). */
+    @Volatile
+    var samsungToolbarSeenAt = 0L
+
+    /**
+     * The gallery's setup (MainActivity.showViperSetup, step 2) asks for a screenshot to prove
+     * Samsung's toolbar is off: watches for its window for a few seconds after the screenshot
+     * (it may already have shown before the file landed) and writes "pass" or "fail" for the
+     * setup to show. Viper Vision's own toolbar stays away meanwhile.
+     */
+    private fun checkSamsungToolbar() {
+        ViperLog.i("SCREENSHOT", "Setup check: watching for Samsung's toolbar")
+        val started = System.currentTimeMillis()
+        fun samsungOnScreen(): Boolean {
+            if (samsungToolbarSeenAt > started - 6000) return true
+            return runCatching {
+                service.windows.any { it.root?.packageName == SAMSUNG_CAPTURE_PACKAGE }
+            }.getOrDefault(false)
+        }
+        fun finish(passed: Boolean) {
+            ViperLog.i("SCREENSHOT", "Setup check: Samsung's toolbar " + if (passed) "is off" else "is still on")
+            service.getSharedPreferences("Prefs", Context.MODE_PRIVATE).edit()
+                .putString(CHECK_RESULT, if (passed) "pass" else "fail").apply()
+        }
+        val poll = object : Runnable {
+            override fun run() {
+                when {
+                    samsungOnScreen() -> finish(false)
+                    System.currentTimeMillis() - started > 3000 -> finish(true)
+                    else -> handler.postDelayed(this, 250)
+                }
+            }
+        }
+        handler.post(poll)
     }
 
     private class Shot(val id: Long, val uri: Uri, val path: String?, val name: String)
@@ -447,6 +491,10 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
 
     companion object {
         const val PREF_ENABLED = "vv_screenshot_toolbar"
+        /** Shared with the gallery's setup (MainActivity.showViperSetup). */
+        const val CHECK_PENDING = "vv_toolbar_check_pending"
+        const val CHECK_RESULT = "vv_toolbar_check_result"
+        const val SAMSUNG_CAPTURE_PACKAGE = "com.samsung.android.app.smartcapture"
         private const val MAX_AGE_SECONDS = 15
         private const val SHARE_FOLDER = "vv_shared_screenshots"
         private const val KEEP_SHARED_COPY_MS = 24L * 60 * 60 * 1000

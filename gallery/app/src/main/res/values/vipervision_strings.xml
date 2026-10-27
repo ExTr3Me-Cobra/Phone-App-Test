@@ -11,9 +11,12 @@
     <string name="vv_setup_do_2nd">Do 2nd</string>
     <string name="vv_setup_do_3rd">Do 3rd</string>
     <string name="vv_setup_toolbar_title">Set up Viper Vision (2 of 2)</string>
-    <string name="vv_setup_toolbar_message">Turn off Samsung\'s own screenshot toolbar, so Viper Vision\'s shows instead:\n\nSettings → Advanced features → Screenshots and screen recordings → turn off \"Show toolbar after capturing\".\n\nIf Viper Vision sees Samsung\'s toolbar again later, it will ask again.</string>
+    <string name="vv_setup_toolbar_message">Turn off Samsung\'s own screenshot toolbar:\n\nSettings → Advanced features → Screenshots and screen recordings → turn off \"Show toolbar after capturing\".\n\nThen come back here and take a screenshot (Power + Volume down) to check.</string>
     <string name="vv_setup_toolbar_open">Open Settings</string>
-    <string name="vv_setup_toolbar_done">It\'s off</string>
+    <string name="vv_setup_continue">Continue</string>
+    <string name="vv_setup_check_waiting">Waiting for a screenshot…</string>
+    <string name="vv_setup_check_failed">✗ Samsung\'s toolbar is still on. Turn it off, then take another screenshot.</string>
+    <string name="vv_setup_check_passed">✓ Samsung\'s toolbar is off.</string>
     <string name="vv_grid_view">Go to\ngrid view</string>
     <string name="vv_file_view">Go to\nalbum view</string>
     <string name="vv_settings_section">Viper Vision</string>

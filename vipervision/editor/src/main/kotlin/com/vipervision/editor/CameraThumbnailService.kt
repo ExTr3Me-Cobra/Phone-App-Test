@@ -43,10 +43,11 @@ class CameraThumbnailService : AccessibilityService() {
      * asks again to turn it off (MainActivity.showViperSetup, key "vv_samsung_toolbar_off").
      */
     private fun noticedSamsungToolbar() {
+        screenshots.samsungToolbarSeenAt = System.currentTimeMillis()
         val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
         if (!prefs.getBoolean(ScreenshotToolbar.PREF_ENABLED, true) || !prefs.getBoolean(SAMSUNG_TOOLBAR_OFF, false)) return
         ViperLog.i("SCREENSHOT", "Samsung's screenshot toolbar is still on; the setup will ask again")
-        prefs.edit().putBoolean(SAMSUNG_TOOLBAR_OFF, false).apply()
+        prefs.edit().putBoolean(SAMSUNG_TOOLBAR_OFF, false).remove(ScreenshotToolbar.CHECK_RESULT).apply()
     }
 
     override fun onServiceConnected() {
@@ -57,7 +58,7 @@ class CameraThumbnailService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         val pkg = event.packageName?.toString() ?: return
         handoffEvent(pkg, event)
-        if (pkg == SAMSUNG_CAPTURE_PACKAGE && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+        if (pkg == SAMSUNG_CAPTURE_PACKAGE) {
             noticedSamsungToolbar()
         }
         when (event.eventType) {
@@ -473,8 +474,7 @@ class CameraThumbnailService : AccessibilityService() {
         val EDIT_LABELS = listOf("Edit")
         val SAVE_LABELS = listOf("Save copy", "Save as copy", "Save", "Done")
         const val CAMERA_PACKAGE = "com.sec.android.app.camera"
-        /** Samsung's screenshot toolbar (Smart capture). */
-        const val SAMSUNG_CAPTURE_PACKAGE = "com.samsung.android.app.smartcapture"
+        const val SAMSUNG_CAPTURE_PACKAGE = ScreenshotToolbar.SAMSUNG_CAPTURE_PACKAGE
         const val SAMSUNG_TOOLBAR_OFF = "vv_samsung_toolbar_off"
         const val VIEWER_ACTIVITY = "org.fossify.gallery.activities.ViewPagerActivity"
     }
