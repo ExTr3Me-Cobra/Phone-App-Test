@@ -259,7 +259,8 @@ class ColorDot(context: Context, val color: Int) : View(context) {
             field = value
             invalidate()
         }
-    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
+    // (this@ColorDot: inside apply, plain "color" is the Paint's own.)
+    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = this@ColorDot.color }
     private val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 2.5f * resources.displayMetrics.density
