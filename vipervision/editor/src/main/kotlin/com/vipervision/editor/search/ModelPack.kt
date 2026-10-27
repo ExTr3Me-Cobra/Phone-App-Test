@@ -182,6 +182,12 @@ object ModelPack {
     }
 
     fun isRunning(context: Context) = prefs(context).getBoolean(KEY_RUNNING, false)
+
+    /** Queued but not started (waiting for Wi-Fi). Blocks briefly; call off the main thread. */
+    fun isWaiting(context: Context): Boolean = !isRunning(context) && runCatching {
+        WorkManager.getInstance(context).getWorkInfosForUniqueWork(WORK).get()
+            .any { it.state == androidx.work.WorkInfo.State.ENQUEUED }
+    }.getOrDefault(false)
     fun progress(context: Context) = prefs(context).getFloat(KEY_PROGRESS, 0f)
     fun current(context: Context) = prefs(context).getString(KEY_CURRENT, null)
     fun lastError(context: Context) = prefs(context).getString(KEY_ERROR, null)
@@ -191,8 +197,9 @@ object ModelPack {
         prefs(context).edit().putBoolean(KEY_PROMPTED, true).remove(KEY_ERROR).apply()
         WorkManager.getInstance(context).enqueueUniqueWork(
             WORK,
-            // (An all-in-one APK replaces a download still waiting for Wi-Fi.)
-            if (isAllInOne(context)) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP,
+            // The newest choice wins over a download still waiting (e.g. for Wi-Fi); one already
+            // running is left alone.
+            if (isAllInOne(context) || !isRunning(context)) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP,
             OneTimeWorkRequestBuilder<Worker>()
                 .setConstraints(
                     Constraints.Builder()

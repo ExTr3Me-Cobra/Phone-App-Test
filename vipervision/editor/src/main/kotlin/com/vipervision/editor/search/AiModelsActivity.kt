@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -52,7 +53,7 @@ import kotlinx.coroutines.withContext
  */
 class AiModelsActivity : ComponentActivity() {
 
-    private class State(val here: List<Boolean>, val running: Boolean, val progress: Float, val current: String?, val error: String?)
+    private class State(val here: List<Boolean>, val running: Boolean, val waitingForWifi: Boolean, val progress: Float, val current: String?, val error: String?)
 
     private val allInOne by lazy { ModelPack.isAllInOne(this) }
     private var switchMessage by mutableStateOf<String?>(null)
@@ -127,6 +128,7 @@ class AiModelsActivity : ComponentActivity() {
                     State(
                         here = items.map { runCatching { it.isHere(this@AiModelsActivity) }.getOrDefault(false) },
                         running = ModelPack.isRunning(this@AiModelsActivity),
+                        waitingForWifi = ModelPack.isWaiting(this@AiModelsActivity),
                         progress = ModelPack.progress(this@AiModelsActivity),
                         current = ModelPack.current(this@AiModelsActivity),
                         error = ModelPack.lastError(this@AiModelsActivity)
@@ -217,20 +219,45 @@ class AiModelsActivity : ComponentActivity() {
                                 (s.error?.let { "\nLast try stopped: $it (it will try again)." } ?: ""),
                         color = Color.White, fontSize = 15.sp
                     )
+                    if (s.waitingForWifi) {
+                        Spacer(Modifier.height(4.dp))
+                        Text("Waiting for Wi-Fi: it starts by itself once you're connected.", color = Color.Gray, fontSize = 13.sp)
+                    }
                     Spacer(Modifier.height(10.dp))
                     // Only what's missing is downloaded (models from earlier builds are kept).
                     val left = ModelPack.totalSize - hereBytes
+                    var askAboutData by remember { mutableStateOf(false) }
                     Button(
-                        onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = false) },
+                        onClick = {
+                            // On Wi-Fi it just starts; on mobile data it asks first.
+                            if (onMobileData()) askAboutData = true
+                            else ModelPack.start(this@AiModelsActivity, allowMobileData = false)
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn()),
                         modifier = Modifier.fillMaxWidth().height(50.dp)
-                    ) { Text(if (hereBytes > 0) "Download the rest (${gb(left)}) on Wi-Fi" else "Download on Wi-Fi", fontSize = 16.sp) }
+                    ) { Text(if (hereBytes > 0) "Download the rest (${gb(left)})" else "Download (${gb(left)})", fontSize = 16.sp) }
                     Spacer(Modifier.height(4.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        TextButton(onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = true) }) {
-                            Text("Use mobile data too", color = Color.White, fontSize = 15.sp)
-                        }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         TextButton(onClick = { finish() }) { Text("Later", color = Color.Gray, fontSize = 15.sp) }
+                    }
+                    if (askAboutData) {
+                        AlertDialog(
+                            onDismissRequest = { askAboutData = false },
+                            title = { Text("You're on mobile data") },
+                            text = { Text("The AI models are ${gb(left)}. Download them on mobile data now, or wait until you're on Wi-Fi?") },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    askAboutData = false
+                                    ModelPack.start(this@AiModelsActivity, allowMobileData = true)
+                                }) { Text("Use mobile data", color = accent) }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = {
+                                    askAboutData = false
+                                    ModelPack.start(this@AiModelsActivity, allowMobileData = false)
+                                }) { Text("Wait for Wi-Fi", color = accent) }
+                            }
+                        )
                     }
                 }
             }
@@ -249,6 +276,13 @@ class AiModelsActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /** On a metered connection (mobile data, or a hotspot Android counts as one). */
+    private fun onMobileData(): Boolean {
+        val connectivity = getSystemService(android.net.ConnectivityManager::class.java) ?: return false
+        val capabilities = connectivity.getNetworkCapabilities(connectivity.activeNetwork) ?: return false
+        return !capabilities.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
     }
 
     private fun apkSize() = runCatching { java.io.File(applicationInfo.sourceDir).length() }.getOrDefault(0L)
