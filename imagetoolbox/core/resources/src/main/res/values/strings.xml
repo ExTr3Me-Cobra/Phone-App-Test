@@ -15,8 +15,8 @@
   ~ along with this program.  If not, see <http://www.apache.org/licenses/LICENSE-2.0>.
   -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="app_name" translatable="false">Image Toolbox</string>
-    <string name="app_launcher_name" translatable="false">Image Toolbox</string>
+    <string name="app_name" translatable="false">Viper Vision</string>
+    <string name="app_launcher_name" translatable="false">Viper Vision</string>
     <string name="file_provider" translatable="false">com.t8rin.imagetoolbox.fileprovider</string>
     <string name="smth_went_wrong">Something went wrong: %1$s</string>
     <string name="size">Size %1$s</string>
@@ -166,10 +166,10 @@
     <string name="help_tip_choose_tool_title">Choose the right tool</string>
     <string name="help_tip_choose_tool_subtitle">Use categories, search, favorites, and share actions to start in the right place</string>
     <string name="help_tip_choose_tool_page_title">Start from the best entry point</string>
-    <string name="help_tip_choose_tool_description">Image Toolbox has many focused tools, and many of them overlap at first glance. Start from the task you want to finish, then choose the tool that controls the most important part of the result: size, format, metadata, text, PDF pages, colors, or layout.</string>
+    <string name="help_tip_choose_tool_description">Viper Vision has many focused tools, and many of them overlap at first glance. Start from the task you want to finish, then choose the tool that controls the most important part of the result: size, format, metadata, text, PDF pages, colors, or layout.</string>
     <string name="help_tip_choose_tool_step_1">Use search when you know the action name, such as resize, PDF, EXIF, OCR, QR, or color.</string>
     <string name="help_tip_choose_tool_step_2">Open a category when you only know the task type, then pin frequent tools as favorites.</string>
-    <string name="help_tip_choose_tool_step_3">When another app shares an image into Image Toolbox, pick the tool from the share sheet flow.</string>
+    <string name="help_tip_choose_tool_step_3">When another app shares an image into Viper Vision, pick the tool from the share sheet flow.</string>
     <string name="help_tip_import_save_share_title">Import, save, and share results</string>
     <string name="help_tip_import_save_share_subtitle">Understand the usual flow from picking input to exporting the edited file</string>
     <string name="help_tip_import_save_share_page_title">Follow the common editing flow</string>
@@ -256,7 +256,7 @@
     <string name="help_tip_open_edit_directly_title">Open editor first</string>
     <string name="help_tip_open_edit_directly_subtitle">Skip preview when a shared image should go straight into editing</string>
     <string name="help_tip_open_edit_directly_page_title">Choose preview or edit as the first stop</string>
-    <string name="help_tip_open_edit_directly_description">Open Edit Instead Of Preview controls how an image opened from another app for viewing enters ImageToolbox. It either supplies the image to the editing tool chooser or opens Image Preview.</string>
+    <string name="help_tip_open_edit_directly_description">Open Edit Instead Of Preview controls how an image opened from another app for viewing enters Viper Vision. It either supplies the image to the editing tool chooser or opens Image Preview.</string>
     <string name="help_tip_open_edit_directly_step_1">Enable the setting when an externally opened image should go to tool selection for editing.</string>
     <string name="help_tip_open_edit_directly_step_2">Disable it to open Image Preview first when Android sends a supported image-view request.</string>
     <string name="help_tip_open_edit_directly_step_3">Open an image from another app to check the chosen entry behavior. Then choose the editing tool you need; this preference itself does not change image pixels.</string>
@@ -1159,11 +1159,11 @@
     <string name="decrypt">Decrypt</string>
     <string name="pick_file_to_start">Pick file to start</string>
     <string name="open_markup_project">Open project</string>
-    <string name="open_markup_project_sub">Continue editing a previously saved Image Toolbox project</string>
-    <string name="markup_project_open_failed">Unable to open Image Toolbox project</string>
-    <string name="markup_project_missing_data">Image Toolbox project is missing project data</string>
-    <string name="markup_project_corrupted">Image Toolbox project is corrupted</string>
-    <string name="unsupported_markup_project_version">Unsupported Image Toolbox project version: %1$d</string>
+    <string name="open_markup_project_sub">Continue editing a previously saved Viper Vision project</string>
+    <string name="markup_project_open_failed">Unable to open Viper Vision project</string>
+    <string name="markup_project_missing_data">Viper Vision project is missing project data</string>
+    <string name="markup_project_corrupted">Viper Vision project is corrupted</string>
+    <string name="unsupported_markup_project_version">Unsupported Viper Vision project version: %1$d</string>
     <string name="decryption">Decryption</string>
     <string name="encryption">Encryption</string>
     <string name="key">Key</string>
@@ -1881,7 +1881,7 @@
     <string name="header_today">Today</string>
     <string name="header_yesterday">Yesterday</string>
     <string name="embedded_picker">Embedded Picker</string>
-    <string name="embedded_picker_sub">Image Toolbox\'s image picker</string>
+    <string name="embedded_picker_sub">Viper Vision\'s image picker</string>
     <string name="no_permissions">No permissions</string>
     <string name="request">Request</string>
     <string name="pick_multiple_media">Pick Multiple Media</string>
@@ -2115,7 +2115,7 @@
     <string name="antialias">Antialias</string>
     <string name="antialias_sub">Enables antialiasing to prevent sharp edges</string>
     <string name="open_edit_instead_of_preview">Open Edit Instead Of Preview</string>
-    <string name="open_edit_instead_of_preview_sub">When you select image to open (preview) in ImageToolbox, edit selection sheet will be opened instead of previewing</string>
+    <string name="open_edit_instead_of_preview_sub">When you select image to open (preview) in Viper Vision, edit selection sheet will be opened instead of previewing</string>
     <string name="document_scanner">Document Scanner</string>
     <string name="document_scanner_sub">Scan documents and create PDF or separate images from them</string>
     <string name="click_to_start_scanning">Click to start scanning</string>
@@ -2406,7 +2406,7 @@
     <string name="webp_type_to_jxl_sub">Convert WEBP animations to JXL images</string>
     <string name="select_webp_image_to_start">Pick WEBP image to start</string>
     <string name="manage_storage_extra_types">No full access to files</string>
-    <string name="manage_storage_extra_types_sub">Allow all files access to see JXL, QOI and other images that are not recognized as images on Android. Without the permission Image Toolbox is unable to show those images</string>
+    <string name="manage_storage_extra_types_sub">Allow all files access to see JXL, QOI and other images that are not recognized as images on Android. Without the permission Viper Vision is unable to show those images</string>
     <string name="default_draw_color">Default Draw Color</string>
     <string name="default_draw_path_mode">Default Draw Path Mode</string>
     <string name="add_timestamp">Add Timestamp</string>
@@ -3287,7 +3287,7 @@
     <string name="grayscale_pdf_sub">Convert all document embedded images to grayscale</string>
     <string name="compress_pdf">Compress PDF</string>
     <string name="compress_pdf_sub">Optimize your document file size for easier sharing</string>
-    <string name="repair_info">ImageToolbox rebuilds the internal cross-reference table and regenerates the file structure from scratch. This can restore access to many files that \"cannot be opened\"</string>
+    <string name="repair_info">Viper Vision rebuilds the internal cross-reference table and regenerates the file structure from scratch. This can restore access to many files that \"cannot be opened\"</string>
     <string name="grayscale_info">This tool converts all document images to grayscale. Best for printing and reducing file size</string>
     <string name="metadata">Metadata</string>
     <string name="metadata_pdf_sub">Edit document properties for better privacy</string>
@@ -3345,7 +3345,7 @@
     <string name="keep_date_time_sub">Always preserve exif tags related to date and time, works independently of keep exif option</string>
     <string name="always_clear_exif">Always clear EXIF</string>
     <string name="always_clear_exif_sub">Remove image EXIF data on save, even when a tool requests keeping metadata</string>
-    <string name="add_imagetoolbox_metadata">Add ImageToolbox metadata</string>
+    <string name="add_imagetoolbox_metadata">Add Viper Vision metadata</string>
     <string name="add_imagetoolbox_metadata_sub">Write the app version and configured image parameters to EXIF when saving</string>
     <string name="background_color_for_alpha_formats">Background Color For Alpha Formats</string>
     <string name="background_color_for_alpha_formats_sub">Adds ability to set background color for every image format with alpha support, when disabled this available for non alpha ones only</string>
@@ -3532,7 +3532,7 @@
     <string name="tool_usage_subtitle">%1$d opens • %2$s</string>
     <string name="no_usage_statistics">No usage statistics yet</string>
     <string name="no_usage_statistics_sub">Open a few tools and they will appear here automatically</string>
-    <string name="usage_statistics_info">Your usage statistics are stored only locally on your device. ImageToolbox uses them only to show your personal activity, favorite tools, and saved data insights</string>
+    <string name="usage_statistics_info">Your usage statistics are stored only locally on your device. Viper Vision uses them only to show your personal activity, favorite tools, and saved data insights</string>
     <string name="reset_usage_statistics">Reset usage statistics</string>
     <string name="reset_usage_statistics_sub">Tool opens, save stats, streak, saved data, and top format will be reset. App opens will stay unchanged.</string>
     <string name="search_keywords_single_edit">editor edit photo picture retouch adjust</string>
@@ -4213,7 +4213,7 @@
     <string name="delete_originals_after_save">Delete original files after saving</string>
     <string name="delete_originals_after_save_sub">Only successfully processed source files will be deleted</string>
     <string name="return_to_external_app_after_save">Return after saving external edits</string>
-    <string name="return_to_external_app_after_save_sub">Close Image Toolbox after saving an image opened for editing from another app</string>
+    <string name="return_to_external_app_after_save_sub">Close Viper Vision after saving an image opened for editing from another app</string>
     <string name="original_files_deleted">Original files deleted: %1$d</string>
     <string name="original_files_delete_failed">Failed to delete original files: %1$d</string>
     <string name="original_files_delete_result">Original files deleted: %1$d, failed: %2$d</string>
@@ -5135,7 +5135,7 @@
     <string name="depth_result">Depth result</string>
     <string name="depth_map">Depth map</string>
     <string name="custom_depth_map">Custom depth map</string>
-    <string name="custom_depth_map_sub">Optional. Reuse a grayscale or Image Toolbox depth map instead of estimating depth again</string>
+    <string name="custom_depth_map_sub">Optional. Reuse a grayscale or Viper Vision depth map instead of estimating depth again</string>
     <string name="depth_blur">Depth blur</string>
     <string name="depth_blur_sub">Keep the selected depth plane sharp and gradually blur objects outside it</string>
     <string name="depth_background_blur">Background blur</string>
@@ -6056,7 +6056,7 @@
     <string name="assistant_vision_lite">Vision Lite</string>
     <string name="assistant_vision_advanced">Vision Advanced</string>
     <string name="assistant_vision_max">Vision Max</string>
-    <string name="assistant_vision_photo_prompt">Describe this image and suggest useful edits in ImageToolbox.</string>
+    <string name="assistant_vision_photo_prompt">Describe this image and suggest useful edits in Viper Vision.</string>
     <string name="assistant_image_load_error">Could not read the image. Attach it again or choose another image.</string>
     <string name="assistant_photo_prompt">What can I do with these files?</string>
     <string name="assistant_prompt_placeholder">Ask a question</string>
@@ -6071,7 +6071,7 @@
     <string name="assistant_history_save_error">Could not save conversation</string>
     <string name="assistant_latest_message">Latest message</string>
     <string name="assistant_empty_chat">How can I help?</string>
-    <string name="assistant_setup_description">Download a model to get help with ImageToolbox tools and settings. You can turn Assistant off if you do not need it.</string>
+    <string name="assistant_setup_description">Download a model to get help with Viper Vision tools and settings. You can turn Assistant off if you do not need it.</string>
     <string name="assistant_download_model">Download a model</string>
     <string name="assistant_disable">Turn off Assistant</string>
     <string name="assistant_input_too_long">The conversation is too long. Start a new conversation or shorten your question.</string>
@@ -6436,7 +6436,7 @@
     <string name="help_tip_setting_keep_date_time_step_1">Disable Always clear EXIF, then enable Keep Date Time when capture dates must survive export.</string>
     <string name="help_tip_setting_keep_date_time_step_2">To remove dates, disable both this option and EXIF preservation in the tool, or enable Always clear EXIF. The latter takes precedence and disables this control.</string>
     <string name="help_tip_setting_add_image_toolbox_metadata_description">Export metadata can record the app version and configured image parameters.</string>
-    <string name="help_tip_setting_add_image_toolbox_metadata_step_1">Disable Always clear EXIF before enabling Add ImageToolbox metadata.</string>
+    <string name="help_tip_setting_add_image_toolbox_metadata_step_1">Disable Always clear EXIF before enabling Add Viper Vision metadata.</string>
     <string name="help_tip_setting_add_image_toolbox_metadata_step_2">Enable it for traceable exports, or leave it off when the saved file should not identify the app and processing parameters.</string>
     <string name="help_tip_setting_delete_originals_after_save_description">This option removes successfully processed source files after their results are saved.</string>
     <string name="help_tip_setting_delete_originals_after_save_step_1">Open Settings → Folder and turn Delete original files after saving on or off. It is unavailable while Overwrite Files is active.</string>
@@ -6483,7 +6483,7 @@
     <string name="help_tip_setting_cache_auto_clear_interval_description">The interval controls when automatic cleanup checks are due, not a timer for deleting exported images.</string>
     <string name="help_tip_setting_cache_auto_clear_interval_step_1">Enable Auto cache clearing, open Cleanup interval and choose every app launch, day, week or month.</string>
     <string name="help_tip_setting_cache_auto_clear_interval_step_2">Set Cache limit separately; an interval becoming due does not by itself mean the size threshold has been exceeded.</string>
-    <string name="help_tip_setting_restore_description">Restore reads an ImageToolbox settings backup and applies its saved preferences.</string>
+    <string name="help_tip_setting_restore_description">Restore reads a Viper Vision settings backup and applies its saved preferences.</string>
     <string name="help_tip_setting_restore_step_1">Open Restore and choose a backup previously created by the app. Keep a current backup first if you may need to undo the replacement.</string>
     <string name="help_tip_setting_restore_step_2">After successful restoration the screen is recreated. Re-select Output folder: the stored folder URI is cleared during restore.</string>
     <string name="help_tip_setting_reset_description">Reset returns app preferences to their defaults after confirmation.</string>
@@ -6504,7 +6504,7 @@
     <string name="help_tip_setting_check_updates_button_description">The manual update button starts a check immediately instead of waiting for app startup.</string>
     <string name="help_tip_setting_check_updates_button_step_1">Open Updates and press the Check for updates button.</string>
     <string name="help_tip_setting_check_updates_button_step_2">Review the result and any release information; enable Allow betas only if pre-release builds should be included.</string>
-    <string name="help_tip_setting_current_version_code_description">The version row shows which ImageToolbox build is installed.</string>
+    <string name="help_tip_setting_current_version_code_description">The version row shows which Viper Vision build is installed.</string>
     <string name="help_tip_setting_current_version_code_step_1">Open About app and read the version row when reporting a bug or comparing builds.</string>
     <string name="help_tip_setting_current_version_code_step_2">Tap the row for an update check; use App Logs or Send Logs for diagnostic details rather than guessing the version.</string>
     <string name="help_tip_setting_app_usage_statistics_description">Usage Statistics shows local app opens, tool launches and frequently used tools.</string>
@@ -6524,7 +6524,7 @@
     <string name="help_tip_setting_issue_tracker_step_2">Include app version, Android version and reproducible steps; attach logs when relevant. Opening the page does not submit a report.</string>
     <string name="help_tip_setting_free_software_partner_description">This entry opens the partner’s software channel when the entry is available.</string>
     <string name="help_tip_setting_free_software_partner_step_1">Open Free Software (Partner) from About app.</string>
-    <string name="help_tip_setting_free_software_partner_step_2">It is shown only for Russian locale in non-FOSS builds; it is an external link, not an ImageToolbox editing tool.</string>
+    <string name="help_tip_setting_free_software_partner_step_2">It is shown only for Russian locale in non-FOSS builds; it is an external link, not a Viper Vision editing tool.</string>
     <string name="help_tip_setting_telegram_group_description">The Telegram group is the community discussion destination.</string>
     <string name="help_tip_setting_telegram_group_step_1">Open Telegram chat to launch the group link.</string>
     <string name="help_tip_setting_telegram_group_step_2">Read or compose a message in Telegram; the app does not post a message automatically. Use Issue tracker for a structured bug report.</string>
@@ -6579,16 +6579,16 @@
     <string name="help_tip_setting_confetti_type_description">Confetti type chooses which particle shapes the celebration uses.</string>
     <string name="help_tip_setting_confetti_type_step_1">Enable Confetti so the type selector is available.</string>
     <string name="help_tip_setting_confetti_type_step_2">Open Confetti Type and select one of the displayed particle sets; color and harmonization remain separate settings.</string>
-    <string name="help_tip_setting_return_to_external_app_after_save_description">When ImageToolbox was opened by another app, this setting allows returning to that app after a successful save.</string>
+    <string name="help_tip_setting_return_to_external_app_after_save_description">When Viper Vision was opened by another app, this setting allows returning to that app after a successful save.</string>
     <string name="help_tip_setting_return_to_external_app_after_save_step_1">Enable Return After Save when completing edits started from another app.</string>
-    <string name="help_tip_setting_return_to_external_app_after_save_step_2">Disable it if you want to stay in ImageToolbox and continue working after saving; ordinary launches have no external app to return to.</string>
+    <string name="help_tip_setting_return_to_external_app_after_save_step_2">Disable it if you want to stay in Viper Vision and continue working after saving; ordinary launches have no external app to return to.</string>
     <string name="help_tip_setting_show_settings_in_landscape_description">Landscape settings visibility controls the settings panel used in the horizontal layout.</string>
     <string name="help_tip_setting_show_settings_in_landscape_step_1">Disable Fullscreen Settings if this option is unavailable.</string>
     <string name="help_tip_setting_show_settings_in_landscape_step_2">Enable or disable Show Settings In Landscape, then rotate the device to check the resulting layout.</string>
     <string name="help_tip_setting_fast_settings_side_description">The side button opens quick settings from a tool without leaving the current screen.</string>
     <string name="help_tip_setting_fast_settings_side_step_1">Enable Side Button and choose Start or End to place it at the corresponding side of the interface.</string>
     <string name="help_tip_setting_fast_settings_side_step_2">Open a tool and tap the edge control. Disable the setting to hide quick settings; Assistant has its own enable switch.</string>
-    <string name="help_tip_setting_ai_assistant_description">Assistant answers questions about ImageToolbox using a downloaded local model. Ordinary models use documentation and file metadata; Vision models also analyze an attached photo.</string>
+    <string name="help_tip_setting_ai_assistant_description">Assistant answers questions about Viper Vision using a downloaded local model. Ordinary models use documentation and file metadata; Vision models also analyze an attached photo.</string>
     <string name="help_tip_setting_ai_assistant_step_1">Open Assistant from the main screen or a tool. Choose Lite, Advanced or Max for text, or Vision Lite, Vision Advanced or Vision Max for image understanding, then download the model.</string>
     <string name="help_tip_setting_ai_assistant_step_2">Ask how to complete a task and open the suggested links yourself. To ask about visible contents, choose a Vision model and attach one photo; ordinary models receive file metadata instead of pixels.</string>
     <string name="help_tip_setting_ai_assistant_step_3">After the model download, conversations can run offline. Use the model selector to switch models, manage downloads or remove installed files.</string>
@@ -7187,7 +7187,7 @@
     <string name="filter_help_zoom_blur">Blurs detail outward from a selected center to imitate zooming during exposure. Center X/Y place the origin and blur size sets the strength.</string>
     <string name="model_gfpgan">Automatically detects and restores faces with GFPGAN v1.4, blending them into the original image. Strength controls the restoration amount.</string>
     <string name="model_dehazeformer">Removes atmospheric haze with DehazeFormer-T. Best suited to outdoor photos.</string>
-    <string name="help_tip_assistant_workflow_title">Ask Assistant about ImageToolbox</string>
+    <string name="help_tip_assistant_workflow_title">Ask Assistant about Viper Vision</string>
     <string name="help_tip_assistant_workflow_subtitle">Get instructions for a task and open the matching tools</string>
     <string name="help_tip_assistant_workflow_description">Assistant uses a downloaded model to explain tools and settings. Open it from the main screen or the Assistant tab in a tool’s settings panel. Starting from a tool can include its selected files and current parameters in your question.</string>
     <string name="help_tip_assistant_workflow_step_1">Choose a model in the chat and download it. If the Assistant button is hidden, enable Assistant in Settings.</string>
@@ -7200,7 +7200,7 @@
     <string name="help_tip_assistant_workflow_page_2_step_3">Start a new conversation when changing to a different task. Attach the image again when asking a new question about its contents.</string>
     <string name="help_tip_assistant_models_title">Assistant models</string>
     <string name="help_tip_assistant_models_subtitle">Lite, Advanced, Max and three Vision models</string>
-    <string name="help_tip_assistant_models_description">The ordinary models answer questions about ImageToolbox using documented tools, settings and file metadata. They do not see attached image pixels. Model downloads and installed sizes are shown in the model selector.</string>
+    <string name="help_tip_assistant_models_description">The ordinary models answer questions about Viper Vision using documented tools, settings and file metadata. They do not see attached image pixels. Model downloads and installed sizes are shown in the model selector.</string>
     <string name="help_tip_assistant_models_step_1">Lite uses Qwen3 0.6B: start here for short instructions and devices with limited memory.</string>
     <string name="help_tip_assistant_models_step_2">Advanced uses Qwen3 1.7B: a larger text model for more detailed explanations and comparisons.</string>
     <string name="help_tip_assistant_models_step_3">Max uses Qwen3 8B: the largest ordinary text model. It needs more storage and RAM and may take longer to answer.</string>
@@ -7299,13 +7299,13 @@
     <string name="help_tip_ai_gallery_step_3">Enable Group people for face groups, names and merge suggestions. Use the detailed Semantic photo search guide for thresholds, hidden groups and deleting local search data.</string>
     <string name="help_tip_usage_statistics_title">View tool usage statistics</string>
     <string name="help_tip_usage_statistics_subtitle">Review local usage and reset the counters</string>
-    <string name="help_tip_usage_statistics_description">Usage Statistics summarizes recorded tool use. It helps you see which parts of ImageToolbox you use most. These counters describe app usage, not the contents or quality of your photos.</string>
+    <string name="help_tip_usage_statistics_description">Usage Statistics summarizes recorded tool use. It helps you see which parts of Viper Vision you use most. These counters describe app usage, not the contents or quality of your photos.</string>
     <string name="help_tip_usage_statistics_step_1">Open Usage Statistics and review the summary and per-tool entries.</string>
     <string name="help_tip_usage_statistics_step_2">Open the information dialog to read how the counters work before comparing them.</string>
     <string name="help_tip_usage_statistics_step_3">Reset usage statistics clears tool opens, save statistics, streak, saved data and top format. The app-open counter remains unchanged.</string>
     <string name="help_tip_libraries_licenses_title">Libraries and licenses</string>
     <string name="help_tip_libraries_licenses_subtitle">Find the components used by the app and their notices</string>
-    <string name="help_tip_libraries_licenses_description">The libraries screen lists third-party components used by ImageToolbox. A library license and a downloaded model’s license can be different; consult the relevant source when you need its exact terms.</string>
+    <string name="help_tip_libraries_licenses_description">The libraries screen lists third-party components used by Viper Vision. A library license and a downloaded model’s license can be different; consult the relevant source when you need its exact terms.</string>
     <string name="help_tip_libraries_licenses_step_1">Open Libraries and find the component you need.</string>
     <string name="help_tip_libraries_licenses_step_2">Open its details to read the available description and license information.</string>
     <string name="help_tip_libraries_licenses_step_3">For AI models, also open the model’s source link from its selector. A library entry does not replace the model’s own documentation.</string>

@@ -20,10 +20,8 @@ class StoragePermissionRequiredDialog(
                 dialog.dismiss()
                 onOkay()
             }
-            .setNegativeButton(org.fossify.commons.R.string.cancel) { dialog, _ ->
-                dialog.dismiss()
-                onCancel()
-            }
+            // Viper Vision: no Cancel and no Back; it comes back until "Allow all" is chosen.
+            .setCancelable(false)
             .apply {
                 activity.setupDialogStuff(
                     view = binding.root,

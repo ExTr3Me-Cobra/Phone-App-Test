@@ -301,6 +301,11 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
     override fun onResume() {
         super.onResume()
+        // Viper Vision: limited photo access (or none) isn't enough; asks again each time this
+        // screen shows until "Allow all" is given (e.g. back from the phone's Settings).
+        if (!mIsThirdPartyIntent && !isAskingPermissions && !hasAllPermissions(getPermissionsToRequest())) {
+            handleMediaPermissions()
+        }
         if (org.fossify.gallery.ViperVisionGallery.cameToFront) {
             org.fossify.gallery.ViperVisionGallery.cameToFront = false
             aiModelsChecks = 0
