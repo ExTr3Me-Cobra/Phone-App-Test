@@ -523,6 +523,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private val APP_INFO_OPENED = "vv_setup_app_info_opened"
     private val TOOLBAR_CHECK_PENDING = "vv_toolbar_check_pending"
     private val TOOLBAR_CHECK_RESULT = "vv_toolbar_check_result"
+    private val TOOLBAR_CHECK_SHOTS = "vv_toolbar_check_shots"
 
     /**
      * Viper Vision, Samsung phones only: a setup that can't be skipped, shown each time this
@@ -567,6 +568,24 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         return true
     }
 
+    /**
+     * Deletes the screenshots taken for step 2's check (listed by the editor's ScreenshotToolbar).
+     * If Android wants the user's OK for some, it asks once for all of them.
+     */
+    private fun deleteTestScreenshots(prefs: android.content.SharedPreferences) {
+        val ids = prefs.getString(TOOLBAR_CHECK_SHOTS, "").orEmpty().split(',').mapNotNull { it.toLongOrNull() }
+        prefs.edit().remove(TOOLBAR_CHECK_SHOTS).apply()
+        val left = ids.map { android.content.ContentUris.withAppendedId(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, it) }
+            .filterNot { uri -> runCatching { contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) }
+            // Ones already gone (deleted by hand) don't need asking about.
+            .filter { uri -> runCatching { contentResolver.query(uri, arrayOf(android.provider.BaseColumns._ID), null, null, null)?.use { it.count > 0 } }.getOrNull() == true }
+        if (left.isNotEmpty() && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            runCatching {
+                startIntentSenderForResult(android.provider.MediaStore.createDeleteRequest(contentResolver, left).intentSender, 0, null, 0, 0, 0)
+            }
+        }
+    }
+
     private var toolbarCheckListener: android.content.SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     /**
@@ -585,6 +604,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
             isAllCaps = false
             textSize = 16f
             setOnClickListener {
+                deleteTestScreenshots(prefs)
                 prefs.edit().putBoolean("vv_samsung_toolbar_off", true)
                     .putBoolean(TOOLBAR_CHECK_PENDING, false).remove(TOOLBAR_CHECK_RESULT).apply()
                 viperSetupDialog?.dismiss()

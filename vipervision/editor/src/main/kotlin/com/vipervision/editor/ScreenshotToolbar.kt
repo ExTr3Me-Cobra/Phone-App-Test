@@ -106,6 +106,10 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         val id = runCatching { newestScreenshotIncludingUnsaved() }.getOrNull() ?: return
         if (id == lastCheckedId) return
         lastCheckedId = id
+        // Remembered so the setup deletes its test screenshots when Continue is tapped.
+        val prefs = service.getSharedPreferences("Prefs", Context.MODE_PRIVATE)
+        val shots = prefs.getString(CHECK_SHOTS, "").orEmpty().split(',').filter { it.isNotBlank() } + id.toString()
+        prefs.edit().putString(CHECK_SHOTS, shots.distinct().joinToString(",")).apply()
         checkSamsungToolbar()
     }
 
@@ -526,6 +530,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         /** Shared with the gallery's setup (MainActivity.showViperSetup). */
         const val CHECK_PENDING = "vv_toolbar_check_pending"
         const val CHECK_RESULT = "vv_toolbar_check_result"
+        const val CHECK_SHOTS = "vv_toolbar_check_shots"
         const val SAMSUNG_CAPTURE_PACKAGE = "com.samsung.android.app.smartcapture"
         private const val MAX_AGE_SECONDS = 15
         private const val SHARE_FOLDER = "vv_shared_screenshots"
