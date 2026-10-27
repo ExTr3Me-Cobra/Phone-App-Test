@@ -1,0 +1,55 @@
+name: Mirror AI models
+
+# Copies every AI model Viper Vision uses (vipervision/models/urls.txt) into one permanent
+# release, "vipervision-ai-models", so the app never depends on the original sites. Run by hand
+# (Actions → Mirror AI models → Run workflow), and again whenever urls.txt gains a model. Files
+# already there are skipped. The build workflow's cleanup only touches vipervision-build-* releases.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'vipervision/models/urls.txt'
+      - '.github/workflows/mirror-ai-models.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vipervision-ai-models
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      TAG: vipervision-ai-models
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make sure the release exists
+        run: |
+          gh release view "$TAG" --repo "$REPO" >/dev/null 2>&1 || gh release create "$TAG" --repo "$REPO" \
+            --title "Viper Vision AI models" --latest=false --target "${{ github.sha }}" \
+            --notes "Every AI model Viper Vision uses, kept here permanently so the app doesn't depend on the original sites. The app downloads these itself; there's nothing to install from this page."
+
+      - name: Copy each model
+        run: |
+          existing=$(gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[].name')
+          mkdir -p models
+          while read -r url; do
+            [ -z "$url" ] && continue
+            # Same naming as the app (AndroidDownloadManager.mirrorName): the path inside a
+            # Hugging Face repo, or the file name, with / as __.
+            clean="${url%%\?*}"
+            if [[ "$clean" == *"/resolve/"* ]]; then name="${clean#*/resolve/*/}"; else name="${clean##*/}"; fi
+            name="${name//\//__}"
+            if grep -qxF "$name" <<< "$existing"; then echo "Already mirrored: $name"; continue; fi
+            echo "Mirroring $name"
+            curl -fL --retry 4 --retry-delay 5 -o "models/$name" "$url"
+            gh release upload "$TAG" "models/$name" --repo "$REPO" --clobber
+            rm -f "models/$name"
+          done < vipervision/models/urls.txt
+          gh release view "$TAG" --repo "$REPO" --json assets --jq '.assets[] | "\(.name) \(.size)"'
