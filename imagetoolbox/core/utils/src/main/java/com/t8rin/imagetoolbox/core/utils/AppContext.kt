@@ -51,6 +51,23 @@ val appContext: AppContext
         "AppContext not initialized"
     }
 
+/**
+ * Viper Vision: the installed app's own version (e.g. "1.0.0 build 132"), not Image Toolbox's
+ * library version that BuildConfig.VERSION_NAME carries.
+ */
+val installedVersionName: String by lazy {
+    runCatching { appContext.packageManager.getPackageInfo(appContext.packageName, 0).versionName }
+        .getOrNull() ?: "?"
+}
+
+val installedVersionCode: Long by lazy {
+    runCatching {
+        androidx.core.content.pm.PackageInfoCompat.getLongVersionCode(
+            appContext.packageManager.getPackageInfo(appContext.packageName, 0)
+        )
+    }.getOrDefault(0L)
+}
+
 fun getString(@StringRes resId: Int): String = appContext.getString(resId)
 
 fun getString(

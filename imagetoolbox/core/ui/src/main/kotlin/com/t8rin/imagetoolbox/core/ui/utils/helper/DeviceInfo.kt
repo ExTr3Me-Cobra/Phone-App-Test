@@ -24,7 +24,6 @@ import android.os.Build.VERSION.RELEASE
 import android.os.Build.VERSION.SDK_INT
 import androidx.appcompat.app.AppCompatDelegate
 import com.t8rin.imagetoolbox.core.resources.BuildConfig.FLAVOR
-import com.t8rin.imagetoolbox.core.resources.BuildConfig.VERSION_CODE
 import com.t8rin.imagetoolbox.core.ui.utils.helper.ContextUtils.getDisplayName
 import com.t8rin.imagetoolbox.core.utils.makeLog
 
@@ -42,7 +41,7 @@ data class DeviceInfo private constructor(
 
             val sdk = "$SDK_INT (Android $RELEASE)"
 
-            val appVersion = "$AppVersion ($VERSION_CODE)"
+            val appVersion = "$AppVersion (${com.t8rin.imagetoolbox.core.utils.installedVersionCode})"
 
             val flavor = FLAVOR
 

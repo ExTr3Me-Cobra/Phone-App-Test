@@ -988,7 +988,7 @@ internal class AndroidFileController @Inject constructor(
             openFileDescriptor(fileUri)?.use {
                 it.fileDescriptor.toMetadata().apply {
                     this[MetadataTag.Software] =
-                        "ImageToolbox ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+                        "Viper Vision ${com.t8rin.imagetoolbox.core.utils.installedVersionName}"
 
                     val oldComment = this[MetadataTag.UserComment]
                         ?.lineSequence()

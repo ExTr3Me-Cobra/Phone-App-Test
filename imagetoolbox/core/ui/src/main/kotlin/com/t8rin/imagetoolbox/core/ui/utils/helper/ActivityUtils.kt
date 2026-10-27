@@ -77,7 +77,7 @@ val AppVersionPreReleaseFlavored: String by lazy {
 }
 
 val AppVersion: String by lazy {
-    BuildConfig.VERSION_NAME + if (Flavor.isFoss()) "-foss" else ""
+    com.t8rin.imagetoolbox.core.utils.installedVersionName
 }
 
 const val ColorSchemeName = "scheme"

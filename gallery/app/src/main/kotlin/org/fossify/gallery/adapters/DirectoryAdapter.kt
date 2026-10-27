@@ -1052,12 +1052,16 @@ class DirectoryAdapter(
 
     init {
         if (!isPickIntent && !isListViewType) {
-            (recyclerView.getTag(R.id.dir_holder) as? ItemTouchHelper)?.attachToRecyclerView(null)
-            val helper = ItemTouchHelper(object : ItemMoveCallback(this, true) {
-                override fun isLongPressDragEnabled() = !isDragAndDropping
-            })
-            helper.attachToRecyclerView(recyclerView)
-            recyclerView.setTag(R.id.dir_holder, helper)
+            // The gallery can make this adapter on a background thread; attaching touches the
+            // list's views, which only the main thread may do.
+            activity.runOnUiThread {
+                (recyclerView.getTag(R.id.dir_holder) as? ItemTouchHelper)?.attachToRecyclerView(null)
+                val helper = ItemTouchHelper(object : ItemMoveCallback(this, true) {
+                    override fun isLongPressDragEnabled() = !isDragAndDropping
+                })
+                helper.attachToRecyclerView(recyclerView)
+                recyclerView.setTag(R.id.dir_holder, helper)
+            }
         }
     }
 
