@@ -21,6 +21,11 @@
     <string name="vv_restore_all_again">Are you really sure you want to restore all %1$d items?</string>
     <string name="vv_diagnostics">Diagnostic log</string>
     <string name="vv_clear_cache_confirm">Clear</string>
+    <string name="vv_originals">Originals kept for "Revert to original"</string>
+    <string name="vv_originals_size">%1$s for %2$d photo(s). Tap to delete them</string>
+    <string name="vv_originals_none">None kept</string>
+    <string name="vv_originals_delete">Delete</string>
+    <string name="vv_originals_warning">This deletes the untouched copies kept of photos you\'ve edited or rotated (%1$s).\n\nYour photos stay exactly as they are now, but "Revert to original" will no longer be able to bring back how they looked before. This can\'t be undone.</string>
     <string name="vv_clear_cache_warning">This deletes the saved thumbnails, so photos and albums load more slowly for a while as they\'re made again, plus temporary files left over from editing (AI results and video previews).\n\nYour photos and videos, edits you\'ve saved, the recycle bin, downloaded AI models, the originals kept for "Revert to original" and your settings all stay.</string>
     <string name="vv_diagnostics_about">What the app was doing when something went wrong, to copy and send</string>
     <string name="vv_copy_to_album">Copy to album</string>

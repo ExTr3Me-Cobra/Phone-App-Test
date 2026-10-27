@@ -172,6 +172,43 @@ class SettingsActivity : SimpleActivity() {
         binding.settingsVvDiagnosticsHolder.setOnClickListener {
             startActivity(Intent().setClassName(packageName, "com.vipervision.editor.DiagnosticsActivity"))
         }
+        setupKeptOriginals()
+    }
+
+    /**
+     * Viper Vision: how much room the untouched copies kept for "Revert to original" take (the
+     * editor's Originals / ViperOriginals: files/originals, one .orig per photo), and deleting them.
+     */
+    private fun setupKeptOriginals() {
+        val folder = java.io.File(filesDir, "originals")
+        fun refresh() = ensureBackgroundThread {
+            val copies = folder.listFiles { file -> file.name.endsWith(".orig") }.orEmpty()
+            val bytes = folder.listFiles().orEmpty().sumOf { it.length() }
+            val text = if (copies.isEmpty()) getString(R.string.vv_originals_none)
+            else getString(R.string.vv_originals_size, bytes.formatSize(), copies.size)
+            runOnUiThread { binding.settingsVvOriginalsSize.text = text }
+        }
+        refresh()
+        binding.settingsVvOriginalsHolder.setOnClickListener {
+            ensureBackgroundThread {
+                val bytes = folder.listFiles().orEmpty().sumOf { it.length() }
+                if (bytes == 0L) return@ensureBackgroundThread
+                runOnUiThread {
+                    ConfirmationDialog(
+                        this,
+                        message = getString(R.string.vv_originals_warning, bytes.formatSize()),
+                        positive = R.string.vv_originals_delete,
+                        negative = org.fossify.commons.R.string.cancel,
+                        dialogTitle = getString(R.string.vv_originals)
+                    ) {
+                        ensureBackgroundThread {
+                            folder.deleteRecursively()
+                            refresh()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun setupCustomizeColors() {
