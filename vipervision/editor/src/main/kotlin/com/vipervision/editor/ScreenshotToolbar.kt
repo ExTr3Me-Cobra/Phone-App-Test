@@ -22,7 +22,6 @@ import android.provider.MediaStore
 import android.util.Size
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -46,7 +45,7 @@ import java.io.File
  *   Share & Save (shares and keeps it);
  * - Crop and Draw, which open it in Viper Vision's editor on that tool.
  *
- * The card goes away by itself after a few seconds untouched, keeping the screenshot. Runs inside
+ * It covers the whole screen and stays until one of the three is picked. Runs inside
  * [CameraThumbnailService]; Settings → "Screenshot toolbar" turns it off.
  */
 class ScreenshotToolbar(private val service: AccessibilityService) {
@@ -56,7 +55,6 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
     private var card: View? = null
     private var lastShownId = -1L
     private val check = Runnable { checkForScreenshot() }
-    private val autoHide = Runnable { hide() }
 
     private val observer = object : ContentObserver(handler) {
         override fun onChange(selfChange: Boolean) {
@@ -133,10 +131,11 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
             this.text = text
             gravity = Gravity.CENTER
             maxLines = 1
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+            // Shrinks to fit ("Share & Save" with a large system font size).
+            setAutoSizeTextTypeUniformWithConfiguration(10, 16, 1, TypedValue.COMPLEX_UNIT_SP)
             setTextColor(if (filled) onAccent else android.graphics.Color.WHITE)
-            background = GradientDrawable().apply { cornerRadius = dp(20).toFloat(); setColor(if (filled) accent else grey) }
-            setPadding(dp(8), dp(10), dp(8), dp(10))
+            background = GradientDrawable().apply { cornerRadius = dp(24).toFloat(); setColor(if (filled) accent else grey) }
+            setPadding(dp(6), 0, dp(6), 0)
             setOnClickListener { onClick() }
         }
 
@@ -148,88 +147,83 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
                 addView(ImageView(service).apply {
                     setImageResource(icon)
                     setColorFilter(android.graphics.Color.WHITE)
-                }, FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER))
+                }, FrameLayout.LayoutParams(dp(28), dp(28), Gravity.CENTER))
                 setOnClickListener { onClick() }
-            }, LinearLayout.LayoutParams(dp(56), dp(56)))
+            }, LinearLayout.LayoutParams(dp(64), dp(64)))
             addView(TextView(service).apply {
                 text = label
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                 setTextColor(android.graphics.Color.WHITE)
                 gravity = Gravity.CENTER
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(4) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
         }
 
-        val thumbnail = ImageView(service).apply {
-            scaleType = ImageView.ScaleType.CENTER_CROP
-            clipToOutline = true
-            background = GradientDrawable().apply { cornerRadius = dp(10).toFloat(); setColor(grey) }
+        // The screenshot itself, as large as fits between the buttons.
+        val metrics = service.resources.displayMetrics
+        val preview = ImageView(service).apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
             runCatching {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    setImageBitmap(resolver.loadThumbnail(shot.uri, Size(dp(160), dp(160)), null))
+                    setImageBitmap(resolver.loadThumbnail(shot.uri, Size(metrics.widthPixels, metrics.heightPixels), null))
                 } else {
                     setImageURI(shot.uri)
                 }
             }
         }
 
-        val layout = LinearLayout(service).apply {
+        fun systemBar(name: String): Int {
+            val id = service.resources.getIdentifier(name, "dimen", "android")
+            return if (id != 0) service.resources.getDimensionPixelSize(id) else 0
+        }
+
+        // Full screen and opaque; it stays until Share, Save or Share & Save (Crop and Draw open
+        // the editor, which takes over from it).
+        val page = LinearLayout(service).apply {
             orientation = LinearLayout.VERTICAL
-            background = GradientDrawable().apply { cornerRadius = dp(24).toFloat(); setColor(0xF01C1C1E.toInt()) }
-            setPadding(dp(12), dp(12), dp(12), dp(12))
-            elevation = dp(8).toFloat()
-            // Any touch keeps it up; it goes away a while after the last one.
-            setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) restartAutoHide()
-                false
-            }
+            setBackgroundColor(android.graphics.Color.BLACK)
+            setPadding(dp(16), systemBar("status_bar_height") + dp(12), dp(16), systemBar("navigation_bar_height") + dp(16))
+            // Touches don't fall through to the app underneath.
+            isClickable = true
             addView(LinearLayout(service).apply {
                 orientation = LinearLayout.HORIZONTAL
-                val weight = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                addView(pill("Share", false) { share(shot, keep = false) }, LinearLayout.LayoutParams(weight).apply { marginEnd = dp(8) })
-                addView(pill("Save", true) { save() }, LinearLayout.LayoutParams(weight).apply { marginEnd = dp(8) })
-                addView(pill("Share & Save", false) { share(shot, keep = true) }, LinearLayout.LayoutParams(weight))
+                fun weighted(end: Int) = LinearLayout.LayoutParams(0, dp(48), 1f).apply { marginEnd = end }
+                addView(pill("Share", false) { share(shot, keep = false) }, weighted(dp(8)))
+                addView(pill("Save", true) { save() }, weighted(dp(8)))
+                addView(pill("Share & Save", false) { share(shot, keep = true) }, weighted(0))
+            })
+            addView(preview, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply {
+                topMargin = dp(16)
+                bottomMargin = dp(16)
             })
             addView(LinearLayout(service).apply {
                 orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                addView(thumbnail, LinearLayout.LayoutParams(dp(64), dp(80)))
-                addView(View(service), LinearLayout.LayoutParams(0, 1, 1f))
+                gravity = Gravity.CENTER
                 addView(bubble(R.drawable.vv_ic_crop, "Crop") { openEditor(shot, EditorActivity.START_CROP) },
-                    LinearLayout.LayoutParams(dp(72), LinearLayout.LayoutParams.WRAP_CONTENT))
+                    LinearLayout.LayoutParams(dp(96), LinearLayout.LayoutParams.WRAP_CONTENT))
                 addView(bubble(R.drawable.vv_ic_draw, "Draw") { openEditor(shot, EditorActivity.START_DRAW) },
-                    LinearLayout.LayoutParams(dp(72), LinearLayout.LayoutParams.WRAP_CONTENT))
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+                    LinearLayout.LayoutParams(dp(96), LinearLayout.LayoutParams.WRAP_CONTENT))
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.OPAQUE
         ).apply {
-            gravity = Gravity.BOTTOM
-            y = dp(64)
-            horizontalMargin = 0f
-        }
-        val frame = FrameLayout(service).apply {
-            setPadding(dp(12), 0, dp(12), 0)
-            addView(layout, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            }
         }
         runCatching {
-            service.getSystemService(WindowManager::class.java).addView(frame, params)
-            card = frame
-            restartAutoHide()
+            service.getSystemService(WindowManager::class.java).addView(page, params)
+            card = page
         }.onFailure { ViperLog.error("SCREENSHOT", "couldn't show the toolbar", it) }
     }
 
-    private fun restartAutoHide() {
-        handler.removeCallbacks(autoHide)
-        handler.postDelayed(autoHide, AUTO_HIDE_MS)
-    }
-
     fun hide() {
-        handler.removeCallbacks(autoHide)
         card?.let { view -> runCatching { service.getSystemService(WindowManager::class.java)?.removeView(view) } }
         card = null
     }
@@ -297,7 +291,6 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
     companion object {
         const val PREF_ENABLED = "vv_screenshot_toolbar"
         private const val MAX_AGE_SECONDS = 15
-        private const val AUTO_HIDE_MS = 6000L
         private const val SHARE_FOLDER = "vv_shared_screenshots"
         private const val KEEP_SHARED_COPY_MS = 24L * 60 * 60 * 1000
         internal const val EXTRA_URI = "com.vipervision.editor.SCREENSHOT_URI"
