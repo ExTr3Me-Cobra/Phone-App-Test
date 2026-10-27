@@ -108,6 +108,22 @@ object ModelPack {
 
     private fun prefs(context: Context) = context.getSharedPreferences("Prefs", Context.MODE_PRIVATE)
 
+    /**
+     * Checks which models are already on the phone (e.g. downloaded by an earlier build, one tool
+     * at a time) and notes it for the gallery: whether to offer the download at all, and how much
+     * is left. Run when the app starts, off the main thread.
+     */
+    fun refreshState(context: Context) {
+        val (here, complete) = state(context)
+        prefs(context).edit()
+            .putBoolean(KEY_COMPLETE, complete)
+            .putLong(KEY_HERE_BYTES, here)
+            .putLong(KEY_TOTAL_BYTES, totalSize)
+            .putBoolean(KEY_CHECKED, true)
+            .apply()
+        ViperLog.i("MODELS", "AI models on the phone: ${here / 1_000_000} of ${totalSize / 1_000_000} MB" + if (complete) " (all)" else "")
+    }
+
     fun isRunning(context: Context) = prefs(context).getBoolean(KEY_RUNNING, false)
     fun progress(context: Context) = prefs(context).getFloat(KEY_PROGRESS, 0f)
     fun current(context: Context) = prefs(context).getString(KEY_CURRENT, null)
@@ -158,7 +174,8 @@ object ModelPack {
                     }
                     done += item.size
                 }
-                prefs.edit().putFloat(KEY_PROGRESS, 1f).putBoolean(KEY_COMPLETE, true).remove(KEY_CURRENT).apply()
+                prefs.edit().putFloat(KEY_PROGRESS, 1f).putBoolean(KEY_COMPLETE, true).putLong(KEY_HERE_BYTES, totalSize)
+                    .remove(KEY_CURRENT).apply()
                 ViperLog.i("MODELS", "All AI models are here")
                 // The search can start indexing now.
                 AiSearch.onAppStart(context)
@@ -177,6 +194,9 @@ object ModelPack {
     // Shared with the gallery (it offers the download once and shows the status in Settings).
     const val KEY_PROMPTED = "vv_models_prompted"
     const val KEY_COMPLETE = "vv_models_complete"
+    const val KEY_CHECKED = "vv_models_checked"
+    const val KEY_HERE_BYTES = "vv_models_here_bytes"
+    const val KEY_TOTAL_BYTES = "vv_models_total_bytes"
     private const val KEY_RUNNING = "vv_models_running"
     private const val KEY_PROGRESS = "vv_models_progress"
     private const val KEY_CURRENT = "vv_models_current"

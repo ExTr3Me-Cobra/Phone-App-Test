@@ -93,7 +93,11 @@ class AiModelsActivity : ComponentActivity() {
             Spacer(Modifier.height(16.dp))
             when {
                 s == null -> Unit
-                complete -> Text("All downloaded (${gb(hereBytes)}).", color = accent, fontSize = 15.sp)
+                complete -> {
+                    // (Also tells the gallery, in case they came from an earlier build.)
+                    getSharedPreferences("Prefs", MODE_PRIVATE).edit().putBoolean(ModelPack.KEY_COMPLETE, true).apply()
+                    Text("All downloaded (${gb(hereBytes)}).", color = accent, fontSize = 15.sp)
+                }
                 s.running -> {
                     Text(
                         "Downloading… ${(s.progress * 100).toInt()}%" + (s.current?.let { " · $it" } ?: ""),
@@ -111,11 +115,13 @@ class AiModelsActivity : ComponentActivity() {
                         color = Color.White, fontSize = 15.sp
                     )
                     Spacer(Modifier.height(10.dp))
+                    // Only what's missing is downloaded (models from earlier builds are kept).
+                    val left = ModelPack.totalSize - hereBytes
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Button(
                             onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = false) },
                             colors = ButtonDefaults.buttonColors(containerColor = accent, contentColor = accent.contentOn())
-                        ) { Text("Download on Wi-Fi") }
+                        ) { Text(if (hereBytes > 0) "Download the rest (${gb(left)}) on Wi-Fi" else "Download on Wi-Fi") }
                         TextButton(onClick = { ModelPack.start(this@AiModelsActivity, allowMobileData = true) }) {
                             Text("Use mobile data too", color = Color.White)
                         }

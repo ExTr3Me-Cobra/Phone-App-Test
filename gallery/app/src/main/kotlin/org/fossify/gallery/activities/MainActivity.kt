@@ -487,6 +487,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     private fun offerAiModelsOnce() {
         if (mIsThirdPartyIntent || !hasPermission(getPermissionToRequest())) return
         val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
+        // Only once the app has checked which models are already here (vv_models_checked), so
+        // someone who has them all from an earlier build isn't offered the download.
+        if (!prefs.getBoolean("vv_models_checked", false)) return
         if (prefs.getBoolean("vv_models_complete", false) || prefs.getBoolean("vv_models_prompted", false)) return
         runCatching { startActivity(Intent().setClassName(packageName, "com.vipervision.editor.search.AiModelsActivity")) }
     }
