@@ -317,8 +317,13 @@ private fun CutOutContent(
                     session.samSession = EdgeSAM.openSession(source)
                 }
             }.onFailure {
-                ViperLog.error("CUTOUT", "Smart select setup failed", it)
                 session.resetSmart()
+                // Left before it was ready (e.g. switched tools): nothing went wrong.
+                if (it is kotlinx.coroutines.CancellationException) {
+                    session.busyMessage = null
+                    throw it
+                }
+                ViperLog.error("CUTOUT", "Smart select setup failed", it)
                 Toast.makeText(context, "Smart select couldn't start: ${it.message ?: it.javaClass.simpleName}", Toast.LENGTH_LONG).show()
             }
             session.busyMessage = null

@@ -26,6 +26,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.t8rin.neural_tools.ocr.PaddleOCR
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import com.vipervision.editor.ViperLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -135,19 +137,24 @@ object AiSearch {
         override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
             val context = applicationContext
             if (!Siglip.isDownloaded(context) || !hasPhotoPermission(context)) return@withContext Result.success()
-            status(context).edit().putBoolean(KEY_RUNNING, true).apply()
-            try {
-                runCatching { setForeground(foreground(context, "Getting photos ready for AI search")) }
-                indexPictures(context)
-                readText(context)
-                Result.success()
-            } catch (t: Throwable) {
-                ViperLog.error("SEARCH", "indexing stopped", t)
-                Result.retry()
-            } finally {
-                status(context).edit().putBoolean(KEY_RUNNING, false).apply()
-                Siglip.close()
-                PaddleOCR.close()
+            // The "now" and the 6-hourly indexing can both be due at once; they take turns. (Run
+            // side by side, the first to finish closed PaddleOCR while the other was still
+            // reading a photo with it, a native crash.)
+            indexing.withLock {
+                status(context).edit().putBoolean(KEY_RUNNING, true).apply()
+                try {
+                    runCatching { setForeground(foreground(context, "Getting photos ready for AI search")) }
+                    indexPictures(context)
+                    readText(context)
+                    Result.success()
+                } catch (t: Throwable) {
+                    ViperLog.error("SEARCH", "indexing stopped", t)
+                    Result.retry()
+                } finally {
+                    status(context).edit().putBoolean(KEY_RUNNING, false).apply()
+                    Siglip.close()
+                    PaddleOCR.close()
+                }
             }
         }
 
@@ -200,6 +207,9 @@ object AiSearch {
             bump(context)
         }
     }
+
+    /** Held by the one indexing run at a time (see IndexWorker.doWork). */
+    private val indexing = Mutex()
 
     /** Tells an open search that the index changed. */
     private fun bump(context: Context) {
