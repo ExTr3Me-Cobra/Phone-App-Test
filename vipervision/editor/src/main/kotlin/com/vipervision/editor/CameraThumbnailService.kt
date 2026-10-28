@@ -69,27 +69,54 @@ class CameraThumbnailService : AccessibilityService() {
                 // Not on the camera's own settings screens, only the viewfinder.
                 val screenName = event.className?.toString().orEmpty()
                 cameraOnScreen = pkg == CAMERA_PACKAGE && "setting" !in screenName.lowercase()
+                loadingRetries = 0
+                // Straight away at the thumbnail's last known spot (it doesn't move between
+                // visits), so a quick tap after opening the camera already lands on it.
+                if (cameraOnScreen && button == null && !isLocked()) lastBounds()?.let(::show)
                 schedule(0)
             }
-            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> if (pkg == CAMERA_PACKAGE) schedule(250)
+            // The viewfinder changes constantly; look at most every 60 ms instead of waiting for
+            // it to settle (which kept putting the button off while the camera started).
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> if (pkg == CAMERA_PACKAGE && !refreshPending) schedule(60)
         }
     }
+
+    private var refreshPending = false
 
     private fun schedule(delayMs: Long) {
         handler.removeCallbacks(refresh)
+        refreshPending = true
         handler.postDelayed(refresh, delayMs)
     }
 
+    private fun isLocked() = getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
+
+    /** Where the button was last put, kept so it can be shown before the camera's layout is readable. */
+    private fun lastBounds(): Rect? = getSharedPreferences("Prefs", MODE_PRIVATE)
+        .getString(LAST_BOUNDS, null)?.let(Rect::unflattenFromString)
+
+    private var loadingRetries = 0
+
     /** Puts the button over the thumbnail, moves it, or removes it. */
     private fun update() {
-        val locked = getSystemService(KeyguardManager::class.java)?.isKeyguardLocked == true
-        val bounds = if (cameraOnScreen && !locked) findThumbnail() else null
-        if (bounds == null) {
+        refreshPending = false
+        if (!cameraOnScreen || isLocked()) {
             hide()
             return
         }
+        val bounds = findThumbnail()
+        if (bounds == null) {
+            // The camera's layout isn't readable yet: keep the last known spot and look again soon.
+            if (loadingRetries++ < 40) {
+                if (button == null) lastBounds()?.let(::show)
+                schedule(50)
+            } else hide()
+            return
+        }
+        loadingRetries = 0
         if (bounds == shownAt) return
         show(bounds)
+        getSharedPreferences("Prefs", MODE_PRIVATE).edit().putString(LAST_BOUNDS, bounds.flattenToString()).apply()
     }
 
     /**
@@ -474,6 +501,7 @@ class CameraThumbnailService : AccessibilityService() {
         val EDIT_LABELS = listOf("Edit")
         val SAVE_LABELS = listOf("Save copy", "Save as copy", "Save", "Done")
         const val CAMERA_PACKAGE = "com.sec.android.app.camera"
+        const val LAST_BOUNDS = "vv_camera_thumbnail_bounds"
         const val SAMSUNG_CAPTURE_PACKAGE = ScreenshotToolbar.SAMSUNG_CAPTURE_PACKAGE
         const val SAMSUNG_TOOLBAR_OFF = "vv_samsung_toolbar_off"
         const val VIEWER_ACTIVITY = "org.fossify.gallery.activities.ViewPagerActivity"
