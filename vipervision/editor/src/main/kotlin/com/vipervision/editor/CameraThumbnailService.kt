@@ -63,9 +63,10 @@ class CameraThumbnailService : AccessibilityService() {
         }
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
-                // Our own button and the system UI (notifications, keyboard) don't count as
-                // leaving the camera.
-                if (pkg == packageName || pkg == "com.android.systemui") return
+                // The system UI (notifications, keyboard) and our own overlays (plain views) don't
+                // count as leaving the camera; Viper Vision's own screens do.
+                if (pkg == "com.android.systemui") return
+                if (pkg == packageName && event.className?.toString().orEmpty().startsWith("android.")) return
                 // Not on the camera's own settings screens, only the viewfinder.
                 val screenName = event.className?.toString().orEmpty()
                 cameraOnScreen = pkg == CAMERA_PACKAGE && "setting" !in screenName.lowercase()
@@ -100,6 +101,9 @@ class CameraThumbnailService : AccessibilityService() {
     /** Puts the button over the thumbnail, moves it, or removes it. */
     private fun update() {
         refreshPending = false
+        // Only while the camera itself is in front (e.g. not Viper Vision's viewer over it).
+        val front = rootInActiveWindow?.packageName?.toString()
+        if (front != null && front != CAMERA_PACKAGE) cameraOnScreen = false
         if (!cameraOnScreen || isLocked()) {
             hide()
             return
@@ -185,7 +189,13 @@ class CameraThumbnailService : AccessibilityService() {
         if (view == null) {
             val created = View(this).apply {
                 contentDescription = "Open in Viper Vision"
-                setOnClickListener { openNewest() }
+                setOnClickListener {
+                    // Gone the moment it's pressed, so repeated taps can't open more viewers;
+                    // it comes back only when the camera comes back.
+                    cameraOnScreen = false
+                    hide()
+                    openNewest()
+                }
             }
             runCatching { windowManager.addView(created, params) }.onSuccess { button = created }
         } else {
