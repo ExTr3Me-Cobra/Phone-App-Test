@@ -56,6 +56,12 @@ class CameraThumbnailService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        // Windows opening or closing (e.g. Back from Viper Vision's viewer to the camera): look
+        // again at what's in front.
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) {
+            if (!refreshPending) schedule(60)
+            return
+        }
         val pkg = event.packageName?.toString() ?: return
         handoffEvent(pkg, event)
         if (pkg == SAMSUNG_CAPTURE_PACKAGE) {
@@ -70,6 +76,7 @@ class CameraThumbnailService : AccessibilityService() {
                 // Not on the camera's own settings screens, only the viewfinder.
                 val screenName = event.className?.toString().orEmpty()
                 cameraOnScreen = pkg == CAMERA_PACKAGE && "setting" !in screenName.lowercase()
+                if (pkg == CAMERA_PACKAGE) onCameraSettings = "setting" in screenName.lowercase()
                 loadingRetries = 0
                 // Straight away at the thumbnail's last known spot (it doesn't move between
                 // visits), so a quick tap after opening the camera already lands on it.
@@ -78,11 +85,21 @@ class CameraThumbnailService : AccessibilityService() {
             }
             // The viewfinder changes constantly; look at most every 60 ms instead of waiting for
             // it to settle (which kept putting the button off while the camera started).
-            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> if (pkg == CAMERA_PACKAGE && !refreshPending) schedule(60)
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> if (pkg == CAMERA_PACKAGE && !refreshPending) {
+                // Back at the camera after the button was tapped: put it back at once.
+                if (button == null && !onCameraSettings && !isLocked() &&
+                    rootInActiveWindow?.packageName == CAMERA_PACKAGE
+                ) {
+                    cameraOnScreen = true
+                    lastBounds()?.let(::show)
+                }
+                schedule(60)
+            }
         }
     }
 
     private var refreshPending = false
+    private var onCameraSettings = false
 
     private fun schedule(delayMs: Long) {
         handler.removeCallbacks(refresh)
@@ -101,9 +118,11 @@ class CameraThumbnailService : AccessibilityService() {
     /** Puts the button over the thumbnail, moves it, or removes it. */
     private fun update() {
         refreshPending = false
-        // Only while the camera itself is in front (e.g. not Viper Vision's viewer over it).
+        // Follows the window in front: the camera's viewfinder (also when coming back to it, e.g.
+        // with Back from Viper Vision's viewer, which doesn't always announce the camera again),
+        // and not Viper Vision's viewer over it.
         val front = rootInActiveWindow?.packageName?.toString()
-        if (front != null && front != CAMERA_PACKAGE) cameraOnScreen = false
+        if (front != null) cameraOnScreen = front == CAMERA_PACKAGE && !onCameraSettings
         if (!cameraOnScreen || isLocked()) {
             hide()
             return
