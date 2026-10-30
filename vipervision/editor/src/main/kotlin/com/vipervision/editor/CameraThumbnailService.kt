@@ -74,6 +74,12 @@ class CameraThumbnailService : AccessibilityService() {
             noticedSamsungToolbar()
         }
         if (cameraOnScreen) lastCameraAt = System.currentTimeMillis()
+        // Viper Vision's viewer is on screen: the camera bridge's cover can go.
+        if (coverUntilViewer && pkg == packageName && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            !event.className?.toString().orEmpty().startsWith("android.")
+        ) {
+            handler.postDelayed({ liftCover() }, 300)
+        }
         // Samsung's own preview opened from the camera (its thumbnail): log its layout, to fit
         // Viper Vision's bars over it later.
         if (pkg == SamsungHandoff.GALLERY && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
@@ -333,10 +339,21 @@ class CameraThumbnailService : AccessibilityService() {
                 if (bridge) {
                     // Samsung's preview goes, Viper Vision's viewer comes.
                     ViperLog.i("CAMERA", "Photo saved after ${(System.currentTimeMillis() - started) / 1000} s; leaving Samsung's preview")
-                    removeBridgeBars()
+                    // The cover stays up through it all (Samsung's preview closing, the camera,
+                    // the viewer loading) and goes once Viper Vision's viewer is on screen.
                     bridgeActive = false
+                    coverUntilViewer = true
                     if (frontPackage() == SamsungHandoff.GALLERY) performGlobalAction(GLOBAL_ACTION_BACK)
-                    handler.postDelayed({ open(newest?.path) }, 400)
+                    val closingSince = System.currentTimeMillis()
+                    fun openWhenClosed() {
+                        if (frontPackage() == SamsungHandoff.GALLERY && System.currentTimeMillis() - closingSince < 1_200) {
+                            handler.postDelayed({ openWhenClosed() }, 100)
+                            return
+                        }
+                        open(newest?.path)
+                        handler.postDelayed({ liftCover() }, 2_500)
+                    }
+                    handler.postDelayed({ openWhenClosed() }, 150)
                 } else {
                     open(newest?.path)
                 }
@@ -387,36 +404,40 @@ class CameraThumbnailService : AccessibilityService() {
         hiddenUntil = Long.MAX_VALUE
         val at = shownAt
         hide()
-        val camera = windows.firstNotNullOfOrNull { w -> w.root?.takeIf { it.packageName == CAMERA_PACKAGE } }
-        val thumbnail = camera?.let { findById(it, "quick_view_button_layout") }
-        if (thumbnail?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true) {
-            showBridgeCover()
-            return
-        }
-        // Else tap where the thumbnail is, then cover (the cover would catch the tap).
-        if (at == null) {
-            showBridgeCover()
-            return
-        }
+        // The cover first, so nothing of Samsung's preview shows; it lets touches through for a
+        // moment, so a tap on Samsung's thumbnail (if needed) reaches it.
+        showBridgeCover()
+        // A moment for the cover to be drawn before Samsung's preview starts opening.
         handler.postDelayed({
-            val path = android.graphics.Path().apply { moveTo(at.exactCenterX(), at.exactCenterY()) }
-            val started = dispatchGesture(
-                android.accessibilityservice.GestureDescription.Builder()
-                    .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 50))
-                    .build(),
-                object : GestureResultCallback() {
-                    override fun onCompleted(gestureDescription: android.accessibilityservice.GestureDescription?) {
-                        if (bridgeActive) showBridgeCover()
-                    }
+            if (!bridgeActive) return@postDelayed
+            val camera = windows.firstNotNullOfOrNull { w -> w.root?.takeIf { it.packageName == CAMERA_PACKAGE } }
+            val thumbnail = camera?.let { findById(it, "quick_view_button_layout") }
+            if (thumbnail?.performAction(AccessibilityNodeInfo.ACTION_CLICK) != true && at != null) {
+                val path = android.graphics.Path().apply { moveTo(at.exactCenterX(), at.exactCenterY()) }
+                dispatchGesture(
+                    android.accessibilityservice.GestureDescription.Builder()
+                        .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 50))
+                        .build(), null, null
+                )
+            }
+        }, 100)
+        handler.postDelayed({ makeCoverTouchable() }, 600)
+    }
 
-                    override fun onCancelled(gestureDescription: android.accessibilityservice.GestureDescription?) {
-                        if (bridgeActive) showBridgeCover()
-                    }
-                },
-                null
-            )
-            if (!started) showBridgeCover()
-        }, 80)
+    /** Set from the photo being ready until Viper Vision's viewer shows (the cover stays till then). */
+    private var coverUntilViewer = false
+
+    private fun liftCover() {
+        if (!coverUntilViewer) return
+        coverUntilViewer = false
+        removeBridgeBars()
+    }
+
+    private fun makeCoverTouchable() {
+        val cover = bridgeBars.firstOrNull() ?: return
+        val params = cover.layoutParams as? WindowManager.LayoutParams ?: return
+        params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+        runCatching { getSystemService(WindowManager::class.java)?.updateViewLayout(cover, params) }
     }
 
     private fun findById(root: AccessibilityNodeInfo, id: String): AccessibilityNodeInfo? {
@@ -480,7 +501,7 @@ class CameraThumbnailService : AccessibilityService() {
             WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.OPAQUE
         ).apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
