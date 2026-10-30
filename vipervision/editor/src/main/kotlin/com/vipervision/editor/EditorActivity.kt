@@ -552,9 +552,9 @@ class EditorActivity : ComposeActivity() {
                 ViperLog.i("SAMSUNG", "Result $result: ${ViperLog.describe(full)}")
                 val stored = storeResult(full)
                 controller.addFinishedStep(controller.state.pixelSteps + PixelStep.Samsung(session.tool), stored)
-                if (result != session.exported) {
-                    runCatching { contentResolver.delete(result, null, null) }
-                        .onFailure { ViperLog.error("SAMSUNG", "couldn't delete Samsung's copy", it) }
+                // Samsung's saved copy: its edit is in the editor now, and Save puts it in the original.
+                if (result != session.exported) withContext(Dispatchers.IO) {
+                    SamsungHandoff.deletePicture(this@EditorActivity, result, "Samsung's copy")
                 }
                 Toast.makeText(this@EditorActivity, "${session.tool.label} edit brought back", Toast.LENGTH_SHORT).show()
             }

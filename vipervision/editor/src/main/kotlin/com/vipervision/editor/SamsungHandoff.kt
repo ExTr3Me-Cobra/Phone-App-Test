@@ -194,12 +194,7 @@ object SamsungHandoff {
             )?.use { cursor ->
                 while (cursor.moveToNext()) {
                     val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(0))
-                    val path = cursor.getString(1)
-                    val deleted = runCatching { context.contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) ||
-                            (path != null && runCatching { java.io.File(path).delete() }.getOrDefault(false).also {
-                                if (it) android.media.MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
-                            })
-                    ViperLog.i("SAMSUNG", "Leftover hand-off picture ${cursor.getString(2)}: " + if (deleted) "deleted" else "couldn't delete")
+                    deletePicture(context, uri, "a leftover hand-off picture")
                 }
             }
         }.onFailure { ViperLog.error("SAMSUNG", "couldn't clean up leftover hand-off pictures", it) }
@@ -207,8 +202,26 @@ object SamsungHandoff {
 
     /** Deletes the temporary picture. */
     fun cleanUp(context: Context, session: Session) {
-        runCatching { context.contentResolver.delete(session.exported, null, null) }
-            .onFailure { ViperLog.error("SAMSUNG", "couldn't delete the temporary picture", it) }
+        deletePicture(context, session.exported, "the temporary picture")
+    }
+
+    /**
+     * Deletes a picture from the gallery: through the media library, else its file (the media
+     * library can silently refuse a picture another app made, like Samsung's saved copy; All
+     * files access allows the file). True if it's gone.
+     */
+    fun deletePicture(context: Context, uri: Uri, what: String): Boolean {
+        @Suppress("DEPRECATION")
+        val path = runCatching {
+            context.contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME), null, null, null)
+                ?.use { if (it.moveToFirst()) it.getString(0) to it.getString(1) else null }
+        }.getOrNull()
+        val deleted = runCatching { context.contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) ||
+                (path?.first != null && runCatching { java.io.File(path.first).delete() }.getOrDefault(false).also {
+                    if (it) android.media.MediaScannerConnection.scanFile(context, arrayOf(path.first), null, null)
+                })
+        ViperLog.i("SAMSUNG", "Deleting $what (${path?.second ?: uri}): " + if (deleted) "done" else "couldn't")
+        return deleted
     }
 
     private fun modifiedSec(context: Context, uri: Uri): Long = runCatching {
