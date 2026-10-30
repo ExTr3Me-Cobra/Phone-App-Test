@@ -54,7 +54,10 @@ object AiSearch {
     /** Called when the app starts: keeps the index up to date if the models are here. */
     fun onAppStart(context: Context) {
         // Which AI models are already here (earlier builds downloaded them tool by tool).
-        Thread { runCatching { ModelPack.refreshState(context) } }.start()
+        Thread {
+            runCatching { ModelPack.refreshState(context) }
+            runCatching { com.vipervision.editor.SamsungHandoff.cleanUpLeftovers(context) }
+        }.start()
         runCatching {
             if (!Siglip.isDownloaded(context)) return
             schedule(context)

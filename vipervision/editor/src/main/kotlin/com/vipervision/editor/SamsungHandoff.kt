@@ -173,6 +173,38 @@ object SamsungHandoff {
         } else null
     }
 
+    /**
+     * Deletes temporary pictures left in Pictures/Viper Vision by hand-offs that never came back
+     * (Samsung's editor left another way, or the app was closed meanwhile), with Samsung's saved
+     * copies of them (same name, plus Samsung's ending). Only ones over half an hour old, and
+     * never while a hand-off is under way. Called when the app starts.
+     */
+    fun cleanUpLeftovers(context: Context) {
+        if (active != null) return
+        val cutoff = System.currentTimeMillis() / 1000 - 30 * 60
+        @Suppress("DEPRECATION")
+        val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA, MediaStore.Images.Media.DISPLAY_NAME)
+        runCatching {
+            context.contentResolver.query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ? AND ${MediaStore.Images.Media.DATE_ADDED} < ?",
+                arrayOf("ViperVision_to_Samsung%", cutoff.toString()),
+                null
+            )?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cursor.getLong(0))
+                    val path = cursor.getString(1)
+                    val deleted = runCatching { context.contentResolver.delete(uri, null, null) > 0 }.getOrDefault(false) ||
+                            (path != null && runCatching { java.io.File(path).delete() }.getOrDefault(false).also {
+                                if (it) android.media.MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
+                            })
+                    ViperLog.i("SAMSUNG", "Leftover hand-off picture ${cursor.getString(2)}: " + if (deleted) "deleted" else "couldn't delete")
+                }
+            }
+        }.onFailure { ViperLog.error("SAMSUNG", "couldn't clean up leftover hand-off pictures", it) }
+    }
+
     /** Deletes the temporary picture. */
     fun cleanUp(context: Context, session: Session) {
         runCatching { context.contentResolver.delete(session.exported, null, null) }
