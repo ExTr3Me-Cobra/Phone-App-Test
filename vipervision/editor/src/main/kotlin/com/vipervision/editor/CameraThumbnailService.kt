@@ -283,10 +283,19 @@ class CameraThumbnailService : AccessibilityService() {
      * instead of opening the one before.
      */
     private fun openNewest() {
-        val deadline = System.currentTimeMillis() + 15_000
+        // 200 MP photos have taken over 15 s to be saved.
+        val started = System.currentTimeMillis()
+        val deadline = started + 45_000
         var told = false
+        var lastProbe = ""
         fun attempt() {
             val newest = newestCameraFile()
+            // What appears in the Camera folder meanwhile (also unfinished entries), to see if
+            // Samsung writes anything early that could serve as a quick preview.
+            probeCameraFolder(started).takeIf { it != lastProbe }?.let {
+                lastProbe = it
+                ViperLog.i("CAMERA", "After ${(System.currentTimeMillis() - started) / 100 / 10.0} s: $it")
+            }
             val waitingForShutter = lastShutterAt > 0 && (newest == null || newest.addedMs < lastShutterAt - 2_000)
             val ready = newest != null && !newest.pending && !waitingForShutter
             if (!ready && System.currentTimeMillis() < deadline) {
@@ -329,6 +338,38 @@ class CameraThumbnailService : AccessibilityService() {
     }
 
     private class CameraFile(val path: String, val addedMs: Long, val pending: Boolean)
+
+    /** The newest Camera folder entries since shortly before [sinceMs], with size and state, for the log. */
+    private fun probeCameraFolder(sinceMs: Long): String = runCatching {
+        val collection = MediaStore.Files.getContentUri("external")
+        @Suppress("DEPRECATION")
+        val data = MediaStore.MediaColumns.DATA
+        val where = "$data LIKE '%/DCIM/Camera/%' AND ${MediaStore.MediaColumns.DATE_ADDED} >= ${(sinceMs - 20_000) / 1000}"
+        val projection = arrayOf(data, MediaStore.MediaColumns.SIZE, MediaStore.MediaColumns.IS_PENDING, MediaStore.MediaColumns.WIDTH)
+        val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            contentResolver.query(collection, projection, android.os.Bundle().apply {
+                putString(android.content.ContentResolver.QUERY_ARG_SQL_SELECTION, where)
+                putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_INCLUDE)
+            }, null)
+        } else contentResolver.query(collection, projection, where, null, null)
+        val rows = cursor?.use {
+            buildList {
+                while (it.moveToNext()) {
+                    val path = it.getString(0).orEmpty()
+                    val onDisk = java.io.File(path).length()
+                    add("${path.substringAfterLast('/')} (${it.getLong(1) / 1024} KB listed, ${onDisk / 1024} KB on disk, " +
+                            "${if (it.getInt(2) == 1) "unfinished" else "finished"}, width ${it.getInt(3)})")
+                }
+            }
+        }.orEmpty()
+        // Files that are there but not (yet) in the photo list.
+        val listed = rows.map { it.substringBefore(" (") }.toSet()
+        val dir = java.io.File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DCIM), "Camera")
+        val unlisted = dir.listFiles().orEmpty()
+            .filter { it.lastModified() >= sinceMs - 20_000 && it.name !in listed }
+            .map { "${it.name} (${it.length() / 1024} KB on disk, not listed yet)" }
+        (rows + unlisted).joinToString("; ").ifEmpty { "nothing new" }
+    }.getOrElse { "couldn't look (${it.message})" }
 
     /** The newest photo or video in DCIM/Camera, also one Samsung is still writing (pending). */
     private fun newestCameraFile(): CameraFile? {
