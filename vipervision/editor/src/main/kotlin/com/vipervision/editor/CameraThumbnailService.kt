@@ -95,9 +95,11 @@ class CameraThumbnailService : AccessibilityService() {
             AccessibilityEvent.TYPE_VIEW_CLICKED -> if (pkg == CAMERA_PACKAGE) {
                 val id = event.source?.viewIdResourceName.orEmpty().lowercase()
                 val label = (event.contentDescription ?: event.text.joinToString(" ")).toString().lowercase()
-                if ("shutter" in id || "shutter" in label || "take picture" in label || "capture" in label || "record" in label) {
-                    lastShutterAt = System.currentTimeMillis()
-                }
+                val isShutter = SHUTTER_WORDS.any { it in id || it in label }
+                // Every button the camera reports, so the log shows what its shutter is called.
+                ViperLog.i("CAMERA", "Camera button: id=${id.substringAfter('/').ifEmpty { "-" }} label=\"$label\" class=${event.className}" +
+                        if (isShutter) " (shutter)" else "")
+                if (isShutter) lastShutterAt = System.currentTimeMillis()
             }
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> if (pkg == CAMERA_PACKAGE && !refreshPending) {
                 // Back at the camera after the button was tapped: put it back at once.
@@ -597,6 +599,7 @@ class CameraThumbnailService : AccessibilityService() {
         val EDIT_LABELS = listOf("Edit")
         val SAVE_LABELS = listOf("Save copy", "Save as copy", "Save", "Done")
         const val CAMERA_PACKAGE = "com.sec.android.app.camera"
+        val SHUTTER_WORDS = listOf("shutter", "take picture", "take photo", "capture", "record", "take_picture")
         const val LAST_BOUNDS = "vv_camera_thumbnail_bounds"
         const val SAMSUNG_CAPTURE_PACKAGE = ScreenshotToolbar.SAMSUNG_CAPTURE_PACKAGE
         const val SAMSUNG_TOOLBAR_OFF = "vv_samsung_toolbar_off"
