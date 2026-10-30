@@ -136,7 +136,16 @@ fun maxSafeSide(context: Context, uri: Uri): Int {
     context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
     val width = bounds.outWidth.coerceAtLeast(1)
     val height = bounds.outHeight.coerceAtLeast(1)
-    val budget = Runtime.getRuntime().maxMemory() * 0.55
+    // Photos' pixels live outside Java's heap (Android 8+), so the budget is the phone's free
+    // memory, not the heap limit (512 MB), which scaled big photos down and saved them smaller.
+    val memory = android.app.ActivityManager.MemoryInfo().also {
+        context.getSystemService(android.app.ActivityManager::class.java)?.getMemoryInfo(it)
+    }
+    val budget = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && memory.availMem > 0) {
+        minOf(memory.availMem * 0.35, 1.5e9)
+    } else {
+        Runtime.getRuntime().maxMemory() * 0.55
+    }
     val maxPixels = budget / (4.0 * 3.2)
     val scale = minOf(1.0, sqrt(maxPixels / (width.toDouble() * height)))
     return (max(width, height) * scale).toInt()

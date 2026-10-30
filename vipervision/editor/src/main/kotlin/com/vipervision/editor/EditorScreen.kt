@@ -245,7 +245,10 @@ internal fun EditorScreen(
                                 val viewSize = androidx.compose.ui.geometry.Size(size.width.toFloat(), size.height.toFloat())
                                 do {
                                     val event = awaitPointerEvent()
-                                    zoom.transform(event.calculateCentroid(), event.calculatePan(), event.calculateZoom(), viewSize)
+                                    // Only while fingers are down (see PaintZoom.transform).
+                                    if (event.changes.any { it.pressed }) {
+                                        zoom.transform(event.calculateCentroid(), event.calculatePan(), event.calculateZoom(), viewSize)
+                                    }
                                     event.changes.forEach { if (it.positionChanged()) it.consume() }
                                 } while (event.changes.any { it.pressed })
                             }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -59,6 +60,11 @@ class PaintZoom {
 
     /** Zooms by [zoom] keeping the layout point under [centroid] under the fingers, then pans. */
     fun transform(centroid: Offset, pan: Offset, zoom: Float, size: Size) {
+        // When the last finger lifts there's no point between the fingers ("unspecified", not a
+        // number); used, it moved the photo off the screen (black, until the editor was reopened).
+        if (!centroid.isSpecified || !centroid.x.isFinite() || !centroid.y.isFinite() ||
+            !pan.x.isFinite() || !pan.y.isFinite() || !zoom.isFinite() || zoom <= 0f
+        ) return
         val c = Offset(size.width / 2f, size.height / 2f)
         val anchor = toLayout(centroid, size)
         val newScale = (scale * zoom).coerceIn(1f, 8f)
