@@ -316,37 +316,186 @@ class CameraThumbnailService : AccessibilityService() {
      * instead of opening the one before.
      */
     private fun openNewest() {
-        // 200 MP photos have taken over 15 s to be saved.
+        // 200 MP photos have taken over 45 s to be saved.
         val started = System.currentTimeMillis()
         val deadline = started + 45_000
-        var told = false
         var lastProbe = ""
+        var bridge = false
         fun attempt() {
             val newest = newestCameraFile()
-            // What appears in the Camera folder meanwhile (also unfinished entries), to see if
-            // Samsung writes anything early that could serve as a quick preview.
             probeCameraFolder(started).takeIf { it != lastProbe }?.let {
                 lastProbe = it
                 ViperLog.i("CAMERA", "After ${(System.currentTimeMillis() - started) / 100 / 10.0} s: $it")
             }
             val waitingForShutter = lastShutterAt > 0 && (newest == null || newest.addedMs < lastShutterAt - 2_000)
             val ready = newest != null && !newest.pending && !waitingForShutter
-            if (!ready && System.currentTimeMillis() < deadline) {
-                if (!told) {
-                    told = true
-                    ViperLog.i("CAMERA", "Waiting for the photo just taken to be saved")
-                    Toast.makeText(this, "Saving the photo…", Toast.LENGTH_SHORT).show()
+            if (ready) {
+                if (bridge) {
+                    // Samsung's preview goes, Viper Vision's viewer comes.
+                    ViperLog.i("CAMERA", "Photo saved after ${(System.currentTimeMillis() - started) / 1000} s; leaving Samsung's preview")
+                    removeBridgeBars()
+                    bridgeActive = false
+                    if (frontPackage() == SamsungHandoff.GALLERY) performGlobalAction(GLOBAL_ACTION_BACK)
+                    handler.postDelayed({ open(newest?.path) }, 400)
+                } else {
+                    open(newest?.path)
                 }
-                handler.postDelayed({ attempt() }, 250)
                 return
             }
-            open(newest?.path)
+            if (!bridge) {
+                // Not saved within half a second (quick ones are, and open straight in Viper
+                // Vision): Samsung's own preview has it already; open that, with Viper Vision's
+                // bars over Samsung's, until the photo is saved.
+                if (System.currentTimeMillis() - started >= 500) {
+                    bridge = true
+                    startBridge()
+                }
+            } else if (!bridgeActive) {
+                return // left Samsung's preview (Back): nothing opens later
+            } else if (bridgeBars.isEmpty()) {
+                showBridgeBars()
+            } else if (frontPackage().let { it != null && it != SamsungHandoff.GALLERY }) {
+                ViperLog.i("CAMERA", "Left Samsung's preview before the photo was saved")
+                endBridge()
+                return
+            }
+            if (System.currentTimeMillis() >= deadline) {
+                ViperLog.i("CAMERA", "Still not saved after 45 s; leaving Samsung's preview as it is")
+                endBridge()
+                return
+            }
+            handler.postDelayed({ attempt() }, 250)
         }
         attempt()
     }
 
+    private fun frontPackage(): String? = rootInActiveWindow?.packageName?.toString()
+
+    /** Set while Samsung's preview is shown with Viper Vision's bars over it. */
+    private var bridgeActive = false
+    private val bridgeBars = mutableListOf<View>()
+
+    /** Opens Samsung's own preview (its thumbnail, under the invisible button). */
+    private fun startBridge() {
+        ViperLog.i("CAMERA", "Photo not saved yet; opening Samsung's preview with Viper Vision's bars")
+        bridgeActive = true
+        hiddenUntil = Long.MAX_VALUE
+        val at = shownAt
+        hide()
+        val camera = windows.firstNotNullOfOrNull { w -> w.root?.takeIf { it.packageName == CAMERA_PACKAGE } }
+        val thumbnail = camera?.let { findById(it, "quick_view_button_layout") }
+        if (thumbnail?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true) return
+        // Else tap where the thumbnail is.
+        if (at != null) handler.postDelayed({
+            val path = android.graphics.Path().apply { moveTo(at.exactCenterX(), at.exactCenterY()) }
+            dispatchGesture(
+                android.accessibilityservice.GestureDescription.Builder()
+                    .addStroke(android.accessibilityservice.GestureDescription.StrokeDescription(path, 0, 50))
+                    .build(), null, null
+            )
+        }, 80)
+    }
+
+    private fun findById(root: AccessibilityNodeInfo, id: String): AccessibilityNodeInfo? {
+        var found: AccessibilityNodeInfo? = null
+        fun visit(node: AccessibilityNodeInfo, depth: Int) {
+            if (found != null || depth > 30) return
+            if (node.viewIdResourceName?.endsWith("/$id") == true) {
+                found = node
+                return
+            }
+            for (i in 0 until node.childCount) node.getChild(i)?.let { visit(it, depth + 1) }
+        }
+        visit(root, 0)
+        return found
+    }
+
+    /** Viper Vision's bars over Samsung's top bar and bottom buttons (once its preview is up). */
+    private fun showBridgeBars() {
+        val gallery = windows.firstNotNullOfOrNull { w -> w.root?.takeIf { it.packageName == SamsungHandoff.GALLERY } } ?: return
+        val top = findById(gallery, "toolbar")?.let { Rect().also(it::getBoundsInScreen) } ?: return
+        val bottom = findById(gallery, "bottom_control")?.let { Rect().also(it::getBoundsInScreen) } ?: return
+        val windowManager = getSystemService(WindowManager::class.java) ?: return
+        val accent = appAccentColor(this).toArgb()
+        val density = resources.displayMetrics.density
+        fun params(r: Rect) = WindowManager.LayoutParams(
+            r.width(), r.height(),
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.OPAQUE
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = r.left
+            y = r.top
+        }
+        fun spinner() = android.widget.ProgressBar(this).apply {
+            isIndeterminate = true
+            indeterminateTintList = android.content.res.ColorStateList.valueOf(accent)
+        }
+        val topBar = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setBackgroundColor(android.graphics.Color.BLACK)
+            isClickable = true
+            val pad = (16 * density).toInt()
+            setPadding(pad, 0, pad, 0)
+            addView(android.widget.TextView(context).apply {
+                text = "‹"
+                textSize = 34f
+                setTextColor(android.graphics.Color.WHITE)
+                setPadding(0, 0, pad, (4 * density).toInt())
+                contentDescription = "Back"
+                setOnClickListener {
+                    ViperLog.i("CAMERA", "Back from Samsung's preview (Viper Vision's bar)")
+                    endBridge()
+                    performGlobalAction(GLOBAL_ACTION_BACK)
+                }
+            })
+            addView(android.widget.TextView(context).apply {
+                text = "Finishing photo…"
+                textSize = 18f
+                setTextColor(android.graphics.Color.WHITE)
+            }, android.widget.LinearLayout.LayoutParams(0, android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(spinner(), android.widget.LinearLayout.LayoutParams((28 * density).toInt(), (28 * density).toInt()))
+        }
+        val bottomBar = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setBackgroundColor(android.graphics.Color.BLACK)
+            isClickable = true
+            addView(spinner(), android.widget.LinearLayout.LayoutParams((36 * density).toInt(), (36 * density).toInt()))
+            addView(android.widget.TextView(context).apply {
+                text = "Finishing the full photo. It opens in Viper Vision by itself."
+                textSize = 15f
+                gravity = Gravity.CENTER
+                setTextColor(android.graphics.Color.WHITE)
+                setPadding((24 * density).toInt(), (12 * density).toInt(), (24 * density).toInt(), 0)
+            })
+        }
+        for ((view, rect) in listOf(topBar to top, bottomBar to bottom)) {
+            runCatching { windowManager.addView(view, params(rect)) }.onSuccess { bridgeBars += view }
+        }
+        ViperLog.i("CAMERA", "Viper Vision's bars over Samsung's preview (top $top, bottom $bottom)")
+    }
+
+    private fun removeBridgeBars() {
+        val windowManager = getSystemService(WindowManager::class.java)
+        bridgeBars.forEach { runCatching { windowManager?.removeView(it) } }
+        bridgeBars.clear()
+    }
+
+    /** Back to normal: no bars, no pending opening, the thumbnail button allowed again. */
+    private fun endBridge() {
+        removeBridgeBars()
+        bridgeActive = false
+        openPending = false
+        hiddenUntil = System.currentTimeMillis() + 1_000
+    }
+
     private fun open(path: String?) {
         openPending = false
+        bridgeActive = false
         cameraOnScreen = false
         hiddenUntil = System.currentTimeMillis() + 2_000
         hide()
