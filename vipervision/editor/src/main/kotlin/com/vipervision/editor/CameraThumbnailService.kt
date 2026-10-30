@@ -43,6 +43,12 @@ class CameraThumbnailService : AccessibilityService() {
      * asks again to turn it off (MainActivity.showViperSetup, key "vv_samsung_toolbar_off").
      */
     private fun noticedSamsungToolbar() {
+        // Smart capture also shows a flash and a small preview after every screenshot; only its
+        // toolbar counts.
+        val toolbar = runCatching {
+            windows.any { window -> window.root?.let(ScreenshotToolbar::isSamsungToolbar) == true }
+        }.getOrDefault(false)
+        if (!toolbar) return
         screenshots.samsungToolbarSeenAt = System.currentTimeMillis()
         val prefs = getSharedPreferences("Prefs", MODE_PRIVATE)
         if (!prefs.getBoolean(ScreenshotToolbar.PREF_ENABLED, true) || !prefs.getBoolean(SAMSUNG_TOOLBAR_OFF, false)) return

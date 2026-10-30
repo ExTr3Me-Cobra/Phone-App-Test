@@ -154,7 +154,7 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         fun samsungOnScreen(): Boolean {
             if (samsungToolbarSeenAt > started - 6000) return true
             return runCatching {
-                service.windows.any { it.root?.packageName == SAMSUNG_CAPTURE_PACKAGE }
+                service.windows.any { window -> window.root?.let(::isSamsungToolbar) == true }
             }.getOrDefault(false)
         }
         fun finish(passed: Boolean) {
@@ -568,6 +568,28 @@ class ScreenshotToolbar(private val service: AccessibilityService) {
         const val CHECK_RESULT = "vv_toolbar_check_result"
         const val CHECK_SHOTS = "vv_toolbar_check_shots"
         const val SAMSUNG_CAPTURE_PACKAGE = "com.samsung.android.app.smartcapture"
+
+        /** Buttons only Samsung's screenshot toolbar has (not its capture flash or preview). */
+        private val TOOLBAR_LABELS = listOf("scroll capture", "scroll", "draw", "crop", "tag", "edit", "share")
+
+        /**
+         * Whether [root] (a window) is Samsung's screenshot toolbar: from Smart capture, with at
+         * least two of the toolbar's buttons. Smart capture also shows a flash and a small
+         * preview after every screenshot with the toolbar off, which mustn't count.
+         */
+        fun isSamsungToolbar(root: android.view.accessibility.AccessibilityNodeInfo): Boolean {
+            if (root.packageName?.toString() != SAMSUNG_CAPTURE_PACKAGE) return false
+            val found = HashSet<String>()
+            fun visit(node: android.view.accessibility.AccessibilityNodeInfo, depth: Int) {
+                if (depth > 25 || found.size >= 2) return
+                val text = (node.contentDescription ?: node.text)?.toString()?.trim()?.lowercase().orEmpty()
+                val id = node.viewIdResourceName.orEmpty().lowercase()
+                TOOLBAR_LABELS.firstOrNull { text == it || id.endsWith("/$it") || id.contains("toolbar") }?.let { found += it + id }
+                for (i in 0 until node.childCount) node.getChild(i)?.let { visit(it, depth + 1) }
+            }
+            visit(root, 0)
+            return found.size >= 2
+        }
         private const val MAX_AGE_SECONDS = 15
         private const val SHARE_FOLDER = "vv_shared_screenshots"
         private const val KEEP_SHARED_COPY_MS = 24L * 60 * 60 * 1000
