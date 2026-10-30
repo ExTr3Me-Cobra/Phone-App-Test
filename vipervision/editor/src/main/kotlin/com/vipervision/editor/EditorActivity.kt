@@ -454,6 +454,8 @@ class EditorActivity : ComposeActivity() {
             ViperLog.error("EDITOR", "runAi failed", it)
             Toast.makeText(this@EditorActivity, "${tool.label} failed: ${it.message}", Toast.LENGTH_LONG).show()
         }
+        withContext(Dispatchers.IO) { aiRunner.release() }
+        ViperLog.i("AI", "Models released. ${ViperLog.memory()}")
         controller.busyMessage = null
         controller.isBusy = false
     }
@@ -648,6 +650,7 @@ class EditorActivity : ComposeActivity() {
             ViperLog.error("EDITOR", "applyPaint failed", it)
             Toast.makeText(this@EditorActivity, "$label failed: ${it.message}", Toast.LENGTH_LONG).show()
         }
+        if (session.generative) withContext(Dispatchers.IO) { aiRunner.release() }
         controller.busyMessage = null
         controller.isBusy = false
     }
@@ -855,6 +858,8 @@ class EditorActivity : ComposeActivity() {
             controller.draw?.close()
             controller.markup?.close()
             controller.cropStudio?.close()
+            // Nothing keeps AI models loaded once the editor is closed.
+            Thread { aiRunner.release() }.start()
         }
     }
 

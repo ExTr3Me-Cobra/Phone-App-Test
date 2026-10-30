@@ -148,6 +148,14 @@ object LaMaProcessor : NeuralTool() {
         }
     }
 
+    /** Viper Vision: frees the loaded model (hundreds of MB); the next use loads it again. */
+    fun releaseSession() {
+        synchronized(this) {
+            sessionHolder?.close()
+            sessionHolder = null
+        }
+    }
+
     suspend fun deleteModel() = withContext(Dispatchers.IO) {
         synchronized(this@LaMaProcessor) {
             sessionHolder?.close()

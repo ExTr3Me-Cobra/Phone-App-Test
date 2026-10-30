@@ -397,6 +397,9 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
     }
 
     override fun onDestroy() {
+        // The setup popup goes with this screen (it's shown again when the screen is).
+        viperSetupDialog?.dismiss()
+        viperSetupDialog = null
         super.onDestroy()
         if (!isChangingConfigurations) {
             config.temporarilyShowHidden = false

@@ -41,7 +41,10 @@ object ObjectEraser {
         val soft = blendMask.softened(grow)
         if (soft !== blendMask) blendMask.recycle()
         try {
-            // filled keeps only where the soft mask is white, then goes over the original.
+            // filled keeps only where the soft mask is white, then goes over the original. It's a
+            // copy of the photo, so opaque for a JPEG: then the cut-away part turned black instead
+            // of see-through, and covered the whole photo but the fill.
+            filled.setHasAlpha(true)
             Canvas(filled).drawBitmap(soft, 0f, 0f, Paint(Paint.FILTER_BITMAP_FLAG).apply {
                 colorFilter = RED_TO_ALPHA
                 xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)

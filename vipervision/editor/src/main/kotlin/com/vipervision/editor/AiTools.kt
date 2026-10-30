@@ -145,6 +145,16 @@ class AiRunner(private val repository: AiToolsRepository<Bitmap>) {
 
     val downloadedModels get() = repository.downloadedModels
 
+    /**
+     * Frees the loaded AI models. Each holds hundreds of MB to GBs of native memory; kept loaded,
+     * they ran the phone so low that the photo couldn't be drawn (a black screen, especially
+     * zoomed in). The next run loads its model again.
+     */
+    fun release() {
+        runCatching { repository.cleanup() }
+        runCatching { com.t8rin.neural_tools.inpaint.LaMaProcessor.releaseSession() }
+    }
+
     fun isReady(choice: AiChoice): Boolean =
         choice.isBundled || repository.downloadedModels.value.any { it.name == choice.modelName }
 
