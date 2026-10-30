@@ -91,6 +91,14 @@ class CameraThumbnailService : AccessibilityService() {
             }
             // The viewfinder changes constantly; look at most every 60 ms instead of waiting for
             // it to settle (which kept putting the button off while the camera started).
+            // The shutter: a new photo is on its way (200 MP ones take seconds to be saved).
+            AccessibilityEvent.TYPE_VIEW_CLICKED -> if (pkg == CAMERA_PACKAGE) {
+                val id = event.source?.viewIdResourceName.orEmpty().lowercase()
+                val label = (event.contentDescription ?: event.text.joinToString(" ")).toString().lowercase()
+                if ("shutter" in id || "shutter" in label || "take picture" in label || "capture" in label || "record" in label) {
+                    lastShutterAt = System.currentTimeMillis()
+                }
+            }
             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> if (pkg == CAMERA_PACKAGE && !refreshPending) {
                 // Back at the camera after the button was tapped: put it back at once.
                 if (button == null && !onCameraSettings && !isLocked() &&
@@ -235,9 +243,35 @@ class CameraThumbnailService : AccessibilityService() {
         shownAt = null
     }
 
-    /** Opens the newest photo or video in DCIM/Camera in Viper Vision's viewer. */
+    /** When the camera's shutter was last tapped (0 if not since the service started). */
+    private var lastShutterAt = 0L
+
+    /**
+     * Opens the newest photo or video in DCIM/Camera in Viper Vision's viewer. If a photo was just
+     * taken and isn't saved yet (the thumbnail shows it before the file exists), waits for it
+     * instead of opening the one before.
+     */
     private fun openNewest() {
-        val path = newestCameraFile()
+        val deadline = System.currentTimeMillis() + 15_000
+        var told = false
+        fun attempt() {
+            val newest = newestCameraFile()
+            val waitingForShutter = lastShutterAt > 0 && (newest == null || newest.addedMs < lastShutterAt - 2_000)
+            val ready = newest != null && !newest.pending && !waitingForShutter
+            if (!ready && System.currentTimeMillis() < deadline) {
+                if (!told) {
+                    told = true
+                    Toast.makeText(this, "Saving the photo…", Toast.LENGTH_SHORT).show()
+                }
+                handler.postDelayed({ attempt() }, 250)
+                return
+            }
+            open(newest?.path)
+        }
+        attempt()
+    }
+
+    private fun open(path: String?) {
         if (path == null) {
             Toast.makeText(this, "No photos or videos in the Camera folder yet", Toast.LENGTH_SHORT).show()
             return
@@ -257,22 +291,30 @@ class CameraThumbnailService : AccessibilityService() {
         }
     }
 
-    private fun newestCameraFile(): String? {
+    private class CameraFile(val path: String, val addedMs: Long, val pending: Boolean)
+
+    /** The newest photo or video in DCIM/Camera, also one Samsung is still writing (pending). */
+    private fun newestCameraFile(): CameraFile? {
         val collection = MediaStore.Files.getContentUri("external")
         @Suppress("DEPRECATION")
         val data = MediaStore.MediaColumns.DATA
         val where = "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE} OR " +
                 "${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO}) AND " +
                 "$data LIKE '%/DCIM/Camera/%'"
+        val projection = arrayOf(MediaStore.Files.FileColumns._ID, data, MediaStore.MediaColumns.DATE_ADDED, MediaStore.MediaColumns.IS_PENDING)
+        val order = "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.Files.FileColumns._ID} DESC"
         return runCatching {
-            contentResolver.query(
-                collection,
-                arrayOf(MediaStore.Files.FileColumns._ID, data),
-                where,
-                null,
-                "${MediaStore.MediaColumns.DATE_ADDED} DESC, ${MediaStore.Files.FileColumns._ID} DESC"
-            )?.use { cursor ->
-                if (cursor.moveToFirst()) cursor.getString(1) else null
+            val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                contentResolver.query(collection, projection, android.os.Bundle().apply {
+                    putString(android.content.ContentResolver.QUERY_ARG_SQL_SELECTION, where)
+                    putString(android.content.ContentResolver.QUERY_ARG_SQL_SORT_ORDER, order)
+                    putInt(MediaStore.QUERY_ARG_MATCH_PENDING, MediaStore.MATCH_INCLUDE)
+                }, null)
+            } else {
+                contentResolver.query(collection, projection, where, null, order)
+            }
+            cursor?.use {
+                if (it.moveToFirst()) CameraFile(it.getString(1), it.getLong(2) * 1000, it.getInt(3) == 1) else null
             }
         }.getOrNull()
     }
