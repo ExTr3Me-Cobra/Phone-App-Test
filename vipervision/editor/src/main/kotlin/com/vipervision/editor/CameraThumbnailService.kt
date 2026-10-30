@@ -73,6 +73,14 @@ class CameraThumbnailService : AccessibilityService() {
         if (pkg == SAMSUNG_CAPTURE_PACKAGE) {
             noticedSamsungToolbar()
         }
+        if (cameraOnScreen) lastCameraAt = System.currentTimeMillis()
+        // Samsung's own preview opened from the camera (its thumbnail): log its layout, to fit
+        // Viper Vision's bars over it later.
+        if (pkg == SamsungHandoff.GALLERY && event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+            SamsungHandoff.active == null && System.currentTimeMillis() - lastCameraAt < 15_000
+        ) {
+            handler.postDelayed({ logPreviewLayout() }, 800)
+        }
         when (event.eventType) {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 // The system UI (notifications, keyboard) and our own overlays (plain views) don't
@@ -115,6 +123,26 @@ class CameraThumbnailService : AccessibilityService() {
     }
 
     private var refreshPending = false
+    private var lastCameraAt = 0L
+
+    /** Samsung's preview's buttons and texts with where they are, for the log. */
+    private fun logPreviewLayout() {
+        val root = windows.firstNotNullOfOrNull { w -> w.root?.takeIf { it.packageName == SamsungHandoff.GALLERY } } ?: return
+        val lines = mutableListOf<String>()
+        fun visit(node: AccessibilityNodeInfo, depth: Int) {
+            if (depth > 30 || lines.size >= 60) return
+            val text = node.text?.toString().orEmpty()
+            val desc = node.contentDescription?.toString().orEmpty()
+            val id = node.viewIdResourceName?.substringAfter(":id/").orEmpty()
+            if (text.isNotEmpty() || desc.isNotEmpty() || id.isNotEmpty()) {
+                val r = Rect().also(node::getBoundsInScreen)
+                lines += "[$text|$desc|$id @${r.left},${r.top}-${r.right},${r.bottom}${if (node.isClickable) "|tap" else ""}]"
+            }
+            for (i in 0 until node.childCount) node.getChild(i)?.let { visit(it, depth + 1) }
+        }
+        visit(root, 0)
+        ViperLog.i("CAMERA", "Samsung's preview (${root.className}): ${lines.joinToString(" ")}")
+    }
     private var onCameraSettings = false
 
     private fun schedule(delayMs: Long) {
@@ -134,6 +162,11 @@ class CameraThumbnailService : AccessibilityService() {
     /** Puts the button over the thumbnail, moves it, or removes it. */
     private fun update() {
         refreshPending = false
+        // Settings → "Camera thumbnail opens Viper Vision" off: Samsung's preview as usual.
+        if (!getSharedPreferences("Prefs", MODE_PRIVATE).getBoolean(SHORTCUT_PREF, true)) {
+            hide()
+            return
+        }
         // Follows the window in front: the camera's viewfinder (also when coming back to it, e.g.
         // with Back from Viper Vision's viewer, which doesn't always announce the camera again),
         // and not Viper Vision's viewer over it.
@@ -656,6 +689,7 @@ class CameraThumbnailService : AccessibilityService() {
         val EDIT_LABELS = listOf("Edit")
         val SAVE_LABELS = listOf("Save copy", "Save as copy", "Save", "Done")
         const val CAMERA_PACKAGE = "com.sec.android.app.camera"
+        const val SHORTCUT_PREF = "vv_camera_shortcut"
         const val SPINNER = "vv_camera_spinner"
         val SHUTTER_WORDS = listOf("shutter", "take picture", "take photo", "capture", "record", "take_picture")
         const val LAST_BOUNDS = "vv_camera_thumbnail_bounds"

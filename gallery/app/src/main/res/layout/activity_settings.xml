@@ -83,6 +83,21 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/settings_vv_camera_shortcut_holder"
+                style="@style/SettingsHolderSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyMaterialSwitch
+                    android:id="@+id/settings_vv_camera_shortcut"
+                    style="@style/SettingsSwitchStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/vv_camera_shortcut_toggle" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/settings_vv_screenshot_toolbar_holder"
                 style="@style/SettingsHolderSwitchStyle"
                 android:layout_width="match_parent"

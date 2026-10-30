@@ -166,6 +166,14 @@ class SettingsActivity : SimpleActivity() {
             binding.settingsVvSamsungAi.toggle()
             prefs.edit().putBoolean("vv_samsung_ai", binding.settingsVvSamsungAi.isChecked).apply()
         }
+        // Samsung Camera's thumbnail opening Viper Vision (the editor's CameraThumbnailService,
+        // key "vv_camera_shortcut"); off, the thumbnail opens Samsung's preview as usual.
+        binding.settingsVvCameraShortcutHolder.beVisibleIf(isSamsung)
+        binding.settingsVvCameraShortcut.isChecked = prefs.getBoolean("vv_camera_shortcut", true)
+        binding.settingsVvCameraShortcutHolder.setOnClickListener {
+            binding.settingsVvCameraShortcut.toggle()
+            prefs.edit().putBoolean("vv_camera_shortcut", binding.settingsVvCameraShortcut.isChecked).apply()
+        }
         // Viper Vision's screenshot toolbar (the editor's ScreenshotToolbar, run by the same
         // accessibility service as the camera shortcut). Key shared through the "Prefs" file.
         // On by default on Samsung phones (whose own toolbar it replaces).
