@@ -224,8 +224,22 @@ class CameraThumbnailService : AccessibilityService() {
         }
         val view = button
         if (view == null) {
-            val created = View(this).apply {
+            val created = android.widget.FrameLayout(this).apply {
                 contentDescription = "Open in Viper Vision"
+                // Shown over the thumbnail while waiting for a just-taken photo to be saved
+                // (a 200 MP one can take 10+ seconds), so it's clear the tap worked.
+                addView(android.widget.ProgressBar(context).apply {
+                    isIndeterminate = true
+                    indeterminateTintList = android.content.res.ColorStateList.valueOf(appAccentColor(context).toArgb())
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        shape = android.graphics.drawable.GradientDrawable.OVAL
+                        setColor(0xAA000000.toInt())
+                    }
+                    val pad = (bounds.width() * 0.18f).toInt()
+                    setPadding(pad, pad, pad, pad)
+                    visibility = View.GONE
+                    tag = SPINNER
+                }, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
                 setOnClickListener {
                     // One opening at a time: while it waits for the photo to be saved, more taps
                     // land here and do nothing (instead of opening a viewer each, or reaching
@@ -236,6 +250,7 @@ class CameraThumbnailService : AccessibilityService() {
                     }
                     openPending = true
                     ViperLog.i("CAMERA", "Thumbnail tapped")
+                    findViewWithTag<View>(SPINNER)?.visibility = View.VISIBLE
                     openNewest()
                 }
             }
@@ -243,6 +258,7 @@ class CameraThumbnailService : AccessibilityService() {
         } else {
             runCatching { windowManager.updateViewLayout(view, params) }
         }
+        button?.findViewWithTag<View>(SPINNER)?.visibility = if (openPending) View.VISIBLE else View.GONE
         shownAt = bounds
     }
 
@@ -599,6 +615,7 @@ class CameraThumbnailService : AccessibilityService() {
         val EDIT_LABELS = listOf("Edit")
         val SAVE_LABELS = listOf("Save copy", "Save as copy", "Save", "Done")
         const val CAMERA_PACKAGE = "com.sec.android.app.camera"
+        const val SPINNER = "vv_camera_spinner"
         val SHUTTER_WORDS = listOf("shutter", "take picture", "take photo", "capture", "record", "take_picture")
         const val LAST_BOUNDS = "vv_camera_thumbnail_bounds"
         const val SAMSUNG_CAPTURE_PACKAGE = ScreenshotToolbar.SAMSUNG_CAPTURE_PACKAGE
