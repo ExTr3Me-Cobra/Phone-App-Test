@@ -110,9 +110,13 @@ class EditorController {
     val workingFile: File?
         get() = state.pixelSteps.takeIf { it.isNotEmpty() }?.let { aiResults[it]?.file }
 
-    /** Remove background makes transparency, which JPEG can't hold. */
+    /**
+     * Remove background makes transparency, which JPEG can't hold. Only steps after the last
+     * Samsung edit count: Samsung's result replaces the whole picture (opaque), so transparency
+     * from before it is gone (and saving made a PNG copy instead of saving over the original).
+     */
     val needsPng: Boolean
-        get() = state.pixelSteps.any {
+        get() = state.pixelSteps.drop(state.pixelSteps.indexOfLast { it is PixelStep.Samsung } + 1).any {
             (it is PixelStep.Ai && it.tool == AiTool.RemoveBackground) || it is PixelStep.CutOut || (it is PixelStep.AiModel && it.alpha) ||
                     (it is PixelStep.Crop && it.alpha)
         }
