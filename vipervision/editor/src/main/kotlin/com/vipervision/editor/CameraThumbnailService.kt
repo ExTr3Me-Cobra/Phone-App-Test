@@ -200,6 +200,8 @@ class CameraThumbnailService : AccessibilityService() {
     }
 
     private fun show(bounds: Rect) {
+        // Just after opening the viewer, the camera is still in front for a moment: not yet.
+        if (System.currentTimeMillis() < hiddenUntil) return
         val windowManager = getSystemService(WindowManager::class.java) ?: return
         val params = WindowManager.LayoutParams(
             bounds.width(),
@@ -223,10 +225,15 @@ class CameraThumbnailService : AccessibilityService() {
             val created = View(this).apply {
                 contentDescription = "Open in Viper Vision"
                 setOnClickListener {
-                    // Gone the moment it's pressed, so repeated taps can't open more viewers;
-                    // it comes back only when the camera comes back.
-                    cameraOnScreen = false
-                    hide()
+                    // One opening at a time: while it waits for the photo to be saved, more taps
+                    // land here and do nothing (instead of opening a viewer each, or reaching
+                    // Samsung's thumbnail underneath).
+                    if (openPending) {
+                        ViperLog.i("CAMERA", "Thumbnail tapped again while opening; ignored")
+                        return@setOnClickListener
+                    }
+                    openPending = true
+                    ViperLog.i("CAMERA", "Thumbnail tapped")
                     openNewest()
                 }
             }
@@ -242,6 +249,12 @@ class CameraThumbnailService : AccessibilityService() {
         button = null
         shownAt = null
     }
+
+    /** Set from a tap on the thumbnail until the viewer is opened. */
+    private var openPending = false
+
+    /** The button stays away until then (just after opening the viewer). */
+    private var hiddenUntil = 0L
 
     /** When the camera's shutter was last tapped (0 if not since the service started). */
     private var lastShutterAt = 0L
@@ -261,6 +274,7 @@ class CameraThumbnailService : AccessibilityService() {
             if (!ready && System.currentTimeMillis() < deadline) {
                 if (!told) {
                     told = true
+                    ViperLog.i("CAMERA", "Waiting for the photo just taken to be saved")
                     Toast.makeText(this, "Saving the photo…", Toast.LENGTH_SHORT).show()
                 }
                 handler.postDelayed({ attempt() }, 250)
@@ -272,6 +286,11 @@ class CameraThumbnailService : AccessibilityService() {
     }
 
     private fun open(path: String?) {
+        openPending = false
+        cameraOnScreen = false
+        hiddenUntil = System.currentTimeMillis() + 2_000
+        hide()
+        ViperLog.i("CAMERA", "Opening ${path?.substringAfterLast('/') ?: "nothing (no photos)"}")
         if (path == null) {
             Toast.makeText(this, "No photos or videos in the Camera folder yet", Toast.LENGTH_SHORT).show()
             return
