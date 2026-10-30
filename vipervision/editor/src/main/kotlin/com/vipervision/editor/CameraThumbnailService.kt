@@ -476,6 +476,7 @@ class CameraThumbnailService : AccessibilityService() {
                 addView(android.widget.TextView(context).apply {
                     text = "Opening in Viper Vision…"
                     textSize = 16f
+                    gravity = Gravity.CENTER
                     setTextColor(android.graphics.Color.WHITE)
                     setPadding(0, (16 * density).toInt(), 0, 0)
                 })
@@ -497,13 +498,25 @@ class CameraThumbnailService : AccessibilityService() {
                 topMargin = systemBarHeight("status_bar_height")
             })
         }
+        // Exactly the screen (allowed past its edges, the window's middle wasn't the screen's).
+        val screen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            windowManager.currentWindowMetrics.bounds.let { it.width() to it.height() }
+        } else {
+            android.util.DisplayMetrics().also {
+                @Suppress("DEPRECATION")
+                windowManager.defaultDisplay.getRealMetrics(it)
+            }.let { it.widthPixels to it.heightPixels }
+        }
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,
+            screen.first, screen.second,
             WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             PixelFormat.OPAQUE
         ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = 0
+            y = 0
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             }
