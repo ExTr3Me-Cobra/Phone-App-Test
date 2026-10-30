@@ -28,7 +28,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
+import com.t8rin.imagetoolbox.core.data.remote.NetworkAllowList
+import io.ktor.client.plugins.HttpSend
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.plugin
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -69,6 +72,17 @@ internal interface RemoteModule {
                     }
                 }
                 level = LogLevel.HEADERS
+            }
+        }.apply {
+            // Viper Vision: every request must be on the allow-list (the download servers GitHub
+            // and Hugging Face redirect to are on it too).
+            plugin(HttpSend).intercept { request ->
+                val url = request.url.build()
+                if (!NetworkAllowList.allows(url)) {
+                    "Blocked: ${url.host}".makeLog("Network")
+                    throw java.io.IOException("Viper Vision doesn't connect to ${url.host}")
+                }
+                execute(request)
             }
         }
     }
